@@ -94,5 +94,7 @@ class CNode
 		void setNodeId(int NodeId);
 		ENodeType getNodeType();
 		void setNodeType(ENodeType NodeType);
+		void CreateIndexCollection();
+		void CreateDataTypeCollection();
 	};
 #endif // Node_h

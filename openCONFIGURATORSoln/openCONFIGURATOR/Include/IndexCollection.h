@@ -87,7 +87,7 @@ class CIndexCollection
 	public:
 		void addIndex(CIndex objIndex);
 		int getNumberofIndexes();
-		CIndex getIndex(int Count);
+		CIndex* getIndex(int Count);
 		
 		
 	};

@@ -84,9 +84,9 @@ void CIndexCollection::addIndex(CIndex objIndex)
 		m_IndexCount= collectionObj.Count();
 
 	}
-CIndex CIndexCollection::getIndex(int Count)
+CIndex* CIndexCollection::getIndex(int Count)
 	{
-		return collectionObj[Count];
+		return &collectionObj[Count];
 	}
 int CIndexCollection::getNumberofIndexes()
 	{return m_IndexCount;}

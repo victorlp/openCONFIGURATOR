@@ -80,11 +80,11 @@ class CApplication
 		CApplication(void);
 		~CApplication(void);
 	public:
-		string XDDfilename;
-		string ProjectPath;
+		char* XDDfilename;
+		char* ProjectPath;
 	public:
-		void ParseXDDfile(string filename);
-		int checkFileStatus(string filename);		
+		void ParseXDDfile(char* filename);
+		int checkFileStatus(char* filename);		
 		
 	};
 

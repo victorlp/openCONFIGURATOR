@@ -111,7 +111,9 @@ void CNode::setNodeId(int NodeId)
 /****************************************************************************************************/
 
 CIndexCollection* CNode::getIndexCollection()
-	{return m_IndexCollection;}
+	{
+		return m_IndexCollection;
+	}
 
 /**************************************************************************************************
 	* Function Name: setIndex
@@ -119,5 +121,11 @@ CIndexCollection* CNode::getIndexCollection()
 /****************************************************************************************************/
 CDataTypeCollection* CNode::getDataTypeCollection()
 	{return m_DataTypeCollection;}
+void CNode::CreateIndexCollection() 
+	{
+		CIndexCollection* objIndexCollection;
+		objIndexCollection = new CIndexCollection();
+		m_IndexCollection =objIndexCollection ;
+	}
 
 #pragma endregion Properties

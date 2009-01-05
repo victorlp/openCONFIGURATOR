@@ -87,7 +87,7 @@ class CIndex  : public CBaseIndex
 		TCollection<CSubIndex> collectionObj;
 	public :
 		void addSubIndex(CSubIndex objSubIndex);
-		void getNumberofSubIndexes();
+		int getNumberofSubIndexes();
 			
 	};
 #endif // Index_h

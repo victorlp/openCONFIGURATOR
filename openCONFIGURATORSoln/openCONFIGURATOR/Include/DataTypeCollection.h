@@ -69,7 +69,7 @@
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
-#include "../Include/Declarations.h"
+#include "Declarations.h"
 #include "TCollection.h"
 class CDataTypeCollection
 	{

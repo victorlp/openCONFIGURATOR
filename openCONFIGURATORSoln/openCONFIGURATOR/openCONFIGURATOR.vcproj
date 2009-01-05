@@ -44,6 +44,7 @@
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
+				DisableLanguageExtensions="false"
 				WarningLevel="3"
 				DebugInformationFormat="4"
 			/>
@@ -183,6 +184,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\Evaluate.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\Index.cpp"
 				>
 			</File>
@@ -262,6 +267,10 @@
 			</File>
 			<File
 				RelativePath=".\Include\ObjectDictionary.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Include\openCONFIGURATOR.h"
 				>
 			</File>
 			<File

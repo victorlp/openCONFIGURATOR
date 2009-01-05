@@ -80,17 +80,54 @@ class CBaseIndex
 		~CBaseIndex(void);
 
 	private:
-		string m_Name;
-		string m_Index;
-		string m_DefaultValue;
+		char*			m_Name;
+		char*			m_Index;		
+		char*			m_LowLimit;
+		char*			m_HighLimit;
+		EObjectType		m_objectType;
+		DataType		m_dataType;		
+		char*			m_accessType;
+		char*			m_DefaultValue;
+		char*			m_ActualValue;
+		EPDOMapping		m_pdoMapping;
+
+
+
+
 	public :
-		string getName(); 		
-		void setName(string Name);
-		string getIndex();			
-		void setIndex(string Index);		
-		void setValue(string Value);
+		char* getName(); 		
+		void setName(char* Name);
+
+		char* getIndex();			
+		void setIndex(char* Index);
+
+		char* getDefaultValue();
+		void setDefaultValue(char* Value);
+
+		char* getActualValue();
+		void setActualValue(char* Value);
+		
+		char* getAccessType();
+		void setAccessType(char* Access);
+
+		char* getLowLimit();
+		void setLowLimit(char* LowLimit);
+
+		char* getHighLimit();
+		void setHighLimit(char* HighLimit);
+
+		DataType getDataType();
+		void setDataType(char* dataTypeValue);
+
+		EPDOMapping getPDOMapping();
+		void setPDOMapping(char* pdoMappingValue);
+
+		EObjectType getObjectType();
+		void setObjectType(int objectTypeValue);
+
 		void ValidateIndex();
-		void SaveChanges(string Name, string Value);
+		void SaveChanges(char* Name, char* Value);
+		
 		
 	};
 #endif //BaseIndex_h

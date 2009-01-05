@@ -85,8 +85,10 @@ class CNodeCollection
 		static CNodeCollection *objNodeCollection;
 	public :
 		int getNumberOfNodes();
-		void addNode(CNode  objNode,ENodeType nodeType);
-		static CNodeCollection* getNodeColObject();
-		CNode* getNode(ENodeType nodeType,int NodeID);
+		void addNode(CNode  objNode);
+		static CNodeCollection* getNodeColObjectPointer();
+		CNode getNode(ENodeType nodeType,int NodeID);
+		void addToIndexCollection(CIndex *objIndex);
+		static CNodeCollection getNodeColObject();
 	};
 #endif // NodeCollection_h

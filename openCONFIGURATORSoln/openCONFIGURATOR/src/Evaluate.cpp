@@ -1,5 +1,3 @@
-#ifndef openCONFIGURATOR_h
-#define openCONFIGURATOR_h
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //
 //  $Header: $
@@ -68,12 +66,15 @@
 //  REVISION HISTORY:
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
-#include "NodeCollection.h"
-#include "Socket.h"
-#include "StackOperations.h"
-#include "ObjectDictionary.h"
-#include "Declarations.h"
 
+#include "../Include/Declarations.h"
+char* ConvertToUpper(char* str)
+	{
+		int t;
 
-#endif // openCONFIGURATOR_h
-
+		for(t=0; str[t]; ++t)
+		{
+			str[t] = toupper(str[t]);
+		}
+		return str;
+	}

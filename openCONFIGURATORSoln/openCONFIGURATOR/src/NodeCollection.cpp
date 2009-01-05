@@ -82,7 +82,7 @@ CNodeCollection* CNodeCollection::objNodeCollection=NULL;
 
 int CNodeCollection::getNumberOfNodes()
 	{return m_NodeCount;}
-void CNodeCollection::addNode(CNode objNode, ENodeType nodeType)
+void CNodeCollection::addNode(CNode objNode)
 	{
 		
 		int i = collectionObj.Add();
@@ -90,7 +90,7 @@ void CNodeCollection::addNode(CNode objNode, ENodeType nodeType)
 		m_NodeCount= collectionObj.Count();
 
 	}
-CNodeCollection* CNodeCollection::getNodeColObject()
+CNodeCollection* CNodeCollection::getNodeColObjectPointer()
 	{
 		if(!instanceFlag)
 			{
@@ -100,7 +100,17 @@ CNodeCollection* CNodeCollection::getNodeColObject()
 		return objNodeCollection;
 		
 	}
-CNode* CNodeCollection::getNode(ENodeType nodeType,int NodeID)
+CNodeCollection CNodeCollection::getNodeColObject()
+	{
+		if(!instanceFlag)
+			{
+				objNodeCollection = new CNodeCollection();
+				instanceFlag=true;
+			}
+		return *objNodeCollection;
+		
+	}
+CNode CNodeCollection::getNode(ENodeType nodeType,int NodeID)
 	{
 		int count;
 		for(count=0; count<m_NodeCount ;count++)
@@ -109,9 +119,10 @@ CNode* CNodeCollection::getNode(ENodeType nodeType,int NodeID)
 				objNode = objNodeCollection->collectionObj[count];
 				if(objNode.getNodeType()==nodeType && objNode.getNodeId()==NodeID)
 				{
-					return &objNode;
+					return objNode;
 				}
 				
 			}
 		
 	}
+

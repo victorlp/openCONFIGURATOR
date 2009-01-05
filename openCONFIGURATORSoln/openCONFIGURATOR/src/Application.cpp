@@ -77,12 +77,12 @@ CApplication::CApplication(void)
 CApplication::~CApplication(void)
 	{
 	}
-void CApplication::ParseXDDfile(string filename)
+void CApplication::ParseXDDfile(char* filename)
 	{
 	}
-int CApplication::checkFileStatus(std::string filename) 
+int CApplication::checkFileStatus(char* filename) 
 	{
-		ifstream file (filename.c_str(), ios::in|ios::binary|ios::ate);
+		ifstream file (filename, ios::in|ios::binary|ios::ate);
 		if (file.is_open()) return 1;
 		else return 0;
 

@@ -74,44 +74,42 @@ using namespace std;
 /************************************************************************************************
 Constants
 ************************************************************************************************/
-const int MN_NODEID=249;
-
+const int MN_NODEID=240;
 /************************************************************************************************
 Enumerations
 ************************************************************************************************/
 
-enum EObjectType
-	{
-		VAR,
-		RECORD,
-		DEFSTRUCT,
-		ARRAY
-
-	};
-enum EPDOMapping
-	{
+typedef enum {	
+		DEFTYPE = 5,
+		DEFSTRUCT = 6,
+		VAR = 7,
+		ARRAY = 8,
+		RECORD = 9,	
+	}EObjectType;
+typedef enum {
 		NO,
 		DEFAULT
 		
-	};
-enum ENodeType
-	{MN,CN};
-struct DataType
-	{
-		string Name;
-		string Index;
+	}EPDOMapping;
+typedef enum {
+	MN=0,
+	CN=1}ENodeType;
+	struct DataType 
+		{
+		char* Name;
+		char* Index;
 	};
 //struct SubIndex
 //	{
-//		string Name;
-//		string Index;
+//		char* Name;
+//		char* Index;
 //		EObjectType objectType;
 //		DataType dataType;
-//		string lowLimit;
-//		string highLimit;
-//		string accessType;
-//		string defaultValue;
-//		string actualValue;
+//		char* lowLimit;
+//		char* highLimit;
+//		char* accessType;
+//		char* defaultValue;
+//		char* actualValue;
 //		EPDOMapping PDOMapping;	
 //
 //	};
@@ -125,10 +123,11 @@ struct ProcessImage
 /* Function Declarations
 /*****************************************************************************************/
 
-void ImportXML(string filename, string filePath);
+void ImportXML(char* filename, char* filePath,int NodeType,int NodeID);
 void LoadObjectDictionary();
 void CreateTree();
-void GenerateCDC(string fileName, string filePath);
+void GenerateCDC(char* fileName, char* filePath);
 void GenerateMNOBD();
-void parseFile(string filename,int NodeType,int NodeId) ;
+void parseFile(char* filename,int NodeType,int NodeId) ;
+char* ConvertToUpper(char* str);
 #endif // declarations_h
