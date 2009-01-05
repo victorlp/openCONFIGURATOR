@@ -1,12 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual C++ Express 2008
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UserInterface", "..\UserInterface\UserInterface.vcproj", "{8F822960-A012-4E20-9BA3-F6341A481301}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "openCONFIGLIB", "..\openCONFIGLIB\openCONFIGLIB.vcproj", "{E5A30ED2-338B-4781-8B31-4FA98A761AB4}"
-	ProjectSection(ProjectDependencies) = postProject
-		{8F822960-A012-4E20-9BA3-F6341A481301} = {8F822960-A012-4E20-9BA3-F6341A481301}
-	EndProjectSection
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "openCONFIGURATOR", "openCONFIGURATOR\openCONFIGURATOR.vcproj", "{0141C9C5-E267-4AD0-9E6C-1E80ECF5E438}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -14,14 +9,8 @@ Global
 		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{8F822960-A012-4E20-9BA3-F6341A481301}.Debug|Win32.ActiveCfg = Debug|Win32
-		{8F822960-A012-4E20-9BA3-F6341A481301}.Debug|Win32.Build.0 = Debug|Win32
-		{8F822960-A012-4E20-9BA3-F6341A481301}.Release|Win32.ActiveCfg = Release|Win32
-		{8F822960-A012-4E20-9BA3-F6341A481301}.Release|Win32.Build.0 = Release|Win32
-		{E5A30ED2-338B-4781-8B31-4FA98A761AB4}.Debug|Win32.ActiveCfg = Debug|Win32
-		{E5A30ED2-338B-4781-8B31-4FA98A761AB4}.Debug|Win32.Build.0 = Debug|Win32
-		{E5A30ED2-338B-4781-8B31-4FA98A761AB4}.Release|Win32.ActiveCfg = Release|Win32
-		{E5A30ED2-338B-4781-8B31-4FA98A761AB4}.Release|Win32.Build.0 = Release|Win32
+		{0141C9C5-E267-4AD0-9E6C-1E80ECF5E438}.Debug|Win32.ActiveCfg = Debug|Win32
+		{0141C9C5-E267-4AD0-9E6C-1E80ECF5E438}.Release|Win32.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
