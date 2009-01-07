@@ -76,7 +76,12 @@ CIndex::~CIndex(void)
 	{
 	}
 
-
+EPDOType CIndex::getPDOType() 
+	{
+		return m_PDOType;
+	}
+void CIndex::setPDOType(EPDOType PDOType)
+	{ m_PDOType = PDOType;}
 #pragma region MemberFunctions
 /**************************************************************************************************
 	* Function Name: addSubIndex

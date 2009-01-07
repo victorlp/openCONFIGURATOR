@@ -90,6 +90,7 @@ class CBaseIndex
 		char*			m_DefaultValue;
 		char*			m_ActualValue;
 		EPDOMapping		m_pdoMapping;
+		int				m_NodeID;
 
 
 
@@ -124,6 +125,9 @@ class CBaseIndex
 
 		EObjectType getObjectType();
 		void setObjectType(int objectTypeValue);
+
+		int getNodeID();
+		void setNodeID(int NodeID);
 
 		void ValidateIndex();
 		void SaveChanges(char* Name, char* Value);

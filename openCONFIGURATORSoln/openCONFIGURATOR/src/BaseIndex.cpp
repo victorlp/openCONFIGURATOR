@@ -1,4 +1,5 @@
 #include "../Include/BaseIndex.h"
+#include "../Include/NodeCollection.h"
 
 CBaseIndex::CBaseIndex(void)
 	{
@@ -6,9 +7,10 @@ CBaseIndex::CBaseIndex(void)
 		m_ActualValue= new char;
 		m_Index = new char;
 		m_Name = new char;
-		m_LowLimit= new char;
-		m_HighLimit= new char;
-		m_accessType= new char;
+		m_LowLimit = new char;
+		m_HighLimit = new char;
+		m_accessType = new char;
+		m_dataType.Name = NULL;
 	}
 
 CBaseIndex::~CBaseIndex(void)
@@ -189,11 +191,35 @@ DataType CBaseIndex::getDataType ()
 	* Function Name: setDataType
     * Description: sets the DataType of the Index Object
 /****************************************************************************************************/
-void CBaseIndex::setDataType(char* dataType)
+void CBaseIndex::setDataType(char* dataTypeName)
 	{	
-		
+		DataType dt;
+		CNodeCollection* objNodeCol;
+		objNodeCol= CNodeCollection::getNodeColObjectPointer();
+		CNode objNode = objNodeCol->getNode(CN,m_NodeID);
+		CDataTypeCollection* dtcol;
+		dtcol=objNode.getDataTypeCollection();
+		dt = dtcol->getDataType(dataTypeName);
+		m_dataType= dt;
+		/*m_dataType.DataTypeValue =dt.DataTypeValue;
+		m_dataType.Name =dt.Name ;*/
 	}
+/**************************************************************************************************
+	* Function Name: getNodeID
+    * Description: Returns the NodeID of the Node of the Index Object
+/****************************************************************************************************/
 
+int CBaseIndex::getNodeID()
+	{return m_NodeID;}
+
+/**************************************************************************************************
+	* Function Name: setNodeID
+    * Description: sets the NodeID of the Index Object
+/****************************************************************************************************/
+void CBaseIndex::setNodeID(int NodeID)
+	{	
+		m_NodeID = NodeID;
+	}
 #pragma endregion Properties
 
 #pragma region MemberFunctions

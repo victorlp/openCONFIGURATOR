@@ -80,6 +80,20 @@ void CDataTypeCollection::addDataType(DataType objDataType)
 	{
 		int i = collectionObj.Add();
 		collectionObj[i] = objDataType;
-		Count= collectionObj.Count();
+		m_DataTypeCount= collectionObj.Count();
 	}
+int CDataTypeCollection::getNumberOfDataTypes()
+	{ return collectionObj.Count();}
+DataType* CDataTypeCollection::getDataType(int DataTypeId)
+	{ return &collectionObj[DataTypeId];}
+DataType CDataTypeCollection::getDataType(char* DatatypeValue)
+	{
+		for(int i=0;i<this->getNumberOfDataTypes() ;i++)
+			{
+				DataType* dt;
+				dt=this->getDataType(i);
+				if(strcmp(dt->DataTypeValue,DatatypeValue)==0)
+					return *dt;
 
+			}
+	}

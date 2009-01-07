@@ -77,11 +77,15 @@ class CDataTypeCollection
 		CDataTypeCollection(void);
 		~CDataTypeCollection(void);
 	private:
-		int Count;
+		int m_DataTypeCount;
 		
 	private:
 		TCollection<DataType> collectionObj;
 	public:
 		void addDataType(DataType objDataType);
+		int getNumberOfDataTypes();
+		DataType* getDataType(int DataTypeId);
+		DataType getDataType(char* Name);
+
 	};
 #endif // DataTypeCollection_h

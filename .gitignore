@@ -9,3 +9,5 @@ Release
 *~
 *.orig
 *.bak
+*.a
+*.so

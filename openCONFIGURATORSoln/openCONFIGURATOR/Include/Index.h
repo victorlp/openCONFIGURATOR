@@ -82,13 +82,16 @@ class CIndex  : public CBaseIndex
 
 		
 	private:		
-		int m_SubIndexCount;		
+		int m_SubIndexCount;
+		EPDOType m_PDOType;
 	private:
 		TCollection<CSubIndex> collectionObj;
 	public :
 		void addSubIndex(CSubIndex objSubIndex);
 		int getNumberofSubIndexes();
 		CSubIndex* getSubIndex(int SubIndexId);
+		EPDOType getPDOType();
+		void setPDOType(EPDOType PDOType);
 			
 	};
 #endif // Index_h

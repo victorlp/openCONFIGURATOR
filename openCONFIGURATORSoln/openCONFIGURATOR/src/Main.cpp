@@ -74,9 +74,13 @@
 #include <libxml\xmlreader.h>
 #include <errno.h>
 
+const char* RPDO_COMM_PARAM="1400";
+const char* RPDO_MAPP_PARAM="1600";
+const char* TPDO_COMM_PARAM="1800";
+const char* TPDO_MAPP_PARAM="1A00";
+
 char* strerr;
 int LastIndexParsed=0;
-
 void LoadObjectDictionary()
 	{
 	
@@ -88,10 +92,23 @@ static void setIndexAttributes(xmlTextReaderPtr reader, CIndex* objIndex)
 		const xmlChar* name,*value;
 		//Retrieve the name and Value of an attribute
 		value = xmlTextReaderConstValue(reader);
-		name =xmlTextReaderConstName(reader);							
+		name =xmlTextReaderConstName(reader);		
 
-		if(strcmp(ConvertToUpper((char*)name), "INDEX")==0)						
-		objIndex->setIndexValue((char*)value);
+
+		if(strcmp(ConvertToUpper((char*)name), "INDEX")==0)
+			{
+				objIndex->setIndexValue((char*)value);
+				char* data=(char*)value;
+				if(strcmp(data,RPDO_COMM_PARAM )==0 ||strcmp(data,RPDO_MAPP_PARAM) ==0)
+					{
+						objIndex->setPDOType(RPDO);
+					}
+				else if(strcmp(data,TPDO_COMM_PARAM )==0 ||strcmp(data,TPDO_MAPP_PARAM) ==0)
+					{
+						objIndex->setPDOType(TPDO);
+					}
+
+			}
 
 		if(strcmp(ConvertToUpper((char*)name), "NAME")==0)					
 		objIndex->setName((char*)value);
@@ -159,18 +176,62 @@ static void setSubIndexAttributes(xmlTextReaderPtr reader, CSubIndex* objSubInde
 		objSubIndex->setDataType((char*)value);							
 																	
 	}
+static void setDataTypeAttributes(xmlTextReaderPtr reader ,DataType* objDataType)
+	{
+		const xmlChar* name,*value;
+		int ret;
+
+		objDataType->DataTypeValue = new char;
+		objDataType->Name = new char;
+		objDataType->DataSize = new char;
+
+		
+		//Retrieve the name and Value of an attribute
+		value = xmlTextReaderConstValue(reader);
+		name =xmlTextReaderConstName(reader);							
+
+		if(strcmp(ConvertToUpper((char*)name), "DATATYPE")==0)						
+		{
+			strcpy(objDataType->DataTypeValue, (char*)value);
+		}
+
+
+
+		//Read the Equivalent name of a datatype
+		ret = xmlTextReaderRead(reader);
+
+		value = xmlTextReaderConstValue(reader);
+		name =xmlTextReaderConstName(reader);
+		
+		strcpy(objDataType->Name, (char*)name);
+		
+		if((strcmp(ConvertToUpper(objDataType->Name),"UNSIGNED8")==0) ||
+			(strcmp(ConvertToUpper(objDataType->Name),"BOOLEAN")==0 ) ||
+			(strcmp(ConvertToUpper(objDataType->Name),"INTEGER8")==0 ))
+				strcpy(objDataType->DataSize,"0001");
+
+		if((strcmp(ConvertToUpper(objDataType->Name),"UNSIGNED16")==0) ||
+			(strcmp(ConvertToUpper(objDataType->Name),"INTEGER16")==0 ))
+			strcpy(objDataType->DataSize,"0002");
+
+		if((strcmp(ConvertToUpper(objDataType->Name),"UNSIGNED32")==0) ||
+			(strcmp(ConvertToUpper(objDataType->Name),"INTEGER32")==0 ) ||
+			(strcmp(ConvertToUpper(objDataType->Name),"REAL32")==0 ))
+			strcpy(objDataType->DataSize,"0004");
+		
+	}
 /**************************************************************************************************
 	* Function Name: ImportXML
     * Description: Imports the XML file
 /****************************************************************************************************/
-static void ImportXML(char* fileName,char* filePath,char* errorString,int NodeID,int NodeType)
+int ImportXML(char* fileName, char* errorString, int NodeID, ENodeType NodeType)
 	{
 		/*char* fileLocation;
 		fileLocation= fileName + filePath;*/
 		//fileLocation ="E:\\Kalycito\\checkout\\Source\\SharedLibrary\\openCONFIGURATORSoln\\XMLParser\\12345678_MyName.xml";
-		parseFile("E:\\Kalycito\\checkout\\Source\\SharedLibrary\\openCONFIGURATORSoln\\XMLParser\\12345678_MyName.xml",(ENodeType)NodeType,NodeID);
+		//parseFile("E:\\Kalycito\\checkout\\Source\\SharedLibrary\\openCONFIGURATORSoln\\XMLParser\\12345678_MyName_BitCoding.xml",(ENodeType)NodeType,NodeID);
 
-
+		parseFile(fileName,NodeID,NodeType);
 		//Cleanup function for the XML library.
    
 		 xmlCleanupParser();
@@ -178,7 +239,8 @@ static void ImportXML(char* fileName,char* filePath,char* errorString,int NodeID
      * this is to debug memory for regression tests
      */
     xmlMemoryDump();
-    /*return(0);*/
+    
+		return(1);
 
 
 	}
@@ -189,11 +251,11 @@ static void ImportXML(char* fileName,char* filePath,char* errorString,int NodeID
 void processNode(xmlTextReaderPtr reader,ENodeType NodeType,int NodeID)
 {
     const xmlChar *name, *value;
-	CIndex objIndex;
+	
 	char* AttributeName;
 	CNodeCollection *objNodeCollection;
 	CNode objNode;
-	CSubIndex objSubIndex;
+	
 	
 	
     name = xmlTextReaderConstName(reader);
@@ -204,10 +266,35 @@ void processNode(xmlTextReaderPtr reader,ENodeType NodeType,int NodeID)
 	//If the NodeTYPE is ELEMENT
 	if( xmlTextReaderNodeType(reader)==1)
 		{
-			if(strcmp((char*)name,"Object")==0)
+			if(strcmp(((char*)name),"defType")==0)
+				{
+					objNodeCollection= CNodeCollection::getNodeColObjectPointer();
+					CDataTypeCollection* objDataTypeCollection;					
+					DataType objDataType;
+					if (xmlTextReaderHasAttributes(reader)==1)
+						{						
+							while(xmlTextReaderMoveToNextAttribute(reader))
+								{
+									setDataTypeAttributes(reader, &objDataType);																									
+								}
+						}
+
+					objNode = objNodeCollection->getNode(NodeType,NodeID);							
+					objDataTypeCollection = objNode.getDataTypeCollection();
+					objDataTypeCollection->addDataType(objDataType);
+						
+
+				}
+
+			if(strcmp(((char*)name),"Object")==0)
 				{
 					objNodeCollection= CNodeCollection::getNodeColObjectPointer();
 					CIndexCollection* objIndexCollection;
+					CIndex objIndex;
+
+					//Set the NodeID
+					objIndex.setNodeID(NodeID);
+
 					if (xmlTextReaderHasAttributes(reader)==1)
 						{						
 							while(xmlTextReaderMoveToNextAttribute(reader))
@@ -217,17 +304,21 @@ void processNode(xmlTextReaderPtr reader,ENodeType NodeType,int NodeID)
 						}
 						objNode = objNodeCollection->getNode(NodeType,NodeID);							
 						objIndexCollection = objNode.getIndexCollection();
-
+						
 						//Add Index object to the IndexCollection
 						objIndexCollection->addIndex(objIndex);
 
 						LastIndexParsed = objIndexCollection->getNumberofIndexes()-1;
 						
 				}
-			if(strcmp((char*)name,"SubObject")==0 )
+			if(strcmp(((char*)name),"SubObject")==0 )
 				{
 					objNodeCollection = CNodeCollection::getNodeColObjectPointer();
 					CIndexCollection* objIndexCollection;
+					CSubIndex objSubIndex;
+					//Set the NodeID
+						objSubIndex.setNodeID(NodeID);
+
 					if (xmlTextReaderHasAttributes(reader) ==1)
 						{
 							
@@ -238,7 +329,9 @@ void processNode(xmlTextReaderPtr reader,ENodeType NodeType,int NodeID)
 						}
 						CIndex* objIndexPtr;
 						objNode =objNodeCollection->getNode(NodeType,NodeID);
-							
+						
+						
+
 						objIndexCollection =objNode.getIndexCollection();
 						objIndexPtr =objIndexCollection->getIndex(LastIndexParsed);
 						objIndexPtr->addSubIndex(objSubIndex);
@@ -252,7 +345,7 @@ void processNode(xmlTextReaderPtr reader,ENodeType NodeType,int NodeID)
 	* Function Name: parseFile
     * Description: Parses the XML file
 /****************************************************************************************************/
-void parseFile(char* filename,ENodeType  NodeType,int NodeID) 
+void parseFile(char* filename, int NodeID, ENodeType  NodeType) 
 {
     xmlTextReaderPtr reader;
     int ret;
@@ -304,8 +397,13 @@ static void CreateNode(int NodeID, ENodeType NodeType)
 		objNode.setNodeId(NodeID);
 		objNode.setNodeType(NodeType);
 		
+		objNode.CreateIndexCollection();
+		objNode.CreateDataTypeCollection();
+
 		objNodeCollection = CNodeCollection::getNodeColObjectPointer();
 		objNodeCollection->addNode(objNode);
+
+		
 
 		
 	}
@@ -313,18 +411,48 @@ static void CreateNode(int NodeID, ENodeType NodeType)
 	* Function Name: GenerateCDC
     * Description: Generates the CDC file
 /****************************************************************************************************/
-void GenerateCDC(char* fileName, char* filePath)
+void GenerateCDC(char* fileName)
 	{
-		CNode objMNNode;		
-		char* fullFileName;
-
-		//get the MN Node object from the NodeCollection
-		/*fullFileName = fileName + filePath;*/
+		CNode objMNNode;	
+		CIndexCollection* objIndexCollection;
 		ofstream file;
-		//file.open(fullFileName);
+		char* Buffer1;
 
+		Buffer1 = new char;
+		//get the MN Node object from the NodeCollection
+		CNodeCollection* objNodeCollection;
+		objNodeCollection = CNodeCollection::getNodeColObjectPointer();
+		objMNNode = objNodeCollection->getNode(CN,1);
+		file.open(fileName);
 
-		//char *WriteBuffer;		
+		objIndexCollection = objMNNode.getIndexCollection();
+		strcpy(Buffer1,"");
+		for(int i=0;i < objIndexCollection->getNumberofIndexes ();i++)
+			{
+				CIndex* objIndex;
+				objIndex = objIndexCollection->getIndex(i);
+				strcat(Buffer1,objIndex->getIndexValue());
+
+				strcat(Buffer1,"\t");
+
+				if(objIndex->getNumberofSubIndexes() ==0)
+					strcat(Buffer1,"00");
+
+				strcat(Buffer1,"\t");
+
+				DataType dt;			
+				dt = objIndex->getDataType();
+				if(dt.Name != NULL)
+					{
+						strcat(Buffer1 ,dt.DataSize);
+						
+					}
+				strcat(Buffer1,"\n");
+			}
+		
+		file << Buffer1 <<endl;
+		strcpy(Buffer1,"");
+		file.close();
 
 	}
 /**************************************************************************************************
@@ -378,19 +506,21 @@ int main(int argc, char **argv) {
 	CNode objNode;
 	objNode.setNodeId(1);
 	objNode.setNodeType(CN);
-
-	objNode.CreateIndexCollection();
+	CreateNode(1,CN);
+	
 	objNodeCollection->addNode(objNode);
 	objNodecol.addNode(objNode);
 	printf("Total Nodes %d\n",objNodecol.getNumberOfNodes());
 	printf("Total Nodes %d\n",objNodeCollection->getNumberOfNodes());
 
-	parseFile("E:\\Kalycito\\checkout\\Source\\SharedLibrary\\openCONFIGURATORSoln\\XMLParser\\12345678_MyName.xml",CN,1);
+	parseFile("E:\\Kalycito\\checkout\\Source\\SharedLibrary\\openCONFIGURATORSoln\\XMLParser\\12345678_MyName.xml",1,CN);
 
 	/* Show the Indexes*/
 	int i;
 	CIndexCollection* obj;
-	obj =objNode.getIndexCollection();
+	objNode= objNodeCollection->getNode(CN,1);
+	obj =objNode.getPDOIndexCollection(TPDO);
+	obj=objNode.getIndexCollection();
 	for (i=0;i<obj->getNumberofIndexes();i++)
 		{
 			CIndex* objIndex;
@@ -402,17 +532,24 @@ int main(int argc, char **argv) {
 	
 	
 			CIndex *objIndex;
-			objIndex = obj->getIndex(8);
-			CSubIndex* objsub;
-			objsub= objIndex->getSubIndex(1);
+			objIndex = obj->getIndex(1);
+			/*CSubIndex* objsub;
+			objsub= objIndex->getSubIndex(1);*/
 
 
-
+			CDataTypeCollection* dtcol;
+			dtcol= objNode.getDataTypeCollection();
+			DataType* dt;
+			dt=dtcol->getDataType(0);
+			printf("DataType Name: %s", dt->Name);
+			DataType  t;
+			t= objIndex->getDataType();
 			//index=objIndex.getNumberofSubIndexes();
 			printf("Number of subindexes: %d",objIndex->getNumberofSubIndexes());
-			printf("SubIndex Name: %s",objsub->getName());
+		/*	printf("SubIndex Name: %s",objsub->getName());*/
 			//printf("Index: %s Name: %s\n",index,objIndex.getName());
-	
+			char* fileName="C:\\TEST.CDC";
+	GenerateCDC(fileName);
     /*
      * Cleanup function for the XML library.
      */
@@ -424,3 +561,21 @@ int main(int argc, char **argv) {
     return(0);
 }
 
+/**************************************************************************************************
+	* Function Name: ProcessPDONodes
+    * Description: Processes the Node
+/****************************************************************************************************/
+void CreateProcessImage(xmlTextReaderPtr reader)
+	{
+		CNode objMNNode;		
+		char* fullFileName;
+
+		//get the MN Node object from the NodeCollection
+		/*fullFileName = fileName + filePath;*/
+		ofstream file;
+		//file.open(fullFileName);
+
+
+		//char *WriteBuffer;		
+
+	}

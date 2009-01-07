@@ -88,7 +88,7 @@ class CNodeCollection
 		void addNode(CNode  objNode);
 		static CNodeCollection* getNodeColObjectPointer();
 		CNode getNode(ENodeType nodeType,int NodeID);
-		void addToIndexCollection(CIndex *objIndex);
+		//void addToIndexCollection(CIndex *objIndex);
 		static CNodeCollection getNodeColObject();
 	};
 #endif // NodeCollection_h

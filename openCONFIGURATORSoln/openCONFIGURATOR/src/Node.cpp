@@ -133,6 +133,18 @@ void CNode::CreateDataTypeCollection()
 		objDataTypeCollection = new CDataTypeCollection();
 		m_DataTypeCollection = objDataTypeCollection ;
 	}
+CIndexCollection* CNode::getPDOIndexCollection(EPDOType PDOType)
+	{
+		CIndexCollection* PDOCollection = new CIndexCollection();
+		for(int count=0;count<m_IndexCollection->getNumberofIndexes();count++)
+			{
+				CIndex* objIndex;
+				objIndex = m_IndexCollection->getIndex(count);
+				if(objIndex->getPDOType() ==PDOType)
+					PDOCollection->addIndex(*objIndex);
+			}
+		return PDOCollection;
+	}
 
 #pragma endregion Properties
 

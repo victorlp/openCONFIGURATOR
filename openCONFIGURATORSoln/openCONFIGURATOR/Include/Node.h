@@ -81,6 +81,7 @@ class CNode
 	private:
 		CDataTypeCollection *m_DataTypeCollection;
 		CIndexCollection *m_IndexCollection;
+		
 		int m_NodeId;
 		ENodeType m_NodeType;
 		
@@ -96,5 +97,7 @@ class CNode
 		void setNodeType(ENodeType NodeType);
 		void CreateIndexCollection();
 		void CreateDataTypeCollection();
+		CIndexCollection* getPDOIndexCollection(EPDOType PDOType);
+		
 	};
 #endif // Node_h
