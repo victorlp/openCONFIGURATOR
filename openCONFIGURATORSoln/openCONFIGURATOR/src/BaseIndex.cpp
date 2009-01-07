@@ -30,18 +30,18 @@ char* CBaseIndex::getName()
 void CBaseIndex::setName(char* Name)
 	{strcpy(m_Name, Name); }
 /**************************************************************************************************
-	* Function Name: getIndex
+	* Function Name: getIndexValue
     * Description: Returns the Index of the Index Object
 /****************************************************************************************************/
 
-char* CBaseIndex::getIndex()
+char* CBaseIndex::getIndexValue()
 	{return m_Index;}
 
 /**************************************************************************************************
 	* Function Name: setIndex
     * Description: sets the Index of the Index Object
 /****************************************************************************************************/
-void CBaseIndex::setIndex(char* Index)
+void CBaseIndex::setIndexValue(char* Index)
 	{strcpy(m_Index, Index); }
 /**************************************************************************************************
 	* Function Name: getLowLimit

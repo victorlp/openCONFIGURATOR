@@ -98,8 +98,8 @@ class CBaseIndex
 		char* getName(); 		
 		void setName(char* Name);
 
-		char* getIndex();			
-		void setIndex(char* Index);
+		char* getIndexValue();			
+		void setIndexValue(char* Index);
 
 		char* getDefaultValue();
 		void setDefaultValue(char* Value);

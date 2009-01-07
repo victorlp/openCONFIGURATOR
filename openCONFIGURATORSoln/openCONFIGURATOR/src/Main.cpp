@@ -91,7 +91,7 @@ static void setIndexAttributes(xmlTextReaderPtr reader, CIndex* objIndex)
 		name =xmlTextReaderConstName(reader);							
 
 		if(strcmp(ConvertToUpper((char*)name), "INDEX")==0)						
-		objIndex->setIndex((char*)value);
+		objIndex->setIndexValue((char*)value);
 
 		if(strcmp(ConvertToUpper((char*)name), "NAME")==0)					
 		objIndex->setName((char*)value);
@@ -129,7 +129,7 @@ static void setSubIndexAttributes(xmlTextReaderPtr reader, CSubIndex* objSubInde
 		name =xmlTextReaderConstName(reader);							
 
 		if(strcmp(ConvertToUpper((char*)name), "SUBINDEX")==0)						
-		objSubIndex->setIndex((char*)value);
+		objSubIndex->setIndexValue((char*)value);
 
 		if(strcmp(ConvertToUpper((char*)name), "NAME")==0)					
 		objSubIndex->setName((char*)value);
@@ -396,7 +396,7 @@ int main(int argc, char **argv) {
 			CIndex* objIndex;
 			objIndex = obj->getIndex(i);
 			char* index;
-			index=objIndex->getIndex();
+			index=objIndex->getIndexValue();
 			printf("Index: %s Name: %s\n",index,objIndex->getName());
 		}
 	
