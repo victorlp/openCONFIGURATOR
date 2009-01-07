@@ -131,3 +131,4 @@ class CBaseIndex
 		
 	};
 #endif //BaseIndex_h
+

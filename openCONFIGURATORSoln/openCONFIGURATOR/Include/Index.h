@@ -88,6 +88,8 @@ class CIndex  : public CBaseIndex
 	public :
 		void addSubIndex(CSubIndex objSubIndex);
 		int getNumberofSubIndexes();
+		CSubIndex* getSubIndex(int SubIndexId);
 			
 	};
 #endif // Index_h
+

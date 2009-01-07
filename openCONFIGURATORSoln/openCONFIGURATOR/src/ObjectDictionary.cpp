@@ -75,3 +75,4 @@ CObjectDictionary::CObjectDictionary(void)
 CObjectDictionary::~CObjectDictionary(void)
 	{
 	}
+

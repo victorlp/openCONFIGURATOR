@@ -246,10 +246,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Include\globals.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Include\Index.h"
 				>
 			</File>

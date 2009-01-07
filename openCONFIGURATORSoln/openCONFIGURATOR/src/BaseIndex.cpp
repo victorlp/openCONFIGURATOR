@@ -206,4 +206,12 @@ void CBaseIndex::SaveChanges(char* Index,char* Name)
 		m_Index = Index;
 		m_Name  = Name;
 	}
+/**************************************************************************************************
+	* Function Name: ValidateIndex
+    * Description: Saves the changes of the Index properties
+/****************************************************************************************************/
+void CBaseIndex::ValidateIndex()
+	{
+		
+	}
 #pragma endregion MemberFunctions

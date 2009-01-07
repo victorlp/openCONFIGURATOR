@@ -79,3 +79,4 @@ public:
 	StackOperations(void);
 	~StackOperations(void);
 };
+

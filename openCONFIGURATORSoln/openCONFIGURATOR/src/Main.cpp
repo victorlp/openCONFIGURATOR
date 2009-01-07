@@ -403,9 +403,14 @@ int main(int argc, char **argv) {
 	
 			CIndex *objIndex;
 			objIndex = obj->getIndex(8);
-			CSubIndex objsub;
+			CSubIndex* objsub;
+			objsub= objIndex->getSubIndex(1);
+
+
+
 			//index=objIndex.getNumberofSubIndexes();
 			printf("Number of subindexes: %d",objIndex->getNumberofSubIndexes());
+			printf("SubIndex Name: %s",objsub->getName());
 			//printf("Index: %s Name: %s\n",index,objIndex.getName());
 	
     /*
@@ -418,3 +423,4 @@ int main(int argc, char **argv) {
     xmlMemoryDump();
     return(0);
 }
+

@@ -86,8 +86,8 @@ class CNode
 		
 
 	public:
-		void addDataTypeList(CDataTypeCollection objDataTypeCol);
-		void addIndexTypeList(CIndexCollection objIndexCol);
+		/*void addDataTypeList(CDataTypeCollection objDataTypeCol);
+		void addIndexTypeList(CIndexCollection objIndexCol);*/
 		CDataTypeCollection* getDataTypeCollection();
 		CIndexCollection* getIndexCollection();
 		int getNodeId();

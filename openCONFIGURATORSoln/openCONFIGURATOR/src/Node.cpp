@@ -127,5 +127,13 @@ void CNode::CreateIndexCollection()
 		objIndexCollection = new CIndexCollection();
 		m_IndexCollection =objIndexCollection ;
 	}
+void CNode::CreateDataTypeCollection() 
+	{
+		CDataTypeCollection* objDataTypeCollection;
+		objDataTypeCollection = new CDataTypeCollection();
+		m_DataTypeCollection = objDataTypeCollection ;
+	}
 
 #pragma endregion Properties
+
+

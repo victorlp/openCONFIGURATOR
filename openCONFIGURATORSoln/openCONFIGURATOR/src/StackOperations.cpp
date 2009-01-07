@@ -76,3 +76,4 @@ StackOperations::StackOperations(void)
 StackOperations::~StackOperations(void)
 {
 }
+

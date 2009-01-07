@@ -127,7 +127,7 @@ void ImportXML(char* filename, char* filePath,int NodeType,int NodeID);
 void LoadObjectDictionary();
 void CreateTree();
 void GenerateCDC(char* fileName, char* filePath);
-void GenerateMNOBD();
+//void GenerateMNOBD();
 void parseFile(char* filename,int NodeType,int NodeId) ;
 char* ConvertToUpper(char* str);
 #endif // declarations_h

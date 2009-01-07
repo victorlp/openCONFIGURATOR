@@ -89,3 +89,4 @@ class CApplication
 	};
 
 #endif // Application_h
+

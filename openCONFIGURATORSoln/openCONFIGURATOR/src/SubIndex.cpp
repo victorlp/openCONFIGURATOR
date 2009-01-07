@@ -76,3 +76,4 @@ CSubIndex::CSubIndex(void)
 CSubIndex::~CSubIndex(void)
 	{
 	}
+

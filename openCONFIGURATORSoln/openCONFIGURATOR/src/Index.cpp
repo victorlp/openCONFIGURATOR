@@ -91,4 +91,9 @@ void CIndex::addSubIndex(CSubIndex objSubIndex)
 	}
 int CIndex::getNumberofSubIndexes()
 	{return collectionObj.Count();}
+
+CSubIndex* CIndex::getSubIndex(int SubIndexId)
+	{
+		return &collectionObj[SubIndexId];
+	}
 #pragma endregion MemberFunctions

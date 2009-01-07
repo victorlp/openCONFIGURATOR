@@ -82,3 +82,4 @@ void CDataTypeCollection::addDataType(DataType objDataType)
 		collectionObj[i] = objDataType;
 		Count= collectionObj.Count();
 	}
+
