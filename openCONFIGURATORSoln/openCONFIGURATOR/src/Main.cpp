@@ -97,7 +97,7 @@ static void setIndexAttributes(xmlTextReaderPtr reader, CIndex* objIndex)
 		objIndex->setName((char*)value);
 
 		if(strcmp(ConvertToUpper((char*)name), "OBJECTTYPE")==0)					
-		objIndex->setObjectType((int)value);
+		objIndex->setObjectType(atoi((const char*)value));
 
 		if(strcmp(ConvertToUpper((char*)name), "LOWLIMIT")==0)					
 		objIndex->setLowLimit((char*)value);
