@@ -66,7 +66,7 @@
 //  REVISION HISTORY:
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
-
+//#pragma comment(lib, "..//\\debug\\libxml2.lib")
 #include "../Include/openCONFIGURATOR.h"
 #include <iostream>
 #include <fstream>
@@ -423,6 +423,18 @@ void GenerateCDC(char* fileName)
 		CNodeCollection* objNodeCollection;
 		objNodeCollection = CNodeCollection::getNodeColObjectPointer();
 		objMNNode = objNodeCollection->getNode(CN,1);
+		if(file.is_open())
+			{printf("x");}
+		FILE* fileptr;
+		if (( fileptr = fopen(fileName,"w")) == NULL)
+			{
+				printf ( "Cannot open file you have named...!\n" );
+			
+			}
+		else
+			{
+			}
+
 		file.open(fileName);
 
 		objIndexCollection = objMNNode.getIndexCollection();
@@ -450,9 +462,12 @@ void GenerateCDC(char* fileName)
 				strcat(Buffer1,"\n");
 			}
 		
+
 		file << Buffer1 <<endl;
+		
 		strcpy(Buffer1,"");
 		file.close();
+		
 
 	}
 /**************************************************************************************************
@@ -548,7 +563,7 @@ int main(int argc, char **argv) {
 			printf("Number of subindexes: %d",objIndex->getNumberofSubIndexes());
 		/*	printf("SubIndex Name: %s",objsub->getName());*/
 			//printf("Index: %s Name: %s\n",index,objIndex.getName());
-			char* fileName="C:\\TEST.CDC";
+			char* fileName="C:\\Try.CDC";
 	GenerateCDC(fileName);
     /*
      * Cleanup function for the XML library.
