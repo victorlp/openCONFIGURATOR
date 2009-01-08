@@ -69,6 +69,7 @@
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
 #include <string>
+
 using namespace std;
 
 /************************************************************************************************
@@ -130,4 +131,5 @@ void GenerateCDC(char* fileName);
 void CreateNode(int NodeID, ENodeType NodeType);
 void parseFile(char* filename, int NodeID, ENodeType  NodeType);
 char* ConvertToUpper(char* str);
+
 #endif // declarations_h

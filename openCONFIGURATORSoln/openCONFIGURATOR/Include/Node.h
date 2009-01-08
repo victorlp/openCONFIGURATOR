@@ -84,6 +84,7 @@ class CNode
 		
 		int m_NodeId;
 		ENodeType m_NodeType;
+		int m_NodeIndex;
 		
 
 	public:
@@ -93,6 +94,8 @@ class CNode
 		CIndexCollection* getIndexCollection();
 		int getNodeId();
 		void setNodeId(int NodeId);
+		int getNodeIndex();
+		void setNodeIndex(int NodeIndex);
 		ENodeType getNodeType();
 		void setNodeType(ENodeType NodeType);
 		void CreateIndexCollection();
