@@ -93,6 +93,7 @@ void CIndex::addSubIndex(CSubIndex objSubIndex)
 		int i = collectionObj.Add();
 		collectionObj[i] = objSubIndex ;
 		m_SubIndexCount= collectionObj.Count();
+		
 	}
 int CIndex::getNumberofSubIndexes()
 	{return collectionObj.Count();}

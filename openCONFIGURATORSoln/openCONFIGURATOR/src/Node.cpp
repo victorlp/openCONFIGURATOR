@@ -92,7 +92,7 @@ ENodeType CNode:: getNodeType()
 void CNode::setNodeType(ENodeType NodeType)
 	{m_NodeType = NodeType; }
 /**************************************************************************************************
-	* Function Name: getIndex
+	* Function Name: getNodeId
     * Description: Returns the Index of the Index Object
 /****************************************************************************************************/
 
@@ -104,7 +104,24 @@ int CNode::getNodeId()
     * Description: sets the Index of the Index Object
 /****************************************************************************************************/
 void CNode::setNodeId(int NodeId)
-	{m_NodeId = NodeId; }
+	{
+		m_NodeId = NodeId;
+		
+	}
+/**************************************************************************************************
+	* Function Name: getNodeId
+    * Description: Returns the Index of the Index Object
+/****************************************************************************************************/
+
+int CNode::getNodeIndex()
+	{return m_NodeIndex;}
+
+/**************************************************************************************************
+	* Function Name: setIndex
+    * Description: sets the Index of the Index Object
+/****************************************************************************************************/
+void CNode::setNodeIndex(int NodeIndex)
+	{m_NodeIndex = NodeIndex; }
 /**************************************************************************************************
 	* Function Name: getIndex
     * Description: Returns the Index of the Index Object

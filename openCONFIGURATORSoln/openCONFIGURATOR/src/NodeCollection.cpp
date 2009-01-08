@@ -110,14 +110,14 @@ CNodeCollection CNodeCollection::getNodeColObject()
 		return *objNodeCollection;
 		
 	}
-CNode CNodeCollection::getNode(ENodeType nodeType,int NodeID)
+CNode CNodeCollection::getNode(ENodeType nodeType,int NodeIndex)
 	{
 		int count;
 		for(count=0; count<m_NodeCount ;count++)
 			{
 				CNode objNode;
 				objNode = objNodeCollection->collectionObj[count];
-				if(objNode.getNodeType()==nodeType && objNode.getNodeId()==NodeID)
+				if(objNode.getNodeType()==nodeType && objNode.getNodeId()==NodeIndex)
 				{
 					return objNode;
 				}
@@ -125,5 +125,19 @@ CNode CNodeCollection::getNode(ENodeType nodeType,int NodeID)
 			}
 		
 	}
-
+CNode CNodeCollection::getNode(int NodeID)
+	{
+		int count;
+		for(count=0; count<m_NodeCount ;count++)
+			{
+				CNode objNode;
+				objNode = objNodeCollection->collectionObj[count];
+				if(objNode.getNodeId()==NodeID)
+				{
+					return objNode;
+				}
+				
+			}
+		
+	}
 
