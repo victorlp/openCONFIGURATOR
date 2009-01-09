@@ -97,8 +97,9 @@ public:
   //Remove a specific Item from the collection
   void Remove(int ItemKey) 
   {
-    //Remove the Item using the vector’s erase function
-    m_items.erase(GetAddress(ItemKey)); 
+    //Remove the Item using the vectors erase function
+    //m_items.erase(GetAddress(ItemKey)); 
+	m_items.erase(m_items.begin() + (ItemKey));
   }
   void Clear(void) //Clear the collection
   {

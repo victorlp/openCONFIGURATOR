@@ -68,6 +68,8 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
 #include "../Include/NodeCollection.h"
 #include "../Include/Node.h"
+//$S Only for testing
+#include <stdio.h>
 
 CNodeCollection::CNodeCollection(void)
 	{
@@ -90,6 +92,16 @@ void CNodeCollection::addNode(CNode objNode)
 		m_NodeCount= collectionObj.Count();
 
 	}
+	
+void CNodeCollection::deleteNode(int NodeID)
+	{
+		
+       collectionObj.Remove(NodeID);
+	   m_NodeCount = collectionObj.Count();
+	   printf("\n\nAfter Delete - Count:%d\n\n", m_NodeCount);
+
+	}	
+	
 CNodeCollection* CNodeCollection::getNodeColObjectPointer()
 	{
 		if(!instanceFlag)
@@ -110,27 +122,28 @@ CNodeCollection CNodeCollection::getNodeColObject()
 		return *objNodeCollection;
 		
 	}
-CNode CNodeCollection::getNode(ENodeType nodeType,int NodeIndex)
+CNode CNodeCollection::getNode(ENodeType nodeType,int NodeID)
 	{
 		int count;
+		CNode objNode;
 		for(count=0; count<m_NodeCount ;count++)
 			{
-				CNode objNode;
+				
 				objNode = objNodeCollection->collectionObj[count];
-				if(objNode.getNodeType()==nodeType && objNode.getNodeId()==NodeIndex)
+				if(objNode.getNodeType()==nodeType && objNode.getNodeId()==NodeID)
 				{
 					return objNode;
 				}
 				
 			}
-		
+		return objNode;				
 	}
 CNode CNodeCollection::getNode(int NodeID)
 	{
 		int count;
+		CNode objNode;
 		for(count=0; count<m_NodeCount ;count++)
-			{
-				CNode objNode;
+			{			
 				objNode = objNodeCollection->collectionObj[count];
 				if(objNode.getNodeId()==NodeID)
 				{
@@ -138,6 +151,27 @@ CNode CNodeCollection::getNode(int NodeID)
 				}
 				
 			}
+			return objNode;
 		
 	}
-
+CNode CNodeCollection::getMNNode()
+	{
+			int count;
+			CNode objNode;
+			
+			for(count=0; count<m_NodeCount ;count++)
+			{
+				
+				objNode = objNodeCollection->collectionObj[count];
+				if(objNode.getNodeType() == MN )
+				{
+					return objNode;
+				}
+				
+			}
+			return objNode;				
+	}
+CNode CNodeCollection::getNodebyCollectionIndex(int ColIndex)
+{
+	return collectionObj[ColIndex];
+}

@@ -72,6 +72,7 @@
 #pragma once
 #include "Declarations.h"
 #include "Node.h"
+//class DllExport CNodeCollection
 class CNodeCollection
 	{
 	public:
@@ -86,11 +87,14 @@ class CNodeCollection
 	public :
 		int getNumberOfNodes();
 		void addNode(CNode  objNode);
+		void deleteNode(int NodeID);
 		static CNodeCollection* getNodeColObjectPointer();
-		CNode getNode(ENodeType nodeType,int NodeIndex);
+		CNode getNode(ENodeType nodeType,int NodeId);
 		CNode getNode(int NodeId);
+		CNode getNodebyCollectionIndex(int ColIndex);		
+		CNode getMNNode();
 		
 		//void addToIndexCollection(CIndex *objIndex);
-		static CNodeCollection getNodeColObject();
+		static CNodeCollection getNodeColObject();		
 	};
 #endif // NodeCollection_h

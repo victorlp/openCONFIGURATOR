@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="openCONFIGURATOR"
+	Name="openconfigurator"
 	ProjectGUID="{0141C9C5-E267-4AD0-9E6C-1E80ECF5E438}"
 	RootNamespace="openCONFIGURATOR"
 	TargetFrameworkVersion="196613"
@@ -41,6 +41,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\libxml2\include;..\libxml2\iconv\include"
+				PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -59,7 +60,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libxml2.lib"
+				AdditionalDependencies="libxml2.lib &quot;$(TCL_LIB)&quot;"
 				AdditionalLibraryDirectories="..\libxml2\lib"
 				GenerateDebugInformation="true"
 				TargetMachine="1"
@@ -130,7 +131,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libxml2.lib"
+				AdditionalDependencies="libxml2.lib &quot;$(TCL_LIB)&quot;"
 				AdditionalLibraryDirectories="..\libxml2\lib"
 				GenerateDebugInformation="true"
 				OptimizeReferences="2"
@@ -184,10 +185,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\Evaluate.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\src\Index.cpp"
 				>
 			</File>
@@ -223,6 +220,10 @@
 				RelativePath=".\src\SubIndex.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\src\Utility.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -246,11 +247,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Include\Exports.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Include\Index.h"
 				>
 			</File>
 			<File
 				RelativePath=".\Include\IndexCollection.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Include\Internal.h"
 				>
 			</File>
 			<File

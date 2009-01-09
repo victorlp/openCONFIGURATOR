@@ -73,48 +73,49 @@
 #include "Declarations.h"
 #pragma once
 
-class CBaseIndex
+class DllExport CBaseIndex
 	{
 	public:
 		CBaseIndex(void);
 		~CBaseIndex(void);
 
 	private:
-		char*			m_Name;
-		char*			m_Index;		
-		char*			m_LowLimit;
-		char*			m_HighLimit;
-		EObjectType		m_objectType;
-		DataType		m_dataType;		
-		char*			m_accessType;
-		char*			m_DefaultValue;
-		char*			m_ActualValue;
-		EPDOMapping		m_pdoMapping;
-		int				m_NodeID;
+		const char*					m_Name;
+		const char*					m_Index;		
+		const char*					m_LowLimit;
+		const char*					m_HighLimit;
+		EObjectType					m_objectType;
+		DataType								m_dataType;		
+		const char*					m_accessType;
+		const char*					m_DefaultValue;
+		char*											m_ActualValue;
+		EPDOMapping  			m_pdoMapping;
+		int													m_NodeID;
+		char*											m_UniqueIDRef;
 
 
 
 
 	public :
-		char* getName(); 		
+		const char* getName(); 		
 		void setName(char* Name);
 
-		char* getIndexValue();			
+		const char* getIndexValue();			
 		void setIndexValue(char* Index);
 
-		char* getDefaultValue();
+		const char* getDefaultValue();
 		void setDefaultValue(char* Value);
 
-		char* getActualValue();
+		const char* getActualValue();
 		void setActualValue(char* Value);
 		
-		char* getAccessType();
+		const char* getAccessType();
 		void setAccessType(char* Access);
 
-		char* getLowLimit();
+		const char* getLowLimit();
 		void setLowLimit(char* LowLimit);
 
-		char* getHighLimit();
+		const char* getHighLimit();
 		void setHighLimit(char* HighLimit);
 
 		DataType getDataType();
@@ -123,9 +124,10 @@ class CBaseIndex
 		EPDOMapping getPDOMapping();
 		void setPDOMapping(char* pdoMappingValue);
 
-		EObjectType getObjectType();
+		const char* getObjectType();
 		void setObjectType(int objectTypeValue);
 
+	
 		int getNodeID();
 		void setNodeID(int NodeID);
 

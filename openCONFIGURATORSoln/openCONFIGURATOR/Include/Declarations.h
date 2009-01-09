@@ -68,9 +68,11 @@
 //  REVISION HISTORY:
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
-#include <string>
+#include <string.h>
+#include <stdlib.h>
+#include "Exports.h"
 
-using namespace std;
+//using namespace std;
 
 /************************************************************************************************
 Constants
@@ -81,34 +83,50 @@ const int MN_NODEID=240;
 Enumerations
 ************************************************************************************************/
 
-typedef enum {	
-		DEFTYPE = 5,
-		DEFSTRUCT = 6,
-		VAR = 7,
-		ARRAY = 8,
-		RECORD = 9,	
-	}EObjectType;
-typedef enum {
-		NO,
-		DEFAULT		
-	}EPDOMapping;
-typedef enum {
-		MN = 0,
-		CN = 1
-	}ENodeType;
+typedef enum 
+{	
+				DEFTYPE				= 5,
+				DEFSTRUCT		= 6,
+				VAR								= 7,
+				ARRAY						= 8,
+				RECORD					= 9	
+}EObjectType;
 
-typedef enum{
-		TPDO=1,
-		RPDO=2
-		}EPDOType;
+DllExport typedef enum 
+{
+				NO,
+				DEFAULT,
+				OPTIONAL,
+				RPDO,
+				TPDO									
+	}EPDOMapping;
+typedef EPDOMapping *e_PDOMapping;
+typedef enum 
+{
+				MN					= 0,
+				CN					= 1
+}ENodeType;
+
+typedef enum
+{
+				PDO_TPDO				= 1,
+				PDO_RPDO				= 2
+}EPDOType;
+
 struct DataType
-	{
+{
 		char*		Name;
 		char*		DataTypeValue;
 		char*		DataSize;
-	};
+		char* getName(){return Name;}
+		void setName(char* DataTypeName)
+		{
+			Name = new char[sizeof(DataTypeName)];
+			strcpy(Name,DataTypeName);	
+		}
+};
 struct ProcessImage
-	{
+{
 		char*		Name;
 		char*		Direction;
 		DataType	dataType;
@@ -118,18 +136,14 @@ struct ProcessImage
 		char*		subindex;
 		char*		Index;
 	
-	};
+};
 /****************************************************************************************/
 /* Function Declarations
 /*****************************************************************************************/
-
-int ImportXML(char* fileName, char* errorString, int NodeID, ENodeType NodeType);
-void LoadObjectDictionary();
-void CreateTree();
-void GenerateCDC(char* fileName);
+DllExport	int ImportXML(char* fileName, char* errorString, int NodeID, ENodeType NodeType);
+DllExport void GenerateCDC(char* fileName);
 //void GenerateMNOBD();
-void CreateNode(int NodeID, ENodeType NodeType);
-void parseFile(char* filename, int NodeID, ENodeType  NodeType);
-char* ConvertToUpper(char* str);
+DllExport void CreateNode(int NodeID, ENodeType NodeType);
+DllExport void parseFile(char* filename, int NodeID, ENodeType  NodeType);
 
 #endif // declarations_h

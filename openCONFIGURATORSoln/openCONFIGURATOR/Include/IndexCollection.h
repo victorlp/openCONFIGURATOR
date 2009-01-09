@@ -74,6 +74,7 @@
 #include "Index.h"
 //#include "TCollection.h"
 using namespace std;
+//class DllExport CIndexCollection
 class CIndexCollection
 	{
 	public:
@@ -88,7 +89,7 @@ class CIndexCollection
 		void addIndex(CIndex objIndex);
 		int getNumberofIndexes();
 		CIndex* getIndex(int Count);
-		
+		CIndex* getIndexbyIndexValue(char* Index);		
 		
 	};
 #endif // IndexCollection_h

@@ -1,3 +1,5 @@
+#ifndef error_h
+#define error_h
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //
 //  $Header: $
@@ -67,14 +69,25 @@
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "../Include/Declarations.h"
-char* ConvertToUpper(char* str)
-	{
-		int t;
+typedef enum
+{
+					OCFM_ERR_SUCCESS					= 0;
+					OCFM_ERR_FILE_NOT_PRESENT,
+					OCFM_ERR_FILE_CANNOT_OPEN,				
+					OCFM_ERR_INVALID_NODEID,
+					OCFM_ERR_NODE_ALREADY_EXISTS,
+					OCFM_ERR_INDEX_ALREADY_EXISTS,
+					OCFM_ERR_SUBINDEX_ALREADY_EXISTS,					
+					OCFM_ERR_INVALID_VALUE,
+					OCFM_ERR_INVALID_NAME,				
+	
+}EConfiuguratorErrors;
 
-		for(t=0; str[t]; ++t)
-		{
-			str[t] = toupper(str[t]);
-		}
-		return str;
-	}
+typedef struct ocfmRetCode
+{
+				int				code;/* Error code from EConfiuguratorErrors*/
+				char*		errorString; /* String Describes the error */
+				
+}
+#endif // Error_h
+

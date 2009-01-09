@@ -68,6 +68,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "../Include/DataTypeCollection.h"
+#include "../Include/Internal.h"
 
 CDataTypeCollection::CDataTypeCollection(void)
 	{

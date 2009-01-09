@@ -74,7 +74,7 @@
 #include "BaseIndex.h"
 #include "SubIndex.h"
 
-class CIndex  : public CBaseIndex 
+class DllExport CIndex  : public CBaseIndex 
 	{
 	public:
 		CIndex(void);

@@ -1,20 +1,25 @@
-#include "../Include/BaseIndex.h"
 #include "../Include/NodeCollection.h"
+#include "../Include/BaseIndex.h"
+#include "../Include/Declarations.h"
+#include "../Include/Internal.h"
 
 CBaseIndex::CBaseIndex(void)
 	{
-		m_DefaultValue = new char;
-		m_ActualValue= new char;
-		m_Index = new char;
-		m_Name = new char;
-		m_LowLimit = new char;
-		m_HighLimit = new char;
-		m_accessType = new char;
+		
+		m_Index =  NULL;
+		m_Name = NULL;
+		m_HighLimit = NULL;		
 		m_dataType.Name = NULL;
+		m_DefaultValue = NULL;		
+		m_ActualValue = NULL;		
+		m_accessType = NULL;
+		m_LowLimit	= NULL;
+
 	}
 
 CBaseIndex::~CBaseIndex(void)
 	{
+		//delete m_DefaultValue;
 	}
 #pragma region Properties
 /**************************************************************************************************
@@ -22,7 +27,7 @@ CBaseIndex::~CBaseIndex(void)
     * Description: Returns the Name of the Index Object
 /****************************************************************************************************/
 
-char* CBaseIndex::getName()
+const char* CBaseIndex::getName()
 	{return m_Name;}
 
 /**************************************************************************************************
@@ -30,13 +35,16 @@ char* CBaseIndex::getName()
     * Description: sets the Name of the Index Object
 /****************************************************************************************************/
 void CBaseIndex::setName(char* Name)
-	{strcpy(m_Name, Name); }
+	{
+		m_Name = new char[strlen(Name) + 1];
+		strcpy((char*)m_Name, Name);
+	}
 /**************************************************************************************************
 	* Function Name: getIndexValue
     * Description: Returns the Index of the Index Object
 /****************************************************************************************************/
 
-char* CBaseIndex::getIndexValue()
+const char* CBaseIndex::getIndexValue()
 	{return m_Index;}
 
 /**************************************************************************************************
@@ -44,13 +52,16 @@ char* CBaseIndex::getIndexValue()
     * Description: sets the Index of the Index Object
 /****************************************************************************************************/
 void CBaseIndex::setIndexValue(char* Index)
-	{strcpy(m_Index, Index); }
+	{
+		m_Index = new char[strlen(Index)];
+		strcpy((char*)m_Index, Index);
+	}
 /**************************************************************************************************
 	* Function Name: getLowLimit
     * Description: Returns the LowLimit of the Index Object
 /****************************************************************************************************/
 
-char* CBaseIndex::getLowLimit()
+const char* CBaseIndex::getLowLimit()
 	{return m_LowLimit;}
 
 /**************************************************************************************************
@@ -58,13 +69,16 @@ char* CBaseIndex::getLowLimit()
     * Description: sets the LowLimit of the Index Object
 /****************************************************************************************************/
 void CBaseIndex::setLowLimit(char* LowLimit)
-	{strcpy(m_LowLimit,LowLimit); }
+	{
+		m_LowLimit = new char[strlen(LowLimit)];
+		strcpy((char*)m_LowLimit,LowLimit);
+ }
 /**************************************************************************************************
 	* Function Name: getLowLimit
     * Description: Returns the LowLimit of the Index Object
 /****************************************************************************************************/
 
-char* CBaseIndex::getHighLimit()
+const char* CBaseIndex::getHighLimit()
 	{return m_HighLimit;}
 
 /**************************************************************************************************
@@ -72,13 +86,16 @@ char* CBaseIndex::getHighLimit()
     * Description: sets the LowLimit of the Index Object
 /****************************************************************************************************/
 void CBaseIndex::setHighLimit(char* HighLimit)
-	{strcpy(m_HighLimit,HighLimit); }
+	{
+		m_HighLimit = new char[strlen(HighLimit)];
+		strcpy((char*)m_HighLimit,HighLimit);
+	}
 /**************************************************************************************************
 	* Function Name: getDefaultValue
     * Description: Returns the Default Value of the Index Object
 /****************************************************************************************************/
 
-char* CBaseIndex::getDefaultValue()
+const char* CBaseIndex::getDefaultValue()
 	{return m_DefaultValue;}
 
 /**************************************************************************************************
@@ -86,15 +103,16 @@ char* CBaseIndex::getDefaultValue()
     * Description: sets the Default Value of the Index Object
 /****************************************************************************************************/
 void CBaseIndex::setDefaultValue(char* Value)
-	{		
-		strcpy(m_DefaultValue,Value);
+	{				
+		m_DefaultValue = new char[strlen(Value)];
+		strcpy((char*)m_DefaultValue,Value);
 	}
 /**************************************************************************************************
 	* Function Name: getActualValue
     * Description: Returns the Actual Value of the Index Object
 /****************************************************************************************************/
 
-char* CBaseIndex::getActualValue()
+const char* CBaseIndex::getActualValue()
 	{return m_ActualValue;}
 
 /**************************************************************************************************
@@ -102,15 +120,16 @@ char* CBaseIndex::getActualValue()
     * Description: sets the Actual Value of the Index Object
 /****************************************************************************************************/
 void CBaseIndex::setActualValue(char* Value)
-	{		
-		strcpy(m_ActualValue,Value);
+	{
+		m_ActualValue = new char[strlen(Value)];		
+		strcpy((char*)m_ActualValue,Value);
 	}
 /**************************************************************************************************
 	* Function Name: getAccessType
     * Description: Returns the Access Type of the Index Object
 /****************************************************************************************************/
 
-	char* CBaseIndex::getAccessType()
+	const char* CBaseIndex::getAccessType()
 	{return m_accessType;}
 
 /**************************************************************************************************
@@ -118,16 +137,40 @@ void CBaseIndex::setActualValue(char* Value)
     * Description: sets the Access Type of the Index Object
 /****************************************************************************************************/
 void CBaseIndex::setAccessType(char* accessType)
-	{		
-		strcpy(m_accessType,accessType);
+	{	
+		m_accessType = new char[strlen(accessType)];	
+		strcpy((char*)m_accessType,accessType);
 	}	
 /**************************************************************************************************
 	* Function Name: getObjectType
     * Description: Returns the Object Type of the Index Object
 /****************************************************************************************************/
 
-	EObjectType CBaseIndex::getObjectType ()
-	{return m_objectType;}
+	const char* CBaseIndex::getObjectType ()
+	{
+		switch (m_objectType)
+			{
+			case 5:
+				return "DFEAULT";
+				break;
+			case 6:
+				return "DEFSTRUCT";
+				break;
+			case 7:
+				return "VAR";
+				break;
+			case 8:
+				return "ARRAY";
+				break;
+			case 9:
+				return "RECORD";
+				break;
+			default:
+				return NULL;
+				break;
+			}
+	
+	;}
 
 /**************************************************************************************************
 	* Function Name: setObjectType
@@ -175,9 +218,13 @@ void CBaseIndex::setPDOMapping(char* pdoMapping)
 	{		
 		if(strcmp(ConvertToUpper((char*)pdoMapping), "DEFAULT")==0)
 		m_pdoMapping=DEFAULT;
+		
+		else if(strcmp(ConvertToUpper((char*)pdoMapping), "NO")==0)
+		m_pdoMapping = NO;		 
+		else if(strcmp(ConvertToUpper((char*)pdoMapping), "OPTIONAL")==0)
+		m_pdoMapping = OPTIONAL;		 
 
-		if(strcmp(ConvertToUpper((char*)pdoMapping), "NO")==0)
-		m_pdoMapping = NO;
+		
 	}
 /**************************************************************************************************
 	* Function Name: getDataType
@@ -196,7 +243,7 @@ void CBaseIndex::setDataType(char* dataTypeName)
 		DataType dt;
 		CNodeCollection* objNodeCol;
 		objNodeCol= CNodeCollection::getNodeColObjectPointer();
-		CNode objNode = objNodeCol->getNode(CN,m_NodeID);
+		CNode objNode = objNodeCol->getNode(m_NodeID);
 		CDataTypeCollection* dtcol;
 		dtcol=objNode.getDataTypeCollection();
 		dt = dtcol->getDataType(dataTypeName);

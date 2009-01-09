@@ -88,6 +88,17 @@ CIndex* CIndexCollection::getIndex(int Count)
 	{
 		return &collectionObj[Count];
 	}
+CIndex* CIndexCollection::getIndexbyIndexValue(char* Index)
+	{
+		int i = 0;
+		for(int i =0; i<m_IndexCount;i++)
+		{
+			CIndex objIndex;
+			objIndex = collectionObj[i];
+			if(strcmp(objIndex.getIndexValue(),Index)==0)
+				return &collectionObj[i];
+		}		
+	}
 int CIndexCollection::getNumberofIndexes()
 	{return m_IndexCount;}
 

@@ -1,5 +1,5 @@
-#ifndef openCONFIGURATOR_h
-#define openCONFIGURATOR_h
+#ifndef Exports_h
+#define Exports_h
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //
 //  $Header: $
@@ -68,13 +68,14 @@
 //  REVISION HISTORY:
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
-#include "NodeCollection.h"
-#include "Socket.h"
-//#include "StackOperations.h"
-//#include "ObjectDictionary.h"
-#include "Declarations.h"
 
+#define DllExport
 
-#endif // openCONFIGURATOR_h
-
+/* Windows Platform */
+#if defined(_WIN32) && defined(_MSC_VER)
+	 #undef DllExport
+	 #define DllExport  __declspec(dllexport)
+	 
+ #endif 
+#endif // Exports_h
 

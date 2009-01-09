@@ -67,9 +67,14 @@
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
 #include "../Include/Node.h"
+#include "../Include/Internal.h"
+#include <stdio.h>
 
 CNode::CNode(void)
 	{
+		m_NodeName = NULL;		
+		m_IndexCollection = NULL;
+		m_DataTypeCollection =  NULL;
 	}
 
 CNode::~CNode(void)
@@ -109,7 +114,7 @@ void CNode::setNodeId(int NodeId)
 		
 	}
 /**************************************************************************************************
-	* Function Name: getNodeId
+	* Function Name: getNodeIndex
     * Description: Returns the Index of the Index Object
 /****************************************************************************************************/
 
@@ -117,11 +122,28 @@ int CNode::getNodeIndex()
 	{return m_NodeIndex;}
 
 /**************************************************************************************************
-	* Function Name: setIndex
+	* Function Name: setNodeIndex
     * Description: sets the Index of the Index Object
 /****************************************************************************************************/
 void CNode::setNodeIndex(int NodeIndex)
 	{m_NodeIndex = NodeIndex; }
+/**************************************************************************************************
+	* Function Name: getNodeName
+    * Description: Returns the Nama of the Node
+/****************************************************************************************************/
+
+char* CNode::getNodeName()
+	{return m_NodeName;}
+
+/**************************************************************************************************
+	* Function Name: setNodeName
+    * Description: sets the Name of the Node
+/****************************************************************************************************/
+void CNode::setNodeName(char* NodeName)
+	{	
+		m_NodeName = new char[strlen(NodeName)];
+		strcpy((char*)m_NodeName, NodeName);
+	}
 /**************************************************************************************************
 	* Function Name: getIndex
     * Description: Returns the Index of the Index Object
@@ -152,16 +174,39 @@ void CNode::CreateDataTypeCollection()
 	}
 CIndexCollection* CNode::getPDOIndexCollection(EPDOType PDOType)
 	{
+		printf("\nGetPDOCollection starts");
 		CIndexCollection* PDOCollection = new CIndexCollection();
 		for(int count=0;count<m_IndexCollection->getNumberofIndexes();count++)
 			{
 				CIndex* objIndex;
 				objIndex = m_IndexCollection->getIndex(count);
 				if(objIndex->getPDOType() ==PDOType)
-					PDOCollection->addIndex(*objIndex);
+					PDOCollection->addIndex(*objIndex);					
 			}
+			printf("\nGetPDOCollection ends");
 		return PDOCollection;
 	}
+CIndexCollection* CNode::getIndexCollectionWithoutPDO()
+	{
+		CIndexCollection* objIndexCol = new CIndexCollection();
+		for(int count=0;count<m_IndexCollection->getNumberofIndexes();count++)
+			{
+				CIndex* objIndex;
+				objIndex = m_IndexCollection->getIndex(count);
+				if(CheckIfNotPDO((char*)objIndex->getIndexValue()))
+						objIndexCol->addIndex(*objIndex);			
+			}			
+		return objIndexCol;
+	}
+bool CNode::isNull()
+{
+	if (m_IndexCollection==NULL)
+	return true;
+	else
+	return false;
+}
+//CNode CNode::newNull()
+//{return new CNullObjectClass();}
 
 #pragma endregion Properties
 

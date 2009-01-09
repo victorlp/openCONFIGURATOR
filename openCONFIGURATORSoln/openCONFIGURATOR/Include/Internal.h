@@ -1,8 +1,8 @@
-#ifndef openCONFIGURATOR_h
-#define openCONFIGURATOR_h
+#ifndef Internal_h
+#define Internal_h
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //
-//  $Header: $
+// $Header: $
 //
 // NAME:  ClassNAME
 //
@@ -68,13 +68,17 @@
 //  REVISION HISTORY:
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
-#include "NodeCollection.h"
-#include "Socket.h"
-//#include "StackOperations.h"
-//#include "ObjectDictionary.h"
-#include "Declarations.h"
+#include <string>
+#include "Exports.h"
 
 
-#endif // openCONFIGURATOR_h
-
-
+/****************************************************************************************/
+/* Function Declarations
+/*****************************************************************************************/
+void LoadObjectDictionary();
+char* ConvertToUpper(char* str);
+char* itoa( int value, char* result, int base );
+bool CheckIfNotPDO(char* Index);
+void CreateTree();
+bool CheckIfNotPDO(char* Index);
+#endif // declarations_h

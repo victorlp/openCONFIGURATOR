@@ -73,7 +73,8 @@
 #include "DataTypeCollection.h"
 #include "IndexCollection.h"
 #include "Declarations.h"
-class CNode
+class DllExport CNode
+//class CNode
 	{
 	public:
 		CNode(void);
@@ -85,6 +86,7 @@ class CNode
 		int m_NodeId;
 		ENodeType m_NodeType;
 		int m_NodeIndex;
+		char* m_NodeName;
 		
 
 	public:
@@ -96,11 +98,15 @@ class CNode
 		void setNodeId(int NodeId);
 		int getNodeIndex();
 		void setNodeIndex(int NodeIndex);
+		char* getNodeName();
+		void setNodeName(char* NodeName);
 		ENodeType getNodeType();
 		void setNodeType(ENodeType NodeType);
 		void CreateIndexCollection();
 		void CreateDataTypeCollection();
 		CIndexCollection* getPDOIndexCollection(EPDOType PDOType);
-		
+		CIndexCollection* getIndexCollectionWithoutPDO();
+		bool isNull();
+			
 	};
 #endif // Node_h

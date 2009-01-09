@@ -1,5 +1,3 @@
-#ifndef openCONFIGURATOR_h
-#define openCONFIGURATOR_h
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //
 //  $Header: $
@@ -68,13 +66,67 @@
 //  REVISION HISTORY:
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
-#include "NodeCollection.h"
-#include "Socket.h"
-//#include "StackOperations.h"
-//#include "ObjectDictionary.h"
-#include "Declarations.h"
 
+#include "../Include/Declarations.h"
+#include <iostream>
+#include <stdlib.h>
+using namespace std;
+char* ConvertToUpper(char* str)
+	{
+		int t;
 
-#endif // openCONFIGURATOR_h
+		for(t=0; str[t]; ++t)
+		{
+			str[t] = toupper(str[t]);
+		}
+		return str;
+	}
+static char* reverse(char* str)
+{
+    char* left  = str;
+    char* right = left + strlen(str) - 1;
+    char  tmp;
+    while (left < right) {
+        tmp      = *left;
+        *left++  = *right;
+        *right-- = tmp;
+    }
+    return str;
+}
 
+/**************************************************************************************************
+* Function Name: itoa
+* Description: Perform C++ style "itoa"
+/****************************************************************************************************/
 
+char* itoa( int value, char* result, int base ) 
+{
+	// check that the base if valid
+
+	if (base < 2 || base > 16) 
+	{ 
+		*result = 0; return result; 
+	}
+	char* out = result;
+	int quotient = value;
+	do 
+	{
+		*out = "0123456789abcdef"[ abs( quotient % base ) ];
+		++out;
+		quotient /= base;
+	} while ( quotient );
+
+	// Only apply negative sign for base 10
+	
+	if ( value < 0 && base == 10) *out++ = '-';
+	result = reverse(out);
+	*out = 0;
+	return result;
+}
+bool CheckIfNotPDO(char* Index)
+	{
+		if(strncmp(Index, "14",2)==0 || strncmp(Index, "16",2)==0 || strncmp(Index, "18",2)==0 ||
+				strncmp(Index,"1A",2)==0)
+			return false;
+		else return true;
+	}
