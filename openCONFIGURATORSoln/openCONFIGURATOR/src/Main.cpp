@@ -111,11 +111,11 @@ static void setIndexAttributes(xmlTextReaderPtr reader, CIndex* objIndex)
 				char* data = (char*) value;
 				if(strncmp(data,"14",2)==0 ||strncmp(data,"16",2) ==0)
 					{
-						objIndex->setPDOType(RPDO);
+						objIndex->setPDOType(PDO_RPDO);
 					}
 				else if(strncmp(data,"18",2 )==0 ||strncmp(data,"1A",2) ==0)
 					{
-						objIndex->setPDOType(TPDO);
+						objIndex->setPDOType(PDO_TPDO);
 					}
 
 			}
@@ -146,6 +146,7 @@ static void setIndexAttributes(xmlTextReaderPtr reader, CIndex* objIndex)
 
 		else if(strcmp(ConvertToUpper((char*)name), "PDOMAPPING")==0)					
 		objIndex->setPDOMapping((char*)value);
+		
 
 		else if(strcmp(ConvertToUpper((char*)name), "DEFAULTVALUE")==0)					
 		objIndex->setDefaultValue((char*)value);
@@ -219,10 +220,10 @@ static void setDataTypeAttributes(xmlTextReaderPtr reader ,DataType* objDataType
 			strcpy(objDataType->DataTypeValue, (char*)value);
 			//printf("objDataType->DataTypeValue:%s\n",objDataType->DataTypeValue);
 			//Read the Equivalent name of a datatype
-//			ret = xmlTextReaderRead(reader);
-//			ret = xmlTextReaderRead(reader);
-			//value = xmlTextReaderConstValue(reader);
-			//name =xmlTextReaderConstName(reader);
+			ret = xmlTextReaderRead(reader);
+			ret = xmlTextReaderRead(reader);
+			value = xmlTextReaderConstValue(reader);
+			name =xmlTextReaderConstName(reader);
 					
 			/*objDataType->setName((char*)name);*/
 			objDataType->Name = new char[strlen((char*)name) + 1];
@@ -248,52 +249,6 @@ static void setDataTypeAttributes(xmlTextReaderPtr reader ,DataType* objDataType
 				}
 				printf("\noutside DataType");
 	}
-
-/**************************************************************************************************
-	* Function Name: AddIndexAttributes
-    * Description: Adds the default attributes to the Index, when addded.
-/****************************************************************************************************/
-static void AddIndexAttributes(char* IndexID, CIndex* objIndex)
-	{
-			
-				// Setting the Index Value
-				objIndex->setIndexValue(IndexID);
-				//$S The actual value for all the attributes has to come from ObjDict.xdd
-				objIndex->setName("Test_Name");
-				char* value = "Test_Values";
-				objIndex->setObjectType(atoi((const char*)value));
-				objIndex->setLowLimit((char*)value);
-				objIndex->setHighLimit((char*)value);
-				objIndex->setAccessType((char*)value);
-				//objIndex->setPDOMapping((char*)value);				
-				objIndex->setDefaultValue((char*)value);
-				//objIndex->setActualValue((char*)value);
-				objIndex->setDataType((char*)value);
-	}	
-
-	
-/**************************************************************************************************
-	* Function Name: AddSubIndexAttributes
-    * Description: Adds the default attributes to the Index, when addded.
-/****************************************************************************************************/
-static void AddSubIndexAttributes(char* SubIndexID, CSubIndex* objSubIndex)
-	{
-			
-				// Setting the Index Value
-				objSubIndex->setIndexValue(SubIndexID);
-				//$S The actual value for all the attributes has to come from ObjDict.xdd
-				objSubIndex->setName("Test_Name");
-				char* value = "Test_Values";
-				objSubIndex->setObjectType(atoi((const char*)value));
-				objSubIndex->setLowLimit((char*)value);
-				objSubIndex->setHighLimit((char*)value);
-				objSubIndex->setAccessType((char*)value);
-				//objIndex->setPDOMapping((char*)value);				
-				objSubIndex->setDefaultValue((char*)value);
-				//objIndex->setActualValue((char*)value);
-				objSubIndex->setDataType((char*)value);
-	}	
-	
 /**************************************************************************************************
 	* Function Name: ImportXML
     * Description: Imports the XML file
@@ -454,22 +409,20 @@ void parseFile(char* filename, int NodeIndex, ENodeType  NodeType)
     xmlTextReaderPtr reader;
     int ret;
 
-		strerr ="";
+		
     reader = xmlReaderForFile(filename, NULL, 0);
     if (reader != NULL)
-		{
+				{
         ret = xmlTextReaderRead(reader);
         while (ret == 1)
-					{		
-						processNode(reader,NodeType,NodeIndex );
-						ret = xmlTextReaderRead(reader);
-					}
-		//if (xmlTextReaderIsValid(reader) != 1) {
-		//	printf("\n\n\nDocument %s does not validate\n\n\n", filename);
-		//}
-		printf("\n\n\nCalling xmlFreeTextReader\n\n\n\n");
+								{		
+										processNode(reader,NodeType,NodeIndex );
+										ret = xmlTextReaderRead(reader);
+								}
+		
+				printf("\n\n\nCalling xmlFreeTextReader\n\n\n\n");
 
-        xmlFreeTextReader(reader);
+					xmlFreeTextReader(reader);
         if (ret != 0)
 					{
             fprintf(stderr, "%s : failed to parse\n", filename);
@@ -510,262 +463,12 @@ void CreateNode(int NodeID, ENodeType NodeType)
 
 		objNodeCollection = CNodeCollection::getNodeColObjectPointer();
 		objNodeCollection->addNode(objNode);
-	
+
+		
 
 		
 	}
 
-/**************************************************************************************************
-	* Function Name: DeleteNode
-    * Description:
-/****************************************************************************************************/
-void DeleteNode(int NodeID, ENodeType NodeType)
-	{
-		int count;
-		CNode objNode;		
-		CNodeCollection *objNodeCollection;
-		objNodeCollection= CNodeCollection::getNodeColObjectPointer();	
-		cout<< "Inside DeleteNode: \n" <<objNodeCollection->getNumberOfNodes()<<endl;
-		
-		if( objNodeCollection->getNumberOfNodes() > 0)
-		{
-			for(int count = 0; count < objNodeCollection->getNumberOfNodes(); count++)
-			{
-					printf("`");
-					objNode = objNodeCollection->getNodebyCollectionIndex(count);
-					if (objNode.getNodeType() == CN)
-					{
-						//int tmp_NodeID = objNode.getNodeId();
-						//printf("NodeID:%d\n", objNode.getNodeId());
-						if(objNode.getNodeId() == NodeID)
-						{
-							printf("Node Pos:%d\n\n", count);
-							objNodeCollection = CNodeCollection::getNodeColObjectPointer();
-							objNodeCollection->deleteNode(count);
-							return;
-						}
-						else
-						{
-							printf("!");
-							//return;
-						}
-					}
-						
-			}
-		}
-		else
-		{
-				printf("No Nodes found!\n");
-				return;
-		}
-		
-	}	
-	
-	
-/**************************************************************************************************
-	* Function Name: AddSubIndex
-    * Description:
-/****************************************************************************************************/
-void AddSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID)
-	{
-		int count;
-		CNode objNode;		
-		CNodeCollection *objNodeCollection;
-		CIndexCollection *objIndexCollection;
-		CIndex objIndex;
-		
-		cout<< "Inside AddSubIndex \n"<<endl;
-		objNodeCollection = CNodeCollection::getNodeColObjectPointer();
-		// Check for number of Nodes present
-		if( objNodeCollection->getNumberOfNodes() > 0)
-		{
-			for(int count = 0; count < objNodeCollection->getNumberOfNodes(); count++)
-			{
-				printf("`");
-				objNode = objNodeCollection->getNodebyCollectionIndex(count);
-				// Check for the type of Node
-				if (objNode.getNodeType() == CN)
-				{
-					// Check for corresponding Index
-					if(objNode.getNodeId() == NodeID)
-					{
-						//Set the NodeID							
-						objIndex.setNodeID(objNode.getNodeId());
-						objNodeCollection= CNodeCollection::getNodeColObjectPointer();
-						objNode = objNodeCollection->getNode(NodeType, NodeID);
-						
-						objIndexCollection = objNode.getIndexCollection();
-						if(objIndexCollection->getNumberofIndexes() == 0)
-						{
-								printf("Cannot add SubIndex - Index not Found\n\n");
-								return;
-						}
-						else
-						{
-							//Check for existance of the Index
-							for(int tmpIndexcount = 0; tmpIndexcount <= objIndexCollection->getNumberofIndexes(); tmpIndexcount++)
-							{
-								CIndex* objIndexPtr;
-								objIndexPtr =objIndexCollection->getIndex(tmpIndexcount);						
-								printf("IndexValue:%s-%s\n", objIndexPtr->getIndexValue(), IndexID);
-								if((strcmp(objIndexPtr->getIndexValue(), IndexID) == 0))
-								{
-									
-									CSubIndex objSubIndex;
-									//Set the NodeID
-									objSubIndex.setNodeID(objNode.getNodeId());
-									AddSubIndexAttributes(SubIndexID, &objSubIndex);									
-									objIndexPtr->addSubIndex(objSubIndex);
-									printf("Added SubIndex \n\n");
-									return;
-								}
-								else if(tmpIndexcount == (objIndexCollection->getNumberofIndexes() - 1))
-								{
-									printf("Cannot add SubIndex - Index not Found\n\n");
-									return;
-								}
-							}
-						}
-					}
-					else
-					{
-						printf("!");
-						//return;
-					}
-				}					
-			}
-		}
-		else
-		{
-				printf("Cannot add SubIndex - No Nodes found!\n");
-				return;
-		}
-
-	}	
-
-/**************************************************************************************************
-	* Function Name: AddIndex
-    * Description:
-/****************************************************************************************************/
-void AddIndex(int NodeID, ENodeType NodeType, char* IndexID)
-	{
-		int count;
-		CNode objNode;		
-		CNodeCollection *objNodeCollection;
-		CIndexCollection *objIndexCollection;
-		CIndex objIndex;
-		
-		cout<< "Inside AddIndex \n"<<endl;
-		objNodeCollection = CNodeCollection::getNodeColObjectPointer();
-		// Check for number of Nodes present
-		if( objNodeCollection->getNumberOfNodes() > 0)
-		{
-			for(int count = 0; count < objNodeCollection->getNumberOfNodes(); count++)
-			{
-				printf("`");
-				objNode = objNodeCollection->getNodebyCollectionIndex(count);
-				// Check for the type of Node
-				if (objNode.getNodeType() == CN)
-				{
-					//int tmp_NodeID = objNode.getNodeId();
-					//printf("NodeID:%d\n", tmp_NodeID);
-					// Check for corresponding Index
-					if(objNode.getNodeId() == NodeID)
-					{
-						//Set the NodeID							
-						objIndex.setNodeID(objNode.getNodeId());
-						objNodeCollection= CNodeCollection::getNodeColObjectPointer();
-						objNode = objNodeCollection->getNode(NodeType, NodeID);
-						
-						objIndexCollection = objNode.getIndexCollection();
-						if(objIndexCollection->getNumberofIndexes() == 0)
-						{
-							AddIndexAttributes(IndexID, &objIndex);
-							objIndexCollection->addIndex(objIndex);	
-							printf("Added Index \n\n");
-							return;
-						}
-						else
-						{
-							//Check for existance of the Index
-							for(int tmpIndexcount = 0; tmpIndexcount < objIndexCollection->getNumberofIndexes(); tmpIndexcount++)
-							{
-								CIndex* objIndexPtr;
-								objIndexPtr =objIndexCollection->getIndex(tmpIndexcount);						
-								printf("IndexValue:%s-%s\n", objIndexPtr->getIndexValue(), IndexID);
-								if((strcmp(objIndexPtr->getIndexValue(), IndexID) == 0))
-								{
-									printf("Cannot Add - Index Already Exists!\n");
-									return;
-								}
-								else if(tmpIndexcount == (objIndexCollection->getNumberofIndexes() - 1))
-								{
-									// Add the Index
-									//objIndex.setIndexValue(IndexID);
-									AddIndexAttributes(IndexID, &objIndex);
-									// Add the default Index Attributes
-									
-									
-									//Add Index object to the IndexCollection
-									objIndexCollection->addIndex(objIndex);	
-									printf("Added Index \n\n");
-									return;
-								}
-
-							}
-						}
-					}
-					else
-					{
-						printf("!");
-						//return;
-					}
-				}						
-			}
-		}
-		else
-		{
-				printf("No Nodes found!\n");
-				return;
-		}
-
-	}	
-	
-/**************************************************************************************************
-	* Function Name: DisplayNodeTree
-    * Description:
-/****************************************************************************************************/
-void DisplayNodeTree()
-	{
-		int count;
-		CNode objNode;		
-		CNodeCollection *objNodeCollection;
-		CIndexCollection *objIndexCollection;
-		
-		objNodeCollection= CNodeCollection::getNodeColObjectPointer();
-		objIndexCollection = objNode.getIndexCollection();
-		
-		if( objNodeCollection->getNumberOfNodes() > 0)
-		{
-			for(int count = 0; count < objNodeCollection->getNumberOfNodes(); count++)
-			{
-					objNode = objNodeCollection->getNodebyCollectionIndex(count);
-					if (objNode.getNodeType() == CN)
-					{						
-						//int tmp_NodeID = objNode.getNodeId();
-						//objNode =objNodeCollection->getNode(CN,tmp_NodeID);
-						printf("NodePos:%d, NodeID:%d\n", count, objNode.getNodeId());
-					}						
-			}
-		}
-		else
-		{
-				printf("No Nodes found!\n");
-				return;
-		}
-			
-	}	
-	
 /**************************************************************************************************
 	* Function Name: GetIndexData
    * Description: 
@@ -1063,257 +766,6 @@ void GenerateCDC(char* fileName)
 //
 //
 //	}
-int main(int argc, char **argv) 
-{
-   /* if (argc != 2)
-        return(1);*/
-
-    /*
-     * this initialize the library and check potential ABI mismatches
-     * between the version it was compiled for and the actual shared
-     * library used.
-     */
-   
-    //parseFile("E:\\Kalycito\\checkout\\Source\\SharedLibrary\\openCONFIGURATORSoln\\XMLParser\\12345678_MyName.xml",NodeType,NodeID);
-
-	
-	char ch='N';
-	int opt = 0;;
-	
-	int NodeID;
-	int NodeType;
-	char* IndexID;
-	char* SubIndexID;
-	IndexID = new char;
-	SubIndexID = new char;
-	char filePath[100];	
-	char* errorstring;
-	errorstring = new char;		
-						
-	CNodeCollection *objNodeCollection;							
-
-	CNode objNode;
-	CIndexCollection *objIndexCollection;							
-	
-	while(ch!='E')
-	{
-			system("cls");
-
-			cout <<"\nPlease Choose the option"<<endl;
-			cout <<"1.Create the Node"<<endl;
-			cout <<"2.Parse the File"<<endl;
-			cout <<"3.GenerateCDC"<<endl;
-			cout <<"4.Total Number of Nodes"<<endl;
-			cout<<"5:Total Indexes in a collection"<<endl;
-			cout<<"6:Index Properties"<<endl;
-			cout<<"7:SubIndex Properties"<<endl;
-			cout<<"8:Index Properties"<<endl;						
-			cout<<"9:Delete a Node"<<endl;
-			cout<<"10:Add Index"<<endl;			
-			cout<<"11:Add SubIndex"<<endl;
-			cout<<"12: DisplayNodeTree"<<endl;
-			cout <<"Press 'E' for Exit"<<endl;
-								
-			cin>>opt;
-	
-			switch (opt)
-		{
-				case 1:
-								system("clear");
-								cout<<"Enter the NodeID"<<endl;								
-								cin >> NodeID;
-								cout<<"Enter the Node Type(MN=0/CN=1)"<<endl;								
-								cin>>NodeType;
-								if (NodeType ==0 )
-								CreateNode(NodeID,MN);								
-								else if (NodeType==1)
-								CreateNode(NodeID,CN);
-								cout <<"Node Created"<<endl;
-								cout <<"Do you want to Parse the file(y/n)?"<<endl;
-								char c;
-								cin >> c;
-								if(c=='y')
-								{
-									cout<<"Enter the filepath"<<endl;
-									cin>>filePath;
-									char* errorstring;
-									errorstring = new char;
-									if (NodeType ==0 )							
-									ImportXML(filePath, errorstring, NodeID, MN);
-									else if (NodeType==1)
-									ImportXML(filePath, errorstring, NodeID, CN);															
-									cin.get();
-									cin.get();
-							}
-							/*	opt=2;*/
-								break;
-				case 2:							
-							cout<<"Enter the Node ID"<<endl;
-							cin>>NodeID;
-							cout<<"Enter the Node Type(MN=0/CN=1)"<<endl;								
-							cin>>NodeType;
-							cout<<"Enter the filepath"<<endl;
-							cin>>filePath;
-							int ret;					
-							if (NodeType ==0 )							
-							ret = ImportXML(filePath, errorstring, NodeID, MN);
-							else if (NodeType==1)
-							ret = ImportXML(filePath, errorstring, NodeID, CN);		
-							cin.get();
-							cin.get();							
-							break;
-
-				case 3:							
-							cout<<"Enter the filepath"<<endl;
-							cin>>filePath;
-							GenerateCDC(filePath);  
-							break;
-				case 4:
-							objNodeCollection= CNodeCollection::getNodeColObjectPointer();	
-							cout<<"Total Number of Nodes are:"<<objNodeCollection->getNumberOfNodes();
-							cin.get();
-							cin.get();
-							break;
-				case 5:
-							cout<<"Enter the Node ID"<<endl;
-							cin>>NodeID;
-							cout<<"Enter the Node Type(MN=0/CN=1)"<<endl;								
-							cin>>NodeType;
-							objNodeCollection= CNodeCollection::getNodeColObjectPointer();
-	
-							if (NodeType ==0 )
-							objNode =objNodeCollection->getNode(MN,NodeID);
-							else if (NodeType==1)
-							objNode =objNodeCollection->getNode(CN,NodeID);
-							objIndexCollection = objNode.getIndexCollection();
-							cout<<"Total Number of Indexes in a collection"<<objIndexCollection->getNumberofIndexes()<<endl;
-							cin.get();
-							cin.get();
-							break;
-							
-				case 9:
-							system("clear");
-							cout<<"Enter the NodeID:"<<endl;								
-							cin >> NodeID;												
-							cout<<"Enter the Node Type(MN=0/CN=1)"<<endl;								
-							cin>>NodeType;
-							//objNodeCollection= CNodeCollection::getNodeColObjectPointer();	
-							//cout<<"Total Number of Nodes are:"<<objNodeCollection->getNumberOfNodes();
-							DeleteNode(NodeID,CN);
-							//cout <<"Node Deleted"<<endl;
-							//objNodeCollection= CNodeCollection::getNodeColObjectPointer();	
-							//cout<<"Total Number of Nodes are:"<<objNodeCollection->getNumberOfNodes();
-							break;
-				case 10:
-							system("clear");
-							cout<<"Enter the NodeID:"<<endl;								
-							cin >> NodeID;												
-							cout<<"Enter the Node Type(MN=0/CN=1)"<<endl;								
-							cin>>NodeType;
-							cout<<"Enter the IndexID:"<<endl;								
-							cin >> IndexID;
-							if (NodeType == 0 )
-							//$SAddIndex_SubIndex(NodeID, MN, IndexID, NULL);
-							AddIndex(NodeID, MN, IndexID);
-							else if (NodeType == 1)
-							//$SAddIndex_SubIndex(NodeID, CN, IndexID, NULL);
-							AddIndex(NodeID, CN, IndexID);
-							break;
-				case 11:
-							system("clear");
-							cout<<"Enter the NodeID:"<<endl;								
-							cin >> NodeID;												
-							cout<<"Enter the Node Type(MN=0/CN=1)"<<endl;								
-							cin>>NodeType;
-							cout<<"Enter the IndexID:"<<endl;
-							cin >> IndexID;
-							cout<<"Enter the SubIndexID:"<<endl;
-							cin >> SubIndexID;
-							if (NodeType == 0 )
-							AddSubIndex(NodeID, MN, IndexID, SubIndexID);
-							if (NodeType == 1 )
-							AddSubIndex(NodeID, CN, IndexID, SubIndexID);
-
-							break;
-							
-				case 12:
-							system("clear");
-							DisplayNodeTree();							
-							break;				
-				default :
-								break;
-		}
-	
-	
-
-			//CNode objNode;
-			////objNode.setNodeId(1);
-			////objNode.setNodeType(CN);
-			//CreateNode(1,MN);
-			//parseFile("E:\\Kalycito\\checkout\\Source\\SharedLibrary\\openCONFIGURATORSoln\\XMLParser\\MN.xdc",1,MN);
-			//CreateNode(2,CN);
-			//parseFile("E:\\Kalycito\\checkout\\Source\\SharedLibrary\\openCONFIGURATORSoln\\XMLParser\\cN1_xdc_stephane.xdc",2,CN);
-			//
-		
-			//objNodeCollection->addNode(objNode);
-			//objNodecol.addNode(objNode);
-			
-
-			//parseFile("E:\\Kalycito\\checkout\\Source\\SharedLibrary\\openCONFIGURATORSoln\\XMLParser\\12345678_MyName.xml",1,CN);
-
-				//char* fileName=new char ;
-			//strcpy(fileName,"C:\\Try.txt");
-//			GenerateCDC(fileName);  
-			/* Show the Indexes*/
-			//int i;
-			//CIndexCollection* obj;
-			//objNode= objNodeCollection->getNode(MN,1);
-			//obj =objNode.getPDOIndexCollection(TPDO);
-			//obj=objNode.getIndexCollection();
-			//for (i=0;i<obj->getNumberofIndexes();i++)
-			//	{
-			//		CIndex* objIndex;
-			//		objIndex = obj->getIndex(i);
-			//		char* index;
-			//		index=(char*)objIndex->getIndexValue();
-			//		if(objIndex->getDefaultValue() == NULL)
-			//			{
-			//					printf("null");
-
-			//				}
-			//		else printf("\n Default Value:%s","Default value is NOT NULL");
-			//		
-			//		printf("\nIndex Value: %s Name: %s\n",index,objIndex->getIndexValue());
-			//	}
-			//
-			//		objNode= objNodeCollection->getNode(CN,2);
-			//		obj =objNode.getIndexCollection();
-			//		CIndex *objIndex;
-			//		objIndex = obj->getIndexbyIndexValue("2100");
-			//		CSubIndex* objsub;
-			//		objsub= objIndex->getSubIndex(3);
-			//		char* value;
-			//		value = (char*)objsub->getDefaultValue();
-			//		if (value == NULL)
-			//		printf("Default value%s",objsub->getDefaultValue());
-
-			//		CDataTypeCollection* dtcol;
-			//		dtcol= objNode.getDataTypeCollection();
-			//		DataType* dt;
-			//		dt=dtcol->getDataType(0);
-			//		printf("DataType Name: %s", dt->Name);
-			//		DataType  t;
-			//		t= objIndex->getDataType();
-			//		if(t.getName() !=NULL)
-			//		printf("Name Datatype:%s",t.getName());
-			//		//index=objIndex.getNumberofSubIndexes();
-			//		printf("Number of subindexes: %d",objIndex->getNumberofSubIndexes());
-			//	/*	printf("SubIndex Name: %s",objsub->getName());*/
-			//		//printf("Index: %s Name: %s\n",index,objIndex.getName());
-			//		
-			//		return(0);
-	};
-}
 
 /**************************************************************************************************
 	* Function Name: ProcessPDONodes
@@ -1329,7 +781,7 @@ void ProcessPDONodes()
 				objNode = objNodeCol->getNode(CN,i);
 				CIndexCollection* objPDOCollection;
 				CIndexCollection* objIndexCollection;
-				objPDOCollection = objNode.getPDOIndexCollection(RPDO);
+				objPDOCollection = objNode.getPDOIndexCollection(PDO_RPDO);
 				objIndexCollection = objNode.getIndexCollection();
 				for(int count = 0; count<objPDOCollection->getNumberofIndexes(); count++)
 					{
@@ -1343,19 +795,7 @@ void ProcessPDONodes()
 
 			}
 	}
-bool CheckIfNotPDO(char* Index)
-	{
-		/*char* c;
-		c = new char;
 
-		c = strncpy(c, Index, 2);*/
-	/*	if(strncmp(c, "14",2)==0 || strcmp(c, "16",2)==0 || strcmp(c, "18",2)==0 ||
-				strcmp(c,"1A",2)==0)*/
-		if(strncmp(Index, "14",2)==0 || strncmp(Index, "16",2)==0 || strncmp(Index, "18",2)==0 ||
-				strncmp(Index,"1A",2)==0)
-			return false;
-		else return true;
-	}
 void ConvertToBinary(char* fileName)
 {
 	FILE *fin, *fout_cdc, *fout_Cfile;
