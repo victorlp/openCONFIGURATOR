@@ -25,9 +25,14 @@ int main(int argc, char **argv)
 	
 	int NodeID;
 	int NodeType;
+	char* IndexID;
+	char* SubIndexID;
+	IndexID = new char;
+	SubIndexID = new char;
 	char filePath[100];	
 	char* errorstring;
-	errorstring = new char;		
+	errorstring = new char;	
+	int temp_ret = 0;
 						
 	CNodeCollection *objNodeCollection;							
 
@@ -46,7 +51,12 @@ int main(int argc, char **argv)
 			cout<<"5:Total Indexes in a collection"<<endl;
 			cout<<"6:Index Properties"<<endl;
 			cout<<"7:SubIndex Properties"<<endl;
-			cout<<"6:Index Properties"<<endl;						
+			cout<<"8:Index Properties"<<endl;						
+			cout<<"9:Delete a Node"<<endl;
+			cout<<"10:Add Index"<<endl;			
+			cout<<"11:Add SubIndex"<<endl;
+			cout<<"12: DisplayNodeTree"<<endl;
+			cout<<"13: IfNodeExists"<<endl;
 			cout <<"Press 'E' for Exit"<<endl;
 								
 			cin>>opt;
@@ -125,6 +135,74 @@ int main(int argc, char **argv)
 							cin.get();
 							cin.get();
 							break;
+							
+				case 9:
+							system("clear");
+							cout<<"Enter the NodeID:"<<endl;								
+							cin >> NodeID;												
+							cout<<"Enter the Node Type(MN=0/CN=1)"<<endl;								
+							cin>>NodeType;
+							//objNodeCollection= CNodeCollection::getNodeColObjectPointer();	
+							//cout<<"Total Number of Nodes are:"<<objNodeCollection->getNumberOfNodes();
+							temp_ret = IfNodeExists(NodeID, CN, errorstring);							
+							if(temp_ret < 0)								
+								printf("\n\n\nErr:%s!!\n\n\n", errorstring);
+							else
+							{
+								DeleteNode(temp_ret);
+								cout <<"Node Deleted"<<endl;
+							}
+							break;
+				case 10:
+							system("clear");
+							cout<<"Enter the NodeID:"<<endl;								
+							cin >> NodeID;												
+							cout<<"Enter the Node Type(MN=0/CN=1)"<<endl;								
+							cin>>NodeType;
+							cout<<"Enter the IndexID:"<<endl;								
+							cin >> IndexID;
+							if (NodeType == 0 )
+							//$SAddIndex_SubIndex(NodeID, MN, IndexID, NULL);
+							AddIndex(NodeID, MN, IndexID);
+							else if (NodeType == 1)
+							//$SAddIndex_SubIndex(NodeID, CN, IndexID, NULL);
+							AddIndex(NodeID, CN, IndexID);
+							break;
+				case 11:
+							system("clear");
+							cout<<"Enter the NodeID:"<<endl;								
+							cin >> NodeID;												
+							cout<<"Enter the Node Type(MN=0/CN=1)"<<endl;								
+							cin>>NodeType;
+							cout<<"Enter the IndexID:"<<endl;
+							cin >> IndexID;
+							cout<<"Enter the SubIndexID:"<<endl;
+							cin >> SubIndexID;
+							if (NodeType == 0 )
+							AddSubIndex(NodeID, MN, IndexID, SubIndexID);
+							if (NodeType == 1 )
+							AddSubIndex(NodeID, CN, IndexID, SubIndexID);
+
+							break;
+							
+				case 12:
+							system("clear");
+							DisplayNodeTree();							
+							break;
+							
+				case 13:
+							system("clear");							
+							cout<<"Enter the NodeID:"<<endl;								
+							cin >> NodeID;												
+							cout<<"Enter the Node Type(MN=0/CN=1)"<<endl;								
+							cin>>NodeType;
+							
+							temp_ret = IfNodeExists(NodeID, CN, errorstring);							
+							printf("\n\nIfNodeExists ret:%d\n\n", temp_ret);
+							if(temp_ret < 0)
+								printf("\n\n\nGot Err String:%s\n\n\n", errorstring);
+							break;
+							
 				default :
 								break;
 		}

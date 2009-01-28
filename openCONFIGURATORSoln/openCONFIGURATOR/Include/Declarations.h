@@ -145,5 +145,10 @@ DllExport void GenerateCDC(char* fileName);
 //void GenerateMNOBD();
 DllExport void CreateNode(int NodeID, ENodeType NodeType);
 DllExport void parseFile(char* filename, int NodeID, ENodeType  NodeType);
+DllExport void DeleteNode(int NodePos);
+DllExport void AddIndex(int NodeID, ENodeType NodeType, char* IndexID);
+DllExport void AddSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID);
+DllExport void DisplayNodeTree(void);
+DllExport int IfNodeExists(int NodeID, ENodeType NodeType, char* ErrStr);
 
 #endif // declarations_h
