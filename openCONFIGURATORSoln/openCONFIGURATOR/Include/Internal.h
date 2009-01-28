@@ -81,4 +81,13 @@ char* itoa( int value, char* result, int base );
 bool CheckIfNotPDO(char* Index);
 void CreateTree();
 bool CheckIfNotPDO(char* Index);
+void ProcessUniqueIDRefs();
+char* subString(char* str, int startpos, int len);
+char* reverse(char* str);
+void ProcessPDONodes(int NodeID);
+bool CheckIfManufactureSpecificObject(char* Index);
+bool IsAscii(char c);
+int lenOfCNBuffer(char* Buffer);
+char* padLeft(char* str, char padChar, int padLength);
+unsigned long hex2int(char *a);
 #endif // declarations_h

@@ -86,11 +86,10 @@ int CNodeCollection::getNumberOfNodes()
 	{return m_NodeCount;}
 void CNodeCollection::addNode(CNode objNode)
 	{
-		
 		int i = collectionObj.Add();
 		collectionObj[i] = objNode;
 		m_NodeCount= collectionObj.Count();
-
+	
 	}
 	
 void CNodeCollection::deleteNode(int NodeID)

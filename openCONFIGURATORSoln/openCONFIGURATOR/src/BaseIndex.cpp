@@ -6,14 +6,15 @@
 CBaseIndex::CBaseIndex(void)
 	{
 		
-		m_Index =  NULL;
-		m_Name = NULL;
-		m_HighLimit = NULL;		
-		m_dataType.Name = NULL;
-		m_DefaultValue = NULL;		
-		m_ActualValue = NULL;		
-		m_accessType = NULL;
-		m_LowLimit	= NULL;
+		m_Index         =  NULL;
+		m_Name          =  NULL;
+		m_HighLimit     =  NULL;		
+		m_dataType.Name =  NULL;
+		m_DefaultValue  =  NULL;		
+		m_ActualValue   =  NULL;		
+		m_accessType    =  NULL;
+		m_LowLimit	    =  NULL;
+		m_UniqueIDRef	  =  NULL;
 
 	}
 
@@ -266,6 +267,23 @@ int CBaseIndex::getNodeID()
 void CBaseIndex::setNodeID(int NodeID)
 	{	
 		m_NodeID = NodeID;
+	}
+	/**************************************************************************************************
+	* Function Name: getNodeID
+    * Description: Returns the NodeID of the Node of the Index Object
+/****************************************************************************************************/
+
+char* CBaseIndex::getUniqueIDRef()
+	{return m_UniqueIDRef;}
+
+/**************************************************************************************************
+	* Function Name: setNodeID
+    * Description: sets the NodeID of the Index Object
+/****************************************************************************************************/
+void CBaseIndex::setUniqueIDRef(char* UniqueID)
+	{	
+		m_UniqueIDRef = new char[strlen(UniqueID)];
+		strcpy((char*)m_UniqueIDRef,UniqueID);
 	}
 #pragma endregion Properties
 

@@ -74,7 +74,7 @@ CNode::CNode(void)
 	{
 		m_NodeName = NULL;		
 		m_IndexCollection = NULL;
-		m_DataTypeCollection =  NULL;
+		m_DataTypeCollection =  NULL;	 
 	}
 
 CNode::~CNode(void)
@@ -172,6 +172,24 @@ void CNode::CreateDataTypeCollection()
 		objDataTypeCollection = new CDataTypeCollection();
 		m_DataTypeCollection = objDataTypeCollection ;
 	}
+void CNode::addComplexDataType(CComplexDataType complexDT)
+ {
+	 	int i = CDTCollection.Add();
+		CDTCollection[i] = complexDT;		
+ }
+void CNode::addParameter(Parameter  parameter)
+ {
+	 	int i = ParameterCollection.Add();
+		ParameterCollection[i] = parameter;
+ }
+ void CNode::addProcessImage(ProcessImage processImage)
+ {
+	 int i = ProcessImageCollection.Add();
+		ProcessImageCollection[i] = processImage;
+ }
+
+
+
 CIndexCollection* CNode::getPDOIndexCollection(EPDOType PDOType)
 	{
 		printf("\nGetPDOCollection starts");
@@ -198,6 +216,10 @@ CIndexCollection* CNode::getIndexCollectionWithoutPDO()
 			}			
 		return objIndexCol;
 	}
+//CDTCollection* CNode::getComplexDTCollection()
+// {
+//	return collectionObjCDT;
+// }
 bool CNode::isNull()
 {
 	if (m_IndexCollection==NULL)

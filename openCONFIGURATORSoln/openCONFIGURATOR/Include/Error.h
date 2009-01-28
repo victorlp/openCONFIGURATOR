@@ -71,7 +71,7 @@
 
 typedef enum
 {
-					OCFM_ERR_SUCCESS					= 0;
+					OCFM_ERR_SUCCESS					= 0,
 					OCFM_ERR_FILE_NOT_PRESENT,
 					OCFM_ERR_FILE_CANNOT_OPEN,				
 					OCFM_ERR_INVALID_NODEID,
@@ -79,7 +79,7 @@ typedef enum
 					OCFM_ERR_INDEX_ALREADY_EXISTS,
 					OCFM_ERR_SUBINDEX_ALREADY_EXISTS,					
 					OCFM_ERR_INVALID_VALUE,
-					OCFM_ERR_INVALID_NAME,				
+					OCFM_ERR_INVALID_NAME				
 	
 }EConfiuguratorErrors;
 
@@ -88,6 +88,6 @@ typedef struct ocfmRetCode
 				int				code;/* Error code from EConfiuguratorErrors*/
 				char*		errorString; /* String Describes the error */
 				
-}
+}ocfmRetCode;
 #endif // Error_h
 

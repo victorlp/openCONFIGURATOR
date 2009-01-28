@@ -1,16 +1,16 @@
-#ifndef BaseIndex_h
-#define BaseIndex_h
+#ifndef complexdatatype_h
+#define complexdatatype_h
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //
 //  $Header: $
 //
-// NAME:  CIndex
+// NAME:  ClassNAME
 //
 // BASE  CLASSES: none
 //  
 // PURPOSE:  purpose description
 //
-// AUTHOR:  MonicaB
+// AUTHOR:  
 //
 //  COPYRIGHT NOTICE:
 //
@@ -68,77 +68,21 @@
 //  REVISION HISTORY:
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
-#include "TCollection.h"
 #include "Declarations.h"
-#pragma once
+#include "TCollection.h"
 
-class DllExport CBaseIndex
-	{
-	public:
-		CBaseIndex(void);
-		~CBaseIndex(void);
-
+class CComplexDataType
+{
+ public:
+	CComplexDataType(void);
+	~CComplexDataType(void);
 	private:
-		const char*					m_Name;
-		const char*					m_Index;		
-		const char*					m_LowLimit;
-		const char*					m_HighLimit;
-		EObjectType					m_objectType;
-		DataType								m_dataType;		
-		const char*					m_accessType;
-		const char*					m_DefaultValue;
-		char*											m_ActualValue;
-		EPDOMapping  			m_pdoMapping;
-		int													m_NodeID;
-		char*											m_UniqueIDRef;
+		int			m_varCount;
+		TCollection<varDeclaration> collectionObj;
+ public:
+		 void addVarDeclaration(varDeclaration VarDecl);
 
-
-
-
-	public :
-		const char* getName(); 		
-		void setName(char* Name);
-
-		const char* getIndexValue();			
-		void setIndexValue(char* Index);
-
-		const char* getDefaultValue();
-		void setDefaultValue(char* Value);
-
-		const char* getActualValue();
-		void setActualValue(char* Value);
-		
-		const char* getAccessType();
-		void setAccessType(char* Access);
-
-		const char* getLowLimit();
-		void setLowLimit(char* LowLimit);
-
-		const char* getHighLimit();
-		void setHighLimit(char* HighLimit);
-
-		DataType getDataType();
-		void setDataType(char* dataTypeValue);
-
-		EPDOMapping getPDOMapping();
-		void setPDOMapping(char* pdoMappingValue);
-
-		const char* getObjectType();
-		void setObjectType(int objectTypeValue);
-
-	
-		int getNodeID();
-		void setNodeID(int NodeID);
-
-		void ValidateIndex();
-		void SaveChanges(char* Name, char* Value);
-		
-	
-		char* getUniqueIDRef();
-		void setUniqueIDRef(char* UniqueID);
-
-		
 	};
-#endif //BaseIndex_h
-
+#endif // complexdatatype_h

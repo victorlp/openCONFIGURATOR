@@ -181,6 +181,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\ComplexDataType.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\DataTypeCollection.cpp"
 				>
 			</File>
@@ -228,6 +232,10 @@
 				RelativePath=".\src\Utility.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\src\Validation.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -243,11 +251,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Include\ComplexDataType.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Include\DataTypeCollection.h"
 				>
 			</File>
 			<File
 				RelativePath=".\Include\Declarations.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Include\Error.h"
 				>
 			</File>
 			<File
@@ -300,6 +316,10 @@
 			</File>
 			<File
 				RelativePath=".\Include\template.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Include\Validation.h"
 				>
 			</File>
 		</Filter>

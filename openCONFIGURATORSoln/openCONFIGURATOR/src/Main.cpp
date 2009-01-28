@@ -156,6 +156,10 @@ static void setIndexAttributes(xmlTextReaderPtr reader, CIndex* objIndex)
 
 		else if(strcmp(ConvertToUpper((char*)name), "DATATYPE")==0)					
 		objIndex->setDataType((char*)value);							
+
+		else if(strcmp(ConvertToUpper((char*)name), "UNIQUEIDREF")==0)					
+		objIndex->setUniqueIDRef((char*)value);							
+	
 																	
 	}
 static void setSubIndexAttributes(xmlTextReaderPtr reader, CSubIndex* objSubIndex)
@@ -193,7 +197,11 @@ static void setSubIndexAttributes(xmlTextReaderPtr reader, CSubIndex* objSubInde
 		objSubIndex->setActualValue((char*)value);
 
 		else if(strcmp(ConvertToUpper((char*)name), "DATATYPE")==0)					
-		objSubIndex->setDataType((char*)value);							
+		objSubIndex->setDataType((char*)value);		
+
+		else if(strcmp(ConvertToUpper((char*)name), "UNIQUEIDREF")==0)					
+		objSubIndex->setUniqueIDRef((char*)value);							
+		
 		
 														
 	}
@@ -246,53 +254,36 @@ static void setDataTypeAttributes(xmlTextReaderPtr reader ,DataType* objDataType
 				(strcmp(ConvertToUpper(objDataType->Name),"INTEGER32")==0 ) ||
 				(strcmp(ConvertToUpper(objDataType->Name),"REAL32")==0 ))
 				strcpy(objDataType->DataSize,"0004");
+				
+				if(strcmp(ConvertToUpper(objDataType->Name),"UNSIGNED64")==0)
+				strcpy(objDataType->DataSize,"0008");
+			
 				}
 				printf("\noutside DataType");
 	}
-/**************************************************************************************************
-	* Function Name: AddIndexAttributes
-    * Description: Adds the default attributes to the Index, when addded.
-/****************************************************************************************************/
-static void AddIndexAttributes(char* IndexID, CIndex* objIndex)
+static void setParameterAttributes(xmlTextReaderPtr reader, Parameter* stParameter)
 	{
-			
-				// Setting the Index Value
-				objIndex->setIndexValue(IndexID);
-				//$S The actual value for all the attributes has to come from ObjDict.xdd
-				objIndex->setName("Test_Name");
-				char* value = "Test_Values";
-				objIndex->setObjectType(atoi((const char*)value));
-				objIndex->setLowLimit((char*)value);
-				objIndex->setHighLimit((char*)value);
-				objIndex->setAccessType((char*)value);
-				//objIndex->setPDOMapping((char*)value);				
-				objIndex->setDefaultValue((char*)value);
-				//objIndex->setActualValue((char*)value);
-				objIndex->setDataType((char*)value);
-	}	
+		const xmlChar* name,*value;
+		//Retrieve the name and Value of an attribute
+		value = xmlTextReaderConstValue(reader);
+		name =xmlTextReaderConstName(reader);							
 
-	
-/**************************************************************************************************
-	* Function Name: AddSubIndexAttributes
-    * Description: Adds the default attributes to the Index, when addded.
-/****************************************************************************************************/
-static void AddSubIndexAttributes(char* SubIndexID, CSubIndex* objSubIndex)
-	{
+		if(strcmp(ConvertToUpper((char*)name), "UNIQUEID")==0)
+		{						
+			stParameter->UniqueID = new char[strlen((char*)name)];
+			strcpy(stParameter->UniqueID,(char*)name);
+		}
+
+		else if(strcmp(ConvertToUpper((char*)name), "NAME")==0)					
+		{						
+			stParameter->Name = new char[strlen((char*)name)];
+			strcpy(stParameter->Name,(char*)name);
+		}
+
+		/* TO DO: DATATYPE..There is no tag for it..need to check after how many reads datatype is define </label>
+            <USINT/>*/					
 			
-				// Setting the Index Value
-				objSubIndex->setIndexValue(SubIndexID);
-				//$S The actual value for all the attributes has to come from ObjDict.xdd
-				objSubIndex->setName("Test_Name");
-				char* value = "Test_Values";
-				objSubIndex->setObjectType(atoi((const char*)value));
-				objSubIndex->setLowLimit((char*)value);
-				objSubIndex->setHighLimit((char*)value);
-				objSubIndex->setAccessType((char*)value);
-				//objIndex->setPDOMapping((char*)value);				
-				objSubIndex->setDefaultValue((char*)value);
-				//objIndex->setActualValue((char*)value);
-				objSubIndex->setDataType((char*)value);
-	}	
+	}
 	
 /**************************************************************************************************
 	* Function Name: ImportXML
@@ -310,6 +301,12 @@ int ImportXML(char* fileName, char* errorString, int NodeID, ENodeType NodeType)
 		parseFile(fileName, NodeID, NodeType);
 		//Cleanup function for the XML library.
    
+		/* Check if UniqueIDRefs are present, fetch the value from parameter and struct tags*/
+		//ProcessUniqueIDRefs();
+
+		/* Process PDO Objects*/
+		//ProcessPDONodes(NodeID);
+		
 		printf("Parsing Done");
 		 xmlCleanupParser();
     /*
@@ -365,7 +362,26 @@ void processNode(xmlTextReaderPtr reader,ENodeType NodeType,int NodeIndex)
 			
 
 				}
+			if(strcmp(((char*)name),"Parameter")==0)
+				{
+					objNodeCollection= CNodeCollection::getNodeColObjectPointer();					
+					Parameter stParameter;
 
+					
+					objNode = objNodeCollection->getNode(NodeType, NodeIndex);	
+					
+					if (xmlTextReaderHasAttributes(reader)==1)
+						{						
+							while(xmlTextReaderMoveToNextAttribute(reader))
+								{
+										setParameterAttributes(reader,&stParameter);																															
+								}
+						}
+						
+						// Add parameter to the parameter collection of a node
+						objNode.addParameter(stParameter);				
+					
+				}
 			if(strcmp(((char*)name),"Object")==0)
 				{
 					objNodeCollection= CNodeCollection::getNodeColObjectPointer();
@@ -464,23 +480,28 @@ void parseFile(char* filename, int NodeIndex, ENodeType  NodeType)
 										processNode(reader,NodeType,NodeIndex );
 										ret = xmlTextReaderRead(reader);
 								}
+				}
+				else
+				{
+					  fprintf(stderr, "Unable to open %s\n", filename);
+				}
 		
 				printf("\n\n\nCalling xmlFreeTextReader\n\n\n\n");
 
-					xmlFreeTextReader(reader);
-        if (ret != 0)
-					{
-            fprintf(stderr, "%s : failed to parse\n", filename);
-			/*strerr= strerror(errno);
-			strerr =" Error:" +strerr;*/
-					}
-    }
-	else 
-		{
-			/*strerr=strerror(errno);
-			strerr =" Error:" +strerr;*/
-       fprintf(stderr, "Unable to open %s\n", filename);
-		}
+	//				xmlFreeTextReader(reader);
+ //       if (ret != 0)
+	//				{
+ //           fprintf(stderr, "%s : failed to parse\n", filename);
+	//		/*strerr= strerror(errno);
+	//		strerr =" Error:" +strerr;*/
+	//				}
+ //   }
+	//else 
+	//	{
+	//		/*strerr=strerror(errno);
+	//		strerr =" Error:" +strerr;*/
+ //      fprintf(stderr, "Unable to open %s\n", filename);
+	//	}
  }
 /**************************************************************************************************
 	* Function Name: CreateTree
@@ -497,9 +518,12 @@ void CreateTree()
 /****************************************************************************************************/
 void CreateNode(int NodeID, ENodeType NodeType)
 	{
+		ocfmRetCode Ret;
 		CNode objNode;
 		CNodeCollection *objNodeCollection;
 
+		/* Check if the Node already exists with the same NodeID*/
+		
 		objNode.setNodeId(NodeID);
 		objNode.setNodeType(NodeType);
 		
@@ -507,230 +531,10 @@ void CreateNode(int NodeID, ENodeType NodeType)
 		objNode.CreateDataTypeCollection();
 
 		objNodeCollection = CNodeCollection::getNodeColObjectPointer();
-		objNodeCollection->addNode(objNode);		
+		objNodeCollection->addNode(objNode);
+		
 	}
 
-/**************************************************************************************************
-	* Function Name: DeleteNode
-    * Description:
-/****************************************************************************************************/
-void DeleteNode(int NodePos)
-	{
-		int count;
-		CNode objNode;		
-		CNodeCollection *objNodeCollection;
-		objNodeCollection= CNodeCollection::getNodeColObjectPointer();	
-		cout<< "Inside DeleteNode: \n" <<objNodeCollection->getNumberOfNodes()<<endl;
-		objNodeCollection = CNodeCollection::getNodeColObjectPointer();
-		objNodeCollection->deleteNode(NodePos);							
-		return;
-	}	
-	
-	
-/**************************************************************************************************
-	* Function Name: AddSubIndex
-    * Description:
-/****************************************************************************************************/
-void AddSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID)
-	{
-		int count;
-		CNode objNode;		
-		CNodeCollection *objNodeCollection;
-		CIndexCollection *objIndexCollection;
-		CIndex objIndex;
-		
-		cout<< "Inside AddSubIndex \n"<<endl;
-		objNodeCollection = CNodeCollection::getNodeColObjectPointer();
-		// Check for number of Nodes present
-		if( objNodeCollection->getNumberOfNodes() > 0)
-		{
-			for(int count = 0; count < objNodeCollection->getNumberOfNodes(); count++)
-			{
-				printf("`");
-				objNode = objNodeCollection->getNodebyCollectionIndex(count);
-				// Check for the type of Node
-				if (objNode.getNodeType() == CN)
-				{
-					// Check for corresponding Index
-					if(objNode.getNodeId() == NodeID)
-					{
-						//Set the NodeID							
-						objIndex.setNodeID(objNode.getNodeId());
-						objNodeCollection= CNodeCollection::getNodeColObjectPointer();
-						objNode = objNodeCollection->getNode(NodeType, NodeID);
-						
-						objIndexCollection = objNode.getIndexCollection();
-						if(objIndexCollection->getNumberofIndexes() == 0)
-						{
-								printf("Cannot add SubIndex - Index not Found\n\n");
-								return;
-						}
-						else
-						{
-							//Check for existance of the Index
-							for(int tmpIndexcount = 0; tmpIndexcount < objIndexCollection->getNumberofIndexes(); tmpIndexcount++)
-							{
-								CIndex* objIndexPtr;
-								objIndexPtr =objIndexCollection->getIndex(tmpIndexcount);						
-								printf("IndexValue:%s-%s\n", objIndexPtr->getIndexValue(), IndexID);
-								if((strcmp(objIndexPtr->getIndexValue(), IndexID) == 0))
-								{
-									
-									CSubIndex objSubIndex;
-									//Set the NodeID
-									objSubIndex.setNodeID(objNode.getNodeId());
-									AddSubIndexAttributes(SubIndexID, &objSubIndex);									
-									objIndexPtr->addSubIndex(objSubIndex);
-									printf("Added SubIndex \n\n");
-									return;
-								}
-								else if(tmpIndexcount == (objIndexCollection->getNumberofIndexes() - 1))
-								{
-									printf("Cannot add SubIndex - Index not Found\n\n");
-									return;
-								}
-							}
-						}
-					}
-					else
-					{
-						printf("!");
-						//return;
-					}
-				}					
-			}
-		}
-		else
-		{
-				printf("Cannot add SubIndex - No Nodes found!\n");
-				return;
-		}
-
-	}	
-
-/**************************************************************************************************
-	* Function Name: AddIndex
-    * Description:
-/****************************************************************************************************/
-void AddIndex(int NodeID, ENodeType NodeType, char* IndexID)
-	{
-		int count;
-		CNode objNode;		
-		CNodeCollection *objNodeCollection;
-		CIndexCollection *objIndexCollection;
-		CIndex objIndex;
-		
-		cout<< "Inside AddIndex \n"<<endl;
-		objNodeCollection = CNodeCollection::getNodeColObjectPointer();
-		// Check for number of Nodes present
-		if( objNodeCollection->getNumberOfNodes() > 0)
-		{
-			for(int count = 0; count < objNodeCollection->getNumberOfNodes(); count++)
-			{
-				printf("`");
-				objNode = objNodeCollection->getNodebyCollectionIndex(count);
-				// Check for the type of Node
-				if (objNode.getNodeType() == CN)
-				{
-					//int tmp_NodeID = objNode.getNodeId();
-					//printf("NodeID:%d\n", tmp_NodeID);
-					// Check for corresponding Index
-					if(objNode.getNodeId() == NodeID)
-					{
-						//Set the NodeID							
-						objIndex.setNodeID(objNode.getNodeId());
-						objNodeCollection= CNodeCollection::getNodeColObjectPointer();
-						objNode = objNodeCollection->getNode(NodeType, NodeID);
-						
-						objIndexCollection = objNode.getIndexCollection();
-						if(objIndexCollection->getNumberofIndexes() == 0)
-						{
-							AddIndexAttributes(IndexID, &objIndex);
-							objIndexCollection->addIndex(objIndex);	
-							printf("Added Index \n\n");
-							return;
-						}
-						else
-						{
-							//Check for existance of the Index
-							for(int tmpIndexcount = 0; tmpIndexcount < objIndexCollection->getNumberofIndexes(); tmpIndexcount++)
-							{
-								CIndex* objIndexPtr;
-								objIndexPtr =objIndexCollection->getIndex(tmpIndexcount);						
-								printf("IndexValue:%s-%s\n", objIndexPtr->getIndexValue(), IndexID);
-								if((strcmp(objIndexPtr->getIndexValue(), IndexID) == 0))
-								{
-									printf("Cannot Add - Index Already Exists!\n");
-									return;
-								}
-								else if(tmpIndexcount == (objIndexCollection->getNumberofIndexes() - 1))
-								{
-									// Add the Index
-									//objIndex.setIndexValue(IndexID);
-									AddIndexAttributes(IndexID, &objIndex);
-									// Add the default Index Attributes
-									
-									
-									//Add Index object to the IndexCollection
-									objIndexCollection->addIndex(objIndex);	
-									printf("Added Index \n\n");
-									return;
-								}
-
-							}
-						}
-					}
-					else
-					{
-						printf("!");
-						//return;
-					}
-				}						
-			}
-		}
-		else
-		{
-				printf("No Nodes found!\n");
-				return;
-		}
-
-	}	
-	
-/**************************************************************************************************
-	* Function Name: DisplayNodeTree
-    * Description:
-/****************************************************************************************************/
-void DisplayNodeTree()
-	{
-		int count;
-		CNode objNode;		
-		CNodeCollection *objNodeCollection;
-		CIndexCollection *objIndexCollection;
-		
-		objNodeCollection= CNodeCollection::getNodeColObjectPointer();
-		objIndexCollection = objNode.getIndexCollection();
-		
-		if( objNodeCollection->getNumberOfNodes() > 0)
-		{
-			for(int count = 0; count < objNodeCollection->getNumberOfNodes(); count++)
-			{
-					objNode = objNodeCollection->getNodebyCollectionIndex(count);
-					if (objNode.getNodeType() == CN)
-					{						
-						//int tmp_NodeID = objNode.getNodeId();
-						//objNode =objNodeCollection->getNode(CN,tmp_NodeID);
-						printf("NodePos:%d, NodeID:%d\n", count, objNode.getNodeId());
-					}						
-			}
-		}
-		else
-		{
-				printf("No Nodes found!\n");
-				return;
-		}
-			
-	}	
-	
 /**************************************************************************************************
 	* Function Name: GetIndexData
    * Description: 
@@ -738,50 +542,121 @@ void DisplayNodeTree()
 void GetIndexData(CIndex* objIndex, char* Buffer)
 	{
 			int len;
-						
-			if(objIndex->getNumberofSubIndexes() !=0)
-				{}
+			
 			//Get the Index Value		
 			
-			//Buffer = (char *) malloc(sizeof(IndexValue));
-			strcpy(Buffer,objIndex->getIndexValue());
-
-			//Place a tab
-			//Buffer = (char *)realloc(Buffer,2* sizeof(char));
-			len = strlen(Buffer);
-			strcat(Buffer,"\t");
-			printf("%s",Buffer);
-
-			//If subindexes are none, add "00"
-			//Buffer = (char *)realloc(Buffer,2* sizeof(char));
-			if(objIndex->getNumberofSubIndexes() ==0)
-				strcat(Buffer,"00");
-
-			strcat(Buffer,"\t");
-
-			//Add datatype
-			//Buffer = (char *)realloc(Buffer,4* sizeof(char));
-			DataType dt;			
-			dt = objIndex->getDataType();
-			if(dt.Name != NULL)
-				{
-					strcat(Buffer ,dt.DataSize);					
-				}
-			else strcat(Buffer,"0000");
-
-			//CHANGE			
-			if (objIndex->getActualValue()!=NULL)
+			/*if(objIndex->getNumberofSubIndexes()==0 &&(objIndex->getDefaultValue()!= NULL ||
+																																													 objIndex->getActualValue()!=NULL))*/
+			strcpy(Buffer,"");
+			if(objIndex->getNumberofSubIndexes()==0 && objIndex->getActualValue()!=NULL)
+			
 			{
-				//Buffer = (char *)realloc(Buffer,sizeof(objIndex->getActualValue()));
-				strcat(Buffer,objIndex->getActualValue());
-			//Add a newline
-				//Buffer = (char *)realloc(Buffer,2*sizeof(char));
-			strcat(Buffer,"\n");
-			}
-			//free(Buffer1);
+					//Buffer = (char*)malloc(sizeof(objIndex->getIndexValue()+1));
+					strcpy(Buffer,objIndex->getIndexValue());
+
+					//Place a tab			
+					len = strlen(Buffer);
+					//Buffer =(char*)realloc(Buffer,2);
+					strcat(Buffer,"\t");
+					printf("%s",Buffer);
+
+					//If subindexes are none, add "00"
+					//	Buffer =(char*)realloc(Buffer,4);
+						strcat(Buffer,"00");
+						strcat(Buffer,"\t");
+
+							//Add datatype
+							DataType dt;		
+							//Buffer =(char*)realloc(Buffer,6);	
+							dt = objIndex->getDataType();
+							int padLength=0;
+							if(dt.Name != NULL)
+							{
+								strcat(Buffer ,dt.DataSize);				
+								padLength = hex2int(dt.DataSize)*2;
+							}
+							else strcat(Buffer,"0000");
+							
+							strcat(Buffer,"\t");
+						
+							if (objIndex->getActualValue()!=NULL)
+							{									
+									//Buffer =(char*)realloc(Buffer,sizeof(objIndex->getActualValue()+1));	
+									strcat(Buffer,padLeft((char*)objIndex->getActualValue(),'0',padLength));
+							}
+					
+							//else 
+							//{
+							//	//Buffer =(char*)realloc(Buffer,sizeof(objIndex->getDefaultValue()+1));									
+							//	strcat(Buffer,objIndex->getDefaultValue());
+							//	//Buffer =(char*)realloc(Buffer,2);				
+							//
+							//}
+								strcat(Buffer,"\n");
+				}	
+			
+			else
+			{
+				int noOfSubIndexes = objIndex->getNumberofSubIndexes();
+				bool Indexadded  = false;				
+				for(int i=0; i<noOfSubIndexes ; i++)
+				{
+					CSubIndex* objSubIndex;
+					objSubIndex = objIndex->getSubIndex(i);
+				
+					if(strcmp(objSubIndex->getIndexValue(),"00")!=0 && objSubIndex->getActualValue() != NULL)
+					{
+						if (Indexadded)
+						strcat(Buffer,objIndex->getIndexValue());
+						else
+						{
+							strcpy(Buffer,objIndex->getIndexValue());
+							Indexadded = true;
+						}
+											
+						//Place a tab			
+						len = strlen(Buffer);
+						strcat(Buffer,"\t");
+						printf("%s",Buffer);
+
+							/*if(objSubIndex->getActualValue() != NULL || objSubIndex->getDefaultValue()!=NULL)*/
+								strcat(Buffer, objSubIndex->getIndexValue());
+								strcat(Buffer,"\t");
+									//Add datatype
+								DataType dt;			
+								dt = objSubIndex->getDataType();
+								int padLength=0;
+								if(dt.Name != NULL)
+								{
+									strcat(Buffer ,dt.DataSize);				
+									padLength = hex2int(dt.DataSize)*2;
+								}
+								else strcat(Buffer,"0000");
+								
+								strcat(Buffer,"\t");
+							
+								if (objSubIndex->getActualValue()!=NULL)
+								{			
+										char* actvalue;
+										actvalue = (char*)malloc(50);
+										actvalue = strchr((char*)objSubIndex->getActualValue(),'x');
+										if(actvalue!=NULL)
+										{
+											actvalue = subString(actvalue,1,strlen(actvalue)-1);
+											strcat(Buffer,padLeft(actvalue,'0',padLength));
+										}
+										else	strcat(Buffer,padLeft((char*)objSubIndex->getActualValue(),'0',padLength));
+								}
+									/*else strcat(Buffer,objSubIndex->getDefaultValue());*/
+								strcat(Buffer,"\n");
+						}
+					}
+						
+				}
+	}
+	
 		
 			
-	}
 /**************************************************************************************************
 	* Function Name: GenerateCNOBD
    * Description: 
@@ -824,6 +699,149 @@ char* GenerateCNOBD(CNodeCollection* objNodeCol)
 			}
 		return Buffer2;
 	}
+	/**************************************************************************************************
+	* Function Name: WriteCNsData
+ * Description: Writes all CNS data to CDC file
+/****************************************************************************************************/
+
+	void WriteCNsData(char* fileName)
+{
+		char* Buffer2;
+		char* Buffer3;
+		int len;
+		CIndexCollection* objIndexCollection;
+	
+
+		//Buffer2 = NULL;
+//		strcpy(Buffer3,"");
+		char* c = (char*)malloc(4);	
+		FILE* fileptr = new FILE();
+		CNode objNode;	
+		CNodeCollection* objNodeCollection;
+		objNodeCollection = CNodeCollection::getNodeColObjectPointer();		
+		
+		int CNCount=0;
+		if (( fileptr = fopen(fileName,"a+")) == NULL)
+		{
+			cout << "Problem" <<endl;
+		}
+		for(int count=0; count<objNodeCollection->getNumberOfNodes(); count++)
+			{
+				objNode = objNodeCollection->getNodebyCollectionIndex(count);
+				if (objNode.getNodeType() == CN)
+					{
+						
+							objIndexCollection = objNode.getIndexCollection();
+							char* comment= (char*)malloc(30);
+							itoa(CNCount+1,c,10);
+							CNCount++;
+							
+							strcpy(comment,"\\\\Configuration Data for CN-");
+							comment = strcat(comment,c);
+							comment = strcat(comment,"\n");
+							len = strlen(comment);
+							if((fwrite(comment, sizeof(char),len,fileptr))!=NULL)
+							{
+								printf("\nComments for CN-%d",count);
+								fclose(fileptr);
+							}
+							char* NodeId;
+							//comment = strcat(comment,(char*)count);
+							/*strcpy(Buffer2, comment);*/
+							int NumberOfIndexes;
+							bool firstBuffer = true;																								
+							NumberOfIndexes = objIndexCollection->getNumberofIndexes();
+							/*************WRITE 1006, PDO Data, Module Data *******************************/
+								for(int i=0; i<NumberOfIndexes; i++)
+								{
+									CIndex* objIndex;
+									char* Buffer4;
+									objIndex = objIndexCollection->getIndex(i);
+									const char* IndexValue = objIndex->getIndexValue();
+									if(strcmp(IndexValue,"1006")==0 || (CheckIfNotPDO((char*)IndexValue)==false)  ||
+											CheckIfManufactureSpecificObject((char*)IndexValue))
+										{
+											Buffer4 = (char*)malloc(300);							
+											GetIndexData(objIndex, Buffer4);
+											if(firstBuffer)
+											{
+												Buffer2 = (char*)malloc(sizeof(char)*strlen(Buffer4)+1);																				
+												strcpy(Buffer2, Buffer4);
+												firstBuffer = false;											
+											}
+											else
+											{
+												printf("length of Buffer1 %d",strlen(Buffer4));
+												printf("\nlength of Buffer2 %d",strlen(Buffer2));
+												strcat(Buffer2, Buffer4);
+											}
+											//free(Buffer1);
+										}									
+								}	
+						/**************write module data********************************/
+					/*	if(objNode.ProcessImageCollection.Count() !=0)
+						{
+							int count = objNode.ProcessImageCollection.Count();
+							
+							for(int i=0; i<count; i++)
+							{
+										char* Index = (char*)malloc(4);	
+										CIndex* objIndex;										
+										strcpy(Index,objNode.ProcessImageCollection[i].Index);
+										objIndex = objIndexCollection->getIndexbyIndexValue(Index);
+										
+							}
+						}*/
+							
+							//Convert CN NodeID to Hex
+							itoa(count+1,c,16);	
+							char CNDataLength[18];
+							strcpy(CNDataLength, "1F22\t");
+							c = padLeft(c, '0', 2);
+							/*if (strlen(c)< 2)
+								{
+									char clen[2];
+									strcpy(clen,c);
+									strcpy(c,"0");
+									strcat(c,clen);
+								}
+							*///write CN-n NodeID  in the next to 1F22
+							strcat(CNDataLength, c);
+							strcat(CNDataLength, "\t");
+							
+							//write the size of CN-n Buffer
+							int len = lenOfCNBuffer(Buffer2);
+
+							//Convert length to Hex
+							itoa(len,c,16);
+							printf("c%s",c);
+							
+							c = padLeft(c, '0', 4);
+							strcat(CNDataLength, c);				
+							
+							// First write the IF22 data in a Buffer and then CN-ns Object Dictionary
+							Buffer3 = (char*)malloc(strlen(Buffer2)+50);
+							strcpy(Buffer3, CNDataLength);
+							strcat(Buffer3, "\n");
+							strcat(Buffer3, Buffer2);
+															
+						
+							//strcpy(Buffer2,GenerateCNOBD(objNodeCollection));
+						
+							//write all CNs data in the file
+							len = strlen(Buffer3);
+							if (( fileptr = fopen(fileName,"a+")) == NULL)
+							{
+								cout << "Problem" <<endl;
+							}
+							if((fwrite(Buffer3, sizeof(char),len,fileptr))!=NULL)
+								{
+									printf("success");				
+									fclose(fileptr);	
+								}
+					}
+			}
+	}
 /**************************************************************************************************
 	* Function Name: GenerateCDC
     * Description: Generates the CDC file
@@ -832,8 +850,8 @@ void GenerateCDC(char* fileName)
 	{
 		CNode objNode;	
 		CIndexCollection* objIndexCollection;
-		ofstream file;
-		char *Buffer1,*Buffer2;
+		//ofstream file;
+		char *Buffer1;
 		int len;
 				
 		char* CNData;
@@ -855,8 +873,7 @@ void GenerateCDC(char* fileName)
 			exit(1);
 		}
 		printf("Node id %d",objNode.getNodeId());
-		/*if(file.is_open())
-			{printf("x");}*/
+
 		FILE* fileptr = new FILE();
 		if (( fileptr = fopen(fileName,"w+")) == NULL)
 			{
@@ -874,10 +891,12 @@ void GenerateCDC(char* fileName)
 			{
 				CIndex* objIndex;
 				objIndex = objIndexCollection->getIndex(i);
-				if(CheckIfNotPDO((char*)objIndex->getIndexValue()))
-					{						
+			/*	if(CheckIfNotPDO((char*)objIndex->getIndexValue()))
+					{	*/					
 						printf("Index%s",objIndex->getIndexValue());						
-						Buffer1 = (char*)malloc(50);
+						Buffer1 = (char*)malloc(200);
+						len = strlen(Buffer1);
+						
 						GetIndexData(objIndex,Buffer1);
 						len = strlen(Buffer1);
 						if((fwrite(Buffer1, sizeof(char),len,fileptr))!=NULL)
@@ -886,114 +905,56 @@ void GenerateCDC(char* fileName)
 						
 						}
 						delete[] Buffer1;
-					}
+				/*	}*/
 						
 			}
-			
+			fclose(fileptr);
 			
 		/*************************Write CN's Data in Buffer2***************************************************/
-		char* Buffer3;
-		Buffer3 = new char;
-		strcpy(Buffer3,"");
-		char* c;
-		c= new char;
-		int count;
-		for(int count=0; count<objNodeCollection->getNumberOfNodes(); count++)
+		WriteCNsData(fileName);
+		
+		//Get all the IF81 ENTRY in Buffer1
+		if(objNodeCollection->getNumberOfNodes()!=0)
+		{
+			if (( fileptr = fopen(fileName,"a+")) == NULL)
 			{
-				objNode = objNodeCollection->getNodebyCollectionIndex(count);
-				if (objNode.getNodeType() == CN)
-					{
-						
-							objIndexCollection = objNode.getIndexCollection();
-							char* comment= new char;
-							itoa(count+1,c,10);
-							strcpy(comment,"\\\\Configuration Data for CN-");
-							comment = strcat(comment,c);
-							comment = strcat(comment,"\n");
-							len = strlen(comment);
-							if((fwrite(comment, sizeof(char),len,fileptr))!=NULL)
-							{
-								printf("\nComments for CN-%d",count);
-								
-							}
-							char* NodeId;
-							//comment = strcat(comment,(char*)count);
-							/*strcpy(Buffer2, comment);*/
-							int NumberOfIndexes;
-							NumberOfIndexes = objIndexCollection->getNumberofIndexes();
-							Buffer2 = (char*)malloc(50);
-							for(int i=0; i<NumberOfIndexes; i++)
-								{
-									CIndex* objIndex;
-									objIndex = objIndexCollection->getIndex(i);
-									const char* IndexValue = objIndex->getIndexValue();
-									if(strcmp(IndexValue,"1006")==0 ||strcmp(IndexValue,"2000")==0)
-										{
-											
-											//strcpy(Buffer2,GetIndexData(objIndex));
-											GetIndexData(objIndex, Buffer2);											
-										}
-										delete[] Buffer2;
-								}	
-
-						
-							//Convert CN NodeID to Hex
-							itoa(count+1,c,10);	
-							char CNDataLength[18];
-							
-							strcpy(CNDataLength, "1FF2\t");
-
-							if (strlen(c)< 2)
-								{
-									char clen[2];
-									strcpy(clen,c);
-									strcpy(c,"0");
-									strcat(c,clen);
-								}
-							//write CN-n NodeID  in the next to 1F22
-							strcat(CNDataLength, c);
-							strcat(CNDataLength, "\t");
-							
-							//write the size of CN-n Buffer
-							int len = strlen(Buffer2);
-
-							//Convert length to Hex
-							itoa(len,c,16);
-							if (strlen(c)< 4)
-								{
-									char clen[2];
-									strcpy(clen,c);
-									if(strlen(c)==1){strcpy(c,"000");}
-									else if(strlen(c)==2){strcpy(c,"00");}
-									else if(strlen(c)==3){strcpy(c,"0");}
-									strcat(c,clen);
-								}
-							strcat(CNDataLength, c);				
-							
-							// First write the IF22 data in a Buffer and then CN-ns Object Dictionary
-							strcat(Buffer3, CNDataLength);
-							strcat(Buffer3, "\n");
-							strcat(Buffer3, Buffer2);
-
-							
-							/*free(Buffer2);	*/
-
-									
-						
-							//strcpy(Buffer2,GenerateCNOBD(objNodeCollection));
-						
-							//write all CNs data in the file
-							len = strlen(Buffer3);
-							if((fwrite(Buffer3, sizeof(char),len,fileptr))!=NULL)
-								{
-									printf("success");
-									delete[] Buffer3;
-								}
-					}
+				printf ( "Cannot open file you have named...!\n" );
+			
 			}
-
+		else
+			{
+			}
+			for(int i=0;i < objNodeCollection->getNumberOfNodes();i++)
+			{
+					CNode objNode;
+					objNode = objNodeCollection->getNodebyCollectionIndex(i);
+					if(objNode.getNodeType() ==CN)
+					{
+							Buffer1 = (char*)malloc(100);
+							len = strlen(Buffer1);
+							strcpy(Buffer1, "//// NodeId Reassignment\n");
+							strcat(Buffer1, "1F81");
+							strcat(Buffer1, "\t");
+							int NodeID = objNode.getNodeId();		
+							char* hex = (char*)malloc(3);					
+							hex = itoa(NodeID,hex,16);
+							hex = padLeft(hex,'0',2);
+							strcat(Buffer1, hex);
+							strcat(Buffer1, "\t0004\t80000007\n");
+							len = strlen(Buffer1);
+							if((fwrite(Buffer1, sizeof(char),len,fileptr))!=NULL)
+							{
+								printf("Buffer1 written");
+							
+							}
+							delete[] Buffer1;
+					}
+				}
+				/*	}*/
+						
+			}
 		fclose(fileptr);		
-
+		
 	}
 
 /**************************************************************************************************
@@ -1033,28 +994,47 @@ void GenerateCDC(char* fileName)
 	* Function Name: ProcessPDONodes
     * Description: Processes the Node
 /****************************************************************************************************/
-void ProcessPDONodes()
-	{
+void ProcessPDONodes(int NodeID)
+{
 		CNodeCollection* objNodeCol;
 		objNodeCol = CNodeCollection::getNodeColObjectPointer();
-		for(int i =0;i<objNodeCol->getNumberOfNodes(); i++)
+		CNode objNode;
+		objNode = objNodeCol->getNode(CN,NodeID);
+		CIndexCollection* objPDOCollection;
+		CIndexCollection* objIndexCollection;
+		/* Check RPDO Mapped objects*/
+		objPDOCollection = objNode.getPDOIndexCollection(PDO_RPDO);
+		if(objPDOCollection!= NULL)
+		{
+		
+			objIndexCollection = objNode.getIndexCollection();
+			for(int count = 0; count<objPDOCollection->getNumberofIndexes(); count++)
 			{
-				CNode objNode;
-				objNode = objNodeCol->getNode(CN,i);
-				CIndexCollection* objPDOCollection;
-				CIndexCollection* objIndexCollection;
-				objPDOCollection = objNode.getPDOIndexCollection(PDO_RPDO);
-				objIndexCollection = objNode.getIndexCollection();
-				for(int count = 0; count<objPDOCollection->getNumberofIndexes(); count++)
+					CIndex* objIndex;
+					objIndex = objPDOCollection->getIndex(count);
+					if (objIndex->getActualValue()!=NULL)
 					{
-						CIndex* objIndex;
-						objIndex = objPDOCollection->getIndex(count);
-						const char* value = objIndex->getActualValue();
-						int len = strlen(value);
-					
-
+							const char* value = objIndex->getActualValue();
+							int len = strlen(value);
+							char* reverseValue = (char*)malloc(len);
+							/* Reverse the actual value to get Index / subindex*/
+							reverseValue = reverse((char*)value);
+							
+							/* Get the Index*/
+							char* strIndex = (char*)malloc(4);
+							strIndex = strncpy(strIndex,reverseValue,4);
+								/* Get the SubIndex*/
+							char* strSubIndex = (char*)malloc(2);
+							strSubIndex = subString(reverseValue,2,2);
+							ProcessImage objProcessImage;
+																		
+							objProcessImage.Index = new char[4];
+							strcpy(objProcessImage.Index, strIndex);
+							
+							objProcessImage.subindex = new char[2];
+							strcpy(objProcessImage.subindex, (const char*)strSubIndex);
 					}
-
+				}
 			}
 	}
 
@@ -1132,3 +1112,24 @@ void ConvertToBinary(char* fileName)
 	fclose(fout_cdc);
 	fclose(fout_Cfile);
 }
+void ProcessUniqueIDRefs(CNode* objNode)
+ {
+	 
+	 
+	
+ }
+ int lenOfCNBuffer(char* Buffer)
+ {
+		char tempchar;
+		int len = strlen(Buffer);
+		int counter =0;
+		int actualLength=0;
+		while(counter<len)
+		{
+			tempchar = *(Buffer+counter);
+			if(tempchar!='\n' && tempchar != '\t')
+			actualLength++;
+			counter++;
+		}
+		return actualLength;
+ }

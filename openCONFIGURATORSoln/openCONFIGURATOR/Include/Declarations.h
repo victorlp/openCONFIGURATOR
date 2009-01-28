@@ -71,6 +71,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "Exports.h"
+#include "Error.h"
 
 //using namespace std;
 
@@ -112,7 +113,17 @@ typedef enum
 				PDO_TPDO				= 1,
 				PDO_RPDO				= 2
 }EPDOType;
-
+typedef enum
+{
+	
+			 constant,
+			 read,			 /* read access only (default value)*/
+			 write,			 /* write access only */
+			 readWrite,	 /* both read and write access*/
+			 readWriteInput, /*both read and write access, but represents process input data*/
+			 readWriteOutput, /*both read and write, access, but represents process output data*/
+			 noAccess				 /*access denied				*/
+}EParameterAccess;
 struct DataType
 {
 		char*		Name;
@@ -125,18 +136,40 @@ struct DataType
 			strcpy(Name,DataTypeName);	
 		}
 };
-struct ProcessImage
+typedef struct ProcessImage
 {
-		char*		Name;
-		char*		Direction;
-		DataType	dataType;
-		int			DataSize;
-		int			Offset;
-		char*		Value;
-		char*		subindex;
-		char*		Index;
+		char*					Name;
+		char*					Direction;
+		DataType		dataType;
+		int							DataSize;
+		int							ByteOffset;
+		char*					Value;
+		char*					subindex;
+		char*					Index;
+		char*					BitOffset;
 	
-};
+}ProcessImage;
+typedef struct Parameter
+{
+		char*						Name;
+		char*						UniqueID;
+		char*						dataType;
+			
+}Parameter;
+
+typedef struct varDeclaration
+{
+
+		char*						Name;
+		char*						UniqueID;
+		int								size;
+		char*						InitialValue;
+		char*						dataType;
+		char*						dataTypeIDRef;
+	
+}varDeclaration;
+
+
 /****************************************************************************************/
 /* Function Declarations
 /*****************************************************************************************/
@@ -150,5 +183,6 @@ DllExport void AddIndex(int NodeID, ENodeType NodeType, char* IndexID);
 DllExport void AddSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID);
 DllExport void DisplayNodeTree(void);
 DllExport int IfNodeExists(int NodeID, ENodeType NodeType, char* ErrStr);
+
 
 #endif // declarations_h
