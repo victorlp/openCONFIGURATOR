@@ -873,7 +873,90 @@ void AddIndex(int NodeID, ENodeType NodeType, char* IndexID)
 		}
 
 	}	
+/**************************************************************************************************
+	* Function Name: EditIndexValue
+    * Description:
+	Return value Legend:
+	EditIndexValue Failure		- -1
+	EditIndexValue Success 	- 1
+/****************************************************************************************************/
+int EditIndex(int NodeID, ENodeType NodeType, char* IndexID, char* IndexValue, char* IndexName,char* ErrStr)
+{
+	int IndexPos = IfIndexExists(NodeID, NodeType, IndexID, ErrStr);
+	// If Index Exists
+	if(IndexPos < 0)
+	{
+		printf("EditIndexValue: Index Doesn't Exists!!\n\n");
+		return -1;
+	}
+	else
+	{
+		
+		CIndex* objIndexPtr;
+
+		CNode objNode;		
+		CNodeCollection *objNodeCollection;
+		CIndexCollection *objIndexCollection;
+		CIndex objIndex;
+		
+		objIndex.setNodeID(objNode.getNodeId());
+		objNodeCollection= CNodeCollection::getNodeColObjectPointer();
+		objNode = objNodeCollection->getNode(NodeType, NodeID);
+
+		objIndexCollection = objNode.getIndexCollection();
+		objIndexPtr =objIndexCollection->getIndex(IndexPos);			
+		printf("EditIndexValue:Index Actual Value:%s-%s\n", objIndexPtr->getActualValue(), IndexValue);
+		objIndexPtr->setActualValue(IndexValue);
+		objIndexPtr->setName(IndexName);
+		printf("EditIndexValue:Index Actual Value:%s-%s\n", objIndexPtr->getActualValue(), IndexValue);
+		return 1;
+	}
 	
+}
+
+/**************************************************************************************************
+	* Function Name: EditIndexValue
+    * Description:
+	Return value Legend:
+	EditIndexValue Failure		- -1
+	EditIndexValue Success 	- 1
+/****************************************************************************************************/
+int EditSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID, char* IndexValue, char* IndexName,char* ErrStr)
+{
+		CNode objNode;		
+		CNodeCollection *objNodeCollection;
+		CIndexCollection *objIndexCollection;
+		CIndex objIndex;
+		CIndex* objSubIndex;
+		//CSubIndex* objSubIndex;
+		int SubIndexPos = IfSubIndexExists(NodeID, NodeType, IndexID, SubIndexID, ErrStr);
+		if(SubIndexPos < 0)
+		{
+			printf("EditIndexValue: Index Doesn't Exists!!\n\n");
+			return -1;
+		}
+		if(SubIndexPos >= 0)
+		{					
+			CSubIndex* objSubIndexPtr;
+			
+			int IndexPos = IfIndexExists(NodeID, NodeType, IndexID, ErrStr);
+			
+			objIndex.setNodeID(objNode.getNodeId());
+			objNodeCollection= CNodeCollection::getNodeColObjectPointer();
+			objNode = objNodeCollection->getNode(NodeType, NodeID);
+
+			objIndexCollection = objNode.getIndexCollection();
+			objSubIndex =objIndexCollection->getIndex(IndexPos);
+			
+			objSubIndexPtr = objSubIndex->getSubIndex(SubIndexPos);						
+			printf("SubIndexValue:%s-%s\n", objSubIndexPtr->getName(), SubIndexID);
+			objSubIndexPtr->setActualValue(IndexValue);
+			objSubIndexPtr->setName(IndexName);
+			printf("SubIndexValue:%s-%s\n", objSubIndexPtr->getName(), SubIndexID);
+			return 1;
+		}
+}
+
 /**************************************************************************************************
 	* Function Name: DisplayNodeTree
     * Description:

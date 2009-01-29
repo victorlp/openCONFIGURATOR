@@ -157,7 +157,7 @@ int IfIndexExists(int NodeID, ENodeType NodeType, char* IndexID, char* ErrStr)
 
 	int temp_ret = -1;
 	//if(NodeType == 1)
-		temp_ret = IfNodeExists(NodeID, CN, ErrStr);
+		temp_ret = IfNodeExists(NodeID, NodeType, ErrStr);
 	//else if(NodeType == 0)
 		//temp_ret = IfNodeExists(NodeID, NodeType, ErrStr);
 	//else

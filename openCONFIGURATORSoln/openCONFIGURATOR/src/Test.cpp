@@ -27,6 +27,8 @@ int main(int argc, char **argv)
 	int NodeType;
 	char* IndexID;
 	char* SubIndexID;
+	char* IndexValue;
+	char* IndexName;
 	IndexID = new char;
 	SubIndexID = new char;
 	char filePath[100];	
@@ -61,6 +63,7 @@ int main(int argc, char **argv)
 			cout<<"15: Delete Index"<<endl;
 			cout<<"16: Delete SubIndex"<<endl;
 			cout<<"17: ReImportXML"<<endl;
+			cout<<"18: EditIndexValue"<<endl;
 			
 			cout <<"Press 'E' for Exit"<<endl;
 								
@@ -270,6 +273,27 @@ int main(int argc, char **argv)
 							ret = ReImportXML(filePath, errorstring, NodeID, MN);
 							else if (NodeType == 1)
 							ret = ReImportXML(filePath, errorstring, NodeID, CN);						
+							break;
+				case 18:							
+							system("clear");							
+							cout<<"Enter the NodeID:"<<endl;								
+							cin >> NodeID;												
+							cout<<"Enter the Node Type(MN=0/CN=1)"<<endl;								
+							cin>>NodeType;
+							cout<<"Enter the IndexID:"<<endl;
+							cin >> IndexID;
+							cout<<"Enter the SubIndexID:"<<endl;
+							cin >> SubIndexID;
+							//cout<<"Enter the Index Value:"<<endl;
+							//cin >> IndexValue;
+							//cout<<"Enter the Index Name:"<<endl;
+							//cin >> IndexName;
+							if (NodeType == 0)							
+							//ret = EditIndex(NodeID, MN, IndexID, IndexValue, IndexName, errorstring);
+							EditSubIndex(NodeID, MN, IndexID, SubIndexID,IndexValue, IndexName, errorstring);
+							else if (NodeType == 1)
+							//ret = EditIndex(NodeID, CN, IndexID, IndexValue, IndexName, errorstring);	
+							EditSubIndex(NodeID, MN, IndexID, SubIndexID,IndexValue, IndexName, errorstring);
 							break;
 				default :
 								break;

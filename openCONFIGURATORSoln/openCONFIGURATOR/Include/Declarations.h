@@ -183,6 +183,8 @@ DllExport int DeleteIndex(int NodeID, ENodeType NodeType, char* IndexID, char* E
 DllExport int DeleteSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID, char* ErrStr);
 DllExport void AddIndex(int NodeID, ENodeType NodeType, char* IndexID);
 DllExport void AddSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID);
+DllExport int EditIndex(int NodeID, ENodeType NodeType, char* IndexID, char* IndexValue, char* IndexName, char* ErrStr);
+DllExport int EditSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID, char* IndexValue, char* IndexName,char* ErrStr);
 DllExport void DisplayNodeTree(void);
 DllExport int IfNodeExists(int NodeID, ENodeType NodeType, char* ErrStr);
 DllExport int IfIndexExists(int NodeID, ENodeType NodeType, char* IndexID, char* ErrStr);
