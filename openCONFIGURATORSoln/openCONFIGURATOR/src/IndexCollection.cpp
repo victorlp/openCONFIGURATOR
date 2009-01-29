@@ -67,10 +67,12 @@
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
 #include "../Include/IndexCollection.h"
+#include <stdio.h>
 
 CIndexCollection::CIndexCollection(void)
 	{
 		//IndexList.size =0;
+		m_IndexCount = 0;
 	}
 
 CIndexCollection::~CIndexCollection(void)
@@ -83,6 +85,19 @@ void CIndexCollection::addIndex(CIndex objIndex)
 		collectionObj[i] = objIndex;
 		m_IndexCount= collectionObj.Count();
 
+	}
+void CIndexCollection::deleteIndex(int IndexID)
+	{
+	   collectionObj.Remove(IndexID);
+	   m_IndexCount = collectionObj.Count();
+	   printf("\n\nAfter Delete - Count:%d\n\n", m_IndexCount);
+
+	}
+	
+void CIndexCollection::DeleteIndexCollection() 
+	{
+		collectionObj.Clear();
+		m_IndexCount = collectionObj.Count();
 	}
 CIndex* CIndexCollection::getIndex(int Count)
 	{

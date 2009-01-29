@@ -87,6 +87,8 @@ class CIndexCollection
 		TCollection<CIndex> collectionObj;
 	public:
 		void addIndex(CIndex objIndex);
+		void deleteIndex(int IndexID);
+		void DeleteIndexCollection();		
 		int getNumberofIndexes();
 		CIndex* getIndex(int Count);
 		CIndex* getIndexbyIndexValue(char* Index);		

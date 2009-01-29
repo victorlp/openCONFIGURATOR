@@ -67,6 +67,7 @@
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
 #include "../Include/Index.h"
+#include <stdio.h>
 
 CIndex::CIndex(void)
 	{
@@ -95,6 +96,19 @@ void CIndex::addSubIndex(CSubIndex objSubIndex)
 		m_SubIndexCount= collectionObj.Count();
 		
 	}
+	
+/**************************************************************************************************
+	* Function Name: deleteSubIndex
+    * Description: delete the SubIndex in the Index Object
+/****************************************************************************************************/
+
+void CIndex::deleteSubIndex(int SubIndexID) 
+	{
+		collectionObj.Remove(SubIndexID);
+		m_SubIndexCount = collectionObj.Count();
+		printf("\n\nAfter Delete - SubIndexCount:%d\n\n", m_SubIndexCount);
+	}
+	
 int CIndex::getNumberofSubIndexes()
 	{return collectionObj.Count();}
 

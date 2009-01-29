@@ -83,6 +83,11 @@ void CDataTypeCollection::addDataType(DataType objDataType)
 		collectionObj[i] = objDataType;
 		m_DataTypeCount= collectionObj.Count();
 	}
+void CDataTypeCollection::DeleteDataTypeCollection() 
+	{
+		collectionObj.Clear();
+		m_DataTypeCount = collectionObj.Count();
+	}
 int CDataTypeCollection::getNumberOfDataTypes()
 	{ return collectionObj.Count();}
 DataType* CDataTypeCollection::getDataType(int DataTypeId)

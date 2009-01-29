@@ -117,9 +117,9 @@ typedef enum
 {
 	
 			 constant,
-			 read,			 /* read access only (default value)*/
-			 write,			 /* write access only */
-			 readWrite,	 /* both read and write access*/
+			 ro,			 /* read access only (default value)*/
+			 wr,			 /* write access only */
+			 rw,	 /* both read and write access*/
 			 readWriteInput, /*both read and write access, but represents process input data*/
 			 readWriteOutput, /*both read and write, access, but represents process output data*/
 			 noAccess				 /*access denied				*/
@@ -179,10 +179,14 @@ DllExport void GenerateCDC(char* fileName);
 DllExport void CreateNode(int NodeID, ENodeType NodeType);
 DllExport void parseFile(char* filename, int NodeID, ENodeType  NodeType);
 DllExport void DeleteNode(int NodePos);
+DllExport int DeleteIndex(int NodeID, ENodeType NodeType, char* IndexID, char* ErrStr);
+DllExport int DeleteSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID, char* ErrStr);
 DllExport void AddIndex(int NodeID, ENodeType NodeType, char* IndexID);
 DllExport void AddSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID);
 DllExport void DisplayNodeTree(void);
 DllExport int IfNodeExists(int NodeID, ENodeType NodeType, char* ErrStr);
-
+DllExport int IfIndexExists(int NodeID, ENodeType NodeType, char* IndexID, char* ErrStr);
+DllExport int IfSubIndexExists(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID, char* ErrStr);
+DllExport int ReImportXML(char* fileName, char* errorString, int NodeID, ENodeType NodeType);
 
 #endif // declarations_h

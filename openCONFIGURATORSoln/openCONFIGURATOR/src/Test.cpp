@@ -57,6 +57,11 @@ int main(int argc, char **argv)
 			cout<<"11:Add SubIndex"<<endl;
 			cout<<"12: DisplayNodeTree"<<endl;
 			cout<<"13: IfNodeExists"<<endl;
+			cout<<"14: IfIndexExists"<<endl;
+			cout<<"15: Delete Index"<<endl;
+			cout<<"16: Delete SubIndex"<<endl;
+			cout<<"17: ReImportXML"<<endl;
+			
 			cout <<"Press 'E' for Exit"<<endl;
 								
 			cin>>opt;
@@ -145,7 +150,7 @@ int main(int argc, char **argv)
 							//objNodeCollection= CNodeCollection::getNodeColObjectPointer();	
 							//cout<<"Total Number of Nodes are:"<<objNodeCollection->getNumberOfNodes();
 							temp_ret = IfNodeExists(NodeID, CN, errorstring);							
-							if(temp_ret < 0)								
+							if(temp_ret == -1)								
 								printf("\n\n\nErr:%s!!\n\n\n", errorstring);
 							else
 							{
@@ -191,18 +196,81 @@ int main(int argc, char **argv)
 							break;
 							
 				case 13:
+							cout << "ErrStr-Case13:" << errorstring << endl;
 							system("clear");							
 							cout<<"Enter the NodeID:"<<endl;								
 							cin >> NodeID;												
 							cout<<"Enter the Node Type(MN=0/CN=1)"<<endl;								
 							cin>>NodeType;
-							
-							temp_ret = IfNodeExists(NodeID, CN, errorstring);							
+							if(NodeType == 1)
+								temp_ret = IfNodeExists(NodeID, CN, errorstring);
+							else if(NodeType == 0)
+								temp_ret = IfNodeExists(NodeID, MN, errorstring);
 							printf("\n\nIfNodeExists ret:%d\n\n", temp_ret);
-							if(temp_ret < 0)
-								printf("\n\n\nGot Err String:%s\n\n\n", errorstring);
+							if(temp_ret < 0)							
+								printf("\n\n\nGot Err String:%s\n\n\n", errorstring);							
 							break;
+				case 14:
+							system("clear");							
+							cout<<"Enter the NodeID:"<<endl;								
+							cin >> NodeID;												
+							cout<<"Enter the Node Type(MN=0/CN=1)"<<endl;								
+							cin>>NodeType;
+							cout<<"Enter the IndexID:"<<endl;
+							cin >> IndexID;
+							if(NodeType == 1)
+								temp_ret = IfIndexExists(NodeID, CN, IndexID, errorstring);
+							else if(NodeType == 0)
+								temp_ret = IfIndexExists(NodeID, MN, IndexID, errorstring);
+							if(temp_ret == -2)
+								cout<< "Index Can be Added" <<endl;
+							else
+								cout<< "Index Cannot be Added!!" <<endl;
 							
+							break;
+				case 15:
+							system("clear");							
+							cout<<"Enter the NodeID:"<<endl;								
+							cin >> NodeID;												
+							cout<<"Enter the Node Type(MN=0/CN=1)"<<endl;								
+							cin>>NodeType;
+							cout<<"Enter the IndexID to be deleted:"<<endl;
+							cin >> IndexID;
+							// IfIndexExists returns the Index position if the Index exists
+							if(NodeType == 1)
+								DeleteIndex(NodeID, CN, IndexID, errorstring);					
+							else if(NodeType == 0)
+								DeleteIndex(NodeID, MN, IndexID, errorstring);
+							
+							break;
+				case 16:
+							system("clear");							
+							cout<<"Enter the NodeID:"<<endl;								
+							cin >> NodeID;												
+							cout<<"Enter the Node Type(MN=0/CN=1)"<<endl;								
+							cin>>NodeType;
+							cout<<"Enter the IndexID:"<<endl;
+							cin >> IndexID;
+							cout<<"Enter the SubIndexID to be deleted:"<<endl;
+							cin >> SubIndexID;
+							if(NodeType == 1)
+								DeleteSubIndex(NodeID, CN, IndexID, SubIndexID, errorstring);
+							else if(NodeType == 0)
+								DeleteSubIndex(NodeID, MN, IndexID, SubIndexID, errorstring);
+							break;
+				
+				case 17:							
+							cout<<"Enter the Node ID"<<endl;
+							cin>>NodeID;
+							cout<<"Enter the Node Type(MN=0/CN=1)"<<endl;								
+							cin>>NodeType;
+							cout<<"Enter the filepath"<<endl;
+							cin>>filePath;				
+							if (NodeType == 0)							
+							ret = ReImportXML(filePath, errorstring, NodeID, MN);
+							else if (NodeType == 1)
+							ret = ReImportXML(filePath, errorstring, NodeID, CN);						
+							break;
 				default :
 								break;
 		}
