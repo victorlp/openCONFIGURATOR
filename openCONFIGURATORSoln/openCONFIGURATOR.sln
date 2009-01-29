@@ -1,7 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "openCONFIGURATOR", "openCONFIGURATOR\openCONFIGURATOR.vcproj", "{0141C9C5-E267-4AD0-9E6C-1E80ECF5E438}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "example", "openCONFIGURATOR\openCONFIGURATOR.vcproj", "{0141C9C5-E267-4AD0-9E6C-1E80ECF5E438}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "example1", "openCOnfiguratorWrapper\openCOnfiguratorWrapper.vcproj", "{7B96B734-54AB-46D2-B9D3-FFA0D7A2817E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -10,7 +12,13 @@ Global
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{0141C9C5-E267-4AD0-9E6C-1E80ECF5E438}.Debug|Win32.ActiveCfg = Debug|Win32
+		{0141C9C5-E267-4AD0-9E6C-1E80ECF5E438}.Debug|Win32.Build.0 = Debug|Win32
 		{0141C9C5-E267-4AD0-9E6C-1E80ECF5E438}.Release|Win32.ActiveCfg = Release|Win32
+		{0141C9C5-E267-4AD0-9E6C-1E80ECF5E438}.Release|Win32.Build.0 = Release|Win32
+		{7B96B734-54AB-46D2-B9D3-FFA0D7A2817E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7B96B734-54AB-46D2-B9D3-FFA0D7A2817E}.Debug|Win32.Build.0 = Debug|Win32
+		{7B96B734-54AB-46D2-B9D3-FFA0D7A2817E}.Release|Win32.ActiveCfg = Release|Win32
+		{7B96B734-54AB-46D2-B9D3-FFA0D7A2817E}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

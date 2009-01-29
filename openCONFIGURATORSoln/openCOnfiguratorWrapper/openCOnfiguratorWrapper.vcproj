@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
-	Name="openconfigurator"
-	ProjectGUID="{0141C9C5-E267-4AD0-9E6C-1E80ECF5E438}"
-	RootNamespace="openCONFIGURATOR"
+	Version="9.00"
+	Name="openCOnfiguratorWrapper"
+	ProjectGUID="{7B96B734-54AB-46D2-B9D3-FFA0D7A2817E}"
+	RootNamespace="openCOnfiguratorWrapper"
 	TargetFrameworkVersion="196613"
 	>
 	<Platforms>
@@ -40,12 +40,10 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\libxml2\include;..\libxml2\iconv\include"
-				PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
+				AdditionalIncludeDirectories="c:\Tcl\include"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				DisableLanguageExtensions="false"
 				WarningLevel="3"
 				DebugInformationFormat="4"
 			/>
@@ -60,9 +58,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="..\libxml2\lib\libxml2.lib"
-				OutputFile="$(OutDir)\$(ProjectName).dll"
-				AdditionalLibraryDirectories="..\libxml2\lib"
+				AdditionalDependencies="openconfigurator.lib tcl85.lib"
+				AdditionalLibraryDirectories="c:\Tcl\lib;&quot;$(OutDir)&quot;"
 				GenerateDebugInformation="true"
 				TargetMachine="1"
 			/>
@@ -92,7 +89,7 @@
 			Name="Release|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="2"
+			ConfigurationType="1"
 			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
@@ -115,7 +112,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\libxml2\include;..\libxml2\iconv\include"
+				AdditionalIncludeDirectories="$(TCL_PATH)\include"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				WarningLevel="3"
@@ -132,8 +129,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libxml2.lib &quot;$(TCL_LIB)&quot;"
-				AdditionalLibraryDirectories="..\libxml2\lib"
+				AdditionalDependencies="openconfigurator.lib tcl85.lib"
+				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;;c:\tcl\lib"
 				GenerateDebugInformation="true"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
@@ -163,9 +160,6 @@
 		</Configuration>
 	</Configurations>
 	<References>
-		<ProjectReference
-			ReferencedProjectIdentifier="{189CB09C-9C74-431B-BF87-FAE01596BD83}"
-		/>
 	</References>
 	<Files>
 		<Filter
@@ -174,63 +168,7 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\src\Application.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\BaseIndex.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\ComplexDataType.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\DataTypeCollection.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\Index.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\IndexCollection.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\Main.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\Node.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\NodeCollection.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\ObjectDictionary.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\Socket.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\SubIndex.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\Test.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\Utility.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\Validation.cpp"
+				RelativePath=".\openconfiguratorWrapper_wrap.cxx"
 				>
 			</File>
 		</Filter>
@@ -239,82 +177,6 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
-			<File
-				RelativePath=".\Include\Application.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Include\BaseIndex.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Include\ComplexDataType.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Include\DataTypeCollection.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Include\Declarations.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Include\Error.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Include\Exports.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Include\Index.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Include\IndexCollection.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Include\Internal.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Include\Node.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Include\NodeCollection.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Include\ObjectDictionary.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Include\openCONFIGURATOR.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Include\ProjectSettings.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Include\SubIndex.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Include\TCollection.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Include\template.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Include\Validation.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
@@ -322,6 +184,28 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 		</Filter>
+		<File
+			RelativePath=".\openconfiguratorWrapper.i"
+			>
+			<FileConfiguration
+				Name="Debug|Win32"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+					CommandLine="echo In order to function correctly, please ensure the following environment variables are correctly set:&#x0D;&#x0A;echo TCL_INCLUDE: %TCL_INCLUDE%&#x0D;&#x0A;echo TCL_LIB: %TCL_LIB%&#x0D;&#x0A;echo on&#x0D;&#x0A;E:\Kalycito\windows_swig\swigwin-1.3.37-rc1\swig -c++ -tcl8 $(InputPath)&#x0D;&#x0A;"
+					Outputs="$(InputName)_wrap.cxx"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|Win32"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+					CommandLine="echo In order to function correctly, please ensure the following environment variables are correctly set:&#x0D;&#x0A;echo TCL_INCLUDE: %TCL_INCLUDE%&#x0D;&#x0A;echo TCL_LIB: %TCL_LIB%&#x0D;&#x0A;echo on&#x0D;&#x0A;$(SWIG_PATH)\swig -c++ -tcl8 &quot;$(InputPath)&quot;&#x0D;&#x0A;"
+					Outputs="$(InputName)_wrap.cxx"
+				/>
+			</FileConfiguration>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
