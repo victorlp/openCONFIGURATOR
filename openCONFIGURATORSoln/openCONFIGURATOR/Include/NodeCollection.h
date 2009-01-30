@@ -72,8 +72,8 @@
 #pragma once
 #include "Declarations.h"
 #include "Node.h"
-//class DllExport CNodeCollection
-class CNodeCollection
+class DllExport CNodeCollection
+//class CNodeCollection
 	{
 	public:
 		CNodeCollection(void);
@@ -93,6 +93,7 @@ class CNodeCollection
 		CNode getNode(int NodeId);
 		CNode getNodebyCollectionIndex(int ColIndex);		
 		CNode getMNNode();
+		
 		
 		//void addToIndexCollection(CIndex *objIndex);
 		static CNodeCollection getNodeColObject();		

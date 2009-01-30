@@ -73,7 +73,7 @@
 #include "Declarations.h"
 #include "TCollection.h"
 
-class CComplexDataType
+class DllExport CComplexDataType
 {
  public:
 	CComplexDataType(void);

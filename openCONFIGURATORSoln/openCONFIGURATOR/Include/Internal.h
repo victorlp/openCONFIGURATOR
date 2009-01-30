@@ -70,6 +70,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
 #include <string>
 #include "Exports.h"
+#include "Index.h"
 
 
 /****************************************************************************************/
@@ -90,4 +91,6 @@ bool IsAscii(char c);
 int lenOfCNBuffer(char* Buffer);
 char* padLeft(char* str, char padChar, int padLength);
 unsigned long hex2int(char *a);
+bool CheckIfMappingPDO(char* Index);
+CIndex* getMNIndexValues(char* Index);
 #endif // declarations_h
