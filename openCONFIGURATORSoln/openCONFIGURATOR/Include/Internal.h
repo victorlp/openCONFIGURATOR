@@ -93,4 +93,6 @@ char* padLeft(char* str, char padChar, int padLength);
 unsigned long hex2int(char *a);
 bool CheckIfMappingPDO(char* Index);
 CIndex* getMNIndexValues(char* Index);
+bool CheckAllowedCNIndexes(char* IndexValue);
+void ConvertCdcToBinary(char* fileName);
 #endif // declarations_h

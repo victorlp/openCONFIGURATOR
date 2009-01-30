@@ -1208,16 +1208,33 @@ char* GenerateCNOBD(CNodeCollection* objNodeCol)
 							int NumberOfIndexes;
 							bool firstBuffer = true;																								
 							NumberOfIndexes = objIndexCollection->getNumberofIndexes();
-							/*************WRITE 1006, PDO Data, Module Data *******************************/
+							
+							CIndex* objIndex;
+							char* Buffer4;
+									
+						/*************WRITE MN'S 1006,1020 Indexes Values *******************************/			
+							Buffer4 = (char*)malloc(300);	
+							objIndex = getMNIndexValues("1006");
+							Buffer2 = (char*)malloc(sizeof(char)*strlen(Buffer4)+1);				
+							GetIndexData(objIndex,Buffer4);
+							strcpy(Buffer2, Buffer4);
+							
+							objIndex = getMNIndexValues("1020");
+							GetIndexData(objIndex,Buffer4);
+							strcat(Buffer2, Buffer4);
+									
+							/*************WRITE Other Required CN Indexes in CDC *******************************/
 								for(int i=0; i<NumberOfIndexes; i++)
 								{
 									CIndex* objIndex;
 									char* Buffer4;
 									objIndex = objIndexCollection->getIndex(i);
 									const char* IndexValue = objIndex->getIndexValue();
-									if(strcmp(IndexValue,"1006")==0 || (CheckIfNotPDO((char*)IndexValue)==false)  ||
-											CheckIfManufactureSpecificObject((char*)IndexValue))
-										{
+									
+									/*if((CheckIfNotPDO((char*)IndexValue)==false)  || CheckIfManufactureSpecificObject((char*)IndexValue))
+								*/
+								if(CheckAllowedCNIndexes((char*)IndexValue))
+								{
 											Buffer4 = (char*)malloc(300);							
 											GetIndexData(objIndex, Buffer4);
 											if(firstBuffer)
@@ -1411,6 +1428,8 @@ void GenerateCDC(char* fileName)
 						
 			}
 		fclose(fileptr);		
+		// Convert CDC txt file to Binary
+		ConvertCdcToBinary(fileName);
 		
 	}
 
@@ -1495,9 +1514,10 @@ void ProcessPDONodes(int NodeID)
 			}
 	}
 
-void ConvertToBinary(char* fileName)
+void ConvertCdcToBinary(char* fileName)
 {
-	FILE *fin, *fout_cdc, *fout_Cfile;
+	FILE *fin, *fout;
+	char* filePath;
 	int count=0;
 	int num=0;
 	char ch=0;
@@ -1507,15 +1527,14 @@ void ConvertToBinary(char* fileName)
 	unsigned char tempCn1Obd[10000];
 
 	fin = fopen(fileName, "r");
-	fout_cdc = fopen("config_data.cdc", "wb");
-	fout_Cfile = fopen("../../openPOWERLINK_v1.1.0/ObdConf.c", "wb");
-	//if(argc<=1 || argc>2)
-	//{
-	//	printf("\n Invalid argument \n");
-	//	goto Exit;
-	//}
-	//else
-	//{
+	filePath = (char*)malloc(80);
+	filePath = strchr(fileName,'\\');
+	filePath = subString(fileName, 0, strlen(fileName) - strlen(filePath) +1);
+	strcat(filePath,"config_data.cdc");
+	//fout = fopen("config_data.cdc", "wb");
+	fout = fopen(filePath, "wb");
+	
+	
 		while(ch != EOF)
 		{
 			ch = fgetc(fin);
@@ -1527,7 +1546,7 @@ void ConvertToBinary(char* fileName)
 			{
 				// Convert to Upper case
 				ch = toupper(ch);
-				if(ch >= 65 && ch <= 70)
+				if((ch >= 65 && ch <= 70) || (ch >= 97 && ch <=102))
 				{
 					ca_cn1obd[num] = ch - 55;
 					num++;
@@ -1537,37 +1556,30 @@ void ConvertToBinary(char* fileName)
 					ca_cn1obd[num] = ch - 48;
 					num++;
 				}
-			}
-		//}
-		ca_cn1obd[num] = '\0';		
-		// For testing purpose.
-		for ( count = 0; count<num ; count++)
-		{
-			//printf("0X%x, ",ca_cn1obd[count]);
 		}
-		//
-		//
+		//ca_cn1obd[num] = '\0';
+		// For testing purpose.
+		/*for ( count = 0; count<num ; count++)
+		{
+			printf("%x",ca_cn1obd[count]);
+
+		}*/
 		iLength = num;
 		//printf( "\niLength = %d\n",iLength);
-		fprintf(fout_Cfile,"static unsigned char tempBaMnObd[%d] = {",((iLength/2)-1));
 		//For Byte Packing
 		for (iCtr = 0 , count = 0; iCtr < iLength; iCtr++, count++ )
 		{
 			tempCn1Obd[count] = (unsigned char)( ( ca_cn1obd[ iCtr ] << 4 ) | ca_cn1obd[ ++iCtr ] );
-			//printf("0x%x\t",tempCn1Obd[count]);
-			fprintf(fout_Cfile,"0X%x, ",tempCn1Obd[count]);
+			//printf("0x%2x\t",tempCn1Obd[count]);
 		}
 		//printf("Size : %d\n", count);
-		fprintf(fout_Cfile,"};\n");		
 		count = count -1;
-		fprintf(fout_Cfile,"static unsigned int DataCount = %d;\n",count);
 		// Write to Binary file
-		fwrite(&tempCn1Obd,1,count,fout_cdc);
+		fwrite(&tempCn1Obd,1,count,fout);
 	}
 	Exit :
 	fclose(fin);
-	fclose(fout_cdc);
-	fclose(fout_Cfile);
+	fclose(fout);	
 }
 void ProcessUniqueIDRefs(CNode* objNode)
  {
@@ -1589,4 +1601,19 @@ void ProcessUniqueIDRefs(CNode* objNode)
 			counter++;
 		}
 		return actualLength;
+
  }
+CIndex* getMNIndexValues(char* Index)
+{
+		CNodeCollection* objNodeCollection;
+		objNodeCollection = CNodeCollection::getNodeColObjectPointer();		
+		CIndexCollection* objIndexCol;
+		CNode objNode;
+		objNode = objNodeCollection->getMNNode();
+		objIndexCol = objNode.getIndexCollection();
+		CIndex* objIndex = NULL;
+		objIndex = objIndexCol->getIndexbyIndexValue(Index);
+		return objIndex;
+}
+
+

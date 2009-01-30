@@ -242,3 +242,16 @@ bool CheckIfManufactureSpecificObject(char* Index)
 			return true;
 		else return false;
 }
+bool CheckIfMappingPDO(char* Index)
+{
+		if(strncmp(Index, "1A",2)==0 || strncmp(Index, "16",2)==0)
+		return true;
+		else return false;
+}
+bool CheckAllowedCNIndexes(char* IndexValue)
+{
+	if((CheckIfNotPDO((char*)IndexValue)==false)  || CheckIfManufactureSpecificObject((char*)IndexValue) ||
+					strcmp(IndexValue,"1F98")==0)
+	return true;
+	else return false;							
+}
