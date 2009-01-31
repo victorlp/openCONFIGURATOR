@@ -35,11 +35,12 @@ int main(int argc, char **argv)
 	char* errorstring;
 	errorstring = new char;	
 	int temp_ret = 0;
+	ocfmRetValError ErrStruct;
 						
 	CNodeCollection *objNodeCollection;							
 
 	CNode objNode;
-	CIndexCollection *objIndexCollection;							
+	CIndexCollection *objIndexCollection;				
 	
 	while(ch!='E')
 	{
@@ -92,9 +93,9 @@ int main(int argc, char **argv)
 									char* errorstring;
 									errorstring = new char;
 									if (NodeType ==0 )							
-									ImportXML(filePath, errorstring, NodeID, MN);
+									ImportXML(filePath, NodeID, MN);
 									else if (NodeType==1)
-									ImportXML(filePath, errorstring, NodeID, CN);															
+									ImportXML(filePath, NodeID, CN);															
 									cin.get();
 									cin.get();
 							}
@@ -109,9 +110,9 @@ int main(int argc, char **argv)
 							cin>>filePath;
 							int ret;					
 							if (NodeType ==0 )							
-							ret = ImportXML(filePath, errorstring, NodeID, MN);
+							ret = ImportXML(filePath,NodeID, MN);
 							else if (NodeType==1)
-							ret = ImportXML(filePath, errorstring, NodeID, CN);		
+							ret = ImportXML(filePath, NodeID, CN);		
 							cin.get();
 							cin.get();							
 							break;
@@ -152,14 +153,23 @@ int main(int argc, char **argv)
 							cin>>NodeType;
 							//objNodeCollection= CNodeCollection::getNodeColObjectPointer();	
 							//cout<<"Total Number of Nodes are:"<<objNodeCollection->getNumberOfNodes();
-							temp_ret = IfNodeExists(NodeID, CN, errorstring);							
-							if(temp_ret == -1)								
-								printf("\n\n\nErr:%s!!\n\n\n", errorstring);
-							else
-							{
-								DeleteNode(temp_ret);
-								cout <<"Node Deleted"<<endl;
-							}
+							//ocfmRetValError retPos;
+							//temp_ret 
+							//retPos = IfNodeExists(NodeID, CN, errorstring);
+							////if(temp_ret == -1)								
+							//if(retPos.errCode.code == OCFM_ERR_SUCCESS)								
+							//{	
+							if (NodeType == 1)
+								DeleteNode(NodeID, CN);
+							else if (NodeType == 0)
+								DeleteNode(NodeID, MN);
+								//cout <<"Node Deleted"<<endl;
+							//}
+							//else
+							//{
+							//	//DeleteNode(temp_ret);
+							//	printf("\n\n\nErr:%s!!\n\n\n", errorstring);								
+							//}
 							break;
 				case 10:
 							system("clear");
@@ -205,13 +215,17 @@ int main(int argc, char **argv)
 							cin >> NodeID;												
 							cout<<"Enter the Node Type(MN=0/CN=1)"<<endl;								
 							cin>>NodeType;
+							ocfmRetValError retPos;
 							if(NodeType == 1)
-								temp_ret = IfNodeExists(NodeID, CN, errorstring);
+							{
+								retPos = IfNodeExists(NodeID, CN);
+							}	
 							else if(NodeType == 0)
-								temp_ret = IfNodeExists(NodeID, MN, errorstring);
-							printf("\n\nIfNodeExists ret:%d\n\n", temp_ret);
-							if(temp_ret < 0)							
-								printf("\n\n\nGot Err String:%s\n\n\n", errorstring);							
+								retPos = IfNodeExists(NodeID, MN);
+							if(retPos.errCode.code == 0)
+								printf("\n\nIfNodeExists ret:%d\n\n", retPos.returnValue);
+							else
+								printf("\n\n\nGot Err String:%s\n\n\n", retPos.errCode.errorString);
 							break;
 				case 14:
 							system("clear");							
@@ -222,13 +236,18 @@ int main(int argc, char **argv)
 							cout<<"Enter the IndexID:"<<endl;
 							cin >> IndexID;
 							if(NodeType == 1)
-								temp_ret = IfIndexExists(NodeID, CN, IndexID, errorstring);
+								ErrStruct = IfIndexExists(NodeID, CN, IndexID);
 							else if(NodeType == 0)
-								temp_ret = IfIndexExists(NodeID, MN, IndexID, errorstring);
-							if(temp_ret == -2)
-								cout<< "Index Can be Added" <<endl;
-							else
-								cout<< "Index Cannot be Added!!" <<endl;
+								ErrStruct = IfIndexExists(NodeID, MN, IndexID);
+							if(ErrStruct.errCode.code == OCFM_ERR_SUCCESS)
+							{
+								//IndexPos = ErrStruct.returnValue;
+								cout << "OCFM_ERR_INDEX_ALREADY_EXISTS" << endl;
+							}
+							else if(ErrStruct.errCode.code == OCFM_ERR_INVALID_INDEXID)
+							{
+								cout << "OCFM_ERR_INVALID_INDEXID - Can be Added" << endl;
+							}								
 							
 							break;
 				case 15:
@@ -241,9 +260,9 @@ int main(int argc, char **argv)
 							cin >> IndexID;
 							// IfIndexExists returns the Index position if the Index exists
 							if(NodeType == 1)
-								DeleteIndex(NodeID, CN, IndexID, errorstring);					
+								DeleteIndex(NodeID, CN, IndexID);					
 							else if(NodeType == 0)
-								DeleteIndex(NodeID, MN, IndexID, errorstring);
+								DeleteIndex(NodeID, MN, IndexID);
 							
 							break;
 				case 16:
@@ -257,9 +276,9 @@ int main(int argc, char **argv)
 							cout<<"Enter the SubIndexID to be deleted:"<<endl;
 							cin >> SubIndexID;
 							if(NodeType == 1)
-								DeleteSubIndex(NodeID, CN, IndexID, SubIndexID, errorstring);
+								DeleteSubIndex(NodeID, CN, IndexID, SubIndexID);
 							else if(NodeType == 0)
-								DeleteSubIndex(NodeID, MN, IndexID, SubIndexID, errorstring);
+								DeleteSubIndex(NodeID, MN, IndexID, SubIndexID);
 							break;
 				
 				case 17:							
@@ -270,9 +289,9 @@ int main(int argc, char **argv)
 							cout<<"Enter the filepath"<<endl;
 							cin>>filePath;				
 							if (NodeType == 0)							
-							ret = ReImportXML(filePath, errorstring, NodeID, MN);
+							ret = ReImportXML(filePath, NodeID, MN);
 							else if (NodeType == 1)
-							ret = ReImportXML(filePath, errorstring, NodeID, CN);						
+							ret = ReImportXML(filePath, NodeID, CN);						
 							break;
 				case 18:							
 							system("clear");							
@@ -284,16 +303,10 @@ int main(int argc, char **argv)
 							cin >> IndexID;
 							cout<<"Enter the SubIndexID:"<<endl;
 							cin >> SubIndexID;
-							//cout<<"Enter the Index Value:"<<endl;
-							//cin >> IndexValue;
-							//cout<<"Enter the Index Name:"<<endl;
-							//cin >> IndexName;
 							if (NodeType == 0)							
-							//ret = EditIndex(NodeID, MN, IndexID, IndexValue, IndexName, errorstring);
-							EditSubIndex(NodeID, MN, IndexID, SubIndexID,IndexValue, IndexName, errorstring);
+							EditSubIndex(NodeID, MN, IndexID, SubIndexID,IndexValue, IndexName);
 							else if (NodeType == 1)
-							//ret = EditIndex(NodeID, CN, IndexID, IndexValue, IndexName, errorstring);	
-							EditSubIndex(NodeID, MN, IndexID, SubIndexID,IndexValue, IndexName, errorstring);
+							EditSubIndex(NodeID, MN, IndexID, SubIndexID,IndexValue, IndexName);
 							break;
 				default :
 								break;

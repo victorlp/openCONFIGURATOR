@@ -80,18 +80,32 @@
 	[signed integer] on existance.
 	
 	Return value Legend:
+	On success	- OCFM_ERR_SUCCESS
+	On error	- Return appropriate error code
 	Node Doesn't Exist 		- -1
 	Index Doesn't Exist 	- -2
 	SubIndex Doesn't Exist 	- -3
 	Invalid NodeType		- -4
 /****************************************************************************************************/
-int IfNodeExists(int NodeID, ENodeType NodeType, char* ErrStr)
+ocfmRetValError IfNodeExists(int NodeID, ENodeType NodeType)
 {	
 	cout << "NodeType:" << NodeType << endl;
 	int count;
 	CNode objNode;		
-	CNodeCollection *objNodeCollection = NULL;	
+	CNodeCollection *objNodeCollection = NULL;
+	ocfmRetValError ErrStruct;
+	
 	// TODO: Check for Invalid NodeType. Yet to Implement
+		//if(NodeType == 1)
+		//temp_ret 
+	//else if(NodeType == 0)
+		//temp_ret = IfNodeExists(NodeID, NodeType, ErrStr);
+	//else
+	//{
+	//	printf("Invalid Node Type");
+	//	return -4;
+	//}
+	
 	objNodeCollection = CNodeCollection::getNodeColObjectPointer();	
 	if(objNodeCollection == NULL)
 	{
@@ -99,7 +113,6 @@ int IfNodeExists(int NodeID, ENodeType NodeType, char* ErrStr)
 		exit;
 	}
 	cout<< "getNumberOfNodes: \n" <<objNodeCollection->getNumberOfNodes()<<endl;
-	//cout << "." <<endl;
 	if( objNodeCollection->getNumberOfNodes() > 0)
 	{
 		for(int count = 0; count < objNodeCollection->getNumberOfNodes(); count++)
@@ -110,13 +123,13 @@ int IfNodeExists(int NodeID, ENodeType NodeType, char* ErrStr)
 					if(objNode.getNodeId() == NodeID)
 					{
 						printf("Node Pos:%d\n\n", count);
-						return count;
+						ErrStruct.returnValue = count;
+						ErrStruct.errCode.code = OCFM_ERR_SUCCESS;
+						return ErrStruct;
 					}
-	//				//else if(count == (objNodeCollection->getNumberOfNodes() -1 ))
 					else
 					{
-						//strcpy(ErrStr, "Node Doesn't exist");
-						//return -1;
+						//Node Doesn't match
 					}
 				}
 					
@@ -124,16 +137,11 @@ int IfNodeExists(int NodeID, ENodeType NodeType, char* ErrStr)
 	}
 	else
 	{
-			// TODO: Beware!!!. The following line is a room for BUGS!
-			//strcpy(ErrStr, "No Nodes found!");
-			printf("No Nodes found!\n\n");
-			return -1;
+			ErrStruct.errCode.code = OCFM_ERR_NO_NODES_FOUND;
+			return ErrStruct;
 	}
-	// TODO: Beware!!!. The following line is a room for BUGS!
-	//strcpy(ErrStr, "Node Doesn't exist");
-	printf("Node Doesn't exist\n\n");
-	return -1;
-
+	ErrStruct.errCode.code = OCFM_ERR_INVALID_NODEID;
+	return ErrStruct;
 }
 
 /**************************************************************************************************
@@ -147,32 +155,30 @@ if Node doesn't exist or if NodeType is invalid.
 	SubIndex Doesn't Exist 	- -3
 	Invalid NodeType		- -4
 /****************************************************************************************************/
-int IfIndexExists(int NodeID, ENodeType NodeType, char* IndexID, char* ErrStr)
+ocfmRetValError IfIndexExists(int NodeID, ENodeType NodeType, char* IndexID)
 {
 	int count;
 	CNode objNode;		
 	CNodeCollection *objNodeCollection;
 	CIndexCollection *objIndexCollection;
 	CIndex objIndex;
+	ocfmRetValError ErrStruct;
+	int retPos;
 
-	int temp_ret = -1;
-	//if(NodeType == 1)
-		temp_ret = IfNodeExists(NodeID, NodeType, ErrStr);
-	//else if(NodeType == 0)
-		//temp_ret = IfNodeExists(NodeID, NodeType, ErrStr);
-	//else
-	//{
-	//	printf("Invalid Node Type");
-	//	return -4;
-	//}
-	if(temp_ret < 0)
-	{
-		printf("\n\n\nErr:%s!!\n\n\n", ErrStr);
-		// Node Doesn't Exist
-		return -1;
+	ErrStruct = IfNodeExists(NodeID, NodeType);
+	if (ErrStruct.errCode.code == 0)
+	{		
+		retPos = ErrStruct.returnValue;
 	}
 	else
 	{	
+		cout << "\n\nErrStruct.errCode.code:" << ErrStruct.errCode.code << "\n\n!!!" << endl;
+		// Node Doesn't Exist
+		ErrStruct.errCode.code = OCFM_ERR_INVALID_NODEID;
+		return ErrStruct;
+	}
+	//else
+	//{	
 		objNodeCollection = CNodeCollection::getNodeColObjectPointer();
 		objNode = objNodeCollection->getNode(NodeType, NodeID);
 		objIndexCollection = objNode.getIndexCollection();
@@ -185,7 +191,9 @@ int IfIndexExists(int NodeID, ENodeType NodeType, char* IndexID, char* ErrStr)
 			//objIndexCollection->addIndex(objIndex);	
 			printf("Index Doesn't exist\n\n");
 			// Index Doesn't Exist
-			return -2;
+			//return -2;
+			ErrStruct.errCode.code = OCFM_ERR_INVALID_INDEXID;
+			return ErrStruct;
 		}
 		
 		else if(objIndexCollection->getNumberofIndexes() > 0)
@@ -199,20 +207,32 @@ int IfIndexExists(int NodeID, ENodeType NodeType, char* IndexID, char* ErrStr)
 				if((strcmp(objIndexPtr->getIndexValue(), IndexID) == 0))
 				{
 					printf("Index Already Exists tmpIndexcount:%d!\n",tmpIndexcount);
-					return tmpIndexcount;
+					CIndex* objIndexPtr;
+					objIndexPtr = objIndexCollection->getIndex(tmpIndexcount);
+					cout<< "objIndex.getName():" << objIndexPtr->getName() << endl;
+					cout<< "objIndex.getActualValue():" << objIndexPtr->getActualValue() << endl;
+					
+					ErrStruct.returnValue = tmpIndexcount;
+					ErrStruct.errCode.code = OCFM_ERR_SUCCESS;
+					return ErrStruct;
+					//return tmpIndexcount;
 				}
 				else if(tmpIndexcount == (objIndexCollection->getNumberofIndexes() - 1))
 				{
 					printf("Index Doesn't exist \n\n");
 					// Index Doesn't Exist
-					return -2;
+					ErrStruct.errCode.code = OCFM_ERR_INVALID_INDEXID;
+					return ErrStruct;
+					//return -2;
 				}
 			}
 		}
-	}
+	//}
 	// Index Doesn't Exist
 	printf("\n\nIndex Doesn't Exist\n\n\n");
-	return -2;
+	ErrStruct.errCode.code = OCFM_ERR_INVALID_INDEXID;
+	return ErrStruct;
+	//return -2;
 }
 
 /**************************************************************************************************
@@ -226,7 +246,7 @@ if Node doesn't exist or if NodeType is invalid.
 	SubIndex Doesn't Exist 	- -3
 	Invalid NodeType		- -4
 /****************************************************************************************************/
-int IfSubIndexExists(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID, char* ErrStr)
+ocfmRetValError IfSubIndexExists(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID)
 {
 		int count;
 		CNode objNode;		
@@ -234,25 +254,21 @@ int IfSubIndexExists(int NodeID, ENodeType NodeType, char* IndexID, char* SubInd
 		CIndexCollection *objIndexCollection;
 		CIndex objIndex;
 		CIndex* objSubIndex;
+		ocfmRetValError ErrStruct;
 		
 		int IndexPos = -1;
-		//if(NodeType == 1)
-			IndexPos = IfIndexExists(NodeID, NodeType, IndexID, ErrStr);
-		//else if(NodeType == 0)
-			//temp_ret = IfIndexExists(NodeID, MN, IndexID, ErrStr);
-		//else
-		//{
-		//	printf("Invalid Node Type");
-		//	return -4;
-		//}
-		if(IndexPos < 0)
-		{
-			printf("\n\n\nErr:%s!!\n\n\n", ErrStr);
-			// Node Doesn't Exist
-			return -1;
+		ErrStruct = IfIndexExists(NodeID, NodeType, IndexID);
+		if (ErrStruct.errCode.code == 0)
+		{				
+			IndexPos = ErrStruct.returnValue;
 		}
 		else
 		{	
+			cout << "\n\nErrStruct.errCode.code:" << ErrStruct.errCode.code << "\n\n!!!" << endl;
+			// Node Doesn't Exist
+			ErrStruct.errCode.code = OCFM_ERR_INVALID_INDEXID;
+			return ErrStruct;
+		}
 			cout <<"Index Exists"<<endl;
 			objIndex.setNodeID(objNode.getNodeId());
 			objNodeCollection= CNodeCollection::getNodeColObjectPointer();
@@ -264,7 +280,9 @@ int IfSubIndexExists(int NodeID, ENodeType NodeType, char* IndexID, char* SubInd
 			if(objSubIndex->getNumberofSubIndexes() == 0)
 			{
 				cout << "SubIndex Doesn't Exist" << endl;
-				return -3;
+				ErrStruct.errCode.code = OCFM_ERR_INVALID_SUBINDEXID;
+				return ErrStruct;
+				//return -3;
 			}
 			else if(objSubIndex->getNumberofSubIndexes() > 0)
 			{
@@ -276,18 +294,24 @@ int IfSubIndexExists(int NodeID, ENodeType NodeType, char* IndexID, char* SubInd
 					printf("SubIndexValue:%s-%s\n", objSubIndexPtr->getIndexValue(), SubIndexID);
 					if((strcmp(objSubIndexPtr->getIndexValue(), SubIndexID) == 0))
 					{
-						printf("SubIndex Already Exists tmpIndexcount:%d!\n",tmpSubIndexcount);
-						return tmpSubIndexcount;
+						printf("SubIndex Already Exists tmpIndexcount:%d!\n",tmpSubIndexcount);				
+						ErrStruct.errCode.code = OCFM_ERR_SUCCESS;
+						ErrStruct.returnValue = tmpSubIndexcount;
+						return ErrStruct;						
+						//return tmpSubIndexcount;
 					}
 					else if(tmpSubIndexcount == (objSubIndex->getNumberofSubIndexes() - 1))
 					{
 						printf("SubIndex Doesn't exist \n\n");
 						// SubIndex Doesn't Exist
-						return -3;
+						ErrStruct.errCode.code = OCFM_ERR_INVALID_SUBINDEXID;
+						return ErrStruct;
+						//return -3;
 					}
 				}
 			}
 		
-		}
-	return -3;
+	ErrStruct.errCode.code = OCFM_ERR_INVALID_SUBINDEXID;
+	return ErrStruct;
+	//return -3;
 }

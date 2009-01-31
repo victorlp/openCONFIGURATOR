@@ -279,7 +279,7 @@ static void AddIndexAttributes(char* IndexID, CIndex* objIndex)
 				objIndex->setAccessType((char*)value);
 				//objIndex->setPDOMapping((char*)value);				
 				objIndex->setDefaultValue((char*)value);
-				//objIndex->setActualValue((char*)value);
+				objIndex->setActualValue((char*)value);
 				objIndex->setDataType((char*)value);
 	}
 
@@ -334,7 +334,7 @@ static void setParameterAttributes(xmlTextReaderPtr reader, Parameter* stParamet
     * Description: Imports the XML file
 /****************************************************************************************************/
 
-int ImportXML(char* fileName, char* errorString, int NodeID, ENodeType NodeType)
+EConfiuguratorErrors ImportXML(char* fileName, int NodeID, ENodeType NodeType)
 	{
 		/*char* fileLocation;
 		fileLocation= fileName + filePath;*/
@@ -344,23 +344,21 @@ int ImportXML(char* fileName, char* errorString, int NodeID, ENodeType NodeType)
 		printf("Inside Importxml");
 		parseFile(fileName, NodeID, NodeType);
 		//Cleanup function for the XML library.
-   
+
 		/* Check if UniqueIDRefs are present, fetch the value from parameter and struct tags*/
 		//ProcessUniqueIDRefs();
 
 		/* Process PDO Objects*/
 		//ProcessPDONodes(NodeID);
-		
+
 		printf("Parsing Done");
 		 xmlCleanupParser();
-    /*
-     * this is to debug memory for regression tests
-     */
-    xmlMemoryDump();
-    
-		return(1);
+		/*
+		* this is to debug memory for regression tests
+		*/
+		xmlMemoryDump();
 
-
+		return OCFM_ERR_SUCCESS;
 	}
 /**************************************************************************************************
 	* Function Name: processNode
@@ -555,10 +553,13 @@ void parseFile(char* filename, int NodeIndex, ENodeType  NodeType)
 	Cannot ReImport 		- -1
 	ReImport Success 		- 1
 /****************************************************************************************************/
-int ReImportXML(char* fileName, char* errorString, int NodeID, ENodeType NodeType)
+EConfiuguratorErrors ReImportXML(char* fileName, int NodeID, ENodeType NodeType)
 {
 	
-	if((IfNodeExists(NodeID, NodeType, errorString)) >= 0)
+	//if((IfNodeExists(NodeID, NodeType, errorString)) >= 0)
+	ocfmRetValError retPos;
+	retPos = IfNodeExists(NodeID, NodeType);
+	if(retPos.errCode.code == 0)
 	{
 		CNode objNode;		
 		CNodeCollection *objNodeCollection;
@@ -580,12 +581,12 @@ int ReImportXML(char* fileName, char* errorString, int NodeID, ENodeType NodeTyp
 		objDataTypeCollection->DeleteDataTypeCollection();
 		//cout<< "Number of DataType:" << objDataTypeCollection->getNumberOfDataTypes() << endl;
 		parseFile(fileName, NodeID, NodeType);
-		return 1;
+		return OCFM_ERR_SUCCESS;
 	}
 	else
 	{
 		printf("\nCannot ReImport!!\n");
-		return -1;
+		return OCFM_ERR_INVALID_NODEID;
 	}
 } 
  
@@ -602,14 +603,26 @@ void CreateTree()
 	* Function Name: CreateNode
     * Description:
 /****************************************************************************************************/
-void CreateNode(int NodeID, ENodeType NodeType)
+EConfiuguratorErrors CreateNode(int NodeID, ENodeType NodeType)
 	{
-		ocfmRetCode Ret;
+		ocfmRetValError ErrStruct;
 		CNode objNode;
 		CNodeCollection *objNodeCollection;
-
-		/* Check if the Node already exists with the same NodeID*/
-		
+		// TODO:If Check is made when Zero nodes present, Seg Fault is happening
+		if(NodeType == CN)
+		{
+			ErrStruct = IfNodeExists(NodeID, NodeType);
+								
+			if(ErrStruct.errCode.code == OCFM_ERR_SUCCESS)								
+			{
+				cout << "OCFM_ERR_NODE_ALREADY_EXISTS" << OCFM_ERR_NODE_ALREADY_EXISTS << endl;
+				return OCFM_ERR_NODE_ALREADY_EXISTS;
+			}
+			else
+			{
+				cout<< "OCFM_ERR_INVALID_NODEID" << OCFM_ERR_INVALID_NODEID << endl;;
+			}
+		}
 		objNode.setNodeId(NodeID);
 		objNode.setNodeType(NodeType);
 		
@@ -617,15 +630,30 @@ void CreateNode(int NodeID, ENodeType NodeType)
 		objNode.CreateDataTypeCollection();
 
 		objNodeCollection = CNodeCollection::getNodeColObjectPointer();
-		objNodeCollection->addNode(objNode);		
+		objNodeCollection->addNode(objNode);
+		return OCFM_ERR_SUCCESS;
 	}
 
 /**************************************************************************************************
 	* Function Name: DeleteNode
     * Description:
 /****************************************************************************************************/
-void DeleteNode(int NodePos)
+EConfiuguratorErrors DeleteNode(int NodeID, ENodeType NodeType)
 	{
+		int NodePos;
+		ocfmRetValError ErrStruct;
+		ErrStruct = IfNodeExists(NodeID, NodeType);
+							
+		if(ErrStruct.errCode.code == OCFM_ERR_SUCCESS)								
+		{
+			NodePos = ErrStruct.returnValue;
+		}
+		else
+		{
+			cout << "\n\nErrStruct.errCode.code:" << ErrStruct.errCode.code << "\n\n!!!" << endl;
+			// Node Doesn't Exist
+			return OCFM_ERR_INVALID_NODEID;
+		}
 		int count;
 		CNode objNode;		
 		CNodeCollection *objNodeCollection;
@@ -633,40 +661,44 @@ void DeleteNode(int NodePos)
 		cout<< "Inside DeleteNode: \n" <<objNodeCollection->getNumberOfNodes()<<endl;
 		objNodeCollection = CNodeCollection::getNodeColObjectPointer();
 		objNodeCollection->deleteNode(NodePos);							
-		return;
+		return OCFM_ERR_SUCCESS;		
 	}
 	
 /**************************************************************************************************
 	* Function Name: DeleteIndex
     * Description: Deletes the Index after performing check for Index Existanse
 	Return value Legend:
-	Cannot Delete Index		- -1
-	Delete Index Success 		- 1
+	EConfiuguratorErrors              = error code
 /****************************************************************************************************/
-int DeleteIndex(int NodeID, ENodeType NodeType, char* IndexID, char* ErrStr)
+EConfiuguratorErrors DeleteIndex(int NodeID, ENodeType NodeType, char* IndexID)
 	{
 		
-		int IndexPos = IfIndexExists(NodeID, NodeType, IndexID, ErrStr);
-		if(IndexPos >= 0)
+		int IndexPos;
+		
+		ocfmRetValError ErrStruct;
+		ErrStruct = IfIndexExists(NodeID, NodeType, IndexID);
+		if(ErrStruct.errCode.code == OCFM_ERR_SUCCESS)
 		{
-			CNode objNode;		
-			CNodeCollection *objNodeCollection;
-			CIndexCollection *objIndexCollection;
-			CIndex objIndex;
-
-			objIndex.setNodeID(objNode.getNodeId());
-			objNodeCollection= CNodeCollection::getNodeColObjectPointer();
-			objNode = objNodeCollection->getNode(CN, NodeID);
-
-			objIndexCollection = objNode.getIndexCollection();
-			//cout<< "Inside DeleteIndex: \n" << atoi(IndexID) <<endl;
-			cout<< "Inside DeleteIndex: \n" << IndexPos <<endl;
-			objIndexCollection->deleteIndex(IndexPos);
-			return 1;
+			IndexPos = ErrStruct.returnValue;
 		}
 		else
-			cout<< "Index cannot be Deleted!!" <<endl;
-		return -1;
+		{
+			return OCFM_ERR_INVALID_INDEXID;
+		}
+		CNode objNode;		
+		CNodeCollection *objNodeCollection;
+		CIndexCollection *objIndexCollection;
+		CIndex objIndex;
+
+		objIndex.setNodeID(objNode.getNodeId());
+		objNodeCollection= CNodeCollection::getNodeColObjectPointer();
+		objNode = objNodeCollection->getNode(CN, NodeID);
+
+		objIndexCollection = objNode.getIndexCollection();
+		//cout<< "Inside DeleteIndex: \n" << atoi(IndexID) <<endl;
+		cout<< "Inside DeleteIndex: \n" << IndexPos <<endl;
+		objIndexCollection->deleteIndex(IndexPos);
+		return OCFM_ERR_SUCCESS;
 
 	}
 	
@@ -677,32 +709,46 @@ int DeleteIndex(int NodeID, ENodeType NodeType, char* IndexID, char* ErrStr)
 	Cannot Delete SubIndex		- -1
 	Delete SubIndex Success 	- 1
 /****************************************************************************************************/
-int DeleteSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID, char* ErrStr)
+EConfiuguratorErrors DeleteSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID)
 	{
 		CNode objNode;		
 		CNodeCollection *objNodeCollection;
 		CIndexCollection *objIndexCollection;
 		CIndex objIndex;
 		CIndex* objSubIndex;
-		int SubIndexPos = IfSubIndexExists(NodeID, NodeType, IndexID, SubIndexID, ErrStr);
+		int SubIndexPos;
+		int IndexPos;
+		ocfmRetValError ErrStruct;
 		
-		if(SubIndexPos >= 0)
-		{					
-			int IndexPos = IfIndexExists(NodeID, NodeType, IndexID, ErrStr);
-			objIndex.setNodeID(objNode.getNodeId());
-			objNodeCollection= CNodeCollection::getNodeColObjectPointer();
-			objNode = objNodeCollection->getNode(NodeType, NodeID);
-
-			objIndexCollection = objNode.getIndexCollection();
-			objSubIndex =objIndexCollection->getIndex(IndexPos);
-			
-			cout << "NumberofSubIndexes:" << objIndex.getNumberofSubIndexes()<< endl;
-			objSubIndex->deleteSubIndex(SubIndexPos);
-			return 1;
+		ErrStruct = IfSubIndexExists(NodeID, NodeType, IndexID, SubIndexID);
+		if(ErrStruct.errCode.code == OCFM_ERR_SUCCESS)
+		{
+			SubIndexPos = ErrStruct.returnValue;
 		}
 		else
-			cout<< "SubIndex cannot be Deleted!!" <<endl;
-		return -1;
+		{
+			return OCFM_ERR_INVALID_SUBINDEXID;
+		}
+
+		ErrStruct = IfIndexExists(NodeID, NodeType, IndexID);
+		if(ErrStruct.errCode.code == OCFM_ERR_SUCCESS)
+		{
+			IndexPos = ErrStruct.returnValue;
+		}
+		else
+		{
+			return OCFM_ERR_INVALID_INDEXID;
+		}
+		objIndex.setNodeID(objNode.getNodeId());
+		objNodeCollection= CNodeCollection::getNodeColObjectPointer();
+		objNode = objNodeCollection->getNode(NodeType, NodeID);
+
+		objIndexCollection = objNode.getIndexCollection();
+		objSubIndex =objIndexCollection->getIndex(IndexPos);
+		
+		cout << "NumberofSubIndexes:" << objIndex.getNumberofSubIndexes()<< endl;
+		objSubIndex->deleteSubIndex(SubIndexPos);
+		return OCFM_ERR_SUCCESS;
 
 	}
 /**************************************************************************************************
@@ -807,9 +853,6 @@ void AddIndex(int NodeID, ENodeType NodeType, char* IndexID)
 			{
 				printf("`");
 				objNode = objNodeCollection->getNodebyCollectionIndex(count);
-				// Check for the type of Node
-				if (objNode.getNodeType() == CN)
-				{
 					//int tmp_NodeID = objNode.getNodeId();
 					//printf("NodeID:%d\n", tmp_NodeID);
 					// Check for corresponding Index
@@ -862,99 +905,109 @@ void AddIndex(int NodeID, ENodeType NodeType, char* IndexID)
 					{
 						printf("!");
 						//return;
-					}
-				}						
+					}				
 			}
 		}
 		else
 		{
 				printf("No Nodes found!\n");
 				return;
-		}
-
+		}		
 	}	
 /**************************************************************************************************
-	* Function Name: EditIndexValue
+	* Function Name: EditIndex
     * Description:
 	Return value Legend:
 	EditIndexValue Failure		- -1
 	EditIndexValue Success 	- 1
 /****************************************************************************************************/
-int EditIndex(int NodeID, ENodeType NodeType, char* IndexID, char* IndexValue, char* IndexName,char* ErrStr)
+EConfiuguratorErrors EditIndex(int NodeID, ENodeType NodeType, char* IndexID, char* IndexValue, char* IndexName)
 {
-	int IndexPos = IfIndexExists(NodeID, NodeType, IndexID, ErrStr);
-	// If Index Exists
-	if(IndexPos < 0)
+	int IndexPos;
+	
+	ocfmRetValError ErrStruct = IfIndexExists(NodeID, NodeType, IndexID);
+	if(ErrStruct.errCode.code == OCFM_ERR_SUCCESS)
 	{
-		printf("EditIndexValue: Index Doesn't Exists!!\n\n");
-		return -1;
+		IndexPos = ErrStruct.returnValue;
 	}
 	else
 	{
-		
-		CIndex* objIndexPtr;
-
-		CNode objNode;		
-		CNodeCollection *objNodeCollection;
-		CIndexCollection *objIndexCollection;
-		CIndex objIndex;
-		
-		objIndex.setNodeID(objNode.getNodeId());
-		objNodeCollection= CNodeCollection::getNodeColObjectPointer();
-		objNode = objNodeCollection->getNode(NodeType, NodeID);
-
-		objIndexCollection = objNode.getIndexCollection();
-		objIndexPtr =objIndexCollection->getIndex(IndexPos);			
-		printf("EditIndexValue:Index Actual Value:%s-%s\n", objIndexPtr->getActualValue(), IndexValue);
-		objIndexPtr->setActualValue(IndexValue);
-		objIndexPtr->setName(IndexName);
-		printf("EditIndexValue:Index Actual Value:%s-%s\n", objIndexPtr->getActualValue(), IndexValue);
-		return 1;
+		return OCFM_ERR_INVALID_INDEXID;
 	}
+		
+	CIndex* objIndexPtr;
+
+	CNode objNode;		
+	CNodeCollection *objNodeCollection;
+	CIndexCollection *objIndexCollection;
+	CIndex objIndex;
+	
+	objIndex.setNodeID(objNode.getNodeId());
+	objNodeCollection= CNodeCollection::getNodeColObjectPointer();
+	objNode = objNodeCollection->getNode(NodeType, NodeID);
+
+	objIndexCollection = objNode.getIndexCollection();
+	objIndexPtr =objIndexCollection->getIndex(IndexPos);			
+	printf("EditIndexValue:Index Actual Value:%s-%s\n", objIndexPtr->getActualValue(), IndexValue);
+	objIndexPtr->setActualValue(IndexValue);
+	objIndexPtr->setName(IndexName);
+	printf("EditIndexValue:Index Actual Value:%s-%s\n", objIndexPtr->getActualValue(), IndexValue);
+	return OCFM_ERR_SUCCESS;
 	
 }
 
 /**************************************************************************************************
-	* Function Name: EditIndexValue
+	* Function Name: EditSubIndex
     * Description:
 	Return value Legend:
 	EditIndexValue Failure		- -1
 	EditIndexValue Success 	- 1
 /****************************************************************************************************/
-int EditSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID, char* IndexValue, char* IndexName,char* ErrStr)
+EConfiuguratorErrors EditSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID, char* IndexValue, char* IndexName)
 {
 		CNode objNode;		
 		CNodeCollection *objNodeCollection;
 		CIndexCollection *objIndexCollection;
 		CIndex objIndex;
 		CIndex* objSubIndex;
+		int IndexPos;
+		int SubIndexPos;
 		//CSubIndex* objSubIndex;
-		int SubIndexPos = IfSubIndexExists(NodeID, NodeType, IndexID, SubIndexID, ErrStr);
-		if(SubIndexPos < 0)
+		
+		ocfmRetValError ErrStruct = IfSubIndexExists(NodeID, NodeType, IndexID, SubIndexID);
+		if(ErrStruct.errCode.code == OCFM_ERR_SUCCESS)
 		{
-			printf("EditIndexValue: Index Doesn't Exists!!\n\n");
-			return -1;
+			SubIndexPos = ErrStruct.returnValue;
 		}
-		if(SubIndexPos >= 0)
-		{					
-			CSubIndex* objSubIndexPtr;
+		else
+		{
+			return OCFM_ERR_INVALID_SUBINDEXID;
+		}
+		
+		CSubIndex* objSubIndexPtr;
+		ErrStruct = IfIndexExists(NodeID, NodeType, IndexID);
+		if(ErrStruct.errCode.code == OCFM_ERR_SUCCESS)
+		{
+			IndexPos = ErrStruct.returnValue;
+		}
+		else
+		{
+			return OCFM_ERR_INVALID_INDEXID;
+		}
 			
-			int IndexPos = IfIndexExists(NodeID, NodeType, IndexID, ErrStr);
-			
-			objIndex.setNodeID(objNode.getNodeId());
-			objNodeCollection= CNodeCollection::getNodeColObjectPointer();
-			objNode = objNodeCollection->getNode(NodeType, NodeID);
+		objIndex.setNodeID(objNode.getNodeId());
+		objNodeCollection= CNodeCollection::getNodeColObjectPointer();
+		objNode = objNodeCollection->getNode(NodeType, NodeID);
 
-			objIndexCollection = objNode.getIndexCollection();
-			objSubIndex =objIndexCollection->getIndex(IndexPos);
-			
-			objSubIndexPtr = objSubIndex->getSubIndex(SubIndexPos);						
-			printf("SubIndexValue:%s-%s\n", objSubIndexPtr->getName(), SubIndexID);
-			objSubIndexPtr->setActualValue(IndexValue);
-			objSubIndexPtr->setName(IndexName);
-			printf("SubIndexValue:%s-%s\n", objSubIndexPtr->getName(), SubIndexID);
-			return 1;
-		}
+		objIndexCollection = objNode.getIndexCollection();
+		objSubIndex =objIndexCollection->getIndex(IndexPos);
+		
+		objSubIndexPtr = objSubIndex->getSubIndex(SubIndexPos);						
+		printf("SubIndexValue:%s-%s\n", objSubIndexPtr->getName(), SubIndexID);
+		objSubIndexPtr->setActualValue(IndexValue);
+		objSubIndexPtr->setName(IndexName);
+		printf("SubIndexValue:%s-%s\n", objSubIndexPtr->getName(), SubIndexID);
+		return OCFM_ERR_SUCCESS;
 }
 
 /**************************************************************************************************

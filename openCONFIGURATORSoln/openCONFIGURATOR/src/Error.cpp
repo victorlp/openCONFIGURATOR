@@ -1,5 +1,3 @@
-#ifndef error_h
-#define error_h
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //
 //  $Header: $
@@ -68,36 +66,14 @@
 //  REVISION HISTORY:
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
+#include "../Include/Error.h"
 
-typedef enum
+int ocfmRetValError_getRetValue(ocfmRetValError RetValError)
 {
-					OCFM_ERR_SUCCESS					= 0,
-					OCFM_ERR_FILE_NOT_PRESENT,
-					OCFM_ERR_FILE_CANNOT_OPEN,				
-					OCFM_ERR_INVALID_NODEID,
-					OCFM_ERR_INVALID_INDEXID,
-					OCFM_ERR_INVALID_SUBINDEXID,
-					OCFM_ERR_NO_NODES_FOUND,
-					OCFM_ERR_NODE_ALREADY_EXISTS,
-					OCFM_ERR_INDEX_ALREADY_EXISTS,
-					OCFM_ERR_SUBINDEX_ALREADY_EXISTS,					
-					OCFM_ERR_INVALID_VALUE,
-					OCFM_ERR_INVALID_NAME
-	
-}EConfiuguratorErrors;
+	return RetValError.returnValue;
+}
 
-typedef struct ocfmRetCode
+int ocfmRetValError_getErrorCode(ocfmRetValError RetValError)
 {
-				EConfiuguratorErrors				code;/* Error code from EConfiuguratorErrors*/
-				char*		errorString; /* String Describes the error */
-				
-}ocfmRetCode;
-
-typedef struct ocfmRetValError
-{
-	ocfmRetCode errCode;
-	int returnValue;
-}ocfmRetValError;
-
-#endif // Error_h
-
+	return RetValError.errCode.code;
+}
