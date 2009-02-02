@@ -1,5 +1,5 @@
-#ifndef error_h
-#define error_h
+#ifndef exception_h
+#define exception_h
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //
 //  $Header: $
@@ -69,41 +69,11 @@
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-typedef enum
+#include "Error.h"
+
+class ocfmException : public exception
 {
-					OCFM_ERR_SUCCESS					= 0,
-					OCFM_ERR_FILE_NOT_PRESENT,
-					OCFM_ERR_FILE_CANNOT_OPEN,			
-					OCFM_ERR_INVALID_NODEID,
-					OCFM_ERR_INVALID_INDEXID,
-					OCFM_ERR_INVALID_SUBINDEXID,
-					OCFM_ERR_NO_NODES_FOUND,
-					OCFM_ERR_NO_INDEX_FOUND,
-					OCFM_ERR_NO_SUBINDEXS_FOUND,
-					OCFM_ERR_NODEID_NOT_FOUND,
-					OCFM_ERR_INDEXID_NOT_FOUND,
-					OCFM_ERR_SUBINDEXID_NOT_FOUND,
-					OCFM_ERR_NODE_ALREADY_EXISTS,
-					OCFM_ERR_INDEX_ALREADY_EXISTS,
-					OCFM_ERR_SUBINDEX_ALREADY_EXISTS,					
-					OCFM_ERR_INVALID_VALUE,
-					OCFM_ERR_INVALID_NAME,
-					OCFM_ERR_UNKNOWN					
 	
-}EConfiuguratorErrors;
+}
 
-typedef struct ocfmRetCode
-{
-				EConfiuguratorErrors				code;/* Error code from EConfiuguratorErrors*/
-				char*		errorString; /* String Describes the error */
-				
-}ocfmRetCode;
-
-typedef struct ocfmRetValError
-{
-	ocfmRetCode errCode;
-	int returnValue;
-}ocfmRetValError;
-
-#endif // Error_h
-
+#endif // exception_h

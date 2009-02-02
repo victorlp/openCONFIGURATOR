@@ -74,5 +74,68 @@ CObjectDictionary::CObjectDictionary(void)
 
 CObjectDictionary::~CObjectDictionary(void)
 	{
+		instanceFlag =false;
 	}
 
+bool CObjectDictionary::instanceFlag=false;
+CObjectDictionary* CObjectDictionary::ObjDictObject = NULL;
+
+CObjectDictionary* CObjectDictionary::getObjDictObjectPointer()
+	{
+		if(!instanceFlag)
+			{
+				ObjDictObject = new CObjectDictionary();
+				instanceFlag=true;
+			}
+		return ObjDictObject;
+		
+	}
+	
+void CObjectDictionary::addIndex(CIndex objIndex)
+	{
+		
+		int i = collectionObj.Add();
+		collectionObj[i] = objIndex;
+		m_IndexCount= collectionObj.Count();
+
+	}
+void CObjectDictionary::deleteIndex(int IndexID)
+	{
+	   collectionObj.Remove(IndexID);
+	   m_IndexCount = collectionObj.Count();
+	}	
+void CObjectDictionary::DeleteIndexCollection() 
+	{
+		collectionObj.Clear();
+		m_IndexCount = collectionObj.Count();
+	}
+CIndex* CObjectDictionary::getIndex(int Count)
+	{
+		return &collectionObj[Count];
+	}
+CIndex* CObjectDictionary::getIndexbyIndexValue(char* Index)
+	{
+		int i = 0;
+		for(int i =0; i<m_IndexCount;i++)
+		{
+			CIndex objIndex;
+			objIndex = collectionObj[i];
+			if(strcmp(objIndex.getIndexValue(),Index)==0)
+				return &collectionObj[i];
+		}		
+	}
+int CObjectDictionary::getNumberofIndexes()
+	{return m_IndexCount;}
+
+void CObjectDictionary::CreateIndexCollection() 
+	{
+		CIndexCollection* objIndexCollection;
+		objIndexCollection = new CIndexCollection();
+		m_IndexCollection =objIndexCollection ;
+	}
+void CObjectDictionary::CreateDataTypeCollection() 
+	{
+		CDataTypeCollection* objDataTypeCollection;
+		objDataTypeCollection = new CDataTypeCollection();
+		m_DataTypeCollection = objDataTypeCollection ;
+	}

@@ -1,5 +1,3 @@
-#ifndef error_h
-#define error_h
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //
 //  $Header: $
@@ -69,41 +67,49 @@
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-typedef enum
+
+#include <iostream>
+#include <exception>
+#include "Error.h"
+/*
+class ocfmException: public exception
 {
-					OCFM_ERR_SUCCESS					= 0,
-					OCFM_ERR_FILE_NOT_PRESENT,
-					OCFM_ERR_FILE_CANNOT_OPEN,			
-					OCFM_ERR_INVALID_NODEID,
-					OCFM_ERR_INVALID_INDEXID,
-					OCFM_ERR_INVALID_SUBINDEXID,
-					OCFM_ERR_NO_NODES_FOUND,
-					OCFM_ERR_NO_INDEX_FOUND,
-					OCFM_ERR_NO_SUBINDEXS_FOUND,
-					OCFM_ERR_NODEID_NOT_FOUND,
-					OCFM_ERR_INDEXID_NOT_FOUND,
-					OCFM_ERR_SUBINDEXID_NOT_FOUND,
-					OCFM_ERR_NODE_ALREADY_EXISTS,
-					OCFM_ERR_INDEX_ALREADY_EXISTS,
-					OCFM_ERR_SUBINDEX_ALREADY_EXISTS,					
-					OCFM_ERR_INVALID_VALUE,
-					OCFM_ERR_INVALID_NAME,
-					OCFM_ERR_UNKNOWN					
+	  virtual const char* what() const throw()
+  {
+    return "Node Exception Handled: Node does not exsist";
+  }
+} NodeEx;
+*/
+
+class ocfmException : public exception
+{
+	public :
+	static ocfmRetCode objRetCode;
+	void  setErrorCode(EConfiuguratorErrors errcode)
+	{
+		
+	}
 	
-}EConfiuguratorErrors;
-
-typedef struct ocfmRetCode
-{
-				EConfiuguratorErrors				code;/* Error code from EConfiuguratorErrors*/
-				char*		errorString; /* String Describes the error */
+	static void ocfm_Excpetion(EConfiuguratorErrors errcode)
+	{
+		char* errstring[50];
+		
+		switch(errcode)
+		{
+			case OCFM_ERR_NODE_ALREADY_EXISTS:
 				
-}ocfmRetCode;
+				objRetCode.code = errcode;
+				objRetCode.errorString = new char[50];
+				strcpy(objRetCode.errorString,"Node Already Exists");
+				
+				break;
+				
+			default:
+				break;
+			
+		}
+		
+	}
 
-typedef struct ocfmRetValError
-{
-	ocfmRetCode errCode;
-	int returnValue;
-}ocfmRetValError;
-
-#endif // Error_h
+};
 

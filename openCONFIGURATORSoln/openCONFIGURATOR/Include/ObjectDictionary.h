@@ -1,5 +1,5 @@
-#ifndef filename_h
-#define filename_h
+#ifndef ObjectDictionary_h
+#define ObjectDictionary_h
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //
 // $Header: $
@@ -69,14 +69,39 @@
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-
-
 #pragma once
+#include "Index.h"
+#include "DataTypeCollection.h"
+#include "IndexCollection.h"
+#include "Declarations.h"
+#include "ComplexDataType.h"
 
 class CObjectDictionary
 	{
 	public:
 		CObjectDictionary(void);
 		~CObjectDictionary(void);
+		private:
+		int m_IndexCount;
+		static bool instanceFlag;
+		static CObjectDictionary* ObjDictObject;
+		
+		CDataTypeCollection *m_DataTypeCollection;
+		CIndexCollection *m_IndexCollection;
+		
+	private:
+		TCollection<CIndex> collectionObj;
+	public:
+		static CObjectDictionary* getObjDictObjectPointer();
+		void addIndex(CIndex objIndex);
+		void deleteIndex(int IndexID);
+		void DeleteIndexCollection();		
+		int getNumberofIndexes();
+		CIndex* getIndex(int Count);
+		CIndex* getIndexbyIndexValue(char* Index);		
+		
+		void CreateIndexCollection();
+		void CreateDataTypeCollection();
+		
 	};
-#endif // filename_h
+#endif // ObjectDictionary_h

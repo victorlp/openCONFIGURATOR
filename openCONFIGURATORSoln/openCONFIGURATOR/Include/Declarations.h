@@ -173,25 +173,26 @@ typedef struct varDeclaration
 /****************************************************************************************/
 /* Function Declarations
 /*****************************************************************************************/
-DllExport EConfiuguratorErrors ImportXML(char* fileName, int NodeID, ENodeType NodeType);
+DllExport ocfmRetCode ImportXML(char* fileName, int NodeID, ENodeType NodeType);
+DllExport ocfmRetCode ImportObjDictXML(char* fileName);
 DllExport void GenerateCDC(char* fileName);
 //void GenerateMNOBD();
-DllExport EConfiuguratorErrors CreateNode(int NodeID, ENodeType NodeType);
+DllExport ocfmRetCode CreateNode(int NodeID, ENodeType NodeType);
 DllExport void parseFile(char* filename, int NodeID, ENodeType  NodeType);
-DllExport EConfiuguratorErrors DeleteNode(int NodeID, ENodeType NodeType);
+DllExport ocfmRetCode DeleteNode(int NodeID, ENodeType NodeType);
 //void DeleteNode(int NodePos);
-DllExport EConfiuguratorErrors DeleteIndex(int NodeID, ENodeType NodeType, char* IndexID);
-DllExport EConfiuguratorErrors DeleteSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID);
-DllExport void AddIndex(int NodeID, ENodeType NodeType, char* IndexID);
-DllExport void AddSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID);
-DllExport EConfiuguratorErrors EditIndex(int NodeID, ENodeType NodeType, char* IndexID, char* IndexValue, char* IndexName);
-DllExport EConfiuguratorErrors EditSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID, char* IndexValue, char* IndexName);
+DllExport ocfmRetCode DeleteIndex(int NodeID, ENodeType NodeType, char* IndexID);
+DllExport ocfmRetCode DeleteSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID);
+DllExport ocfmRetCode AddIndex(int NodeID, ENodeType NodeType, char* IndexID);
+DllExport ocfmRetCode AddSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID);
+DllExport ocfmRetCode EditIndex(int NodeID, ENodeType NodeType, char* IndexID, char* IndexValue, char* IndexName);
+DllExport ocfmRetCode EditSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID, char* IndexValue, char* IndexName);
 DllExport void DisplayNodeTree(void);
-DllExport ocfmRetValError IfNodeExists(int NodeID, ENodeType NodeType);
+DllExport ocfmRetCode IfNodeExists(int NodeID, ENodeType NodeType, int* NodePos);
 DllExport int ocfmRetValError_getErrorCode(ocfmRetValError RetValError);
-DllExport ocfmRetValError IfIndexExists(int NodeID, ENodeType NodeType, char* IndexID);
-DllExport ocfmRetValError IfSubIndexExists(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID);
-DllExport EConfiuguratorErrors ReImportXML(char* fileName, int NodeID, ENodeType NodeType);
+DllExport ocfmRetCode IfIndexExists(int NodeID, ENodeType NodeType, char* IndexID, int* IndexPos);
+DllExport ocfmRetCode IfSubIndexExists(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID, int* SubIndexPos, int* IndexPos);
+DllExport ocfmRetCode ReImportXML(char* fileName, int NodeID, ENodeType NodeType);
 DllExport int ocfmRetValError_getRetValue(ocfmRetValError RetValError);
 
 #endif // declarations_h

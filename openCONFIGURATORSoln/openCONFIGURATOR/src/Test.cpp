@@ -1,13 +1,17 @@
 #include "../Include/openCONFIGURATOR.h"
 #include "../Include/Internal.h"
+#include "../Include/Exception.h"
 #include <iostream>
 #include <fstream>
+#include <exception>
 #include <stdio.h>
 #include <libxml/xmlreader.h>
 #include <errno.h>
 #include <string.h>
+
 int main(int argc, char **argv) 
 {
+	
    /* if (argc != 2)
         return(1);*/
 
@@ -25,10 +29,13 @@ int main(int argc, char **argv)
 	
 	int NodeID;
 	int NodeType;
+	int IndexPos;
 	char* IndexID;
 	char* SubIndexID;
 	char* IndexValue;
 	char* IndexName;
+	IndexValue = new char;
+	IndexName = new char;
 	IndexID = new char;
 	SubIndexID = new char;
 	char filePath[100];	
@@ -47,6 +54,7 @@ int main(int argc, char **argv)
 			system("cls");
 
 			cout <<"\nPlease Choose the option"<<endl;
+			cout <<"0.ImportObjDictXML"<<endl;
 			cout <<"1.Create the Node"<<endl;
 			cout <<"2.Parse the File"<<endl;
 			cout <<"3.GenerateCDC"<<endl;
@@ -72,6 +80,9 @@ int main(int argc, char **argv)
 	
 			switch (opt)
 		{
+				case 0:
+								ImportObjDictXML("/home/selva/Desktop/mn.xdc");
+								break;
 				case 1:
 								system("cls");
 								cout<<"Enter the NodeID"<<endl;								
@@ -108,7 +119,7 @@ int main(int argc, char **argv)
 							cin>>NodeType;
 							cout<<"Enter the filepath"<<endl;
 							cin>>filePath;
-							int ret;					
+							ocfmRetCode ret;
 							if (NodeType ==0 )							
 							ret = ImportXML(filePath,NodeID, MN);
 							else if (NodeType==1)
@@ -216,17 +227,37 @@ int main(int argc, char **argv)
 							cout<<"Enter the Node Type(MN=0/CN=1)"<<endl;								
 							cin>>NodeType;
 							ocfmRetValError retPos;
+							int NodePos;
+							try
+							{
 							if(NodeType == 1)
 							{
-								retPos = IfNodeExists(NodeID, CN);
+								retPos = IfNodeExists(NodeID, CN, &NodePos);
 							}	
 							else if(NodeType == 0)
-								retPos = IfNodeExists(NodeID, MN);
+								retPos = IfNodeExists(NodeID, MN, &NodePos);
 							if(retPos.errCode.code == 0)
+							{
 								printf("\n\nIfNodeExists ret:%d\n\n", retPos.returnValue);
+								
+							}
 							else
+							{
 								printf("\n\n\nGot Err String:%s\n\n\n", retPos.errCode.errorString);
+								ocfmException objException;
+								ocfmException.ocfm_Excpetion(OCFM_ERR_NODE_ALREADY_EXISTS);
+								throw objException;
+							}
 							break;
+						    }
+						    catch (ocfmException& ex)
+							{
+								return ex->objRetCode;	
+								//cout << "IfNodeExists" <<e.what()<< endl;
+								cout << "IfNodeExists" << endl;
+							} 
+
+						   
 				case 14:
 							system("clear");							
 							cout<<"Enter the NodeID:"<<endl;								
@@ -235,21 +266,34 @@ int main(int argc, char **argv)
 							cin>>NodeType;
 							cout<<"Enter the IndexID:"<<endl;
 							cin >> IndexID;
+							//try
+							//{
+							ocfmRetCode Tmp_ErrStruct;
 							if(NodeType == 1)
-								ErrStruct = IfIndexExists(NodeID, CN, IndexID);
+								Tmp_ErrStruct = IfIndexExists(NodeID, CN, IndexID, &IndexPos);
 							else if(NodeType == 0)
-								ErrStruct = IfIndexExists(NodeID, MN, IndexID);
-							if(ErrStruct.errCode.code == OCFM_ERR_SUCCESS)
+								Tmp_ErrStruct = IfIndexExists(NodeID, MN, IndexID, &IndexPos);
+							if(Tmp_ErrStruct.code == OCFM_ERR_SUCCESS)
 							{
 								//IndexPos = ErrStruct.returnValue;
 								cout << "OCFM_ERR_INDEX_ALREADY_EXISTS" << endl;
 							}
-							else if(ErrStruct.errCode.code == OCFM_ERR_INVALID_INDEXID)
+							else if(Tmp_ErrStruct.code == OCFM_ERR_INVALID_INDEXID)
 							{
 								cout << "OCFM_ERR_INVALID_INDEXID - Can be Added" << endl;
+								//throw ErrStruct.errCode.code;
 							}								
-							
 							break;
+							//}
+							//catch (exception& e)
+							//catch (int e)
+							//{	
+								//cout << e.what() <<  endl;
+								//cout << "Error Message:" << ErrStruct.errCode.code << endl;
+								//cout << "Error Message:" << e << endl;
+								//cout <<  IfIndexExists << endl;
+								//break;
+							//} 
 				case 15:
 							system("clear");							
 							cout<<"Enter the NodeID:"<<endl;								
@@ -287,11 +331,17 @@ int main(int argc, char **argv)
 							cout<<"Enter the Node Type(MN=0/CN=1)"<<endl;								
 							cin>>NodeType;
 							cout<<"Enter the filepath"<<endl;
-							cin>>filePath;				
-							if (NodeType == 0)							
-							ret = ReImportXML(filePath, NodeID, MN);
+							cin>>filePath;							
+							if (NodeType == 0)
+							{
+								ocfmRetCode ret;
+								ret = ReImportXML(filePath, NodeID, MN);
+							}
 							else if (NodeType == 1)
-							ret = ReImportXML(filePath, NodeID, CN);						
+							{
+								ocfmRetCode ret;
+								ret = ReImportXML(filePath, NodeID, CN);						
+							}
 							break;
 				case 18:							
 							system("clear");							
@@ -303,10 +353,17 @@ int main(int argc, char **argv)
 							cin >> IndexID;
 							cout<<"Enter the SubIndexID:"<<endl;
 							cin >> SubIndexID;
-							if (NodeType == 0)							
-							EditSubIndex(NodeID, MN, IndexID, SubIndexID,IndexValue, IndexName);
+							cout<<"Enter the IndexValue:"<<endl;
+							cin >> IndexValue;
+							cout<<"Enter the IndexName:"<<endl;
+							cin >> IndexName;
+							if (NodeType == 0)								
+							//EditSubIndex(NodeID, MN, IndexID, SubIndexID,IndexValue, IndexName);
+							EditIndex(NodeID, MN, IndexID, IndexValue, IndexName);
+							//(int NodeID, ENodeType NodeType, char* IndexID, char* IndexValue, char* IndexName);
 							else if (NodeType == 1)
-							EditSubIndex(NodeID, MN, IndexID, SubIndexID,IndexValue, IndexName);
+							//EditSubIndex(NodeID, MN, IndexID, SubIndexID,IndexValue, IndexName);
+							EditIndex(NodeID, CN, IndexID, IndexValue, IndexName);
 							break;
 				default :
 								break;
