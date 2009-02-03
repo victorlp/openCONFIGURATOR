@@ -69,6 +69,7 @@
 
 #include "../Include/openCONFIGURATOR.h"
 #include "../Include/Internal.h"
+#include "../Include/Exception.h"
 #include <iostream>
 #include <fstream>
 #include <stdio.h>
@@ -314,20 +315,180 @@ static void setParameterAttributes(xmlTextReaderPtr reader, Parameter* stParamet
 
 		if(strcmp(ConvertToUpper((char*)name), "UNIQUEID")==0)
 		{						
-			stParameter->UniqueID = new char[strlen((char*)name)];
-			strcpy(stParameter->UniqueID,(char*)name);
+			stParameter->name_id_dt_attr.setUniqueID((char*)value);
 		}
 
 		else if(strcmp(ConvertToUpper((char*)name), "NAME")==0)					
-		{						
-			stParameter->Name = new char[strlen((char*)name)];
-			strcpy(stParameter->Name,(char*)name);
+		{									
+			stParameter->name_id_dt_attr.setName((char*)value);		
 		}
 
 		/* TO DO: DATATYPE..There is no tag for it..need to check after how many reads datatype is define </label>
             <USINT/>*/					
 			
 	}
+	static void setCDTAttributes(xmlTextReaderPtr reader, CComplexDataType* objCDT)
+	{
+		const xmlChar* name,*value;
+		//Retrieve the name and Value of an attribute
+		value = xmlTextReaderConstValue(reader);
+		name =xmlTextReaderConstName(reader);							
+
+		if(strcmp(ConvertToUpper((char*)name), "UNIQUEID")==0)
+		{						
+			objCDT->name_id_attr->setUniqueID((char*)value);
+		}
+
+		else if(strcmp(ConvertToUpper((char*)name), "NAME")==0)					
+		{						
+			objCDT->name_id_attr->setName((char*)value);			
+		}
+			
+	}
+bool CheckifSimpleDT(char* Name)
+{
+
+	int count = 0;
+	char* g_simple_element;
+	
+	while(count < g_simple_arr_size )
+	{
+			g_simple_element = (char*)g_Simple[count];
+		 if(strcmp(g_simple_element, Name)==0)
+		 return true;
+		 count++;
+		 	 
+	}
+	return false;
+	
+}
+	static void setVarDecAttributes(xmlTextReaderPtr reader, varDeclaration* vdecl)
+	{
+		const xmlChar* name,*value;
+		//Retrieve the name and Value of an attribute
+		value = xmlTextReaderConstValue(reader);
+		name =xmlTextReaderConstName(reader);		
+		vdecl->Initialize();
+		bool vardecCompleted = false;
+							
+	
+		if(strcmp(ConvertToUpper((char*)name), "UNIQUEID")==0)
+		{						
+			vdecl->nam_id_dt_attr->setUniqueID((char*)value);
+		}
+
+		else if(strcmp(ConvertToUpper((char*)name), "NAME")==0)					
+		{						
+			vdecl->nam_id_dt_attr->setName((char*)value);			
+		}
+		 if(strcmp(ConvertToUpper((char*)name), "SIZE")==0)					
+		{						
+			vdecl->size = atoi((const char*)value);			
+		}
+		/*	vdecl->nam_id_dt_attr = app;*/
+	}
+	bool CheckEndElement(int NodeType, char* element, char* comparewith)
+	{
+		if((NodeType = XML_READER_TYPE_END_ELEMENT) && (strcmp(element, comparewith)==0))
+		return true;
+		else
+		return false;
+	} 
+	bool CheckStartElement(int NodeType, char* element, char* comparewith)
+	{
+		if((NodeType = XML_READER_TYPE_ELEMENT) && (strcmp(element, comparewith)==0))
+		return true;
+		else
+		return false;
+	} 
+static void getVarDeclaration(xmlTextReaderPtr reader, CComplexDataType* objCDT)
+{
+		const xmlChar* name,*value;
+		int ret;
+  varDeclaration* stvardecl = new varDeclaration;
+  ret = xmlTextReaderRead(reader);
+  
+  name = xmlTextReaderConstName(reader);
+  value = xmlTextReaderConstValue(reader);
+   
+		while(!(CheckEndElement(xmlTextReaderNodeType(reader),(char*)name, "struct")))
+		{
+		try
+		{
+				ret = xmlTextReaderRead(reader);
+			 if (ret != 1) 
+			 {
+					ocfmException* objException = new ocfmException;
+					objException->ocfm_Excpetion(OCFM_ERR_XML_FILE_CORRUPTED);
+			 }
+			  
+  }
+  catch(ocfmException *ex)
+  {
+			throw ex;
+		}
+			name = xmlTextReaderConstName(reader);
+			value = xmlTextReaderConstValue(reader);
+			printf("\nName:%s",name);
+			printf("\n NodeType: %d",xmlTextReaderNodeType(reader));
+			
+			if(CheckEndElement(xmlTextReaderNodeType(reader),(char*)name, "varDeclaration"))
+			{
+				objCDT->addVarDeclaration(*stvardecl);
+			}
+			if(CheckStartElement(xmlTextReaderNodeType(reader),(char*)name, "varDeclaration"))
+			{
+						printf("\nELEMENT----- Name = %s ",name);
+						if (value==NULL)
+						printf("Value = NULL \n");  
+						else
+							printf("Value= %s",value);
+					if (xmlTextReaderHasAttributes(reader)==1)
+						{						
+							while(xmlTextReaderMoveToNextAttribute(reader))
+								{
+
+										setVarDecAttributes(reader,stvardecl);		
+										printf("\n***Attribute  *********\n");
+										value = xmlTextReaderConstValue(reader);
+										name =xmlTextReaderConstName(reader);
+										printf("\ndepth : %d NodeType= %d Name= %s ,value= %s\n", 
+										xmlTextReaderDepth(reader),
+										xmlTextReaderNodeType(reader),
+										name,value);																												
+								}
+							}
+						}
+						/*	}*/
+		/*	ret = xmlTextReaderRead(reader);
+		name = xmlTextReaderConstName(reader);
+		value = xmlTextReaderConstValue(reader);*/
+  
+			if(CheckifSimpleDT((char*)name))
+			{
+					stvardecl->nam_id_dt_attr->setDataType((char*)name);
+			}		
+			if(CheckStartElement(xmlTextReaderNodeType(reader),(char*)name, "dataTypeIDRef"))
+		{
+				if (xmlTextReaderHasAttributes(reader)==1)
+				{
+				
+					xmlTextReaderMoveToNextAttribute(reader);
+					value = xmlTextReaderConstValue(reader);
+					name =xmlTextReaderConstName(reader);							
+
+					if(strcmp(ConvertToUpper((char*)name), "UNIQUEIDREF")==0)
+					{
+						stvardecl->nam_id_dt_attr->setDtUniqueRefId((char*)value);
+					}
+				}		
+			}
+												
+		
+		}
+			
+	}
+
 	
 /**************************************************************************************************
 	* Function Name: ImportXML
@@ -336,14 +497,20 @@ static void setParameterAttributes(xmlTextReaderPtr reader, Parameter* stParamet
 
 ocfmRetCode ImportXML(char* fileName, int NodeID, ENodeType NodeType)
 	{
+
+		
+		ocfmRetCode ocfmError;
+		ocfmError.code = OCFM_ERR_SUCCESS;
+
 		/*char* fileLocation;
 		fileLocation= fileName + filePath;*/
 		//fileLocation ="E:\\Kalycito\\checkout\\Source\\SharedLibrary\\openCONFIGURATORSoln\\XMLParser\\12345678_MyName.xml";
 		//parseFile("E:\\Kalycito\\checkout\\Source\\SharedLibrary\\openCONFIGURATORSoln\\XMLParser\\12345678_MyName_BitCoding.xml",(ENodeType)NodeType,NodeID);
 		ocfmRetCode ErrStruct;
 
+
 		printf("Inside Importxml");
-		parseFile(fileName, NodeID, NodeType);
+	 ocfmError = parseFile(fileName, NodeID, NodeType);
 		//Cleanup function for the XML library.
 
 		/* Check if UniqueIDRefs are present, fetch the value from parameter and struct tags*/
@@ -358,8 +525,13 @@ ocfmRetCode ImportXML(char* fileName, int NodeID, ENodeType NodeType)
 		* this is to debug memory for regression tests
 		*/
 		xmlMemoryDump();
+
+
+		return ocfmError;
+
 		ErrStruct.code = OCFM_ERR_SUCCESS;
 		return ErrStruct;
+
 	}
 /**************************************************************************************************
 	* Function Name: processNode
@@ -371,13 +543,15 @@ void processNode(xmlTextReaderPtr reader,ENodeType NodeType,int NodeIndex)
 	
 		CNodeCollection *objNodeCollection;
 		CNode objNode;
+		ocfmRetCode retCode;
 	
     name = xmlTextReaderConstName(reader);
     if (name == NULL)
 		printf("\n\n\n\nGot NULL for Name\n\n\n\n");
 	//	name = BAD_CAST "--";		
     value = xmlTextReaderConstValue(reader);
-    
+ try
+ { 
 	//If the NodeTYPE is ELEMENT
 	if( xmlTextReaderNodeType(reader)==1)
 		{
@@ -405,9 +579,10 @@ void processNode(xmlTextReaderPtr reader,ENodeType NodeType,int NodeIndex)
 			
 
 				}
-			if(strcmp(((char*)name),"Parameter")==0)
+			if(strcmp(((char*)name),"parameter")==0)
 				{
-					objNodeCollection= CNodeCollection::getNodeColObjectPointer();					
+					objNodeCollection= CNodeCollection::getNodeColObjectPointer();	
+					CApplicationProcess* objApplicationProcess;				
 					Parameter stParameter;
 
 					
@@ -422,7 +597,30 @@ void processNode(xmlTextReaderPtr reader,ENodeType NodeType,int NodeIndex)
 						}
 						
 						// Add parameter to the parameter collection of a node
-						objNode.addParameter(stParameter);				
+						objApplicationProcess = objNode.getApplicationProcess();
+						objApplicationProcess->addParameter(stParameter);
+					
+				}
+				if(strcmp(((char*)name),"struct")==0)
+				{
+					objNodeCollection= CNodeCollection::getNodeColObjectPointer();	
+					CApplicationProcess* objApplicationProcess;		
+					CComplexDataType objCDT;				
+			
+					objNode = objNodeCollection->getNode(NodeType, NodeIndex);	
+					
+					if (xmlTextReaderHasAttributes(reader)==1)
+						{						
+							while(xmlTextReaderMoveToNextAttribute(reader))
+								{
+										setCDTAttributes(reader,&objCDT);																															
+								}
+						}
+						
+						 getVarDeclaration(reader,&objCDT);
+						// Add parameter to the parameter collection of a node
+						objApplicationProcess = objNode.getApplicationProcess();
+						objApplicationProcess->addComplexDataType(objCDT);
 					
 				}
 			if(strcmp(((char*)name),"Object")==0)
@@ -480,16 +678,16 @@ void processNode(xmlTextReaderPtr reader,ENodeType NodeType,int NodeIndex)
 				
 						objIndexCollection =objNode.getIndexCollection();
 						objIndexPtr =objIndexCollection->getIndex(LastIndexParsed);
-										
-						if(strcmp(objIndexPtr->getIndexValue(),"2103")==0)
-							{
-								if(strcmp(objSubIndex.getIndexValue(),"17")==0)
-									{	
-									printf("%d",objIndexPtr->getNumberofSubIndexes());
-									}
-							}
-						printf("LastIndexParsed: %d-%s\n",LastIndexParsed, objIndexPtr->getIndexValue());
-						printf("SubIndex value: %s \n",objSubIndex.getIndexValue());
+						//				
+						//if(strcmp(objIndexPtr->getIndexValue(),"2103")==0)
+						//	{
+						//		if(strcmp(objSubIndex.getIndexValue(),"17")==0)
+						//			{	
+						//			printf("%d",objIndexPtr->getNumberofSubIndexes());
+						//			}
+						//	}
+						//printf("LastIndexParsed: %d-%s\n",LastIndexParsed, objIndexPtr->getIndexValue());
+						//printf("SubIndex value: %s \n",objSubIndex.getIndexValue());
 						objIndexPtr->addSubIndex(objSubIndex);
 
 						////free memory
@@ -502,32 +700,53 @@ void processNode(xmlTextReaderPtr reader,ENodeType NodeType,int NodeIndex)
 				}	
 			}
 		
-			
+		}
+		catch(ocfmException* ex)
+		{
+			 throw ex;
+		}	
 }
 /**************************************************************************************************
 	* Function Name: parseFile
     * Description: Parses the XML file
 /****************************************************************************************************/
-void parseFile(char* filename, int NodeIndex, ENodeType  NodeType) 
+ocfmRetCode parseFile(char* filename, int NodeIndex, ENodeType  NodeType) 
 {
     xmlTextReaderPtr reader;
     int ret;
 
 		
     reader = xmlReaderForFile(filename, NULL, 0);
-    if (reader != NULL)
-				{
-        ret = xmlTextReaderRead(reader);
-        while (ret == 1)
-								{		
-										processNode(reader,NodeType,NodeIndex );
-										ret = xmlTextReaderRead(reader);
-								}
-				}
-				else
-				{
-					  fprintf(stderr, "Unable to open %s\n", filename);
-				}
+    try
+    {
+					if (reader != NULL)
+					{
+						 ret = xmlTextReaderRead(reader);
+       while (ret == 1)
+							{		
+									processNode(reader,NodeType,NodeIndex );
+									ret = xmlTextReaderRead(reader);
+							}
+							if(ret!=0)
+							{
+								ocfmException* objException = new ocfmException;
+								/*objException->ocfm_Excpetion(o, true);*/
+								objException->ocfm_Excpetion(OCFM_ERR_PARSE_XML);
+								throw objException;
+							}
+						}
+						else 
+						{
+							ocfmException* objException = new ocfmException;
+							objException->ocfm_Excpetion(OCFM_ERR_CANNOT_OPEN_FILE);
+							throw objException;
+						}
+					}
+					catch(ocfmException* ex)
+					{
+						return *(ex->_ocfmRetCode);
+					}
+				
 		
 				printf("\n\n\nCalling xmlFreeTextReader\n\n\n\n");
 
@@ -635,6 +854,7 @@ ocfmRetCode CreateNode(int NodeID, ENodeType NodeType)
 		
 		objNode.CreateIndexCollection();
 		objNode.CreateDataTypeCollection();
+		objNode.CreateApplicationProcess();
 
 		objNodeCollection = CNodeCollection::getNodeColObjectPointer();
 		objNodeCollection->addNode(objNode);
@@ -1281,7 +1501,7 @@ void GenerateCDC(char* fileName)
 		//ofstream file;
 		char *Buffer1;
 		int len;
-				
+		const char tempFileName[9] = "temp.txt";
 		char* CNData;
 
 		printf("Inside GenerateCDC");
@@ -1303,7 +1523,7 @@ void GenerateCDC(char* fileName)
 		printf("Node id %d",objNode.getNodeId());
 
 		FILE* fileptr = new FILE();
-		if (( fileptr = fopen(fileName,"w+")) == NULL)
+		if (( fileptr = fopen(tempFileName,"w+")) == NULL)
 			{
 				printf ( "Cannot open file you have named...!\n" );
 			
@@ -1339,12 +1559,12 @@ void GenerateCDC(char* fileName)
 			fclose(fileptr);
 			
 		/*************************Write CN's Data in Buffer2***************************************************/
-		WriteCNsData(fileName);
+		WriteCNsData((char*)tempFileName);
 		
 		//Get all the IF81 ENTRY in Buffer1
 		if(objNodeCollection->getNumberOfNodes()!=0)
 		{
-			if (( fileptr = fopen(fileName,"a+")) == NULL)
+			if (( fileptr = fopen(tempFileName,"a+")) == NULL)
 			{
 				printf ( "Cannot open file you have named...!\n" );
 			
@@ -1382,8 +1602,9 @@ void GenerateCDC(char* fileName)
 						
 			}
 		fclose(fileptr);		
+		printf("\nText cdc generated");
 		// Convert CDC txt file to Binary
-		ConvertCdcToBinary(fileName);
+		ConvertCdcToBinary(fileName,(char*) tempFileName);
 		
 	}
 
@@ -1468,7 +1689,7 @@ void ProcessPDONodes(int NodeID)
 			}
 	}
 
-void ConvertCdcToBinary(char* fileName)
+void ConvertCdcToBinary(char* fileName,char* tempFile)
 {
 	FILE *fin, *fout;
 	char* filePath;
@@ -1480,13 +1701,13 @@ void ConvertCdcToBinary(char* fileName)
 	unsigned char ca_cn1obd[10000];
 	unsigned char tempCn1Obd[10000];
 
-	fin = fopen(fileName, "r");
-	filePath = (char*)malloc(80);
-	filePath = strchr(fileName,'\\');
-	filePath = subString(fileName, 0, strlen(fileName) - strlen(filePath) +1);
-	strcat(filePath,"config_data.cdc");
-	//fout = fopen("config_data.cdc", "wb");
-	fout = fopen(filePath, "wb");
+	fin = fopen(tempFile, "r");
+	//filePath = (char*)malloc(80);
+	//filePath = strchr(reverse(fileName),'\\');
+	//filePath = subString(fileName, 0, strlen(fileName) - strlen(filePath) +1);
+	//strcat(filePath,"config_data.cdc");
+	////fout = fopen("config_data.cdc", "wb");
+	fout = fopen(fileName, "wb");
 	
 	
 		while(ch != EOF)
@@ -1531,7 +1752,7 @@ void ConvertCdcToBinary(char* fileName)
 		// Write to Binary file
 		fwrite(&tempCn1Obd,1,count,fout);
 	}
-	Exit :
+	
 	fclose(fin);
 	fclose(fout);	
 }
@@ -1576,45 +1797,46 @@ CIndex* getMNIndexValues(char* Index)
 	will be used when Adding Index and/or Adding SubIndex
 	* Return value: ocfmRetCode
 /****************************************************************************************************/
-ocfmRetCode ImportObjDictXML(char* fileName)
-{
-	xmlTextReaderPtr reader;
-	int ret;
-	ocfmRetCode ErrStruct;
-	CIndex objIndex;
-
-	cout << "ImportObjDictXML:" << fileName << endl;
-	
-	CObjectDictionary* ObjDictObject;
-	ObjDictObject = CObjectDictionary::getObjDictObjectPointer();
-	//char* IndexID = "1006";
-	
-	//objIndex = ObjDictObject->CreateIndexCollection();
-	
-	//objNodeCollection= CNodeCollection::getNodeColObjectPointer();
-	//objNode = objNodeCollection->getNode(NodeType, NodeID);
-	//objIndexCollection = objNode.getIndexCollection();
-			
-	//AddIndexAttributes(IndexID, &objIndex);
-	//ObjDictObject->addIndex(objIndex);
-
-	//reader = xmlReaderForFile(fileName, NULL, 0);
-	//if (reader != NULL)
-	//{
-	//	ret = xmlTextReaderRead(reader);
-	//	while (ret == 1)
-	//	{		
-	//		processObjDict(reader);
-	//		ret = xmlTextReaderRead(reader);
-	//	}
-	//}
-	//else
-	//{
-	//	fprintf(stderr, "Unable to open %s\n", filename);
-	//}
-
-	//printf("\n\n\nCalling xmlFreeTextReader\n\n\n\n");	
-}
+//ocfmRetCode ImportObjDictXML(char* fileName)
+//{
+//	xmlTextReaderPtr reader;
+//	int ret;
+//	ocfmRetCode ErrStruct;
+//	CIndex objIndex;
+//
+//	cout << "ImportObjDictXML:" << fileName << endl;
+//	
+//	CObjectDictionary* ObjDictObject;
+//	ObjDictObject = CObjectDictionary::getObjDictObjectPointer();
+//	//char* IndexID = "1006";
+//	
+//	//objIndex = ObjDictObject->CreateIndexCollection();
+//	
+//	//objNodeCollection= CNodeCollection::getNodeColObjectPointer();
+//	//objNode = objNodeCollection->getNode(NodeType, NodeID);
+//	//objIndexCollection = objNode.getIndexCollection();
+//			
+//	//AddIndexAttributes(IndexID, &objIndex);
+//	//ObjDictObject->addIndex(objIndex);
+//
+//	//reader = xmlReaderForFile(fileName, NULL, 0);
+//	//if (reader != NULL)
+//	//{
+//	//	ret = xmlTextReaderRead(reader);
+//	//	while (ret == 1)
+//	//	{		
+//	//		processObjDict(reader);
+//	//		ret = xmlTextReaderRead(reader);
+//	//	}
+//	//}
+//	//else
+//	//{
+//	//	fprintf(stderr, "Unable to open %s\n", filename);
+//	//}
+//
+//	//printf("\n\n\nCalling xmlFreeTextReader\n\n\n\n");	
+//	
+//}
 /**************************************************************************************************
 	* Function Name: processNode
     * Description: Process the Node value,Name and its attributes

@@ -71,7 +71,7 @@
 
 #pragma once
 #include "BaseIndex.h"
-class CSubIndex : public CBaseIndex
+class DllExport CSubIndex : public CBaseIndex
 	{
 	public:
 		CSubIndex(void);

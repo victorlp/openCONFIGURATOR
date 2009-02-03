@@ -66,57 +66,58 @@
 //  REVISION HISTORY:
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
-
-
+#include "../Include/ApplicationProcess.h"
 #include <iostream>
-#include <exception>
-#include "../Include/Exception.h"
-#include <libxml/xmlerror.h>
-/*
-class ocfmException: public exception
-{
-	  virtual const char* what() const throw()
-  {
-    return "Node Exception Handled: Node does not exsist";
-  }
-} NodeEx;
-*/
-ocfmException::ocfmException(void)
+#include <fstream>
+
+CApplicationProcess::CApplicationProcess(void)
 	{
-				_ocfmRetCode = new ocfmRetCode;
 	}
 
-ocfmException::~ocfmException(void)
+CApplicationProcess::~CApplicationProcess(void)
 	{
-		
 	}
-	
-	void ocfmException::ocfm_Excpetion(EConfiuguratorErrors errcode)
+void CApplicationProcess::ParseXDDfile(char* filename)
 	{
-	
-		_ocfmRetCode->code = errcode;
-		_ocfmRetCode->errorString = new char[100];
-		
-		//if(libxmlerrors)
-		//{
-		//	switch(errcode)
-		//	{
-		//		case XML_ERR_TAG_NAME_MISMATCH:
-		//			strcpy(_ocfmRetCode->errorString,"Opening and Ending Tag Mismatch");	
-		//			break;	
-		//	}
-		//}
-		//else
-		//{
-			switch(errcode)
-			{
-				case OCFM_ERR_NODE_ALREADY_EXISTS:
-						strcpy(_ocfmRetCode->errorString,"Node Already Exists");				
-					break;
-					
-				default:
-					break;			
-			}
-		//}
-		//
 	}
+int CApplicationProcess::checkFileStatus(char* filename) 
+	{
+		ifstream file (filename, ios::in|ios::binary|ios::ate);
+		if (file.is_open()) return 1;
+		else return 0;
+
+	}
+	void CApplicationProcess::addComplexDataType(CComplexDataType complexDT)
+ {
+	 	int i = CDTCollection.Add();
+		CDTCollection[i] = complexDT;		
+ }
+void CApplicationProcess::addParameter(Parameter  parameter)
+ {
+	 	int i = ParameterCollection.Add();
+			ParameterCollection[i] = parameter;
+ }
+int CApplicationProcess::get_ParameterIndexby_UniqueIDRef(char *UniqueIdRef)
+{
+
+	for(int count = 0; count<ParameterCollection.Count(); count++)
+	{
+		Parameter objPara;
+		objPara = ParameterCollection[count];
+		if(strcmp(UniqueIdRef, objPara.name_id_dt_attr.getDtUniqueRefId())==0)
+		return count;
+	}
+	return NULL;
+}
+int CApplicationProcess::get_CDT_UniqueIDRef(char *UniqueIdRef)
+{
+
+	for(int count = 0; count<CDTCollection.Count(); count++)
+	{
+		CComplexDataType objCDT;
+		objCDT = CDTCollection[count];
+		if(strcmp(UniqueIdRef, objCDT.name_id_attr->getUniqueID())==0)
+		return count;
+	}
+	return NULL;
+}

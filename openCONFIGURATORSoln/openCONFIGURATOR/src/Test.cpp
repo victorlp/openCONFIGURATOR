@@ -43,6 +43,7 @@ int main(int argc, char **argv)
 	errorstring = new char;	
 	int temp_ret = 0;
 	ocfmRetValError ErrStruct;
+			ocfmRetCode ret;	
 						
 	CNodeCollection *objNodeCollection;							
 
@@ -81,7 +82,7 @@ int main(int argc, char **argv)
 			switch (opt)
 		{
 				case 0:
-								ImportObjDictXML("/home/selva/Desktop/mn.xdc");
+								/*ImportObjDictXML("/home/selva/Desktop/mn.xdc");*/
 								break;
 				case 1:
 								system("cls");
@@ -119,7 +120,10 @@ int main(int argc, char **argv)
 							cin>>NodeType;
 							cout<<"Enter the filepath"<<endl;
 							cin>>filePath;
+
+
 							ocfmRetCode ret;
+
 							if (NodeType ==0 )							
 							ret = ImportXML(filePath,NodeID, MN);
 							else if (NodeType==1)
@@ -232,30 +236,31 @@ int main(int argc, char **argv)
 							{
 							if(NodeType == 1)
 							{
-								retPos = IfNodeExists(NodeID, CN, &NodePos);
-							}	
+							/*	retPos = IfNodeExists(NodeID, CN, &NodePos);
+							*/}	
 							else if(NodeType == 0)
-								retPos = IfNodeExists(NodeID, MN, &NodePos);
-							if(retPos.errCode.code == 0)
+								/*retPos = IfNodeExists(NodeID, MN, &NodePos);
+							*/if(retPos.errCode.code == 0)
 							{
 								printf("\n\nIfNodeExists ret:%d\n\n", retPos.returnValue);
 								
 							}
-							else
+					/*		else
 							{
 								printf("\n\n\nGot Err String:%s\n\n\n", retPos.errCode.errorString);
 								ocfmException objException;
-								ocfmException.ocfm_Excpetion(OCFM_ERR_NODE_ALREADY_EXISTS);
+								objException.ocfm_Excpetion(OCFM_ERR_NODE_ALREADY_EXISTS);
 								throw objException;
-							}
-							break;
-						    }
-						    catch (ocfmException& ex)
+							}*/
+						
+						 }
+						 catch (ocfmException ex)
 							{
-								return ex->objRetCode;	
+							/*	return ex.objRetCode;	*/
 								//cout << "IfNodeExists" <<e.what()<< endl;
 								cout << "IfNodeExists" << endl;
 							} 
+								break;
 
 						   
 				case 14:
@@ -331,17 +336,27 @@ int main(int argc, char **argv)
 							cout<<"Enter the Node Type(MN=0/CN=1)"<<endl;								
 							cin>>NodeType;
 							cout<<"Enter the filepath"<<endl;
+
+							cin>>filePath;				
+							if (NodeType == 0)							
+							/*ret = ReImportXML(filePath, NodeID, MN);
+=======
 							cin>>filePath;							
 							if (NodeType == 0)
 							{
 								ocfmRetCode ret;
 								ret = ReImportXML(filePath, NodeID, MN);
 							}
+>>>>>>> .r460
 							else if (NodeType == 1)
+<<<<<<< .mine
+							ret = ReImportXML(filePath, NodeID, CN);*/						
+
 							{
 								ocfmRetCode ret;
 								ret = ReImportXML(filePath, NodeID, CN);						
 							}
+
 							break;
 				case 18:							
 							system("clear");							

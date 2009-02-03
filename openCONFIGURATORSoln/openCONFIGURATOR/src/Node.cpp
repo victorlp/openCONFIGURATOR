@@ -145,18 +145,26 @@ void CNode::setNodeName(char* NodeName)
 		strcpy((char*)m_NodeName, NodeName);
 	}
 /**************************************************************************************************
-	* Function Name: getIndex
-    * Description: Returns the Index of the Index Object
+	* Function Name: getIndexCollection
+    * Description: Returns the IndexCollection of the Node
 /****************************************************************************************************/
 
 CIndexCollection* CNode::getIndexCollection()
 	{
 		return m_IndexCollection;
 	}
-
 /**************************************************************************************************
-	* Function Name: setIndex
-    * Description: sets the Index of the Index Object
+	* Function Name: getApplicationProcess
+    * Description: Returns the Application Process of the Node
+/****************************************************************************************************/
+
+CApplicationProcess* CNode::getApplicationProcess()
+	{
+		return m_ApplicationProcess;
+	}
+/**************************************************************************************************
+	* Function Name: getDataTypeCollection
+    * Description: returns the DataType Collection
 /****************************************************************************************************/
 CDataTypeCollection* CNode::getDataTypeCollection()
 	{return m_DataTypeCollection;}
@@ -172,22 +180,18 @@ void CNode::CreateDataTypeCollection()
 		objDataTypeCollection = new CDataTypeCollection();
 		m_DataTypeCollection = objDataTypeCollection ;
 	}
-void CNode::addComplexDataType(CComplexDataType complexDT)
- {
-	 	int i = CDTCollection.Add();
-		CDTCollection[i] = complexDT;		
- }
-void CNode::addParameter(Parameter  parameter)
- {
-	 	int i = ParameterCollection.Add();
-		ParameterCollection[i] = parameter;
- }
+
  void CNode::addProcessImage(ProcessImage processImage)
  {
 	 int i = ProcessImageCollection.Add();
 		ProcessImageCollection[i] = processImage;
  }
-
+void CNode::CreateApplicationProcess()
+{
+	CApplicationProcess* objAPPProcess;
+	objAPPProcess = new CApplicationProcess();
+	m_ApplicationProcess =  objAPPProcess;
+}
 
 
 CIndexCollection* CNode::getPDOIndexCollection(EPDOType PDOType)

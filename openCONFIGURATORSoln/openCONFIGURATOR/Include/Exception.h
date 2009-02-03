@@ -68,12 +68,18 @@
 //  REVISION HISTORY:
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
-
+#pragma once
 #include "Error.h"
 
-class ocfmException : public exception
+class ocfmException : public std::exception
 {
-	
-}
+		public:
+		ocfmException(void);
+		~ocfmException(void);	
+		public:
+		ocfmRetCode* _ocfmRetCode;
+		public:
+			void ocfm_Excpetion(EConfiuguratorErrors errcode);
+};
 
 #endif // exception_h

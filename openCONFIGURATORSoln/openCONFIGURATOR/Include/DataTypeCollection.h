@@ -71,8 +71,8 @@
 #pragma once
 #include "Declarations.h"
 #include "TCollection.h"
-//class DllExport CDataTypeCollection
-class CDataTypeCollection
+class DllExport CDataTypeCollection
+//class CDataTypeCollection
 	{
 	public:
 		CDataTypeCollection(void);

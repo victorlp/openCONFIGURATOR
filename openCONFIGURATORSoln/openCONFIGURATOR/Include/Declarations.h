@@ -149,36 +149,80 @@ typedef struct ProcessImage
 		char*					BitOffset;
 	
 }ProcessImage;
-typedef struct Parameter
+
+typedef struct appProcessCommon
 {
-		char*						Name;
-		char*						UniqueID;
+
+		char*						m_Name;
+		char*						UniqueId;
 		char*						dataType;
-			
-}Parameter;
-
-typedef struct varDeclaration
+		char*						dataTypeUniqueIDRef;
+		
+		
+		char* getUniqueID()
+		{return UniqueId;}
+		void  setUniqueID(char* UniqueID)
+		{	
+			UniqueId = new char[strlen(UniqueID) + 1];
+			strcpy(UniqueId, UniqueID);
+		}
+		
+		char* getName()
+		{
+			return m_Name;
+		}
+		void  setName(char* attrname)
+		{
+				m_Name = new char[strlen(attrname) + 1];
+				strcpy(m_Name, attrname);
+		}
+		char* getDataType()
+		{return dataType;}
+		void setDataType(char* dt)
+		{
+			dataType = new char[strlen(dt) + 1];
+			strcpy(dataType, dt );
+		}
+		char* getDtUniqueRefId()
+		{return dataTypeUniqueIDRef; }
+		void setDtUniqueRefId(char* UniqueRefID)
+		{
+			dataTypeUniqueIDRef = new char[strlen(UniqueRefID) + 1];
+			strcpy(dataTypeUniqueIDRef, UniqueRefID);
+		}
+}appProcessCommon;
+struct varDeclaration
 {
-
-		char*						Name;
-		char*						UniqueID;
+  
+		appProcessCommon* nam_id_dt_attr;
 		int								size;
 		char*						InitialValue;
-		char*						dataType;
-		char*						dataTypeIDRef;
+		void Initialize()
+		{nam_id_dt_attr = new appProcessCommon;}
 	
-}varDeclaration;
-
+};
+typedef struct Parameter
+{
+		appProcessCommon name_id_dt_attr;
+		char*												dataType;
+		int														StructIndex;
+		//char*						dataTypeUniqueIDRef;
+			
+}Parameter;
 
 /****************************************************************************************/
 /* Function Declarations
 /*****************************************************************************************/
+
 DllExport ocfmRetCode ImportXML(char* fileName, int NodeID, ENodeType NodeType);
-DllExport ocfmRetCode ImportObjDictXML(char* fileName);
+
+DllExport ocfmRetCode ImportXML(char* fileName, int NodeID, ENodeType NodeType);
+//DllExport ocfmRetCode ImportObjDictXML(char* fileName);
+
 DllExport void GenerateCDC(char* fileName);
 //void GenerateMNOBD();
 DllExport ocfmRetCode CreateNode(int NodeID, ENodeType NodeType);
-DllExport void parseFile(char* filename, int NodeID, ENodeType  NodeType);
+DllExport ocfmRetCode parseFile(char* filename, int NodeID, ENodeType  NodeType);
 DllExport ocfmRetCode DeleteNode(int NodeID, ENodeType NodeType);
 //void DeleteNode(int NodePos);
 DllExport ocfmRetCode DeleteIndex(int NodeID, ENodeType NodeType, char* IndexID);
@@ -189,10 +233,10 @@ DllExport ocfmRetCode EditIndex(int NodeID, ENodeType NodeType, char* IndexID, c
 DllExport ocfmRetCode EditSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID, char* IndexValue, char* IndexName);
 DllExport void DisplayNodeTree(void);
 DllExport ocfmRetCode IfNodeExists(int NodeID, ENodeType NodeType, int* NodePos);
-DllExport int ocfmRetValError_getErrorCode(ocfmRetValError RetValError);
+//DllExport int ocfmRetValError_getErrorCode(ocfmRetValError RetValError);
 DllExport ocfmRetCode IfIndexExists(int NodeID, ENodeType NodeType, char* IndexID, int* IndexPos);
 DllExport ocfmRetCode IfSubIndexExists(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID, int* SubIndexPos, int* IndexPos);
 DllExport ocfmRetCode ReImportXML(char* fileName, int NodeID, ENodeType NodeType);
-DllExport int ocfmRetValError_getRetValue(ocfmRetValError RetValError);
+//DllExport int ocfmRetValError_getRetValue(ocfmRetValError RetValError);
 
 #endif // declarations_h

@@ -69,7 +69,6 @@
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-#endif // StackOperaions_h
 
 #pragma once
 
@@ -80,3 +79,5 @@ public:
 	~StackOperations(void);
 };
 
+
+#endif // StackOperaions_h

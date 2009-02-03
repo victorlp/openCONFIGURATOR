@@ -1,3 +1,5 @@
+#ifndef ApplicationProcess_h
+#define ApplicationProcess_h
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //
 //  $Header: $
@@ -66,25 +68,33 @@
 //  REVISION HISTORY:
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
-#include "../Include/Application.h"
-#include <iostream>
-#include <fstream>
+#pragma once
+#include <string>
 
-CApplication::CApplication(void)
+using namespace std;
+#include "ComplexDataType.h"
+#include "TCollection.h"
+class DllExport CApplicationProcess
 	{
-	}
+	public:
+		CApplicationProcess(void);
+		~CApplicationProcess(void);
+	public:
+		char* XDDfilename;
+		char* ProjectPath;
+		TCollection<CComplexDataType> CDTCollection;
+		TCollection<Parameter> ParameterCollection;
 
-CApplication::~CApplication(void)
-	{
-	}
-void CApplication::ParseXDDfile(char* filename)
-	{
-	}
-int CApplication::checkFileStatus(char* filename) 
-	{
-		ifstream file (filename, ios::in|ios::binary|ios::ate);
-		if (file.is_open()) return 1;
-		else return 0;
+	public:
+		void ParseXDDfile(char* filename);
+		int checkFileStatus(char* filename);		
+		void addComplexDataType(CComplexDataType complexDT);
+		void addParameter(Parameter  parameter);
+		int get_ParameterIndexby_UniqueIDRef(char* UniqueIdRef);
+		int get_CDT_UniqueIDRef(char *UniqueIdRef);
+		void updatePreviousCDT_UId(char *UniqueID, int Index);
+		
+	};
 
-	}
+#endif // ApplicationProcess_h
 

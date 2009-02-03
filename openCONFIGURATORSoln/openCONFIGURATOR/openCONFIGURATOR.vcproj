@@ -174,7 +174,7 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\src\Application.cpp"
+				RelativePath=".\src\ApplicationProcess.cpp"
 				>
 			</File>
 			<File
@@ -187,6 +187,10 @@
 			</File>
 			<File
 				RelativePath=".\src\DataTypeCollection.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\src\Exception.cpp"
 				>
 			</File>
 			<File
@@ -244,6 +248,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Include\ApplicationProcess.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Include\BaseIndex.h"
 				>
 			</File>
@@ -261,6 +269,10 @@
 			</File>
 			<File
 				RelativePath=".\Include\Error.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Include\Exception.h"
 				>
 			</File>
 			<File

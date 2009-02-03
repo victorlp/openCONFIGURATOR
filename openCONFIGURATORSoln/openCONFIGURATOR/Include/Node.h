@@ -73,7 +73,8 @@
 #include "DataTypeCollection.h"
 #include "IndexCollection.h"
 #include "Declarations.h"
-#include "ComplexDataType.h"
+#include "ApplicationProcess.h"
+
 
 class DllExport CNode
 //class CNode
@@ -84,19 +85,19 @@ class DllExport CNode
 	private:
 		CDataTypeCollection *m_DataTypeCollection;
 		CIndexCollection *m_IndexCollection;
+		CApplicationProcess* m_ApplicationProcess;
 				
 		int m_NodeId;
 		ENodeType m_NodeType;
 		int m_NodeIndex;
 		char* m_NodeName;
 	public:
-		TCollection<CComplexDataType> CDTCollection;
-		TCollection<Parameter> ParameterCollection;
-		TCollection<ProcessImage> ProcessImageCollection;
+			TCollection<ProcessImage> ProcessImageCollection;
 	
 	public:
 		CDataTypeCollection* getDataTypeCollection();
 		CIndexCollection* getIndexCollection();
+		CApplicationProcess* getApplicationProcess();
 
 		int getNodeId();
 		void setNodeId(int NodeId);
@@ -112,8 +113,8 @@ class DllExport CNode
 
 		void CreateIndexCollection();
 		void CreateDataTypeCollection();
-		void addComplexDataType(CComplexDataType complexDT);
-		void addParameter(Parameter  parameter);
+		void CreateApplicationProcess();
+		
 		void addProcessImage(ProcessImage processImage);
 
 

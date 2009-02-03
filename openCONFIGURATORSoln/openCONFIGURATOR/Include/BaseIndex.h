@@ -92,7 +92,7 @@ class DllExport CBaseIndex
 		EPDOMapping  			m_pdoMapping;
 		int													m_NodeID;
 		char*											m_UniqueIDRef;
-
+		int													m_ParameterIndex;
 
 
 

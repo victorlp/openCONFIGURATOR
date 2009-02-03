@@ -71,7 +71,28 @@
 #include <string>
 #include "Exports.h"
 #include "Index.h"
-
+static const int g_simple_arr_size = 19;
+static const char *g_Simple[] = {
+																										"BOOL",
+																										"BITSTRING",
+																										"BYTE",
+																										"CHAR",
+																										"WORD",
+																										"DWORD",
+																										"LWORD",
+																										"SINT",
+																										"INT",
+																										"DINT",
+																										"LINT",
+																										"USINT",
+																										"UINT",
+																										"UDINT",
+																										"ULINT",
+																										"REAL",
+																										"LREAL",
+																										"STRING",
+																										"WSTRING"
+																										};
 
 /****************************************************************************************/
 /* Function Declarations
@@ -94,5 +115,5 @@ unsigned long hex2int(char *a);
 bool CheckIfMappingPDO(char* Index);
 CIndex* getMNIndexValues(char* Index);
 bool CheckAllowedCNIndexes(char* IndexValue);
-void ConvertCdcToBinary(char* fileName);
+void ConvertCdcToBinary(char* fileName,char* tempFile);
 #endif // declarations_h

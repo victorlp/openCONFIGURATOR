@@ -1,8 +1,11 @@
 #include "../Include/ComplexDataType.h"
+#include <string.h>
+#include <stdlib.h>
 
 
 CComplexDataType::CComplexDataType(void)
 	{
+			name_id_attr = new appProcessCommon;
 	}
 
 CComplexDataType::~CComplexDataType(void)
