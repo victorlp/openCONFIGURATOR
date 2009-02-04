@@ -210,13 +210,26 @@ typedef struct Parameter
 			
 }Parameter;
 
+typedef enum
+{
+	NAME	= 0,	// Name of the Attribute
+	OBJECTTYPE,		// Object Type of the Attribute
+	DATATYPE,		// Data Type of the Attribute
+	ACCESSTYPE,		// Access Type of the Attribute
+	DEFAULTVALUE,	// Default value of the Attribute
+	ACTUALVALUE,	// Actual value of the Attribute
+	PDOMAPPING,		// PDO Mapping of the Attribute
+	COUNT,			// Number of Nodes/Index/SubIndex
+	LOWLIMIT,
+	HIGHLIMIT
+}EAttributeType;
+
 /****************************************************************************************/
 /* Function Declarations
 /*****************************************************************************************/
 
 DllExport ocfmRetCode ImportXML(char* fileName, int NodeID, ENodeType NodeType);
 
-DllExport ocfmRetCode ImportXML(char* fileName, int NodeID, ENodeType NodeType);
 //DllExport ocfmRetCode ImportObjDictXML(char* fileName);
 
 DllExport void GenerateCDC(char* fileName);
@@ -239,4 +252,5 @@ DllExport ocfmRetCode IfSubIndexExists(int NodeID, ENodeType NodeType, char* Ind
 DllExport ocfmRetCode ReImportXML(char* fileName, int NodeID, ENodeType NodeType);
 //DllExport int ocfmRetValError_getRetValue(ocfmRetValError RetValError);
 
+DllExport ocfmRetCode GetIndexAttribute(int NodeID, ENodeType NodeType, char* IndexID, EAttributeType AttributeType, char** AttributeValue);
 #endif // declarations_h

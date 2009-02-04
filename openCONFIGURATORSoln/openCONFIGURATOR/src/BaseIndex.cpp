@@ -114,7 +114,11 @@ void CBaseIndex::setDefaultValue(char* Value)
 /****************************************************************************************************/
 
 const char* CBaseIndex::getActualValue()
-	{return m_ActualValue;}
+	{
+		if(m_ActualValue == NULL)
+			m_ActualValue = NULL;
+		return m_ActualValue;
+	}
 
 /**************************************************************************************************
 	* Function Name: setActualValue

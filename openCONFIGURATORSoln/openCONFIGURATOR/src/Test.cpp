@@ -34,10 +34,15 @@ int main(int argc, char **argv)
 	char* SubIndexID;
 	char* IndexValue;
 	char* IndexName;
+	EAttributeType AttributeType;
+	int intAttributeType;
+	char* AttributeValue;
+		
 	IndexValue = new char;
 	IndexName = new char;
 	IndexID = new char;
 	SubIndexID = new char;
+	AttributeValue = new char;
 	char filePath[100];	
 	char* errorstring;
 	errorstring = new char;	
@@ -74,6 +79,7 @@ int main(int argc, char **argv)
 			cout<<"16: Delete SubIndex"<<endl;
 			cout<<"17: ReImportXML"<<endl;
 			cout<<"18: EditIndexValue"<<endl;
+			cout<<"19: GetIndexAttribute"<<endl;
 			
 			cout <<"Press 'E' for Exit"<<endl;
 								
@@ -340,16 +346,13 @@ int main(int argc, char **argv)
 							cin>>filePath;				
 							if (NodeType == 0)							
 							/*ret = ReImportXML(filePath, NodeID, MN);
-=======
 							cin>>filePath;							
 							if (NodeType == 0)
 							{
 								ocfmRetCode ret;
 								ret = ReImportXML(filePath, NodeID, MN);
 							}
->>>>>>> .r460
 							else if (NodeType == 1)
-<<<<<<< .mine
 							ret = ReImportXML(filePath, NodeID, CN);*/						
 
 							{
@@ -372,13 +375,71 @@ int main(int argc, char **argv)
 							cin >> IndexValue;
 							cout<<"Enter the IndexName:"<<endl;
 							cin >> IndexName;
-							if (NodeType == 0)								
+							if (NodeType == 0)					
 							//EditSubIndex(NodeID, MN, IndexID, SubIndexID,IndexValue, IndexName);
 							EditIndex(NodeID, MN, IndexID, IndexValue, IndexName);
 							//(int NodeID, ENodeType NodeType, char* IndexID, char* IndexValue, char* IndexName);
 							else if (NodeType == 1)
 							//EditSubIndex(NodeID, MN, IndexID, SubIndexID,IndexValue, IndexName);
 							EditIndex(NodeID, CN, IndexID, IndexValue, IndexName);
+							break;
+				case 19:	
+							system("clear");							
+							cout<<"Enter the NodeID:"<<endl;								
+							cin >> NodeID;												
+							cout<<"Enter the Node Type(MN=0/CN=1)"<<endl;								
+							cin>>NodeType;
+							cout<<"Enter the IndexID:"<<endl;
+							cin >> IndexID;
+							cout<<"Enter the AttributeType:"<<endl;
+							cin >> intAttributeType;
+							//cout<<"Enter the SubIndexID:"<<endl;
+							//cin >> SubIndexID;
+							switch(intAttributeType)
+							{
+								case 0:
+										AttributeType = NAME;
+										break;
+								case 1:
+										AttributeType = OBJECTTYPE;
+										break;
+								case 2:
+										AttributeType = DATATYPE;
+										break;		
+								case 3:
+										AttributeType = ACCESSTYPE;
+										break;
+								case 4:
+										AttributeType = DEFAULTVALUE;
+										break;
+								case 5:
+										AttributeType = ACTUALVALUE;
+										break;
+								case 6:
+										AttributeType = PDOMAPPING;
+										break;
+								case 7:
+										AttributeType = COUNT;
+										break;
+								case 8:
+										AttributeType = LOWLIMIT;
+										break;
+								case 9:
+										AttributeType = HIGHLIMIT;
+										break;
+								default:
+										cout << "invalid Attribute Type" << endl;
+										return 1;
+							}
+							//AttributeValue = "TestValues";
+							if (NodeType == 0)
+								GetIndexAttribute(NodeID, MN, IndexID, AttributeType, &AttributeValue);
+							else if (NodeType == 1)
+								GetIndexAttribute(NodeID, CN, IndexID, AttributeType, &AttributeValue);
+							if(AttributeValue == NULL)
+								cout << "Value is NULL" << endl;
+							else
+							cout << "\n\n\n\n\nAttributeValue:" << AttributeValue << endl;
 							break;
 				default :
 								break;
