@@ -93,6 +93,7 @@ class DllExport CNodeCollection
 		CNode getNode(int NodeId);
 		CNode getNodebyCollectionIndex(int ColIndex);		
 		CNode getMNNode();
+		CNode* getNodePtr(ENodeType nodeType,int NodeId);
 		
 		
 		//void addToIndexCollection(CIndex *objIndex);

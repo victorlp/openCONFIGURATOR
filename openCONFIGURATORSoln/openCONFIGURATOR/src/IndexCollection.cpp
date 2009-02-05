@@ -113,6 +113,7 @@ CIndex* CIndexCollection::getIndexbyIndexValue(char* Index)
 			if(strcmp(objIndex.getIndexValue(),Index)==0)
 				return &collectionObj[i];
 		}		
+		return NULL;
 	}
 int CIndexCollection::getNumberofIndexes()
 	{return m_IndexCount;}

@@ -76,192 +76,12 @@
 #include <libxml/xmlreader.h>
 #include <errno.h>
 #include <string.h>
+#include <libxml/xmlwriter.h>
+#include <libxml/encoding.h>
 
-char* strerr;
-int LastIndexParsed=0;
+#define MY_ENCODING "ISO-8859-1"
 
-void LoadObjectDictionary()
-	{
-	
-		//Parse the ObjectDictionary xml and creates the objectDictionary object
-		
-	}
-	
-static void setIndexAttributes(xmlTextReaderPtr reader, CIndex* objIndex)
-	{
-		const xmlChar* name, *value;
-		//Retrieve the name and Value of an attribute
-		value = xmlTextReaderConstValue(reader);
-		name = xmlTextReaderConstName(reader);		
 
-		if(strcmp(ConvertToUpper((char*)name), "INDEX")==0)
-			{	
-				// For holding temp data to print
-				char* Buffer;
-						
-				// Setting the Index Value
-				objIndex->setIndexValue((char*)value);
-				
-				// For Testing. 
-				Buffer = (char *) malloc(sizeof(objIndex->getIndexValue()));
-				strcpy(Buffer, objIndex->getIndexValue());
-				printf("\tName:%s, objIndex->getIndexValue:%s\n", name, Buffer);
-				
-				/*$S Commented out the TPDO and RPDO grouping $S*/
-				//TODO: Check point 1 
-				char* data = (char*) value;
-				if(strncmp(data,"14",2)==0 ||strncmp(data,"16",2) ==0)
-					{
-						objIndex->setPDOType(PDO_RPDO);
-					}
-				else if(strncmp(data,"18",2 )==0 ||strncmp(data,"1A",2) ==0)
-					{
-						objIndex->setPDOType(PDO_TPDO);
-					}
-
-			}
-
-		else if( strcmp(ConvertToUpper((char*)name), "NAME") == 0 )
-		{	
-			objIndex->setName((char*)value);
-			//objIndex->setName("CFM_VerifyConfiguration_REC12ksdhksdhk");
-			// Test print
-			printf("\tName:%s, objIndex->getName:%s\n", name, objIndex->getName());
-		}
-
-		else if(strcmp(ConvertToUpper((char*)name), "OBJECTTYPE")==0)					
-		objIndex->setObjectType(atoi((const char*)value));
-
-		else if(strcmp(ConvertToUpper((char*)name), "LOWLIMIT")==0)
-		{
-			objIndex->setLowLimit((char*)value);
-			//objIndex->setLowLimit("123456789101112131415");
-			//printf("\tName:%s, objIndex->getLowLimit:%s\n", name, objIndex->getLowLimit());
-		}
-
-		else if(strcmp(ConvertToUpper((char*)name), "HIGHLIMIT")==0)					
-		objIndex->setHighLimit((char*)value);
-
-		else if(strcmp(ConvertToUpper((char*)name), "ACCESSTYPE")==0)					
-		objIndex->setAccessType((char*)value);
-
-		else if(strcmp(ConvertToUpper((char*)name), "PDOMAPPING")==0)					
-		objIndex->setPDOMapping((char*)value);
-		
-
-		else if(strcmp(ConvertToUpper((char*)name), "DEFAULTVALUE")==0)					
-		objIndex->setDefaultValue((char*)value);
-
-		else if(strcmp(ConvertToUpper((char*)name), "ACTUALVALUE")==0)					
-		objIndex->setActualValue((char*)value);
-
-		else if(strcmp(ConvertToUpper((char*)name), "DATATYPE")==0)					
-		objIndex->setDataType((char*)value);							
-
-		else if(strcmp(ConvertToUpper((char*)name), "UNIQUEIDREF")==0)					
-		objIndex->setUniqueIDRef((char*)value);							
-	
-																	
-	}
-static void setSubIndexAttributes(xmlTextReaderPtr reader, CSubIndex* objSubIndex)
-	{
-		const xmlChar* name,*value;
-		//Retrieve the name and Value of an attribute
-		value = xmlTextReaderConstValue(reader);
-		name =xmlTextReaderConstName(reader);							
-
-		if(strcmp(ConvertToUpper((char*)name), "SUBINDEX")==0)						
-		objSubIndex->setIndexValue((char*)value);
-
-		else if(strcmp(ConvertToUpper((char*)name), "NAME")==0)					
-		objSubIndex->setName((char*)value);
-
-		else if(strcmp(ConvertToUpper((char*)name), "OBJECTTYPE")==0)					
-		objSubIndex->setObjectType((int)value);
-
-		else if(strcmp(ConvertToUpper((char*)name), "LOWLIMIT")==0)					
-		objSubIndex->setLowLimit((char*)value);
-
-		else if(strcmp(ConvertToUpper((char*)name), "HIGHLIMIT")==0)					
-		objSubIndex->setHighLimit((char*)value);
-
-		else if(strcmp(ConvertToUpper((char*)name), "ACCESSTYPE")==0)					
-		objSubIndex->setAccessType((char*)value);
-
-		else if(strcmp(ConvertToUpper((char*)name), "PDOMAPPING")==0)					
-		objSubIndex->setPDOMapping((char*)value);
-
-		else if(strcmp(ConvertToUpper((char*)name), "DEFAULTVALUE")==0)					
-		objSubIndex->setDefaultValue((char*)value);
-
-		else if(strcmp(ConvertToUpper((char*)name), "ACTUALVALUE")==0)					
-		objSubIndex->setActualValue((char*)value);
-
-		else if(strcmp(ConvertToUpper((char*)name), "DATATYPE")==0)					
-		objSubIndex->setDataType((char*)value);		
-
-		else if(strcmp(ConvertToUpper((char*)name), "UNIQUEIDREF")==0)					
-		objSubIndex->setUniqueIDRef((char*)value);							
-		
-		
-														
-	}
-	
-static void setDataTypeAttributes(xmlTextReaderPtr reader ,DataType* objDataType)
-	{
-		const xmlChar* name,*value;
-		int ret;
-
-		objDataType->Name = NULL;
-		objDataType->DataTypeValue = NULL;
-		objDataType->DataSize = NULL;
-		
-		//printf("\nInside DataType");
-		
-		//Retrieve the name and Value of an attribute
-		value = xmlTextReaderConstValue(reader);
-		name =xmlTextReaderConstName(reader);
-		//printf("Value_1:%s\n", value);							
-
-		if(strcmp(ConvertToUpper((char*)name), "DATATYPE") == 0)						
-		{
-			objDataType->DataTypeValue =new char[strlen((char*)value) + 1];
-			strcpy(objDataType->DataTypeValue, (char*)value);
-			//printf("objDataType->DataTypeValue:%s\n",objDataType->DataTypeValue);
-			//Read the Equivalent name of a datatype
-			ret = xmlTextReaderRead(reader);
-			ret = xmlTextReaderRead(reader);
-			value = xmlTextReaderConstValue(reader);
-			name =xmlTextReaderConstName(reader);
-					
-			/*objDataType->setName((char*)name);*/
-			objDataType->Name = new char[strlen((char*)name) + 1];
-			//printf("\n Size:%d",sizeof(objDataType->Name));
-			//printf("\n Size of Name:%d", strlen((char*)name));
-			strcpy(objDataType->Name, (char*)name);
-			//printf("\n outsideName:%s", objDataType->Name);
-			printf("objDataType->DataTypeValue:%s, objDataType->Name:%s\n", objDataType->DataTypeValue, objDataType->Name);
-			objDataType->DataSize = new char[4];
-			if((strcmp(ConvertToUpper(objDataType->Name),"UNSIGNED8")==0) ||
-				(strcmp(ConvertToUpper(objDataType->Name),"BOOLEAN")==0 ) ||
-				(strcmp(ConvertToUpper(objDataType->Name),"INTEGER8")==0 ))
-					strcpy(objDataType->DataSize,"0001");
-
-			if((strcmp(ConvertToUpper(objDataType->Name),"UNSIGNED16")==0) ||
-				(strcmp(ConvertToUpper(objDataType->Name),"INTEGER16")==0 ))
-				strcpy(objDataType->DataSize,"0002");
-
-			if((strcmp(ConvertToUpper(objDataType->Name),"UNSIGNED32")==0) ||
-				(strcmp(ConvertToUpper(objDataType->Name),"INTEGER32")==0 ) ||
-				(strcmp(ConvertToUpper(objDataType->Name),"REAL32")==0 ))
-				strcpy(objDataType->DataSize,"0004");
-				
-				if(strcmp(ConvertToUpper(objDataType->Name),"UNSIGNED64")==0)
-				strcpy(objDataType->DataSize,"0008");
-			
-				}
-				printf("\noutside DataType");
-	}
 /**************************************************************************************************
 	* Function Name: AddIndexAttributes
     * Description: Adds the default attributes to the Index, when addded.
@@ -306,522 +126,7 @@ static void AddSubIndexAttributes(char* SubIndexID, CSubIndex* objSubIndex)
 				objSubIndex->setDataType((char*)value);
 	}
 
-static void setParameterAttributes(xmlTextReaderPtr reader, Parameter* stParameter)
-	{
-		const xmlChar* name,*value;
-		//Retrieve the name and Value of an attribute
-		value = xmlTextReaderConstValue(reader);
-		name =xmlTextReaderConstName(reader);							
-
-		if(strcmp(ConvertToUpper((char*)name), "UNIQUEID")==0)
-		{						
-			stParameter->name_id_dt_attr.setUniqueID((char*)value);
-		}
-
-		else if(strcmp(ConvertToUpper((char*)name), "NAME")==0)					
-		{									
-			stParameter->name_id_dt_attr.setName((char*)value);		
-		}
-
-		/* TO DO: DATATYPE..There is no tag for it..need to check after how many reads datatype is define </label>
-            <USINT/>*/					
-			
-	}
-	static void setCDTAttributes(xmlTextReaderPtr reader, CComplexDataType* objCDT)
-	{
-		const xmlChar* name,*value;
-		//Retrieve the name and Value of an attribute
-		value = xmlTextReaderConstValue(reader);
-		name =xmlTextReaderConstName(reader);							
-
-		if(strcmp(ConvertToUpper((char*)name), "UNIQUEID")==0)
-		{						
-			objCDT->name_id_attr->setUniqueID((char*)value);
-		}
-
-		else if(strcmp(ConvertToUpper((char*)name), "NAME")==0)					
-		{						
-			objCDT->name_id_attr->setName((char*)value);			
-		}
-			
-	}
-bool CheckifSimpleDT(char* Name)
-{
-
-	int count = 0;
-	char* g_simple_element;
-	
-	while(count < g_simple_arr_size )
-	{
-			g_simple_element = (char*)g_Simple[count];
-		 if(strcmp(g_simple_element, Name)==0)
-		 return true;
-		 count++;
-		 	 
-	}
-	return false;
-	
-}
-	static void setVarDecAttributes(xmlTextReaderPtr reader, varDeclaration* vdecl)
-	{
-		const xmlChar* name,*value;
-		//Retrieve the name and Value of an attribute
-		value = xmlTextReaderConstValue(reader);
-		name =xmlTextReaderConstName(reader);		
-		vdecl->Initialize();
-		bool vardecCompleted = false;
-							
-	
-		if(strcmp(ConvertToUpper((char*)name), "UNIQUEID")==0)
-		{						
-			vdecl->nam_id_dt_attr->setUniqueID((char*)value);
-		}
-
-		else if(strcmp(ConvertToUpper((char*)name), "NAME")==0)					
-		{						
-			vdecl->nam_id_dt_attr->setName((char*)value);			
-		}
-		 if(strcmp(ConvertToUpper((char*)name), "SIZE")==0)					
-		{						
-			vdecl->size = atoi((const char*)value);			
-		}
-		/*	vdecl->nam_id_dt_attr = app;*/
-	}
-	bool CheckEndElement(int NodeType, char* element, char* comparewith)
-	{
-		if((NodeType = XML_READER_TYPE_END_ELEMENT) && (strcmp(element, comparewith)==0))
-		return true;
-		else
-		return false;
-	} 
-	bool CheckStartElement(int NodeType, char* element, char* comparewith)
-	{
-		if((NodeType = XML_READER_TYPE_ELEMENT) && (strcmp(element, comparewith)==0))
-		return true;
-		else
-		return false;
-	} 
-static void getVarDeclaration(xmlTextReaderPtr reader, CComplexDataType* objCDT)
-{
-		const xmlChar* name,*value;
-		int ret;
-  varDeclaration* stvardecl = new varDeclaration;
-  ret = xmlTextReaderRead(reader);
-  
-  name = xmlTextReaderConstName(reader);
-  value = xmlTextReaderConstValue(reader);
-   
-		while(!(CheckEndElement(xmlTextReaderNodeType(reader),(char*)name, "struct")))
-		{
-		try
-		{
-				ret = xmlTextReaderRead(reader);
-			 if (ret != 1) 
-			 {
-					ocfmException* objException = new ocfmException;
-					objException->ocfm_Excpetion(OCFM_ERR_XML_FILE_CORRUPTED);
-			 }
-			  
-  }
-  catch(ocfmException *ex)
-  {
-			throw ex;
-		}
-			name = xmlTextReaderConstName(reader);
-			value = xmlTextReaderConstValue(reader);
-			printf("\nName:%s",name);
-			printf("\n NodeType: %d",xmlTextReaderNodeType(reader));
-			
-			if(CheckEndElement(xmlTextReaderNodeType(reader),(char*)name, "varDeclaration"))
-			{
-				objCDT->addVarDeclaration(*stvardecl);
-			}
-			if(CheckStartElement(xmlTextReaderNodeType(reader),(char*)name, "varDeclaration"))
-			{
-						printf("\nELEMENT----- Name = %s ",name);
-						if (value==NULL)
-						printf("Value = NULL \n");  
-						else
-							printf("Value= %s",value);
-					if (xmlTextReaderHasAttributes(reader)==1)
-						{						
-							while(xmlTextReaderMoveToNextAttribute(reader))
-								{
-
-										setVarDecAttributes(reader,stvardecl);		
-										printf("\n***Attribute  *********\n");
-										value = xmlTextReaderConstValue(reader);
-										name =xmlTextReaderConstName(reader);
-										printf("\ndepth : %d NodeType= %d Name= %s ,value= %s\n", 
-										xmlTextReaderDepth(reader),
-										xmlTextReaderNodeType(reader),
-										name,value);																												
-								}
-							}
-						}
-						/*	}*/
-		/*	ret = xmlTextReaderRead(reader);
-		name = xmlTextReaderConstName(reader);
-		value = xmlTextReaderConstValue(reader);*/
-  
-			if(CheckifSimpleDT((char*)name))
-			{
-					stvardecl->nam_id_dt_attr->setDataType((char*)name);
-			}		
-			if(CheckStartElement(xmlTextReaderNodeType(reader),(char*)name, "dataTypeIDRef"))
-		{
-				if (xmlTextReaderHasAttributes(reader)==1)
-				{
-				
-					xmlTextReaderMoveToNextAttribute(reader);
-					value = xmlTextReaderConstValue(reader);
-					name =xmlTextReaderConstName(reader);							
-
-					if(strcmp(ConvertToUpper((char*)name), "UNIQUEIDREF")==0)
-					{
-						stvardecl->nam_id_dt_attr->setDtUniqueRefId((char*)value);
-					}
-				}		
-			}
-												
-		
-		}
-			
-	}
-
-	
-/**************************************************************************************************
-	* Function Name: ImportXML
-    * Description: Imports the XML file
-/****************************************************************************************************/
-
-ocfmRetCode ImportXML(char* fileName, int NodeID, ENodeType NodeType)
-	{
-
-		
-		ocfmRetCode ocfmError;
-		ocfmError.code = OCFM_ERR_SUCCESS;
-
-		/*char* fileLocation;
-		fileLocation= fileName + filePath;*/
-		//fileLocation ="E:\\Kalycito\\checkout\\Source\\SharedLibrary\\openCONFIGURATORSoln\\XMLParser\\12345678_MyName.xml";
-		//parseFile("E:\\Kalycito\\checkout\\Source\\SharedLibrary\\openCONFIGURATORSoln\\XMLParser\\12345678_MyName_BitCoding.xml",(ENodeType)NodeType,NodeID);
-		ocfmRetCode ErrStruct;
-
-
-		printf("Inside Importxml");
-	 ocfmError = parseFile(fileName, NodeID, NodeType);
-		//Cleanup function for the XML library.
-
-		/* Check if UniqueIDRefs are present, fetch the value from parameter and struct tags*/
-		//ProcessUniqueIDRefs();
-
-		/* Process PDO Objects*/
-		//ProcessPDONodes(NodeID);
-
-		printf("Parsing Done");
-		 xmlCleanupParser();
-		/*
-		* this is to debug memory for regression tests
-		*/
-		xmlMemoryDump();
-
-
-		return ocfmError;
-
-		ErrStruct.code = OCFM_ERR_SUCCESS;
-		return ErrStruct;
-
-	}
-/**************************************************************************************************
-	* Function Name: processNode
-    * Description: Process the Node value,Name and its attributes
-/****************************************************************************************************/
-void processNode(xmlTextReaderPtr reader,ENodeType NodeType,int NodeIndex)
-{
-		const xmlChar *name, *value;
-	
-		CNodeCollection *objNodeCollection;
-		CNode objNode;
-		ocfmRetCode retCode;
-	
-    name = xmlTextReaderConstName(reader);
-    if (name == NULL)
-		printf("\n\n\n\nGot NULL for Name\n\n\n\n");
-	//	name = BAD_CAST "--";		
-    value = xmlTextReaderConstValue(reader);
- try
- { 
-	//If the NodeTYPE is ELEMENT
-	if( xmlTextReaderNodeType(reader)==1)
-		{
-			if(strcmp(((char*)name),"defType")==0)
-				{
-					objNodeCollection= CNodeCollection::getNodeColObjectPointer();
-					CDataTypeCollection* objDataTypeCollection;			
-					//printf("createed Nodecol\n");
-					DataType objDataType;
-					if (xmlTextReaderHasAttributes(reader)==1)
-						{						
-							while(xmlTextReaderMoveToNextAttribute(reader))
-								{
-									//printf("Calling setDataTypeAttributes..\n ");
-									setDataTypeAttributes(reader, &objDataType);
-									//$Svalue = xmlTextReaderConstValue(reader);
-									//$Sprintf("Value_1:%s\n", value);
-									//$Sname =xmlTextReaderConstName(reader);																									
-								}
-						}
-
-					objNode = objNodeCollection->getNode(NodeType,NodeIndex);							
-					objDataTypeCollection = objNode.getDataTypeCollection();
-					objDataTypeCollection->addDataType(objDataType);
-			
-
-				}
-			if(strcmp(((char*)name),"parameter")==0)
-				{
-					objNodeCollection= CNodeCollection::getNodeColObjectPointer();	
-					CApplicationProcess* objApplicationProcess;				
-					Parameter stParameter;
-
-					
-					objNode = objNodeCollection->getNode(NodeType, NodeIndex);	
-					
-					if (xmlTextReaderHasAttributes(reader)==1)
-						{						
-							while(xmlTextReaderMoveToNextAttribute(reader))
-								{
-										setParameterAttributes(reader,&stParameter);																															
-								}
-						}
-						
-						// Add parameter to the parameter collection of a node
-						objApplicationProcess = objNode.getApplicationProcess();
-						objApplicationProcess->addParameter(stParameter);
-					
-				}
-				if(strcmp(((char*)name),"struct")==0)
-				{
-					objNodeCollection= CNodeCollection::getNodeColObjectPointer();	
-					CApplicationProcess* objApplicationProcess;		
-					CComplexDataType objCDT;				
-			
-					objNode = objNodeCollection->getNode(NodeType, NodeIndex);	
-					
-					if (xmlTextReaderHasAttributes(reader)==1)
-						{						
-							while(xmlTextReaderMoveToNextAttribute(reader))
-								{
-										setCDTAttributes(reader,&objCDT);																															
-								}
-						}
-						
-						 getVarDeclaration(reader,&objCDT);
-						// Add parameter to the parameter collection of a node
-						objApplicationProcess = objNode.getApplicationProcess();
-						objApplicationProcess->addComplexDataType(objCDT);
-					
-				}
-			if(strcmp(((char*)name),"Object")==0)
-				{
-					objNodeCollection= CNodeCollection::getNodeColObjectPointer();
-					CIndexCollection* objIndexCollection;
-					CIndex objIndex;
-
-					
-					objNode = objNodeCollection->getNode(NodeType, NodeIndex);	
-						//Set the NodeID
-						objIndex.setNodeID(objNode.getNodeId());
-
-					if (xmlTextReaderHasAttributes(reader)==1)
-						{						
-							while(xmlTextReaderMoveToNextAttribute(reader))
-								{
-									//printf("Calling setIndexAttributes..\n ");
-									setIndexAttributes(reader, &objIndex);	
-									//$Svalue = xmlTextReaderConstValue(reader);
-									//$Sprintf("\tValue_2:%s\n", value);
-									//$Sname =xmlTextReaderConstName(reader);																								
-								}
-						}
-						
-						objIndexCollection = objNode.getIndexCollection();
-						
-						//Add Index object to the IndexCollection
-						objIndexCollection->addIndex(objIndex);				
-						LastIndexParsed = objIndexCollection->getNumberofIndexes()-1;
-						
-				}
-			if(strcmp(((char*)name),"SubObject")==0 )
-				{
-					objNodeCollection = CNodeCollection::getNodeColObjectPointer();
-					CIndexCollection* objIndexCollection;
-					CSubIndex objSubIndex;
-					objNode =objNodeCollection->getNode(NodeType,NodeIndex);
-						//Set the NodeID
-						objSubIndex.setNodeID(objNode.getNodeId());		
-
-					if (xmlTextReaderHasAttributes(reader) ==1)
-						{
-							
-							while(xmlTextReaderMoveToNextAttribute(reader))
-								{
-									setSubIndexAttributes(reader,&objSubIndex);
-									//value = xmlTextReaderConstValue(reader);
-									//printf("\t\tValue_3:%s\n", value);
-									//name =xmlTextReaderConstName(reader);																									
-								}
-						}
-						CIndex* objIndexPtr;
-								
-				
-						objIndexCollection =objNode.getIndexCollection();
-						objIndexPtr =objIndexCollection->getIndex(LastIndexParsed);
-						//				
-						//if(strcmp(objIndexPtr->getIndexValue(),"2103")==0)
-						//	{
-						//		if(strcmp(objSubIndex.getIndexValue(),"17")==0)
-						//			{	
-						//			printf("%d",objIndexPtr->getNumberofSubIndexes());
-						//			}
-						//	}
-						//printf("LastIndexParsed: %d-%s\n",LastIndexParsed, objIndexPtr->getIndexValue());
-						//printf("SubIndex value: %s \n",objSubIndex.getIndexValue());
-						objIndexPtr->addSubIndex(objSubIndex);
-
-						////free memory
-						//objIndexPtr->~CIndex();
-						//delete objIndexPtr;
-						/*printf("subindex deleted:%s",objIndexPtr->getIndexValue());*/
-						//printf("Index added\n");
-						
-						
-				}	
-			}
-		
-		}
-		catch(ocfmException* ex)
-		{
-			 throw ex;
-		}	
-}
-/**************************************************************************************************
-	* Function Name: parseFile
-    * Description: Parses the XML file
-/****************************************************************************************************/
-ocfmRetCode parseFile(char* filename, int NodeIndex, ENodeType  NodeType) 
-{
-    xmlTextReaderPtr reader;
-    int ret;
-
-		
-    reader = xmlReaderForFile(filename, NULL, 0);
-    try
-    {
-					if (reader != NULL)
-					{
-						 ret = xmlTextReaderRead(reader);
-       while (ret == 1)
-							{		
-									processNode(reader,NodeType,NodeIndex );
-									ret = xmlTextReaderRead(reader);
-							}
-							if(ret!=0)
-							{
-								ocfmException* objException = new ocfmException;
-								/*objException->ocfm_Excpetion(o, true);*/
-								objException->ocfm_Excpetion(OCFM_ERR_PARSE_XML);
-								throw objException;
-							}
-						}
-						else 
-						{
-							ocfmException* objException = new ocfmException;
-							objException->ocfm_Excpetion(OCFM_ERR_CANNOT_OPEN_FILE);
-							throw objException;
-						}
-					}
-					catch(ocfmException* ex)
-					{
-						return *(ex->_ocfmRetCode);
-					}
-				
-		
-				printf("\n\n\nCalling xmlFreeTextReader\n\n\n\n");
-
-	//				xmlFreeTextReader(reader);
- //       if (ret != 0)
-	//				{
- //           fprintf(stderr, "%s : failed to parse\n", filename);
-	//		/*strerr= strerror(errno);
-	//		strerr =" Error:" +strerr;*/
-	//				}
- //   }
-	//else 
-	//	{
-	//		/*strerr=strerror(errno);
-	//		strerr =" Error:" +strerr;*/
- //      fprintf(stderr, "Unable to open %s\n", filename);
-	//	}
- }
  
-/**************************************************************************************************
-	* Function Name: ReImport
-    * Description: Parses the XML file
-	Return value Legend:
-	Cannot ReImport 		- -1
-	ReImport Success 		- 1
-/****************************************************************************************************/
-ocfmRetCode ReImportXML(char* fileName, int NodeID, ENodeType NodeType)
-{
-	int NodePos;
-	//if((IfNodeExists(NodeID, NodeType, errorString)) >= 0)
-	//ocfmRetValError retPos;
-	ocfmRetCode ErrStruct;
-	ErrStruct = IfNodeExists(NodeID, NodeType, &NodePos);
-	if(ErrStruct.code == 0)
-	{
-		CNode objNode;
-		CNodeCollection *objNodeCollection;
-		CIndexCollection *objIndexCollection;
-		CDataTypeCollection *objDataTypeCollection;
-		CIndex objIndex;
-
-		objIndex.setNodeID(objNode.getNodeId());
-		objNodeCollection= CNodeCollection::getNodeColObjectPointer();
-		objNode = objNodeCollection->getNode(CN, NodeID);
-		
-		objDataTypeCollection = objNode.getDataTypeCollection();
-
-		objIndexCollection = objNode.getIndexCollection();
-		//cout<< "Number of DataType:" << objDataTypeCollection->getNumberOfDataTypes() << endl;
-		// Delete IndexCollection
-		objIndexCollection->DeleteIndexCollection();
-		// Delete DataTypeCollection
-		objDataTypeCollection->DeleteDataTypeCollection();
-		//cout<< "Number of DataType:" << objDataTypeCollection->getNumberOfDataTypes() << endl;
-		parseFile(fileName, NodeID, NodeType);
-		ErrStruct.code = OCFM_ERR_SUCCESS;
-		return ErrStruct;
-	}
-	else
-	{
-		printf("\nCannot ReImport!!\n");
-		ErrStruct.code = OCFM_ERR_INVALID_NODEID;
-		return ErrStruct;
-	}
-} 
- 
-/**************************************************************************************************
-	* Function Name: CreateTree
-    * Description:
-/****************************************************************************************************/
-void CreateTree()
-	{
-		//objNodeCollection= CNodeCollection::getNodeColObject();
-		
-	}
 /**************************************************************************************************
 	* Function Name: CreateNode
     * Description:
@@ -1046,116 +351,6 @@ ocfmRetCode AddIndex(int NodeID, ENodeType NodeType, char* IndexID)
 
 	}	
 /**************************************************************************************************
-	* Function Name: GetIndexAttribute
-    * Description:
-	* Return value: ocfmRetCode
-/****************************************************************************************************/
-
-ocfmRetCode GetIndexAttribute(int NodeID, ENodeType NodeType, char* IndexID, EAttributeType AttributeType, char** AttributeValue)
-{
-	int IndexPos;
-	ocfmRetCode ErrStruct;
-	
-	ErrStruct = IfIndexExists(NodeID, NodeType, IndexID, &IndexPos);
-		if(ErrStruct.code == OCFM_ERR_SUCCESS)
-		{
-			cout << "IndexPos:" << IndexPos << endl;
-		}
-		else
-		{
-			 //OCFM_ERR_INDEXID_NOT_FOUND;
-			 return ErrStruct;
-		}
-		CNode objNode;		
-		CNodeCollection *objNodeCollection;
-		CIndexCollection *objIndexCollection;
-		CIndex objIndex;
-		CIndex* objIndexPtr;
-		
-		objIndex.setNodeID(objNode.getNodeId());
-		objNodeCollection= CNodeCollection::getNodeColObjectPointer();
-		objNode = objNodeCollection->getNode(NodeType, NodeID);
-
-		objIndexCollection = objNode.getIndexCollection();
-		objIndexPtr = objIndexCollection->getIndex(IndexPos);
-		
-		switch(AttributeType)
-		{
-			case 0:					
-					*AttributeValue = new char[strlen((char *)objIndexPtr->getName()) + 1];
-					strcpy(*AttributeValue, (char *)objIndexPtr->getName());
-					if(*AttributeValue == NULL)
-						*AttributeValue  = NULL;
-					//cout<< "NAME:" << *AttributeValue << endl;
-					break;
-			case 1:
-					*AttributeValue = (char *) objIndexPtr->getObjectType();
-					if(*AttributeValue == NULL)
-						*AttributeValue  = NULL;
-					//cout<< "OBJECTTYPE:" << *AttributeValue << endl;
-					break;
-			case 2:
-					DataType tmpDataType;
-					tmpDataType = objIndexPtr->getDataType();
-					*AttributeValue = tmpDataType.Name;
-					if(*AttributeValue == NULL)
-						*AttributeValue  = NULL;
-					//cout<< "DATATYPE:" << *AttributeValue << endl;
-					break;		
-			case 3:
-					*AttributeValue = (char *) objIndexPtr->getAccessType();
-					if(*AttributeValue == NULL)
-						*AttributeValue  = NULL;
-					//cout<< "ACCESSTYPE:" << *AttributeValue << endl;
-					break;
-			case 4:
-					*AttributeValue = (char *) objIndexPtr->getDefaultValue();
-					if(*AttributeValue == NULL)
-						*AttributeValue  = NULL;
-					//cout<< "DEFAULTVALUE:" << *AttributeValue << endl;
-					break;
-			case 5:
-					*AttributeValue = (char *) objIndexPtr->getActualValue();
-					if(AttributeValue == NULL)
-						AttributeValue  = NULL;
-					//cout<< "ACTUALVALUE:" << *AttributeValue << endl;
-					break;
-			case 6:
-					EPDOMapping tmp_PDOMapping;					
-					tmp_PDOMapping = objIndexPtr->getPDOMapping();
-					//AttributeValue 
-					if(*AttributeValue == NULL)
-						*AttributeValue  = NULL;
-					//cout<< "PDOMAPPING:" << tmp_PDOMapping << endl;
-					break;
-			case 7:
-					*AttributeValue = (char *) objIndexPtr->getNumberofSubIndexes();
-					//cout << "objIndexPtr->getNumberofSubIndexes():::" << objIndexPtr->getNumberofSubIndexes() <<endl;
-					return ErrStruct;
-					//if(*AttributeValue == NULL)
-					//	*AttributeValue  = NULL;
-					//cout<< "COUNT:" << *AttributeValue << endl;
-					break;
-			case 8:
-					*AttributeValue = (char *) objIndexPtr->getLowLimit();
-					if(*AttributeValue == NULL)
-						*AttributeValue  = NULL;
-					//cout<< "LOWLIMIT:" << *AttributeValue << endl;
-					break;
-			case 9:
-					*AttributeValue = (char *) objIndexPtr->getHighLimit();
-					if(*AttributeValue == NULL)
-						*AttributeValue  = NULL;
-					//cout<< "LOWLIMIT:" << *AttributeValue << endl;
-					break;									
-			default:
-					cout << "invalid Attribute Type" << endl;
-					ErrStruct.code = OCFM_ERR_INVALID_ATTRIBUTETYPE;
-					return ErrStruct;
-		}		
-	return ErrStruct;
-}
-/**************************************************************************************************
 	* Function Name: EditIndex
     * Description:
 	* Return value: ocfmRetCode
@@ -1322,8 +517,15 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 						
 							if (objIndex->getActualValue()!=NULL)
 							{									
-									//Buffer =(char*)realloc(Buffer,sizeof(objIndex->getActualValue()+1));	
-									strcat(Buffer,padLeft((char*)objIndex->getActualValue(),'0',padLength));
+								char* actvalue;
+								actvalue = (char*)malloc(50);
+								actvalue = strchr((char*)objIndex->getActualValue(),'x');
+								if(actvalue!=NULL)
+								{
+									actvalue = subString(actvalue,1,strlen(actvalue)-1);
+									strcat(Buffer,padLeft(actvalue,'0',padLength));
+								}
+								else	strcat(Buffer,padLeft((char*)objIndex->getActualValue(),'0',padLength));								
 							}
 					
 							//else 
@@ -1340,12 +542,16 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 			{
 				int noOfSubIndexes = objIndex->getNumberofSubIndexes();
 				bool Indexadded  = false;				
-				for(int i=0; i<noOfSubIndexes ; i++)
+				bool resetValueAdded = false;
+				int i;
+				for(i=0; i<noOfSubIndexes ; i++)
 				{
 					CSubIndex* objSubIndex;
 					objSubIndex = objIndex->getSubIndex(i);
 				
-					if(strcmp(objSubIndex->getIndexValue(),"00")!=0 && objSubIndex->getActualValue() != NULL)
+					/*if(strcmp(objSubIndex->getIndexValue(),"00")!=0 && objSubIndex->getActualValue() != NULL)*/
+					if(objSubIndex->getActualValue() != NULL)
+			
 					{
 						if (Indexadded)
 						strcat(Buffer,objIndex->getIndexValue());
@@ -1377,16 +583,29 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 								strcat(Buffer,"\t");
 							
 								if (objSubIndex->getActualValue()!=NULL)
-								{			
+								{
 										char* actvalue;
 										actvalue = (char*)malloc(50);
-										actvalue = strchr((char*)objSubIndex->getActualValue(),'x');
+								
+								// Add the reset value for that Index,SubIndex
+									if(strcmp(objSubIndex->getIndexValue(),"00")==0 && CheckIfMappingPDO((char*)objIndex->getIndexValue()) &&
+												resetValueAdded==false )
+									{
+										strcpy(actvalue,"0");
+										strcat(Buffer,padLeft(actvalue,'0',padLength));
+										resetValueAdded = true;
+										i--;
+									}
+									else
+									{
+											actvalue = strchr((char*)objSubIndex->getActualValue(),'x');
 										if(actvalue!=NULL)
 										{
 											actvalue = subString(actvalue,1,strlen(actvalue)-1);
 											strcat(Buffer,padLeft(actvalue,'0',padLength));
 										}
-										else	strcat(Buffer,padLeft((char*)objSubIndex->getActualValue(),'0',padLength));
+											else	strcat(Buffer,padLeft((char*)objSubIndex->getActualValue(),'0',padLength));
+										}
 								}
 									/*else strcat(Buffer,objSubIndex->getDefaultValue());*/
 								strcat(Buffer,"\n");
@@ -1503,15 +722,28 @@ char* GenerateCNOBD(CNodeCollection* objNodeCol)
 							GetIndexData(objIndex,Buffer4);
 							strcpy(Buffer2, Buffer4);
 							
+							
 							objIndex = getMNIndexValues("1020");
-							GetIndexData(objIndex,Buffer4);
-							strcat(Buffer2, Buffer4);
+							if(objIndex!=NULL)
+							{
+								GetIndexData(objIndex,Buffer4);
+								strcat(Buffer2, Buffer4);
+							}
 									
 							/*************WRITE Other Required CN Indexes in CDC *******************************/
 								for(int i=0; i<NumberOfIndexes; i++)
 								{
-									CIndex* objIndex;
-									char* Buffer4;
+									
+								
+									
+								/*	if(firstBuffer)
+									{
+										Buffer2 = (char*)malloc(sizeof(char)*strlen(Buffer4)+1);																				
+										strcpy(Buffer2, Buffer4);
+										firstBuffer = false;											
+									}
+									else strcat(Buffer2, Buffer4);*/
+									
 									objIndex = objIndexCollection->getIndex(i);
 									const char* IndexValue = objIndex->getIndexValue();
 									
@@ -1519,9 +751,10 @@ char* GenerateCNOBD(CNodeCollection* objNodeCol)
 								*/
 								if(CheckAllowedCNIndexes((char*)IndexValue))
 								{
-											Buffer4 = (char*)malloc(300);							
+																								
 											GetIndexData(objIndex, Buffer4);
-											if(firstBuffer)
+											strcat(Buffer2, Buffer4);
+											/*if(firstBuffer)
 											{
 												Buffer2 = (char*)malloc(sizeof(char)*strlen(Buffer4)+1);																				
 												strcpy(Buffer2, Buffer4);
@@ -1532,8 +765,9 @@ char* GenerateCNOBD(CNodeCollection* objNodeCol)
 												printf("length of Buffer1 %d",strlen(Buffer4));
 												printf("\nlength of Buffer2 %d",strlen(Buffer2));
 												strcat(Buffer2, Buffer4);
-											}
+											}*/
 											//free(Buffer1);
+											//strcat(Buffer2, Buffer4);
 										}									
 								}	
 						/**************write module data********************************/
@@ -1643,6 +877,7 @@ void GenerateCDC(char* fileName)
 			}
 
 		objIndexCollection = objNode.getIndexCollection();
+		
 
 		//Get all the MN's Default Data in Buffer1
 		for(int i=0;i < objIndexCollection->getNumberofIndexes ();i++)
@@ -1688,6 +923,7 @@ void GenerateCDC(char* fileName)
 					objNode = objNodeCollection->getNodebyCollectionIndex(i);
 					if(objNode.getNodeType() ==CN)
 					{
+							printf("\nInside 1F81");
 							Buffer1 = (char*)malloc(100);
 							len = strlen(Buffer1);
 							strcpy(Buffer1, "//// NodeId Reassignment\n");
@@ -1702,6 +938,7 @@ void GenerateCDC(char* fileName)
 							len = strlen(Buffer1);
 							if((fwrite(Buffer1, sizeof(char),len,fileptr))!=NULL)
 							{
+								fclose(fileptr);
 								printf("Buffer1 written");
 							
 							}
@@ -1711,7 +948,7 @@ void GenerateCDC(char* fileName)
 				/*	}*/
 						
 			}
-		fclose(fileptr);		
+		
 		printf("\nText cdc generated");
 		// Convert CDC txt file to Binary
 		ConvertCdcToBinary(fileName,(char*) tempFileName);
@@ -1758,43 +995,109 @@ void GenerateCDC(char* fileName)
 void ProcessPDONodes(int NodeID)
 {
 		CNodeCollection* objNodeCol;
+		ocfmException* objex = NULL;
 		objNodeCol = CNodeCollection::getNodeColObjectPointer();
-		CNode objNode;
-		objNode = objNodeCol->getNode(CN,NodeID);
+		CNode* objNode;
+		objNode = objNodeCol->getNodePtr(CN,NodeID);
 		CIndexCollection* objPDOCollection;
 		CIndexCollection* objIndexCollection;
 		/* Check RPDO Mapped objects*/
-		objPDOCollection = objNode.getPDOIndexCollection(PDO_RPDO);
+
+
+
+		objPDOCollection = objNode->getPDOIndexCollection(PDO_RPDO);
 		if(objPDOCollection!= NULL)
 		{
 		
-			objIndexCollection = objNode.getIndexCollection();
+
+			objIndexCollection = objNode->getIndexCollection();
 			for(int count = 0; count<objPDOCollection->getNumberofIndexes(); count++)
 			{
 					CIndex* objIndex;
 					objIndex = objPDOCollection->getIndex(count);
-					if (objIndex->getActualValue()!=NULL)
+					if(!(CheckIfMappingPDO((char*)objIndex->getIndexValue())))
+					continue;
+					if(objIndex->getNumberofSubIndexes() > 0)
 					{
-							const char* value = objIndex->getActualValue();
-							int len = strlen(value);
-							char* reverseValue = (char*)malloc(len);
-							/* Reverse the actual value to get Index / subindex*/
-							reverseValue = reverse((char*)value);
-							
-							/* Get the Index*/
-							char* strIndex = (char*)malloc(4);
-							strIndex = strncpy(strIndex,reverseValue,4);
-								/* Get the SubIndex*/
-							char* strSubIndex = (char*)malloc(2);
-							strSubIndex = subString(reverseValue,2,2);
-							ProcessImage objProcessImage;
-																		
-							objProcessImage.Index = new char[4];
-							strcpy(objProcessImage.Index, strIndex);
-							
-							objProcessImage.subindex = new char[2];
-							strcpy(objProcessImage.subindex, (const char*)strSubIndex);
-					}
+						int sicount = 1;
+						int siTotal = objIndex->getNumberofSubIndexes ();
+						while(sicount< siTotal)
+						{
+							CSubIndex* objSI;
+							objSI = objIndex->getSubIndex(sicount);
+							if (objSI->getActualValue()!=NULL)
+							{
+									const char* value = objSI->getActualValue();
+									int len = strlen(value);
+									char* reverseValue = (char*)malloc(len);
+									/* Reverse the actual value to get Index / subindex*/
+							/*		reverseValue = reverse((char*)value);*/
+									
+									/* Get the Index*/
+									char* strModuleIndex = (char*)malloc(5);
+									strModuleIndex = subString((char*)value, len-4,4);
+									strModuleIndex[5] ='\0';
+							/*		strModuleIndex = strncpy(strModuleIndex,reverseValue,4);
+							*/			/* Get the SubIndex*/
+									char* strSubIndex = (char*)malloc(3);
+									//strSubIndex = subString(reverseValue,2,2);
+									strSubIndex = subString((char*)value, len-6,2);
+									strSubIndex[3] ='\0';
+									ProcessImage objProcessImage;
+														
+									/* Index of the Process Image variable*/						
+									objProcessImage.Index = new char[4];
+									strcpy(objProcessImage.Index, strModuleIndex);
+									
+										/* SubIndex of the Process Image variable*/		
+									objProcessImage.subindex = new char[2];
+									strcpy(objProcessImage.subindex, (const char*)strSubIndex);
+									
+									CIndex* objModuleIndex;
+									CSubIndex* objSIndex;
+																
+										objModuleIndex = objIndexCollection->getIndexbyIndexValue(strModuleIndex);
+										if(objModuleIndex==NULL)
+										{								
+											objex->ocfm_Excpetion(OCFM_ERR_MODULE_INDEX_NOT_FOUND);
+											throw objex;
+										}
+										objSIndex = objModuleIndex->getSubIndexbyIndexValue(strSubIndex);
+										if(objSIndex==NULL)
+										{								
+											objex->ocfm_Excpetion(OCFM_ERR_MODULE_SUBINDEX_NOT_FOUND);
+											throw objex;
+										}
+										
+									
+										if(objSIndex->getUniqueIDRef()!=NULL)
+										{
+											
+										}
+										else
+										{
+										
+											/* Name of the Process Image variable*/
+											objProcessImage.Name = (char*)malloc(strlen(objSIndex->getName())+1);
+											strcpy(objProcessImage.Name, objSIndex->getName());
+											/* Access of the Process Image variable*/
+											objProcessImage.Direction = new char[2];
+											strcpy(objProcessImage.Direction, objSIndex->getAccessType());
+											DataType dt;
+											dt = objSIndex->getDataType();
+											/* Data Size in hex of the Process Image variable*/
+											objProcessImage.DataSize = (char*)malloc(strlen(dt.DataSize+1));
+											strcpy(objProcessImage.DataSize, dt.DataSize);
+											/* Datatype in hex of the Process Image variable*/
+											objProcessImage.DataType = (char*)malloc(strlen(dt.Name+1));
+											strcpy(objProcessImage.DataType, dt.Name);
+											
+											objNode->addProcessImage(objProcessImage);
+										}
+								}
+								sicount++;
+							}
+						}
 				}
 			}
 	}
@@ -1866,12 +1169,6 @@ void ConvertCdcToBinary(char* fileName,char* tempFile)
 	fclose(fin);
 	fclose(fout);	
 }
-void ProcessUniqueIDRefs()
- {
-	 
-	 
-	
- }
  int lenOfCNBuffer(char* Buffer)
  {
 		char tempchar;
@@ -1947,300 +1244,262 @@ CIndex* getMNIndexValues(char* Index)
 //	//printf("\n\n\nCalling xmlFreeTextReader\n\n\n\n");	
 //	
 //}
-/**************************************************************************************************
-	* Function Name: processNode
-    * Description: Process the Node value,Name and its attributes
-/****************************************************************************************************/
-void processObjDict(xmlTextReaderPtr reader)
+ocfmRetCode GenerateXAP(char* fileName)
 {
+		CNodeCollection* objNodeCollection;
+		ocfmException* objException;
+		objNodeCollection = CNodeCollection::getNodeColObjectPointer();		
+		try
+		{
+			if(objNodeCollection->getNumberOfNodes()==0)
+			{
+				objException->ocfm_Excpetion(OCFM_ERR_NO_NODES_FOUND);
+				throw objException;
+			}
+			CNode objNode;
+			xmlTextWriterPtr writer = NULL;
+			xmlDocPtr doc = NULL;
+			int picount = 0;
+			int i=10;
+			StartXAPxml(writer, doc);
+			for(int count=0; count<objNodeCollection->getNumberOfNodes(); count++)
+			{
+				objNode = objNodeCollection->getNodebyCollectionIndex(count);
+				if (objNode.getNodeType() == CN)
+				{
+						if(objNode.ProcessImageCollection.Count() !=0)
+						{
+							picount = 0;
+							while(picount<objNode.ProcessImageCollection.Count())
+							{
+									ProcessImage pi;
+									pi = objNode.ProcessImageCollection[picount];
+									WriteXAPElements(pi, writer);			
+									picount++;						
+							}
+												
+						}
+					}
+				
+			}
+				EndWrtitingXAP(writer, fileName, doc);
+		}
+		catch(ocfmException* ex)
+		{
+			return *(ex->_ocfmRetCode);
+		}
+}
+void WriteXAPElements(ProcessImage pi, xmlTextWriterPtr& writer)
+{
+	int rc;
+	 /* Start an element named "Channel". Since thist is the first
+     * element, this will be the root element of the document. */
+    rc = xmlTextWriterStartElement(writer, BAD_CAST "Channel");
+    if (rc < 0)
+    {
+        printf("testXmlwriterDoc: Error at xmlTextWriterStartElement\n");
+        return;
+    }
+
+
+
+    
+
+    /* Add an attribute with name "Name" and value  to channel. */
+    rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "Name",
+                                     BAD_CAST pi.Name);
+    if (rc < 0)
+    {
+        printf("testXmlwriterDoc: Error at xmlTextWriterWriteAttribute\n");
+        return;
+    }
+
+    /* Add an attribute with name "direction" and value to channel */
+    rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "Direction",
+                                     BAD_CAST pi.Direction );
+    if (rc < 0)
+    {
+        printf("testXmlwriterDoc: Error at xmlTextWriterWriteAttribute\n");
+        return;
+    }
+
+    
+
+    
+    ///* Close the element named Channel. */
+    rc = xmlTextWriterEndElement(writer);
+    if (rc < 0)
+    {
+        printf("testXmlwriterDoc: Error at xmlTextWriterEndElement\n");
+        return;
+    }
+
+   
+}
+void StartXAPxml(xmlTextWriterPtr& writer,  xmlDocPtr& doc)
+
+{
+	 int rc;
+		//xmlTextWriterPtr writer =NULL;
+
+
+    /* Create a new XmlWriter for DOM, with no compression. */
+    writer = xmlNewTextWriterDoc(&doc, 0);
+    if (writer == NULL) {
+        printf("testXmlwriterDoc: Error creating the xml writer\n");
+        return;
+    }
+
+    /* Start the document with the xml default for the version,
+     * encoding ISO 8859-1 and the default for the standalone
+     * declaration. */
+    rc = xmlTextWriterStartDocument(writer, NULL, MY_ENCODING, NULL);
+    if (rc < 0) {
+        printf("testXmlwriterDoc: Error at xmlTextWriterStartDocument\n");
+        return;
+    }
+
+			/* Write a comment as child of ORDER */
+		 rc = xmlTextWriterWriteComment(writer,BAD_CAST "This file was autogenerated by openCONFIGURATOR");
+    if (rc < 0)
+     {
+        printf
+            ("testXmlwriterDoc: Error at xmlTextWriterWriteFormatComment\n");
+        return;
+    }
+    rc = xmlTextWriterStartElement(writer, BAD_CAST "ProcessImage");
+    if (rc < 0) {
+        printf("testXmlwriterDoc: Error at xmlTextWriterStartElement\n");
+        return;
+    }
+}
+ 
+void EndWrtitingXAP( xmlTextWriterPtr& writer, char* fileName, xmlDocPtr& doc)
+{ 
+	int rc;
+    /* Here we could close the elements ORDER and EXAMPLE using the
+     * function xmlTextWriterEndElement, but since we do not want to
+     * write any other elements, we simply call xmlTextWriterEndDocument,
+     * which will do all the work. */
+    rc = xmlTextWriterEndDocument(writer);
+    if (rc < 0) {
+        printf("testXmlwriterDoc: Error at xmlTextWriterEndDocument\n");
+        return;
+    }
+
+    xmlFreeTextWriter(writer);
+
+				xmlSaveFormatFile ((const char*)fileName, doc, 1);
+
+    xmlFreeDoc(doc);
+}
+/**************************************************************************************************
+	* Function Name: GetIndexAttribute
+    * Description:
+	* Return value: ocfmRetCode
+/****************************************************************************************************/
+
+ocfmRetCode GetIndexAttribute(int NodeID, ENodeType NodeType, char* IndexID, EAttributeType AttributeType, char** AttributeValue)
+{
+	int IndexPos;
+	ocfmRetCode ErrStruct;
+	
+	ErrStruct = IfIndexExists(NodeID, NodeType, IndexID, &IndexPos);
+		if(ErrStruct.code == OCFM_ERR_SUCCESS)
+		{
+			cout << "IndexPos:" << IndexPos << endl;
+		}
+		else
+		{
+			 //OCFM_ERR_INDEXID_NOT_FOUND;
+			 return ErrStruct;
+		}
+		CNode objNode;		
+		CNodeCollection *objNodeCollection;
+		CIndexCollection *objIndexCollection;
+		CIndex objIndex;
+		CIndex* objIndexPtr;
+		
+		objIndex.setNodeID(objNode.getNodeId());
+		objNodeCollection= CNodeCollection::getNodeColObjectPointer();
+		objNode = objNodeCollection->getNode(NodeType, NodeID);
 
 		objIndexCollection = objNode.getIndexCollection();
 		objIndexPtr = objIndexCollection->getIndex(IndexPos);
 		
 		switch(AttributeType)
 		{
-			case 0:									
-						if(objIndexPtr->getName()!=NULL)
-					strcpy(AttributeValue, (char *)objIndexPtr->getName());
+			case 0:					
+					*AttributeValue = new char[strlen((char *)objIndexPtr->getName()) + 1];
+					strcpy(*AttributeValue, (char *)objIndexPtr->getName());
+					if(*AttributeValue == NULL)
+						*AttributeValue  = NULL;
 					//cout<< "NAME:" << *AttributeValue << endl;
 					break;
 			case 1:
-						if(objIndexPtr->getObjectType()!=NULL)
-					strcpy(AttributeValue, (char *)objIndexPtr->getObjectType());
+					*AttributeValue = (char *) objIndexPtr->getObjectType();
+					if(*AttributeValue == NULL)
+						*AttributeValue  = NULL;
 					//cout<< "OBJECTTYPE:" << *AttributeValue << endl;
 					break;
 			case 2:
 					DataType tmpDataType;
 					tmpDataType = objIndexPtr->getDataType();
-					strcpy(AttributeValue, tmpDataType.Name);				
+					*AttributeValue = tmpDataType.Name;
+					if(*AttributeValue == NULL)
+						*AttributeValue  = NULL;
 					//cout<< "DATATYPE:" << *AttributeValue << endl;
 					break;		
 			case 3:
-					if(objIndexPtr->getAccessType()!=NULL)
-					strcpy(AttributeValue, (char *)objIndexPtr->getAccessType());
+					*AttributeValue = (char *) objIndexPtr->getAccessType();
+					if(*AttributeValue == NULL)
+						*AttributeValue  = NULL;
 					//cout<< "ACCESSTYPE:" << *AttributeValue << endl;
 					break;
 			case 4:
-				if(objIndexPtr->getDefaultValue()!=NULL)
-					strcpy(AttributeValue, (char *) objIndexPtr->getDefaultValue());
+					*AttributeValue = (char *) objIndexPtr->getDefaultValue();
+					if(*AttributeValue == NULL)
+						*AttributeValue  = NULL;
 					//cout<< "DEFAULTVALUE:" << *AttributeValue << endl;
 					break;
 			case 5:
-					if(objIndexPtr->getActualValue()!=NULL)
-					strcpy(AttributeValue, (char *) objIndexPtr->getActualValue());
+					*AttributeValue = (char *) objIndexPtr->getActualValue();
+					if(AttributeValue == NULL)
+						AttributeValue  = NULL;
 					//cout<< "ACTUALVALUE:" << *AttributeValue << endl;
 					break;
 			case 6:
-					if(objIndexPtr->getPDOMapping()!=NULL)
-					strcpy(AttributeValue, (char *) objIndexPtr->getPDOMapping());
+					EPDOMapping tmp_PDOMapping;					
+					tmp_PDOMapping = objIndexPtr->getPDOMapping();
+					//AttributeValue 
+					if(*AttributeValue == NULL)
+						*AttributeValue  = NULL;
+					//cout<< "PDOMAPPING:" << tmp_PDOMapping << endl;
 					break;
 			case 7:
-					if(objIndexPtr->getLowLimit()!=NULL)
-					strcpy(AttributeValue, (char *) objIndexPtr->getLowLimit());
-					//cout<< "LOWLIMIT:" << *AttributeValue << endl;
+					*AttributeValue = (char *) objIndexPtr->getNumberofSubIndexes();
+					//cout << "objIndexPtr->getNumberofSubIndexes():::" << objIndexPtr->getNumberofSubIndexes() <<endl;
+					return ErrStruct;
+					//if(*AttributeValue == NULL)
+					//	*AttributeValue  = NULL;
+					//cout<< "COUNT:" << *AttributeValue << endl;
 					break;
 			case 8:
-					if(objIndexPtr->getHighLimit()!=NULL)
-					strcpy(AttributeValue, (char *) objIndexPtr->getHighLimit());
+					*AttributeValue = (char *) objIndexPtr->getLowLimit();
+					if(*AttributeValue == NULL)
+						*AttributeValue  = NULL;
+					//cout<< "LOWLIMIT:" << *AttributeValue << endl;
+					break;
+			case 9:
+					*AttributeValue = (char *) objIndexPtr->getHighLimit();
+					if(*AttributeValue == NULL)
+						*AttributeValue  = NULL;
 					//cout<< "LOWLIMIT:" << *AttributeValue << endl;
 					break;									
 			default:
 					cout << "invalid Attribute Type" << endl;
 					ErrStruct.code = OCFM_ERR_INVALID_ATTRIBUTETYPE;
 					return ErrStruct;
-		}
-		
-	ErrStruct.code = OCFM_ERR_SUCCESS;
-	return ErrStruct;
-}
-/**************************************************************************************************
-	* Function Name: GetSubIndexAttributes
-    * Description:
-	* Return value: ocfmRetCode
-/****************************************************************************************************/
-ocfmRetCode GetSubIndexAttributes(
-	int 			NodeID, 
-	ENodeType 		NodeType, 
-	char* 			IndexID, 
-	char* 			SubIndexID, 
-	EAttributeType 	AttributeType, 
-	char* 			AttributeValue)
-{
-		CNode objNode;		
-		CNodeCollection *objNodeCollection;
-		CIndexCollection *objIndexCollection;
-		CIndex objIndex;
-		CIndex* objSubIndex;
-		int SubIndexPos;
-		int IndexPos;
-		ocfmRetCode ErrStruct;
-		
-		ErrStruct = IfSubIndexExists(NodeID, NodeType, IndexID, SubIndexID, &SubIndexPos, &IndexPos);
-		if(ErrStruct.code == OCFM_ERR_SUCCESS)
-		{
-			//SubIndexPos = Tmp_ErrStruct.returnValue;
-		}
-		else
-		{
-			//OCFM_ERR_INVALID_SUBINDEXID;
-			return ErrStruct;
-		}
-
-		objIndex.setNodeID(objNode.getNodeId());
-		objNodeCollection= CNodeCollection::getNodeColObjectPointer();
-		objNode = objNodeCollection->getNode(NodeType, NodeID);
-
-		objIndexCollection = objNode.getIndexCollection();
-		objSubIndex =objIndexCollection->getIndex(IndexPos);
-		
-		cout << "NumberofSubIndexes:" << objIndex.getNumberofSubIndexes()<< endl;
-
-		CSubIndex* objSubIndexPtr;
-		objSubIndexPtr = objSubIndex->getSubIndex(SubIndexPos);	
-		
-		switch(AttributeType)
-		{
-			case 0:						
-					if(objSubIndexPtr->getName()!=NULL)
-					strcpy(AttributeValue, (char *)objSubIndexPtr->getName());
-					//cout<< "NAME:" << *AttributeValue << endl;
-					break;
-			case 1:
-					if(objSubIndexPtr->getObjectType()!=NULL)
-					strcpy(AttributeValue, (char *)objSubIndexPtr->getObjectType());
-					//cout<< "OBJECTTYPE:" << *AttributeValue << endl;
-					break;
-			case 2:
-					DataType tmpDataType;
-					tmpDataType = objSubIndexPtr->getDataType();					
-					strcpy(AttributeValue, tmpDataType.Name);
-					//cout<< "DATATYPE:" << *AttributeValue << endl;
-					break;		
-			case 3:
-					if(objSubIndexPtr->getAccessType()!=NULL)
-					strcpy(AttributeValue, (char *)objSubIndexPtr->getAccessType());
-					//cout<< "ACCESSTYPE:" << *AttributeValue << endl;
-					break;
-			case 4:
-					if(objSubIndexPtr->getDefaultValue()!=NULL)
-					strcpy(AttributeValue, (char *) objSubIndexPtr->getDefaultValue());
-					//cout<< "DEFAULTVALUE:" << *AttributeValue << endl;
-					break;
-			case 5:
-					if(objSubIndexPtr->getActualValue()!=NULL)
-					strcpy(AttributeValue, (char *) objSubIndexPtr->getActualValue());
-					//cout<< "ACTUALVALUE:" << *AttributeValue << endl;
-					break;
-			case 6:
-					if(objSubIndexPtr->getPDOMapping()!=NULL)
-					strcpy(AttributeValue, (char *) objSubIndexPtr->getPDOMapping());
-					break;
-			case 7:
-						if(objSubIndexPtr->getLowLimit()!=NULL)
-					strcpy(AttributeValue, (char *) objSubIndexPtr->getLowLimit());
-					//cout<< "LOWLIMIT:" << *AttributeValue << endl;
-					break;
-			case 8:
-						if(objSubIndexPtr->getHighLimit()!=NULL)
-					strcpy(AttributeValue, (char *) objSubIndexPtr->getHighLimit());
-					//cout<< "LOWLIMIT:" << *AttributeValue << endl;
-					break;
-			default:
-					cout << "invalid Attribute Type" << endl;
-					ErrStruct.code = OCFM_ERR_INVALID_ATTRIBUTETYPE;
-					return ErrStruct;
 		}		
-		
-		ErrStruct.code = OCFM_ERR_SUCCESS;
-		return ErrStruct;
-}
-
-/**************************************************************************************************
-	* Function Name: GetNodeCount
-    * Description:
-	* Return value: ocfmRetCode
-/****************************************************************************************************/
-ocfmRetCode GetNodeCount(
-	int 		MNID, 
-	int* 		NodeCount)
-{
-	ocfmRetCode ErrStruct;
-	CNode objNode;
-	CNodeCollection *objNodeCollection;
-	objNodeCollection= CNodeCollection::getNodeColObjectPointer();
-	
-	*NodeCount = objNodeCollection->getNumberOfNodes();
-	
-	ErrStruct.code = OCFM_ERR_SUCCESS;
 	return ErrStruct;
 }
-
-char* getPIName(int NodeID)
-{
-	char* str;
-	char* id = new char[2];
-	str =(char*)malloc(5);
-	strcpy(str, "CN");
-	id =  itoa(NodeID,id, 10);
-	strcat(str, id);
-	strcat(str, ".");
-	strcat(str,"\0");
-	return str;
-}
-
-char* getParameterAccess(char* access)
-{
-	if (!strcmp(ConvertToUpper(access), "READ"))
-	return "ro\0";
-	else if(!strcmp(ConvertToUpper(access),"READWRITE"))
-	return "rw\0";
-	else return "xx";
-
-}
-
-/**************************************************************************************************
-	* Function Name: GetIndexCount
-    * Description:
-	* Return value: ocfmRetCode
-/****************************************************************************************************/
-ocfmRetCode GetIndexCount(
-	int 		NodeID, 
-	ENodeType 	NodeType, 
-	int* 		IndexCount)
-{
-		ocfmRetCode ErrStruct;
-		
-		
-	CNode objNode;		
-	CNodeCollection *objNodeCollection;
-	CIndexCollection *objIndexCollection;
-	CIndex objIndex;
-	
-	int NodePos;
-	ErrStruct = IfNodeExists(NodeID, NodeType, &NodePos);
-	if (ErrStruct.code == 0) 
-	{		
-		//retPos = ErrStruct.returnValue;
-	}
-	else
-	{	
-		cout << "\n\nErrStruct.errCode.code:" << ErrStruct.code << "\n\n!!!" << endl;
-		// Node Doesn't Exist
-		ErrStruct.code = OCFM_ERR_INVALID_NODEID;
-		return ErrStruct;
-	}
-
-	objNodeCollection = CNodeCollection::getNodeColObjectPointer();
-	objNode = objNodeCollection->getNode(NodeType, NodeID);
-	objIndexCollection = objNode.getIndexCollection();
-	
-	*IndexCount = objIndexCollection->getNumberofIndexes();
-
-	ErrStruct.code = OCFM_ERR_SUCCESS;
-	return ErrStruct;
-}
-
-/**************************************************************************************************
-	* Function Name: GetSubIndexCount
-    * Description:
-	* Return value: ocfmRetCode
-/****************************************************************************************************/
-ocfmRetCode GetSubIndexCount(
-	int 		NodeID,
-	ENodeType 	NodeType,
-	char* 		IndexID,
-	int* 		SubIndexCount) 
-{
-	CNode objNode;		
-	CNodeCollection *objNodeCollection;
-	CIndexCollection *objIndexCollection;
-	CIndex objIndex;
-	CIndex* objSubIndex;
-	ocfmRetCode ErrStruct;
-	
-	int IndexPos;
-	
-	ErrStruct = IfIndexExists(NodeID, NodeType, IndexID, &IndexPos);
-	if (ErrStruct.code == 0)
-	{				
-		//IndexPos = ErrStruct.returnValue;
-	}
-	else
-	{	
-		ErrStruct.code = OCFM_ERR_INDEXID_NOT_FOUND;
-		return ErrStruct;
-	}
-	
-	objIndex.setNodeID(objNode.getNodeId());
-	objNodeCollection= CNodeCollection::getNodeColObjectPointer();
-	objNode = objNodeCollection->getNode(NodeType, NodeID);
-
-	objIndexCollection = objNode.getIndexCollection();
-	objSubIndex =objIndexCollection->getIndex(IndexPos);
-	
-	*SubIndexCount = objSubIndex->getNumberofSubIndexes();
-	
-	ErrStruct.code = OCFM_ERR_SUCCESS;
-	return ErrStruct;
-}
-

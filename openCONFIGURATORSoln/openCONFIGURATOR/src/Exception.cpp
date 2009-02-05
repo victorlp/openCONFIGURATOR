@@ -113,6 +113,9 @@ ocfmException::~ocfmException(void)
 				case OCFM_ERR_NODE_ALREADY_EXISTS:
 						strcpy(_ocfmRetCode->errorString,"Node Already Exists");				
 					break;
+				case OCFM_ERR_MODULE_INDEX_NOT_FOUND:
+					strcpy(_ocfmRetCode->errorString,"Module Index Not Found");
+					break;
 					
 				default:
 					break;			

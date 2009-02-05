@@ -116,4 +116,15 @@ CSubIndex* CIndex::getSubIndex(int SubIndexId)
 	{
 		return &collectionObj[SubIndexId];
 	}
+	CSubIndex* CIndex::getSubIndexbyIndexValue(char* Index)
+	{
+		int i = 0;
+		for(int i =0; i<m_SubIndexCount;i++)
+		{
+			CSubIndex objSIndex;
+			objSIndex = collectionObj[i];
+			if(strcmp(objSIndex.getIndexValue(),Index)==0)
+				return &collectionObj[i];
+		}		
+	}
 #pragma endregion MemberFunctions

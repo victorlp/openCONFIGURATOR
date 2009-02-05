@@ -137,6 +137,22 @@ CNode CNodeCollection::getNode(ENodeType nodeType,int NodeID)
 			}
 		return objNode;				
 	}
+	CNode* CNodeCollection::getNodePtr(ENodeType nodeType,int NodeID)
+	{
+		int count;
+		CNode* objNode;
+		for(count=0; count<m_NodeCount ;count++)
+			{
+				
+				objNode = &(objNodeCollection->collectionObj[count]);
+				if(objNode->getNodeType()==nodeType && objNode->getNodeId()==NodeID)
+				{
+					return objNode;
+				}
+				
+			}
+		return objNode;				
+	}
 CNode CNodeCollection::getNode(int NodeID)
 	{
 		int count;

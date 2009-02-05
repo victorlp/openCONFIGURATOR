@@ -80,6 +80,8 @@ int main(int argc, char **argv)
 			cout<<"17: ReImportXML"<<endl;
 			cout<<"18: EditIndexValue"<<endl;
 			cout<<"19: GetIndexAttribute"<<endl;
+			cout<<"20: Generate XAP"<<endl;
+
 			
 			cout <<"Press 'E' for Exit"<<endl;
 								
@@ -383,6 +385,16 @@ int main(int argc, char **argv)
 							//EditSubIndex(NodeID, MN, IndexID, SubIndexID,IndexValue, IndexName);
 							EditIndex(NodeID, CN, IndexID, IndexValue, IndexName);
 							break;
+
+						case 20:
+							cout<<"Enter the filepath"<<endl;
+							cin>>filePath;
+							ret = GenerateXAP(filePath);  
+							if(ret.code ==0)
+							printf("\n Success");
+							else
+							printf("%s",ret.errorString);
+							break;
 				case 19:	
 							system("clear");							
 							cout<<"Enter the NodeID:"<<endl;								
@@ -441,6 +453,7 @@ int main(int argc, char **argv)
 							else
 							cout << "\n\n\n\n\nAttributeValue:" << AttributeValue << endl;
 							break;
+
 				default :
 								break;
 		}

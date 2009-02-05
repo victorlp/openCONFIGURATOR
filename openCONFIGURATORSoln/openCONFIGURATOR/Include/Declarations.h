@@ -140,9 +140,9 @@ typedef struct ProcessImage
 {
 		char*					Name;
 		char*					Direction;
-		DataType		dataType;
-		int							DataSize;
-		int							ByteOffset;
+		char*					DataType;
+		char*					DataSize;
+		char*						ByteOffset;
 		char*					Value;
 		char*					subindex;
 		char*					Index;
@@ -251,6 +251,7 @@ DllExport ocfmRetCode IfIndexExists(int NodeID, ENodeType NodeType, char* IndexI
 DllExport ocfmRetCode IfSubIndexExists(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID, int* SubIndexPos, int* IndexPos);
 DllExport ocfmRetCode ReImportXML(char* fileName, int NodeID, ENodeType NodeType);
 //DllExport int ocfmRetValError_getRetValue(ocfmRetValError RetValError);
+DllExport ocfmRetCode GenerateXAP(char* fileName);
 
 DllExport ocfmRetCode GetIndexAttribute(int NodeID, ENodeType NodeType, char* IndexID, EAttributeType AttributeType, char** AttributeValue);
 #endif // declarations_h

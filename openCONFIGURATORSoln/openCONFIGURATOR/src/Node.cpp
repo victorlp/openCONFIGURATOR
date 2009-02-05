@@ -184,7 +184,8 @@ void CNode::CreateDataTypeCollection()
  void CNode::addProcessImage(ProcessImage processImage)
  {
 	 int i = ProcessImageCollection.Add();
-		ProcessImageCollection[i] = processImage;
+  //*(ProcessImageCollection + i) = processImage;	
+  ProcessImageCollection[i] = processImage;
  }
 void CNode::CreateApplicationProcess()
 {

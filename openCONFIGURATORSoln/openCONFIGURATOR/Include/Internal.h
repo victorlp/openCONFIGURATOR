@@ -71,6 +71,7 @@
 #include <string>
 #include "Exports.h"
 #include "Index.h"
+#include <libxml/xmlwriter.h>
 static const int g_simple_arr_size = 19;
 static const char *g_Simple[] = {
 																										"BOOL",
@@ -116,4 +117,10 @@ bool CheckIfMappingPDO(char* Index);
 CIndex* getMNIndexValues(char* Index);
 bool CheckAllowedCNIndexes(char* IndexValue);
 void ConvertCdcToBinary(char* fileName,char* tempFile);
+void WriteXAPElements(ProcessImage pi, xmlTextWriterPtr& writer);
+void StartXAPxml(xmlTextWriterPtr& writer,  xmlDocPtr& doc);
+void EndWrtitingXAP( xmlTextWriterPtr& writer, char* fileName, xmlDocPtr& doc);
+
+
+
 #endif // declarations_h
