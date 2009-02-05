@@ -212,8 +212,25 @@ void CBaseIndex::setAccessType(char* accessType)
     * Description: Returns the PDOMapping of the Index Object
 /****************************************************************************************************/
 
-EPDOMapping CBaseIndex::getPDOMapping ()
-	{return m_pdoMapping;}
+const char* CBaseIndex::getPDOMapping ()
+	{
+		switch(m_pdoMapping)
+		{
+			case NO:
+				return "NO";				
+			case DEFAULT:
+				return "DEFAULT";
+			case OPTIONAL:
+				return "OPTIONAL";
+			case RPDO:
+				return "RPDO";
+			case TPDO:
+				return "TPDO";
+			default:
+				return NULL;
+		}
+		//return m_pdoMapping;
+	}
 
 /**************************************************************************************************
 	* Function Name: setPDOMapping

@@ -35,14 +35,12 @@ int main(int argc, char **argv)
 	char* IndexValue;
 	char* IndexName;
 	EAttributeType AttributeType;
-	int intAttributeType;
-	char* AttributeValue;
+	int intAttributeType;	
 		
 	IndexValue = new char;
 	IndexName = new char;
 	IndexID = new char;
 	SubIndexID = new char;
-	AttributeValue = new char;
 	char filePath[100];	
 	char* errorstring;
 	errorstring = new char;	
@@ -79,9 +77,10 @@ int main(int argc, char **argv)
 			cout<<"16: Delete SubIndex"<<endl;
 			cout<<"17: ReImportXML"<<endl;
 			cout<<"18: EditIndexValue"<<endl;
-			cout<<"19: GetIndexAttribute"<<endl;
+			cout<<"19: GetIndexAttributes"<<endl;
 			cout<<"20: Generate XAP"<<endl;
-
+			cout<<"21: GetSubIndexAttributes"<<endl;
+			cout<<"22: GetCounts:Node, Index, SubIndex"<<endl;
 			
 			cout <<"Press 'E' for Exit"<<endl;
 								
@@ -378,15 +377,15 @@ int main(int argc, char **argv)
 							cout<<"Enter the IndexName:"<<endl;
 							cin >> IndexName;
 							if (NodeType == 0)					
-							//EditSubIndex(NodeID, MN, IndexID, SubIndexID,IndexValue, IndexName);
-							EditIndex(NodeID, MN, IndexID, IndexValue, IndexName);
+							SetSubIndexAttributes(NodeID, MN, IndexID, SubIndexID,IndexValue, IndexName);
+							//SetIndexAttributes(NodeID, MN, IndexID, IndexValue, IndexName);
 							//(int NodeID, ENodeType NodeType, char* IndexID, char* IndexValue, char* IndexName);
 							else if (NodeType == 1)
-							//EditSubIndex(NodeID, MN, IndexID, SubIndexID,IndexValue, IndexName);
-							EditIndex(NodeID, CN, IndexID, IndexValue, IndexName);
+							SetSubIndexAttributes(NodeID, CN, IndexID, SubIndexID,IndexValue, IndexName);
+							//SetIndexAttributes(NodeID, CN, IndexID, IndexValue, IndexName);
 							break;
 
-						case 20:
+				case 20:
 							cout<<"Enter the filepath"<<endl;
 							cin>>filePath;
 							ret = GenerateXAP(filePath);  
@@ -431,31 +430,135 @@ int main(int argc, char **argv)
 										AttributeType = PDOMAPPING;
 										break;
 								case 7:
-										AttributeType = COUNT;
-										break;
-								case 8:
 										AttributeType = LOWLIMIT;
 										break;
-								case 9:
+								case 8:
+										AttributeType = HIGHLIMIT;
+										break;
+								default:
+										cout << "invalid Attribute Type" << endl;
+										return 1;
+							}							
+							if (NodeType == 0)
+							{
+								char AttributeValue[20] = {0};
+								GetIndexAttributes(NodeID, MN, IndexID, AttributeType, AttributeValue);
+								if(AttributeValue == NULL)
+									cout << "Value is NULL" << endl;
+								else
+									cout << "\n\n\n\n\nAttributeValue:" << AttributeValue << endl;
+							}
+							else if (NodeType == 1)
+							{
+								char AttributeValue[20] = {0};
+								GetIndexAttributes(NodeID, CN, IndexID, AttributeType, AttributeValue);
+								if(AttributeValue == NULL)
+									cout << "Value is NULL" << endl;
+								else
+									cout << "\n\n\n\n\nAttributeValue:" << AttributeValue << endl;
+							}
+							break;
+							
+				case 21:	
+							system("clear");							
+							cout<<"Enter the NodeID:"<<endl;								
+							cin >> NodeID;												
+							cout<<"Enter the Node Type(MN=0/CN=1)"<<endl;								
+							cin>>NodeType;
+							cout<<"Enter the IndexID:"<<endl;
+							cin >> IndexID;
+							cout<<"Enter the SubIndexID:"<<endl;
+							cin >> SubIndexID;
+							cout<<"Enter the AttributeType: [NAME=0, OBJECTTYPE=1, DATATYPE=2, ACCESSTYPE=3, \n\
+							DEFAULTVALUE=4, ACTUALVALUE=5, PDOMAPPING=6, LOWLIMIT=7, HIGHLIMIT=8]"<<endl;
+							cin >> intAttributeType;
+
+							switch(intAttributeType)
+							{
+								case 0:
+										AttributeType = NAME;
+										break;
+								case 1:
+										AttributeType = OBJECTTYPE;
+										break;
+								case 2:
+										AttributeType = DATATYPE;
+										break;		
+								case 3:
+										AttributeType = ACCESSTYPE;
+										break;
+								case 4:
+										AttributeType = DEFAULTVALUE;
+										break;
+								case 5:
+										AttributeType = ACTUALVALUE;
+										break;
+								case 6:
+										AttributeType = PDOMAPPING;
+										break;
+								case 7:
+										AttributeType = LOWLIMIT;
+										break;
+								case 8:
 										AttributeType = HIGHLIMIT;
 										break;
 								default:
 										cout << "invalid Attribute Type" << endl;
 										return 1;
 							}
-							//AttributeValue = "TestValues";
+							
 							if (NodeType == 0)
-								GetIndexAttribute(NodeID, MN, IndexID, AttributeType, &AttributeValue);
+								{
+									char AttributeValue[20] = {0};
+									GetSubIndexAttributes(NodeID, MN, IndexID, SubIndexID, AttributeType, AttributeValue);
+									if(AttributeValue == NULL)
+										cout << "Value is NULL" << endl;
+									else
+										cout << "\n\n\n\n\nAttributeValue:" << AttributeValue << endl;
+								}
 							else if (NodeType == 1)
-								GetIndexAttribute(NodeID, CN, IndexID, AttributeType, &AttributeValue);
-							if(AttributeValue == NULL)
-								cout << "Value is NULL" << endl;
-							else
-							cout << "\n\n\n\n\nAttributeValue:" << AttributeValue << endl;
+								{
+									char AttributeValue[20] = {0};
+									GetSubIndexAttributes(NodeID, CN, IndexID, SubIndexID, AttributeType, AttributeValue);
+									if(AttributeValue == NULL)
+										cout << "Value is NULL" << endl;
+									else
+										cout << "\n\n\n\n\nAttributeValue:" << AttributeValue << endl;
+								}
 							break;
+				case 22:	
+							cout<<"Enter the NodeID: [240]"<<endl;
+							cin >> NodeID;
+							cout<<"Enter the Node Type(MN=0/CN=1)"<<endl;								
+							cin>>NodeType;
+							cout<<"Enter the IndexID:"<<endl;
+							cin >> IndexID;
 
+							int tmp_NodeCount;							
+							GetNodeCount(NodeID, &tmp_NodeCount);
+							cout << "\tNodeCount:" << tmp_NodeCount << endl;
+							if(NodeType == 0)
+							{
+								int tmp_IndexCount;
+								int tmp_SubIndexCount;
+								GetIndexCount(NodeID, MN, &tmp_IndexCount);
+								GetSubIndexCount(NodeID, MN, IndexID, &tmp_SubIndexCount);
+								cout << "\tIndexCount:" << tmp_IndexCount << endl;
+								cout << "\tSubIndexCount:" << tmp_SubIndexCount << endl;
+							}
+							else if(NodeType == 1)
+							{
+								int tmp_IndexCount;
+								int tmp_SubIndexCount;
+								GetIndexCount(NodeID, CN, &tmp_IndexCount);
+								GetSubIndexCount(NodeID, CN, IndexID, &tmp_SubIndexCount);
+								cout << "\tIndexCount:" << tmp_IndexCount << endl;
+								cout << "\tSubIndexCount:" << tmp_SubIndexCount << endl;
+							}
+																		
+							break;
 				default :
-								break;
+							break;
 		}
 	
 	};

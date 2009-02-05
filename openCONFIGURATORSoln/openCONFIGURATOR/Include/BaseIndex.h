@@ -85,14 +85,14 @@ class DllExport CBaseIndex
 		const char*					m_LowLimit;
 		const char*					m_HighLimit;
 		EObjectType					m_objectType;
-		DataType								m_dataType;		
+		DataType					m_dataType;		
 		const char*					m_accessType;
 		const char*					m_DefaultValue;
-		char*											m_ActualValue;
-		EPDOMapping  			m_pdoMapping;
-		int													m_NodeID;
-		char*											m_UniqueIDRef;
-		int													m_ParameterIndex;
+		char*						m_ActualValue;
+		EPDOMapping 				m_pdoMapping;
+		int							m_NodeID;
+		char*						m_UniqueIDRef;
+		int							m_ParameterIndex;
 
 
 
@@ -121,7 +121,7 @@ class DllExport CBaseIndex
 		DataType getDataType();
 		void setDataType(char* dataTypeValue);
 
-		EPDOMapping getPDOMapping();
+		const char* getPDOMapping();
 		void setPDOMapping(char* pdoMappingValue);
 
 		const char* getObjectType();

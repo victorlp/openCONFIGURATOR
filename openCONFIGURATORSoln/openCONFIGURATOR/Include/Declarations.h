@@ -219,7 +219,6 @@ typedef enum
 	DEFAULTVALUE,	// Default value of the Attribute
 	ACTUALVALUE,	// Actual value of the Attribute
 	PDOMAPPING,		// PDO Mapping of the Attribute
-	COUNT,			// Number of Nodes/Index/SubIndex
 	LOWLIMIT,
 	HIGHLIMIT
 }EAttributeType;
@@ -242,8 +241,8 @@ DllExport ocfmRetCode DeleteIndex(int NodeID, ENodeType NodeType, char* IndexID)
 DllExport ocfmRetCode DeleteSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID);
 DllExport ocfmRetCode AddIndex(int NodeID, ENodeType NodeType, char* IndexID);
 DllExport ocfmRetCode AddSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID);
-DllExport ocfmRetCode EditIndex(int NodeID, ENodeType NodeType, char* IndexID, char* IndexValue, char* IndexName);
-DllExport ocfmRetCode EditSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID, char* IndexValue, char* IndexName);
+DllExport ocfmRetCode SetIndexAttributes(int NodeID, ENodeType NodeType, char* IndexID, char* IndexValue, char* IndexName);
+DllExport ocfmRetCode SetSubIndexAttributes(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID, char* IndexValue, char* IndexName);
 DllExport void DisplayNodeTree(void);
 DllExport ocfmRetCode IfNodeExists(int NodeID, ENodeType NodeType, int* NodePos);
 //DllExport int ocfmRetValError_getErrorCode(ocfmRetValError RetValError);
@@ -253,5 +252,9 @@ DllExport ocfmRetCode ReImportXML(char* fileName, int NodeID, ENodeType NodeType
 //DllExport int ocfmRetValError_getRetValue(ocfmRetValError RetValError);
 DllExport ocfmRetCode GenerateXAP(char* fileName);
 
-DllExport ocfmRetCode GetIndexAttribute(int NodeID, ENodeType NodeType, char* IndexID, EAttributeType AttributeType, char** AttributeValue);
+DllExport ocfmRetCode GetIndexAttributes(int NodeID, ENodeType NodeType, char* IndexID, EAttributeType AttributeType, char* AttributeValue);
+DllExport ocfmRetCode GetSubIndexAttributes(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID, EAttributeType AttributeType, char* AttributeValue);
+DllExport ocfmRetCode GetNodeCount(int MNID, int* NodeCount);
+DllExport ocfmRetCode GetIndexCount(int NodeID, ENodeType NodeType, int* IndexCount);
+DllExport ocfmRetCode GetSubIndexCount(int NodeID, ENodeType NodeType, char* IndexID, int* IndexCount);
 #endif // declarations_h
