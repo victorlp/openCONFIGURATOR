@@ -120,6 +120,11 @@ void ConvertCdcToBinary(char* fileName,char* tempFile);
 void WriteXAPElements(ProcessImage pi, xmlTextWriterPtr& writer);
 void StartXAPxml(xmlTextWriterPtr& writer,  xmlDocPtr& doc);
 void EndWrtitingXAP( xmlTextWriterPtr& writer, char* fileName, xmlDocPtr& doc);
+char* getParameterAccess(char* access);
+bool CheckEndElement(int NodeType, char* element, char* comparewith);
+bool CheckStartElement(int NodeType, char* element, char* comparewith);
+bool CheckifSimpleDT(char* Name);
+char* getPIName(int NodeID);
 
 
 

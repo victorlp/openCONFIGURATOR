@@ -81,6 +81,8 @@
 
 #define MY_ENCODING "ISO-8859-1"
 
+int lastVarIndex = -1;
+bool CDTCompleted = false;
 
 /**************************************************************************************************
 	* Function Name: AddIndexAttributes
@@ -987,7 +989,170 @@ void GenerateCDC(char* fileName)
 //
 //
 //	}
+void  ProcessCDT(CComplexDataType* objCDT,CApplicationProcess* objAppProc, CNode* objNode, Parameter* para)
+{
 
+	ocfmException objex;
+		
+	{
+		if(objCDT ==NULL)
+		{
+			objex.ocfm_Excpetion(OCFM_ERR_STRUCT_DATATYPE_NOT_FOUND);
+			throw objex;		
+		}
+
+		for(int i=0 ; i<objCDT->varCollection.Count(); i++)
+		{
+	
+			varDeclaration vd;
+			vd.Initialize();
+			vd = objCDT->varCollection[i];
+			if(vd.nam_id_dt_attr->getDtUniqueRefId() != NULL)
+			{
+				objCDT = objAppProc->getCDTbyUniqueID(vd.nam_id_dt_attr->getDtUniqueRefId());	
+				objAppProc->updatePreviousCDT_UId(vd.StructUniqueId, objCDT->Index);		
+				/*objCDT->previousCDT_UId = (char*)malloc(strlen(vd.StructUniqueId)+1);
+				strcpy(objCDT->previousCDT_UId, vd.StructUniqueId);*/
+				lastVarIndex = i;
+				printf("\n previousCDT_UId : %s",objCDT->previousCDT_UId);
+				printf("\n DataRefID : %s",vd.nam_id_dt_attr->getDtUniqueRefId());
+				ProcessCDT(objCDT, objAppProc, objNode, para);
+			}
+		if(!CDTCompleted)
+		{	
+			// add rest of the contents
+			ProcessImage pi;
+			if(para->access !=NULL)
+			strcpy(pi.Direction,getParameterAccess(para->access));
+				
+				if(vd.size != NULL)			
+				{
+				/*	pi.DataSize = (char*)malloc(5);*/
+					strcpy(pi.DataSize, vd.size);
+				}
+			else
+			{
+			/*		pi.DataSize = (char*)malloc(5);*/
+					strcpy(pi.DataSize,"000x");
+			}
+				if(vd.nam_id_dt_attr->getName()!=NULL)
+				{
+					pi.Name = (char*)malloc(strlen(vd.nam_id_dt_attr->getName()) +4);
+					strcpy(pi.Name,getPIName(objNode->getNodeId()));
+					strcat(pi.Name,vd.nam_id_dt_attr->getName());
+					printf("\n PI Name: %s",pi.Name);
+				}
+					
+				if(vd.nam_id_dt_attr->getDataType()!=NULL)
+				{
+					pi.DataType = (char*)malloc(strlen(vd.nam_id_dt_attr->getDataType()) +1);
+					strcpy(pi.DataType,(const char*)vd.nam_id_dt_attr->getDataType());
+				}
+		
+
+			objNode->addProcessImage(pi);
+		}
+		
+		}
+
+		/*if(objCDT->VarIndex != -1)
+		{
+			varDeclaration vd;
+			vd = objCDT->
+			objCDT
+		}*/
+		objCDT = objAppProc->getCDTbyUniqueID(objCDT->previousCDT_UId);
+		
+			for(int i=(lastVarIndex + 1) ; i<objCDT->varCollection.Count(); i++)
+			{
+			if(!CDTCompleted)
+			{
+				varDeclaration vd;
+				printf("\n i : %d",i);
+				vd = objCDT->varCollection[i];
+				printf("\nVar Count: %d",objCDT->varCollection.Count());
+				if(vd.nam_id_dt_attr->getDtUniqueRefId() != NULL)
+				{
+					/*objCDT->previousCDT_UId = (char*)malloc(strlen(vd.StructUniqueId)+1);
+					strcpy(objCDT->previousCDT_UId, vd.StructUniqueId);	*/	
+					objCDT = objAppProc->getCDTbyUniqueID(vd.nam_id_dt_attr->getDtUniqueRefId());
+					objAppProc->updatePreviousCDT_UId(vd.StructUniqueId, objCDT->Index);
+					printf("\n previousCDT_UId : %s",objCDT->previousCDT_UId);
+					printf("\n DataRefID : %s",vd.nam_id_dt_attr->getDtUniqueRefId());
+			
+					lastVarIndex = i;
+					ProcessCDT(objCDT, objAppProc, objNode, para);
+				
+				}						
+			}
+		}
+		CDTCompleted = true;
+	}
+	printf("exiting");
+}
+
+void DecodeUniqiueIDRef(char* uniquedIdref, CNode* objNode)
+{
+	ocfmException objex;
+	Parameter* para;
+	CApplicationProcess* objAppProc;
+	ProcessImage procImage;
+	CComplexDataType* objCDT;
+	
+	try
+	{
+		if(objNode->getApplicationProcess()!=NULL)
+		{
+			
+			objAppProc = objNode->getApplicationProcess();
+			if(objAppProc->ParameterCollection.Count()!=0)
+			{
+				
+				para = objAppProc->get_Parameterby_UniqueIDRef(uniquedIdref);
+				if(para == NULL)
+				{
+					objex.ocfm_Excpetion(OCFM_ERR_UNIQUE_ID_REF_NOT_FOUND);
+					throw objex;
+				}
+				
+				//if(para->access != NULL)
+				//{
+				//	
+				//	//procImage.Direction = getParameterAccess(para->access);
+				//	//strcpy(procImage.Direction, getParameterAccess(para->access));
+				//	strcpy(procImage.Direction, "rw");
+				//	procImage.ParametrIndex = para->ParaIndex;
+
+				//}
+				// Check if DataTypeUniqueIDref exists
+				if(para->name_id_dt_attr.dataTypeUniqueIDRef !=NULL)
+				{
+							
+						objCDT = objAppProc->getCDTbyUniqueID(para->name_id_dt_attr.dataTypeUniqueIDRef);
+						if(objCDT ==NULL)
+						{
+							objex.ocfm_Excpetion(OCFM_ERR_STRUCT_DATATYPE_NOT_FOUND);
+							throw objex;
+						}
+						ProcessCDT(objCDT, objAppProc, objNode, para); 
+						lastVarIndex = -1;
+						CDTCompleted = false;
+				}
+				
+				else
+				{
+					
+				}
+			}
+			
+		}
+		
+	}
+	catch(ocfmException& ex)
+	{
+		throw ex;
+	}
+}
 /**************************************************************************************************
 	* Function Name: ProcessPDONodes
     * Description: Processes the Node
@@ -1005,7 +1170,7 @@ void ProcessPDONodes(int NodeID)
 
 
 
-		objPDOCollection = objNode->getPDOIndexCollection(PDO_RPDO);
+		objPDOCollection = objNode->getPDOIndexCollection();
 		if(objPDOCollection!= NULL)
 		{
 		
@@ -1072,6 +1237,7 @@ void ProcessPDONodes(int NodeID)
 									
 										if(objSIndex->getUniqueIDRef()!=NULL)
 										{
+											DecodeUniqiueIDRef(objSIndex->getUniqueIDRef(), objNode);
 											
 										}
 										else
@@ -1081,12 +1247,11 @@ void ProcessPDONodes(int NodeID)
 											objProcessImage.Name = (char*)malloc(strlen(objSIndex->getName())+1);
 											strcpy(objProcessImage.Name, objSIndex->getName());
 											/* Access of the Process Image variable*/
-											objProcessImage.Direction = new char[2];
 											strcpy(objProcessImage.Direction, objSIndex->getAccessType());
 											DataType dt;
 											dt = objSIndex->getDataType();
 											/* Data Size in hex of the Process Image variable*/
-											objProcessImage.DataSize = (char*)malloc(strlen(dt.DataSize+1));
+										/*	objProcessImage.DataSize = (char*)malloc(strlen(dt.DataSize+1));*/
 											strcpy(objProcessImage.DataSize, dt.DataSize);
 											/* Datatype in hex of the Process Image variable*/
 											objProcessImage.DataType = (char*)malloc(strlen(dt.Name+1));
@@ -1306,15 +1471,20 @@ void WriteXAPElements(ProcessImage pi, xmlTextWriterPtr& writer)
     
 
     /* Add an attribute with name "Name" and value  to channel. */
-    rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "Name",
-                                     BAD_CAST pi.Name);
+     printf("\n%s",pi.Name);
+    rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "Name",      
+                                   BAD_CAST pi.Name);
+                                  
     if (rc < 0)
     {
         printf("testXmlwriterDoc: Error at xmlTextWriterWriteAttribute\n");
         return;
     }
+    
+    
 
     /* Add an attribute with name "direction" and value to channel */
+      printf("\n%s",pi.Direction);
     rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "Direction",
                                      BAD_CAST pi.Direction );
     if (rc < 0)
@@ -1323,6 +1493,26 @@ void WriteXAPElements(ProcessImage pi, xmlTextWriterPtr& writer)
         return;
     }
 
+				/* Add an attribute with name "DataType" and value to channel */
+				 printf("\n%s",pi.DataType);
+    rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "dataType",
+                                     BAD_CAST pi.DataType );
+    if (rc < 0)
+    {
+        printf("testXmlwriterDoc: Error at xmlTextWriterWriteAttribute\n");
+        return;
+    }
+    
+    /* Add an attribute with name "dataSize" and value to channel */
+    printf("\n%s",pi.DataSize);
+    rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "dataSize",
+                                     BAD_CAST pi.DataSize );
+    if (rc < 0)
+    {
+        printf("testXmlwriterDoc: Error at xmlTextWriterWriteAttribute\n");
+        return;
+    }
+			
     
 
     
@@ -1594,6 +1784,29 @@ ocfmRetCode GetNodeCount(
 	return ErrStruct;
 }
 
+char* getPIName(int NodeID)
+{
+	char* str;
+	char* id = new char[2];
+	str =(char*)malloc(5);
+	strcpy(str, "CN");
+	id =  itoa(NodeID,id, 10);
+	strcat(str, id);
+	strcat(str, ".");
+	strcat(str,"\0");
+	return str;
+}
+
+char* getParameterAccess(char* access)
+{
+	if (!strcmp(ConvertToUpper(access), "READ"))
+	return "ro\0";
+	else if(!strcmp(ConvertToUpper(access),"READWRITE"))
+	return "rw\0";
+	else return "xx";
+
+}
+
 /**************************************************************************************************
 	* Function Name: GetIndexCount
     * Description:
@@ -1679,3 +1892,4 @@ ocfmRetCode GetSubIndexCount(
 	ErrStruct.code = OCFM_ERR_SUCCESS;
 	return ErrStruct;
 }
+

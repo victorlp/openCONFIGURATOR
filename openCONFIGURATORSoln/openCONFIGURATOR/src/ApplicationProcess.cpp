@@ -90,12 +90,15 @@ int CApplicationProcess::checkFileStatus(char* filename)
 	void CApplicationProcess::addComplexDataType(CComplexDataType complexDT)
  {
 	 	int i = CDTCollection.Add();
+	 	complexDT.Index = i;
 		CDTCollection[i] = complexDT;		
  }
 void CApplicationProcess::addParameter(Parameter  parameter)
  {
 	 	int i = ParameterCollection.Add();
+	 	parameter.ParaIndex = i;
 			ParameterCollection[i] = parameter;
+			
  }
 int CApplicationProcess::get_ParameterIndexby_UniqueIDRef(char *UniqueIdRef)
 {
@@ -104,8 +107,20 @@ int CApplicationProcess::get_ParameterIndexby_UniqueIDRef(char *UniqueIdRef)
 	{
 		Parameter objPara;
 		objPara = ParameterCollection[count];
-		if(strcmp(UniqueIdRef, objPara.name_id_dt_attr.getDtUniqueRefId())==0)
+		if(strcmp(UniqueIdRef, objPara.name_id_dt_attr.getUniqueID())==0)
 		return count;
+	}
+	return NULL;
+}
+Parameter* CApplicationProcess::get_Parameterby_UniqueIDRef(char *UniqueIdRef)
+{
+
+	for(int count = 0; count<ParameterCollection.Count(); count++)
+	{
+		Parameter objPara;
+		objPara = ParameterCollection[count];
+		if(strcmp(UniqueIdRef, objPara.name_id_dt_attr.getUniqueID())==0)
+		return &ParameterCollection[count];
 	}
 	return NULL;
 }
@@ -120,4 +135,40 @@ int CApplicationProcess::get_CDT_UniqueIDRef(char *UniqueIdRef)
 		return count;
 	}
 	return NULL;
+}
+CComplexDataType* CApplicationProcess::getCDTbyUniqueID(char *UniqueId)
+{
+		for(int count = 0; count<CDTCollection.Count(); count++)
+	{
+		CComplexDataType objCDT;
+		objCDT = CDTCollection[count];
+		if(strcmp(UniqueId, objCDT.name_id_attr->getUniqueID())==0)
+		return &CDTCollection[count];
+	}
+	return NULL;
+}
+CComplexDataType* CApplicationProcess::getCDTbydt_UniqueRefID(char *UniqueRefId)
+{
+		for(int count = 0; count<CDTCollection.Count(); count++)
+	{
+		CComplexDataType objCDT;
+		objCDT = CDTCollection[count];
+		if( objCDT.name_id_attr->getDtUniqueRefId()!= NULL)
+		{
+			if(strcmp(UniqueRefId, objCDT.name_id_attr->getDtUniqueRefId())==0)
+			return &CDTCollection[count];
+		}
+	}
+	return NULL;
+}
+CComplexDataType* CApplicationProcess::getCDTbydtIndex(int Index)
+{
+		return &CDTCollection[Index];
+}
+void CApplicationProcess::updatePreviousCDT_UId(char *UniqueID, int Index)
+{
+		CComplexDataType* objCDT;
+		objCDT = CDTCollection.GetAddress(Index);
+		objCDT->previousCDT_UId = (char*)malloc(strlen(UniqueID)+1);
+		strcpy(objCDT->previousCDT_UId, UniqueID);
 }

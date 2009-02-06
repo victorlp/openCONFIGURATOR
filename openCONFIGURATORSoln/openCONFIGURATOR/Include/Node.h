@@ -91,7 +91,7 @@ class DllExport CNode
 		ENodeType m_NodeType;
 		int m_NodeIndex;
 		char* m_NodeName;/*
-	//*/	typedef TCollection<ProcessImage> PICollection;
+	//*/	/*typedef TCollection<ProcessImage> PICollection;*/
 	public:
 		/*typedef _PICollection PICollection;*/
 		TCollection<ProcessImage> ProcessImageCollection;
@@ -121,6 +121,9 @@ class DllExport CNode
 
 		CIndexCollection* getPDOIndexCollection(EPDOType PDOType);
 		CIndexCollection* getIndexCollectionWithoutPDO();
+		CIndexCollection*getPDOIndexCollection();
+		
+		ProcessImage* getPIbyParaIndex(int paraIndex);
 		
 		bool isNull();
 			

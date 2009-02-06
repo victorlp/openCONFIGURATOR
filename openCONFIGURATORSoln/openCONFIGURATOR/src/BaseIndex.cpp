@@ -155,19 +155,19 @@ void CBaseIndex::setAccessType(char* accessType)
 	{
 		switch (m_objectType)
 			{
-			case 5:
+			case DEFAULT:
 				return "DFEAULT";
 				break;
-			case 6:
+			case DEFSTRUCT:
 				return "DEFSTRUCT";
 				break;
-			case 7:
+			case VAR:
 				return "VAR";
 				break;
-			case 8:
+			case ARRAY:
 				return "ARRAY";
 				break;
-			case 9:
+			case RECORD:
 				return "RECORD";
 				break;
 			default:
@@ -218,16 +218,22 @@ const char* CBaseIndex::getPDOMapping ()
 		{
 			case NO:
 				return "NO";				
+				break;
 			case DEFAULT:
 				return "DEFAULT";
+				break;
 			case OPTIONAL:
 				return "OPTIONAL";
+				break;
 			case RPDO:
 				return "RPDO";
+				break;
 			case TPDO:
 				return "TPDO";
+				break;
 			default:
 				return NULL;
+				break;
 		}
 		//return m_pdoMapping;
 	}

@@ -75,6 +75,8 @@ CNode::CNode(void)
 		m_NodeName = NULL;		
 		m_IndexCollection = NULL;
 		m_DataTypeCollection =  NULL;	 
+		m_IndexCollection = NULL;
+		m_ApplicationProcess = NULL;
 	}
 
 CNode::~CNode(void)
@@ -209,6 +211,20 @@ CIndexCollection* CNode::getPDOIndexCollection(EPDOType PDOType)
 			printf("\nGetPDOCollection ends");
 		return PDOCollection;
 	}
+	CIndexCollection* CNode::getPDOIndexCollection()
+	{
+		printf("\nGetPDOCollection starts");
+		CIndexCollection* PDOCollection = new CIndexCollection();
+		for(int count=0;count<m_IndexCollection->getNumberofIndexes();count++)
+			{
+				CIndex* objIndex;
+				objIndex = m_IndexCollection->getIndex(count);
+				if(objIndex->getPDOType() ==  PDO_TPDO || objIndex->getPDOType() ==  PDO_RPDO)
+					PDOCollection->addIndex(*objIndex);					
+			}
+			printf("\nGetPDOCollection ends");
+		return PDOCollection;
+	}
 CIndexCollection* CNode::getIndexCollectionWithoutPDO()
 	{
 		CIndexCollection* objIndexCol = new CIndexCollection();
@@ -234,7 +250,17 @@ bool CNode::isNull()
 }
 //CNode CNode::newNull()
 //{return new CNullObjectClass();}
-
+ProcessImage* CNode::getPIbyParaIndex(int paraIndex)
+{
+	ProcessImage* pi =NULL;
+	for(int count=0; count<ProcessImageCollection.Count(); count++)
+		{
+			pi = ProcessImageCollection.GetAddress(count);
+			if(pi->ParametrIndex = paraIndex)
+			return pi;			
+		}			
+	return pi;
+}
 #pragma endregion Properties
 
 

@@ -311,7 +311,8 @@ static void setParameterAttributes(xmlTextReaderPtr reader, Parameter* stParamet
 		const xmlChar* name,*value;
 		//Retrieve the name and Value of an attribute
 		value = xmlTextReaderConstValue(reader);
-		name =xmlTextReaderConstName(reader);							
+		name =xmlTextReaderConstName(reader);				
+		int ret;			
 
 		if(strcmp(ConvertToUpper((char*)name), "UNIQUEID")==0)
 		{						
@@ -322,10 +323,51 @@ static void setParameterAttributes(xmlTextReaderPtr reader, Parameter* stParamet
 		{									
 			stParameter->name_id_dt_attr.setName((char*)value);		
 		}
+		else if(strcmp(ConvertToUpper((char*)name), "ACCESS")==0)					
+		{						
+			stParameter->access  = new char[strlen((const char*)value) + 1];			
+			strcpy(stParameter->access, (const char*)value);
+		}
 
 		/* TO DO: DATATYPE..There is no tag for it..need to check after how many reads datatype is define </label>
             <USINT/>*/					
+	
+	}
+	void getParaDT(xmlTextReaderPtr reader, Parameter* stParameter)
+	{
+		const xmlChar* name,*value;
+		int ret;
+  
+  ret = xmlTextReaderRead(reader);
+  
+  name = xmlTextReaderConstName(reader);
+  value = xmlTextReaderConstValue(reader);
+		while(!(CheckEndElement(xmlTextReaderNodeType(reader),(char*)name, "parameter")))
+		{
+			ret = xmlTextReaderRead(reader);
+			value = xmlTextReaderConstValue(reader);
+		name =xmlTextReaderConstName(reader);			
 			
+			if(CheckifSimpleDT((char*)name))
+			{
+					stParameter->name_id_dt_attr.setDataType((char*)name);
+			}		
+			if(CheckStartElement(xmlTextReaderNodeType(reader),(char*)name, "dataTypeIDRef"))
+			{
+				if (xmlTextReaderHasAttributes(reader)==1)
+				{
+				
+					xmlTextReaderMoveToNextAttribute(reader);
+					value = xmlTextReaderConstValue(reader);
+					name =xmlTextReaderConstName(reader);							
+
+					if(strcmp(ConvertToUpper((char*)name), "UNIQUEIDREF")==0)
+					{
+						stParameter->name_id_dt_attr.setDtUniqueRefId((char*)value);
+					}
+				}		
+			}
+		}
 	}
 	static void setCDTAttributes(xmlTextReaderPtr reader, CComplexDataType* objCDT)
 	{
@@ -362,41 +404,40 @@ bool CheckifSimpleDT(char* Name)
 	return false;
 	
 }
-	static void setVarDecAttributes(xmlTextReaderPtr reader, varDeclaration* vdecl)
+	static void setVarDecAttributes(xmlTextReaderPtr reader, varDeclaration& vdecl)
 	{
 		const xmlChar* name,*value;
 		//Retrieve the name and Value of an attribute
 		value = xmlTextReaderConstValue(reader);
 		name =xmlTextReaderConstName(reader);		
-		vdecl->Initialize();
 		bool vardecCompleted = false;
 							
 	
 		if(strcmp(ConvertToUpper((char*)name), "UNIQUEID")==0)
 		{						
-			vdecl->nam_id_dt_attr->setUniqueID((char*)value);
+			vdecl.nam_id_dt_attr->setUniqueID((char*)value);
 		}
 
 		else if(strcmp(ConvertToUpper((char*)name), "NAME")==0)					
 		{						
-			vdecl->nam_id_dt_attr->setName((char*)value);			
+			vdecl.nam_id_dt_attr->setName((char*)value);			
 		}
 		 if(strcmp(ConvertToUpper((char*)name), "SIZE")==0)					
 		{						
-			vdecl->size = atoi((const char*)value);			
+			strcpy((char*)vdecl.size,(const char*)value);
 		}
 		/*	vdecl->nam_id_dt_attr = app;*/
 	}
 	bool CheckEndElement(int NodeType, char* element, char* comparewith)
 	{
-		if((NodeType = XML_READER_TYPE_END_ELEMENT) && (strcmp(element, comparewith)==0))
+		if((NodeType == XML_READER_TYPE_END_ELEMENT) && (strcmp(element, comparewith)==0))
 		return true;
 		else
 		return false;
 	} 
 	bool CheckStartElement(int NodeType, char* element, char* comparewith)
 	{
-		if((NodeType = XML_READER_TYPE_ELEMENT) && (strcmp(element, comparewith)==0))
+		if((NodeType == XML_READER_TYPE_ELEMENT) && (strcmp(element, comparewith)==0))
 		return true;
 		else
 		return false;
@@ -405,7 +446,8 @@ static void getVarDeclaration(xmlTextReaderPtr reader, CComplexDataType* objCDT)
 {
 		const xmlChar* name,*value;
 		int ret;
-  varDeclaration* stvardecl = new varDeclaration;
+  varDeclaration stvardecl;
+		stvardecl.Initialize();
   ret = xmlTextReaderRead(reader);
   
   name = xmlTextReaderConstName(reader);
@@ -413,20 +455,23 @@ static void getVarDeclaration(xmlTextReaderPtr reader, CComplexDataType* objCDT)
    
 		while(!(CheckEndElement(xmlTextReaderNodeType(reader),(char*)name, "struct")))
 		{
-		try
-		{
-				ret = xmlTextReaderRead(reader);
-			 if (ret != 1) 
-			 {
-					ocfmException* objException = new ocfmException;
-					objException->ocfm_Excpetion(OCFM_ERR_XML_FILE_CORRUPTED);
-			 }
-			  
-  }
-  catch(ocfmException *ex)
-  {
-			throw ex;
-		}
+			varDeclaration temp;
+			temp.Initialize();
+			
+			try
+			{
+					ret = xmlTextReaderRead(reader);
+					if (ret != 1) 
+					{
+						ocfmException* objException = new ocfmException;
+						objException->ocfm_Excpetion(OCFM_ERR_XML_FILE_CORRUPTED);
+					}
+				  
+			}
+			catch(ocfmException *ex)
+			{
+				throw ex;
+			}
 			name = xmlTextReaderConstName(reader);
 			value = xmlTextReaderConstValue(reader);
 			printf("\nName:%s",name);
@@ -434,7 +479,10 @@ static void getVarDeclaration(xmlTextReaderPtr reader, CComplexDataType* objCDT)
 			
 			if(CheckEndElement(xmlTextReaderNodeType(reader),(char*)name, "varDeclaration"))
 			{
-				objCDT->addVarDeclaration(*stvardecl);
+				stvardecl.StructUniqueId = (char*)malloc(strlen(objCDT->name_id_attr->getUniqueID() +1));
+				strcpy(stvardecl.StructUniqueId , objCDT->name_id_attr->getUniqueID());
+				objCDT->addVarDeclaration(stvardecl);
+				stvardecl = temp;
 			}
 			if(CheckStartElement(xmlTextReaderNodeType(reader),(char*)name, "varDeclaration"))
 			{
@@ -466,7 +514,7 @@ static void getVarDeclaration(xmlTextReaderPtr reader, CComplexDataType* objCDT)
   
 			if(CheckifSimpleDT((char*)name))
 			{
-					stvardecl->nam_id_dt_attr->setDataType((char*)name);
+					stvardecl.nam_id_dt_attr->setDataType((char*)name);
 			}		
 			if(CheckStartElement(xmlTextReaderNodeType(reader),(char*)name, "dataTypeIDRef"))
 		{
@@ -479,7 +527,7 @@ static void getVarDeclaration(xmlTextReaderPtr reader, CComplexDataType* objCDT)
 
 					if(strcmp(ConvertToUpper((char*)name), "UNIQUEIDREF")==0)
 					{
-						stvardecl->nam_id_dt_attr->setDtUniqueRefId((char*)value);
+						stvardecl.nam_id_dt_attr->setDtUniqueRefId((char*)value);
 					}
 				}		
 			}
@@ -596,6 +644,7 @@ void processNode(xmlTextReaderPtr reader,ENodeType NodeType,int NodeIndex)
 								}
 						}
 						
+						getParaDT(reader, &stParameter);
 						// Add parameter to the parameter collection of a node
 						objApplicationProcess = objNode.getApplicationProcess();
 						objApplicationProcess->addParameter(stParameter);

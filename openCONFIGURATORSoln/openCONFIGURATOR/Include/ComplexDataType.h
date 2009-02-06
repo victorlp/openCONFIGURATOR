@@ -81,14 +81,19 @@ class DllExport CComplexDataType
  public:
 	CComplexDataType(void);
 	~CComplexDataType(void);
-		TCollection<varDeclaration> collectionObj;
+		TCollection<varDeclaration> varCollection;
+		int			VarIndex;
+		int			Index;		
+		char*	previousCDT_UId;
 	private:
 		int			m_varCount;
+		
 	
 	public:
 		appProcessCommon *name_id_attr;
 			
  public:
 		 void addVarDeclaration(varDeclaration VarDecl);
+		/* void updatePreviousCDT_UId(char* UniqueID, int Index);*/
 	};
 #endif // complexdatatype_h

@@ -91,6 +91,10 @@ class DllExport CApplicationProcess
 		void addComplexDataType(CComplexDataType complexDT);
 		void addParameter(Parameter  parameter);
 		int get_ParameterIndexby_UniqueIDRef(char* UniqueIdRef);
+		Parameter* get_Parameterby_UniqueIDRef(char* UniqueIdRef);	
+		CComplexDataType* getCDTbyUniqueID(char* UniqueId);
+		CComplexDataType* getCDTbydt_UniqueRefID(char* UniqueRefId);
+		CComplexDataType* getCDTbydtIndex(int Index);
 		int get_CDT_UniqueIDRef(char *UniqueIdRef);
 		void updatePreviousCDT_UId(char *UniqueID, int Index);
 		

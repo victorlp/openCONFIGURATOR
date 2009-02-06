@@ -139,15 +139,19 @@ struct DataType
 typedef struct ProcessImage
 {
 		char*					Name;
-		char*					Direction;
+		char					Direction[3];
 		char*					DataType;
-		char*					DataSize;
-		char*						ByteOffset;
+		char					DataSize[5];
+		char*					ByteOffset;
 		char*					Value;
 		char*					subindex;
 		char*					Index;
 		char*					BitOffset;
-	
+		int							ParametrIndex;
+		void Initialize()
+		{
+			ParametrIndex = 0;
+		}
 }ProcessImage;
 
 typedef struct appProcessCommon
@@ -157,6 +161,7 @@ typedef struct appProcessCommon
 		char*						UniqueId;
 		char*						dataType;
 		char*						dataTypeUniqueIDRef;
+		
 		
 		
 		char* getUniqueID()
@@ -195,10 +200,18 @@ struct varDeclaration
 {
   
 		appProcessCommon* nam_id_dt_attr;
-		int								size;
+		char								size[5];
 		char*						InitialValue;
+		char*						StructUniqueId;
 		void Initialize()
-		{nam_id_dt_attr = new appProcessCommon;}
+		{
+			nam_id_dt_attr = new appProcessCommon;	
+			nam_id_dt_attr->dataType = NULL;
+			nam_id_dt_attr->dataTypeUniqueIDRef = NULL;
+			nam_id_dt_attr->m_Name = NULL;
+			nam_id_dt_attr->UniqueId = NULL;
+			strcpy(size,"000x");
+		}
 	
 };
 typedef struct Parameter
@@ -206,6 +219,8 @@ typedef struct Parameter
 		appProcessCommon name_id_dt_attr;
 		char*												dataType;
 		int														StructIndex;
+		char*												access;
+		int														ParaIndex;
 		//char*						dataTypeUniqueIDRef;
 			
 }Parameter;
