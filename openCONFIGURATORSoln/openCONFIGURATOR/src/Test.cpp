@@ -48,8 +48,6 @@ int main(int argc, char **argv)
 	char* errorstring;
 	errorstring = new char;	
 	int temp_ret = 0;
-	ocfmRetValError ErrStruct;
-			ocfmRetCode ret;	
 						
 	CNodeCollection *objNodeCollection;							
 
@@ -95,6 +93,9 @@ int main(int argc, char **argv)
 		{
 				case 0:
 								/*ImportObjDictXML("/home/selva/Desktop/mn.xdc");*/
+								cout << "Enter the ObjectDicitonary file path "<< endl;
+								cin>>filePath;
+								LoadObjectDictionary(filePath);
 								break;
 				case 1:
 								system("cls");
@@ -243,7 +244,6 @@ int main(int argc, char **argv)
 							cout<<"Enter the Node Type(MN=0/CN=1)"<<endl;								
 							cin>>NodeType;
 							ocfmRetValError retPos;
-							int NodePos;
 							try
 							{
 							if(NodeType == 1)
@@ -398,6 +398,8 @@ int main(int argc, char **argv)
 							printf("\n Success");
 							else
 							printf("%s",ret.errorString);
+							cin.get();
+							cin.get();
 							break;
 				case 19:	
 							system("clear");							

@@ -72,6 +72,7 @@
 #include "Exports.h"
 #include "Index.h"
 #include <libxml/xmlwriter.h>
+#include <libxml/xmlreader.h>
 static const int g_simple_arr_size = 19;
 static const char *g_Simple[] = {
 																										"BOOL",
@@ -94,11 +95,12 @@ static const char *g_Simple[] = {
 																										"STRING",
 																										"WSTRING"
 																										};
-
+	
 /****************************************************************************************/
 /* Function Declarations
 /*****************************************************************************************/
-void LoadObjectDictionary();
+
+void LoadObjectDictionary(char* fileName);
 char* ConvertToUpper(char* str);
 char* itoa( int value, char* result, int base );
 bool CheckIfNotPDO(char* Index);
@@ -125,6 +127,9 @@ bool CheckEndElement(int NodeType, char* element, char* comparewith);
 bool CheckStartElement(int NodeType, char* element, char* comparewith);
 bool CheckifSimpleDT(char* Name);
 char* getPIName(int NodeID);
+void setIndexAttributes(xmlTextReaderPtr reader, CIndex* objIndex);
+void setSubIndexAttributes(xmlTextReaderPtr reader, CSubIndex* objSubIndex);
+void setDataTypeAttributes(xmlTextReaderPtr reader ,DataType* objDataType);
 
 
 

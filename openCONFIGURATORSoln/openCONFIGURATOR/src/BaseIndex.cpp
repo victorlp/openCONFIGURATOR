@@ -312,6 +312,23 @@ void CBaseIndex::setUniqueIDRef(char* UniqueID)
 		m_UniqueIDRef = new char[strlen(UniqueID)];
 		strcpy((char*)m_UniqueIDRef,UniqueID);
 	}
+		/**************************************************************************************************
+	* Function Name: getDataTypeValue
+    * Description: Returns only datatype value of the Node of the Index Object
+/****************************************************************************************************/
+
+char* CBaseIndex::getDataTypeValue()
+	{return m_dataTypeValue;}
+
+/**************************************************************************************************
+	* Function Name: setDefaultValue
+    * Description: sets the datatype value  of the Index Object
+/****************************************************************************************************/
+void CBaseIndex::setDataTypeValue(char* value)
+	{	
+		m_dataTypeValue = new char[strlen(value)];
+		strcpy((char*)m_dataTypeValue,value);
+	}
 #pragma endregion Properties
 
 #pragma region MemberFunctions

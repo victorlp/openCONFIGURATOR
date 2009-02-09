@@ -70,6 +70,7 @@
 #include "../Include/openCONFIGURATOR.h"
 #include "../Include/Internal.h"
 #include "../Include/Exception.h"
+#include "../Include/ObjectDictionary.h"
 #include <iostream>
 #include <fstream>
 #include <stdio.h>
@@ -94,16 +95,16 @@ static void AddIndexAttributes(char* IndexID, CIndex* objIndex)
 				// Setting the Index Value
 				objIndex->setIndexValue(IndexID);
 				//$S The actual value for all the attributes has to come from ObjDict.xdd
-				objIndex->setName("Test_Name");
+				objIndex->setName((char*)objIndex->getName());
 				char* value = "Test_Values";
-				objIndex->setObjectType(atoi((const char*)value));
+				objIndex->setObjectType(atoi(objIndex->getObjectType()));
 				objIndex->setLowLimit((char*)value);
 				objIndex->setHighLimit((char*)value);
 				objIndex->setAccessType((char*)value);
 				//objIndex->setPDOMapping((char*)value);				
 				objIndex->setDefaultValue((char*)value);
 				objIndex->setActualValue((char*)value);
-				objIndex->setDataType((char*)value);
+				/*objIndex->setDataType(objIndex->getDataTypeValue());*/
 	}
 
 /**************************************************************************************************
@@ -190,7 +191,7 @@ ocfmRetCode DeleteNode(int NodeID, ENodeType NodeType)
 			// Node Doesn't Exist
 			return ErrStruct;
 		}
-		int count;
+
 		CNode objNode;		
 		CNodeCollection *objNodeCollection;
 		objNodeCollection= CNodeCollection::getNodeColObjectPointer();	
@@ -329,21 +330,31 @@ ocfmRetCode AddIndex(int NodeID, ENodeType NodeType, char* IndexID)
 		CNode objNode;		
 		CNodeCollection *objNodeCollection;
 		CIndexCollection *objIndexCollection;
-		CIndex objIndex;
+		CIndex* objIndex;
 		ocfmRetCode ErrStruct;
 		ErrStruct.code = OCFM_ERR_UNKNOWN;
 		ErrStruct.errorString = NULL;
+		/*
+		LoadObjectDictionary("C:\\PARSER\\OD.XML");*/
 		
 		cout<< "Inside AddIndex \n"<<endl;
 		ErrStruct = IfIndexExists(NodeID, NodeType, IndexID, &IndexPos);
 		if( (ErrStruct.code == OCFM_ERR_NO_INDEX_FOUND) || (ErrStruct.code == OCFM_ERR_INDEXID_NOT_FOUND) )
 		{				
-			objIndex.setNodeID(objNode.getNodeId());
+			objIndex = new CIndex();
+			objIndex->setNodeID(objNode.getNodeId());
 			objNodeCollection= CNodeCollection::getNodeColObjectPointer();
 			objNode = objNodeCollection->getNode(NodeType, NodeID);
 			objIndexCollection = objNode.getIndexCollection();
-			AddIndexAttributes(IndexID, &objIndex);
-			objIndexCollection->addIndex(objIndex);	
+			
+			/* Get the Index from ObjectDictionary*/
+			CObjectDictionary* objOBD;
+			objOBD = CObjectDictionary::getObjDictPtr();
+			
+			objIndex = objOBD->getObjectDictIndex(IndexID);
+			if(objIndex!=NULL)				
+			AddIndexAttributes(IndexID, objIndex);
+			objIndexCollection->addIndex(*objIndex);	
 			printf("Added Index \n\n");
 			//return OCFM_ERR_SUCCESS;
 			ErrStruct.code = OCFM_ERR_SUCCESS;
@@ -445,7 +456,6 @@ ocfmRetCode SetSubIndexAttributes(int NodeID, ENodeType NodeType, char* IndexID,
 /****************************************************************************************************/
 void DisplayNodeTree()
 	{
-		int count;
 		CNode objNode;		
 		CNodeCollection *objNodeCollection;
 		CIndexCollection *objIndexCollection;
@@ -642,7 +652,6 @@ char* GenerateCNOBD(CNodeCollection* objNodeCol)
 				strcpy(comment,"\\\\Configuration Data for CN-");
 				comment = strcat(comment,c);
 				comment = strcat(comment,"\n");
-				char* NodeId;
 				//comment = strcat(comment,(char*)count);
 				/*strcpy(Buffer2, comment);*/
 				int NumberOfIndexes = objIndexCollection->getNumberofIndexes();
@@ -708,7 +717,6 @@ char* GenerateCNOBD(CNodeCollection* objNodeCol)
 								printf("\nComments for CN-%d",count);
 								fclose(fileptr);
 							}
-							char* NodeId;
 							//comment = strcat(comment,(char*)count);
 							/*strcpy(Buffer2, comment);*/
 							int NumberOfIndexes;
@@ -849,7 +857,6 @@ void GenerateCDC(char* fileName)
 		char *Buffer1;
 		int len;
 		const char tempFileName[9] = "temp.txt";
-		char* CNData;
 
 		printf("Inside GenerateCDC");
 				
@@ -1002,7 +1009,7 @@ void  ProcessCDT(CComplexDataType* objCDT,CApplicationProcess* objAppProc, CNode
 			throw objex;		
 		}
 
-		for(int i=0 ; i<objCDT->varCollection.Count(); i++)
+		for(int i= 0 ; i<objCDT->varCollection.Count(); i++)
 		{
 	
 			varDeclaration vd;
@@ -1087,8 +1094,9 @@ void  ProcessCDT(CComplexDataType* objCDT,CApplicationProcess* objAppProc, CNode
 				}						
 			}
 		}
-		CDTCompleted = true;
+		
 	}
+	CDTCompleted = true;
 	printf("exiting");
 }
 
@@ -1097,7 +1105,6 @@ void DecodeUniqiueIDRef(char* uniquedIdref, CNode* objNode)
 	ocfmException objex;
 	Parameter* para;
 	CApplicationProcess* objAppProc;
-	ProcessImage procImage;
 	CComplexDataType* objCDT;
 	
 	try
@@ -1271,7 +1278,6 @@ void ProcessPDONodes(int NodeID)
 void ConvertCdcToBinary(char* fileName,char* tempFile)
 {
 	FILE *fin, *fout;
-	char* filePath;
 	int count=0;
 	int num=0;
 	char ch=0;
@@ -1410,51 +1416,6 @@ CIndex* getMNIndexValues(char* Index)
 //	//printf("\n\n\nCalling xmlFreeTextReader\n\n\n\n");	
 //	
 //}
-ocfmRetCode GenerateXAP(char* fileName)
-{
-		CNodeCollection* objNodeCollection;
-		ocfmException* objException;
-		objNodeCollection = CNodeCollection::getNodeColObjectPointer();		
-		try
-		{
-			if(objNodeCollection->getNumberOfNodes()==0)
-			{
-				objException->ocfm_Excpetion(OCFM_ERR_NO_NODES_FOUND);
-				throw objException;
-			}
-			CNode objNode;
-			xmlTextWriterPtr writer = NULL;
-			xmlDocPtr doc = NULL;
-			int picount = 0;
-			int i=10;
-			StartXAPxml(writer, doc);
-			for(int count=0; count<objNodeCollection->getNumberOfNodes(); count++)
-			{
-				objNode = objNodeCollection->getNodebyCollectionIndex(count);
-				if (objNode.getNodeType() == CN)
-				{
-						if(objNode.ProcessImageCollection.Count() !=0)
-						{
-							picount = 0;
-							while(picount<objNode.ProcessImageCollection.Count())
-							{
-									ProcessImage pi;
-									pi = objNode.ProcessImageCollection[picount];
-									WriteXAPElements(pi, writer);			
-									picount++;						
-							}
-												
-						}
-					}
-				
-			}
-				EndWrtitingXAP(writer, fileName, doc);
-		}
-		catch(ocfmException* ex)
-		{
-			return *(ex->_ocfmRetCode);
-		}
-}
 void WriteXAPElements(ProcessImage pi, xmlTextWriterPtr& writer)
 {
 	int rc;
@@ -1584,6 +1545,58 @@ void EndWrtitingXAP( xmlTextWriterPtr& writer, char* fileName, xmlDocPtr& doc)
 
     xmlFreeDoc(doc);
 }
+ocfmRetCode GenerateXAP(char* fileName)
+{
+		CNodeCollection* objNodeCollection;
+		ocfmException objException;
+		objNodeCollection = CNodeCollection::getNodeColObjectPointer();		
+		try
+		{
+			if(objNodeCollection->getNumberOfNodes()==0)
+			{
+				objException.ocfm_Excpetion(OCFM_ERR_NO_NODES_FOUND);
+				throw objException;
+			}
+			if(objNodeCollection->getCNNodesCount() ==0)
+			{
+				objException.ocfm_Excpetion(OCFM_ERR_NO_CN_NODES_FOUND);
+				throw objException;
+			}
+			CNode objNode;
+			xmlTextWriterPtr writer = NULL;
+			xmlDocPtr doc = NULL;
+			int picount = 0;
+			int i=10;
+			StartXAPxml(writer, doc);
+			for(int count=0; count<objNodeCollection->getNumberOfNodes(); count++)
+			{
+				objNode = objNodeCollection->getNodebyCollectionIndex(count);
+				if (objNode.getNodeType() == CN)
+				{
+						if(objNode.ProcessImageCollection.Count() !=0)
+						{
+							picount = 0;
+							while(picount<objNode.ProcessImageCollection.Count())
+							{
+									ProcessImage pi;
+									pi = objNode.ProcessImageCollection[picount];
+									WriteXAPElements(pi, writer);			
+									picount++;						
+							}
+												
+						}
+					}
+				
+			}
+				EndWrtitingXAP(writer, fileName, doc);
+				return objException._ocfmRetCode;
+		}
+		catch(ocfmException& ex)
+		{
+			return ex._ocfmRetCode ;
+		}
+}
+
 /**************************************************************************************************
 	* Function Name: GetIndexAttributes
     * Description:
@@ -1894,6 +1907,42 @@ ocfmRetCode GetSubIndexCount(
 	return ErrStruct;
 }
 
+
+void LoadObjectDictionary(char* fileName)
+	{
+	
+		printf("Inside ObjectDictionary");
+  xmlTextReaderPtr reader;
+  int ret;
+		CObjectDictionary* objDict;
+		
+		objDict = CObjectDictionary::getObjDictPtr();
+		
+  reader = xmlReaderForFile(fileName, NULL, 0);
+  
+		if (reader != NULL)
+		{
+			 ret = xmlTextReaderRead(reader);
+    while (ret == 1)
+				{		
+						objDict->ProcessObjectDictionary(reader);						
+						ret = xmlTextReaderRead(reader);
+				}
+				if(ret!=0)
+				{
+					printf("Error parsing file");
+				}
+			}
+					
+		printf("Parsing ObjectDictionary5 Done");
+		objDict->printall();
+		 xmlCleanupParser();
+		/*
+		* this is to debug memory for regression tests
+		*/
+		xmlMemoryDump();
+
+	}
 /**************************************************************************************************
 	* Function Name: GetNodeIDbyNodePos
     * Description: Fills the NodeID and NodeType for the NodeCount
@@ -1951,7 +2000,7 @@ ocfmRetCode GetNodeIDbyNodePos(
 	}
 	catch(ocfmException* ex)
 	{
-		return *(ex->_ocfmRetCode);
+		return ex->_ocfmRetCode;
 	}
 }
 
@@ -2023,7 +2072,7 @@ ocfmRetCode GetIndexIDbyIndexPos(
 	}
 	catch(ocfmException* ex)
 	{
-		return *(ex->_ocfmRetCode);
+		return ex->_ocfmRetCode;
 	}
 }
 
@@ -2093,7 +2142,7 @@ ocfmRetCode GetIndexIDbyPositions(
 	}
 	catch(ocfmException* ex)
 	{
-		return *(ex->_ocfmRetCode);
+		return ex->_ocfmRetCode;
 	}
 	
 }
@@ -2166,7 +2215,7 @@ ocfmRetCode GetSubIndexIDbySubIndexPos(
 	}
 	catch(ocfmException* ex)
 	{
-		return *(ex->_ocfmRetCode);
+		return ex->_ocfmRetCode;
 	}
 }
 
@@ -2253,7 +2302,7 @@ ocfmRetCode GetSubIndexIDbyPositions(
 	}
 	catch(ocfmException* ex)
 	{
-		return *(ex->_ocfmRetCode);
+		return ex->_ocfmRetCode;
 	}
 }
 
@@ -2307,6 +2356,7 @@ ocfmRetCode DeleteMNObjDict(
 	}
 	catch(ocfmException* ex)
 	{
-		return *(ex->_ocfmRetCode);
+		return ex->_ocfmRetCode;
 	}
 }
+

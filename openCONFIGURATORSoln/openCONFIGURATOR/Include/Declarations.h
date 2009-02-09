@@ -196,6 +196,7 @@ typedef struct appProcessCommon
 			strcpy(dataTypeUniqueIDRef, UniqueRefID);
 		}
 }appProcessCommon;
+
 struct varDeclaration
 {
   
@@ -214,6 +215,7 @@ struct varDeclaration
 		}
 	
 };
+
 typedef struct Parameter
 {
 		appProcessCommon name_id_dt_attr;
@@ -281,5 +283,7 @@ DllExport ocfmRetCode GetSubIndexIDbySubIndexPos(int NodeID, ENodeType NodeType,
 
 DllExport ocfmRetCode GetIndexIDbyPositions(int NodePos, int IndexPos, char* Out_IndexID);
 DllExport ocfmRetCode GetSubIndexIDbyPositions(int NodePos, int IndexPos, int SubIndexPos, char* Out_SubIndexID);
+
+//DllExport ocfmRetCode GetSubIndexCount(char* IndexID, int* IndexCount);
 
 #endif // declarations_h

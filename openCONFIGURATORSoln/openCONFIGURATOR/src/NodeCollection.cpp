@@ -73,6 +73,7 @@
 
 CNodeCollection::CNodeCollection(void)
 	{
+		m_NodeCount =  collectionObj.Count();
 	}
 
 CNodeCollection::~CNodeCollection(void)
@@ -189,4 +190,14 @@ CNode CNodeCollection::getMNNode()
 CNode CNodeCollection::getNodebyCollectionIndex(int ColIndex)
 {
 	return collectionObj[ColIndex];
+}
+int CNodeCollection::getCNNodesCount() 
+{
+	int CNNodecount = 0;
+	for(int count= 0; count<collectionObj.Count(); count++)
+	{
+		if(collectionObj[count].getNodeType() == CN)
+		CNNodecount++;
+	}
+	return CNNodecount;
 }

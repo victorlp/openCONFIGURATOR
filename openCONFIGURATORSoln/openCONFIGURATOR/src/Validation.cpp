@@ -90,7 +90,6 @@
 ocfmRetCode IfNodeExists(int NodeID, ENodeType NodeType, int* NodePos)
 {	
 	cout << "NodeType:" << NodeType << endl;
-	int count;
 	CNode objNode;		
 	CNodeCollection *objNodeCollection = NULL;
 	ocfmRetCode ErrStruct;
@@ -154,7 +153,6 @@ if Node doesn't exist or if NodeType is invalid.
 /****************************************************************************************************/
 ocfmRetCode IfIndexExists(int NodeID, ENodeType NodeType, char* IndexID, int *IndexPos)
 {
-	int count;
 	CNode objNode;		
 	CNodeCollection *objNodeCollection;
 	CIndexCollection *objIndexCollection;
@@ -244,7 +242,6 @@ if Node doesn't exist or if NodeType is invalid.
 /****************************************************************************************************/
 ocfmRetCode IfSubIndexExists(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID, int* SubIndexPos, int* IndexPos)
 {
-		int count;
 		CNode objNode;		
 		CNodeCollection *objNodeCollection;
 		CIndexCollection *objIndexCollection;

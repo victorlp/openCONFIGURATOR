@@ -69,7 +69,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "../Include/openCONFIGURATOR.h"
-#include "../Include/Internal.h"
+//#include "../Include/Internal.h"
 #include "../Include/Exception.h"
 #include <iostream>
 #include <fstream>
@@ -80,14 +80,7 @@
 
 int LastIndexParsed=0;
 
-void LoadObjectDictionary()
-	{
-	
-		//Parse the ObjectDictionary xml and creates the objectDictionary object
-		
-	}
-	
-static void setIndexAttributes(xmlTextReaderPtr reader, CIndex* objIndex)
+void setIndexAttributes(xmlTextReaderPtr reader, CIndex* objIndex)
 	{
 		const xmlChar* name, *value;
 		//Retrieve the name and Value of an attribute
@@ -163,7 +156,7 @@ static void setIndexAttributes(xmlTextReaderPtr reader, CIndex* objIndex)
 	
 																	
 	}
-static void setSubIndexAttributes(xmlTextReaderPtr reader, CSubIndex* objSubIndex)
+void setSubIndexAttributes(xmlTextReaderPtr reader, CSubIndex* objSubIndex)
 	{
 		const xmlChar* name,*value;
 		//Retrieve the name and Value of an attribute
@@ -207,7 +200,7 @@ static void setSubIndexAttributes(xmlTextReaderPtr reader, CSubIndex* objSubInde
 														
 	}
 	
-static void setDataTypeAttributes(xmlTextReaderPtr reader ,DataType* objDataType)
+void setDataTypeAttributes(xmlTextReaderPtr reader ,DataType* objDataType)
 	{
 		const xmlChar* name,*value;
 		int ret;
@@ -306,13 +299,12 @@ static void AddSubIndexAttributes(char* SubIndexID, CSubIndex* objSubIndex)
 				objSubIndex->setDataType((char*)value);
 	}
 
-static void setParameterAttributes(xmlTextReaderPtr reader, Parameter* stParameter)
+void setParameterAttributes(xmlTextReaderPtr reader, Parameter* stParameter)
 	{
 		const xmlChar* name,*value;
 		//Retrieve the name and Value of an attribute
 		value = xmlTextReaderConstValue(reader);
-		name =xmlTextReaderConstName(reader);				
-		int ret;			
+		name =xmlTextReaderConstName(reader);					
 
 		if(strcmp(ConvertToUpper((char*)name), "UNIQUEID")==0)
 		{						
@@ -404,7 +396,7 @@ bool CheckifSimpleDT(char* Name)
 	return false;
 	
 }
-	static void setVarDecAttributes(xmlTextReaderPtr reader, varDeclaration& vdecl)
+ void setVarDecAttributes(xmlTextReaderPtr reader, varDeclaration& vdecl)
 	{
 		const xmlChar* name,*value;
 		//Retrieve the name and Value of an attribute
@@ -565,7 +557,8 @@ ocfmRetCode ImportXML(char* fileName, int NodeID, ENodeType NodeType)
 		//ProcessUniqueIDRefs();
 
 		/* Process PDO Objects*/
-		//ProcessPDONodes(NodeID);
+		if (NodeType != MN)
+		ProcessPDONodes(NodeID);
 
 		printf("Parsing Done");
 		 xmlCleanupParser();
@@ -591,7 +584,6 @@ void processNode(xmlTextReaderPtr reader,ENodeType NodeType,int NodeIndex)
 	
 		CNodeCollection *objNodeCollection;
 		CNode objNode;
-		ocfmRetCode retCode;
 	
     name = xmlTextReaderConstName(reader);
     if (name == NULL)
@@ -627,7 +619,7 @@ void processNode(xmlTextReaderPtr reader,ENodeType NodeType,int NodeIndex)
 			
 
 				}
-			if(strcmp(((char*)name),"parameter")==0)
+			else if(strcmp(((char*)name),"parameter")==0)
 				{
 					objNodeCollection= CNodeCollection::getNodeColObjectPointer();	
 					CApplicationProcess* objApplicationProcess;				
@@ -650,7 +642,7 @@ void processNode(xmlTextReaderPtr reader,ENodeType NodeType,int NodeIndex)
 						objApplicationProcess->addParameter(stParameter);
 					
 				}
-				if(strcmp(((char*)name),"struct")==0)
+			else	if(strcmp(((char*)name),"struct")==0)
 				{
 					objNodeCollection= CNodeCollection::getNodeColObjectPointer();	
 					CApplicationProcess* objApplicationProcess;		
@@ -672,7 +664,7 @@ void processNode(xmlTextReaderPtr reader,ENodeType NodeType,int NodeIndex)
 						objApplicationProcess->addComplexDataType(objCDT);
 					
 				}
-			if(strcmp(((char*)name),"Object")==0)
+			else if(strcmp(((char*)name),"Object")==0)
 				{
 					objNodeCollection= CNodeCollection::getNodeColObjectPointer();
 					CIndexCollection* objIndexCollection;
@@ -702,7 +694,7 @@ void processNode(xmlTextReaderPtr reader,ENodeType NodeType,int NodeIndex)
 						LastIndexParsed = objIndexCollection->getNumberofIndexes()-1;
 						
 				}
-			if(strcmp(((char*)name),"SubObject")==0 )
+		else	if(strcmp(((char*)name),"SubObject")==0 )
 				{
 					objNodeCollection = CNodeCollection::getNodeColObjectPointer();
 					CIndexCollection* objIndexCollection;
@@ -778,9 +770,9 @@ ocfmRetCode parseFile(char* filename, int NodeIndex, ENodeType  NodeType)
 							}
 							if(ret!=0)
 							{
-								ocfmException* objException = new ocfmException;
+								ocfmException objException;
 								/*objException->ocfm_Excpetion(o, true);*/
-								objException->ocfm_Excpetion(OCFM_ERR_PARSE_XML);
+								objException.ocfm_Excpetion(OCFM_ERR_PARSE_XML);
 								throw objException;
 							}
 						}
@@ -791,9 +783,9 @@ ocfmRetCode parseFile(char* filename, int NodeIndex, ENodeType  NodeType)
 							throw objException;
 						}
 					}
-					catch(ocfmException* ex)
+					catch(ocfmException& ex)
 					{
-						return *(ex->_ocfmRetCode);
+						return ex._ocfmRetCode;
 					}
 				
 		

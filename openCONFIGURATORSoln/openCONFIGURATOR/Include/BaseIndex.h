@@ -85,14 +85,15 @@ class DllExport CBaseIndex
 		const char*					m_LowLimit;
 		const char*					m_HighLimit;
 		EObjectType					m_objectType;
-		DataType					m_dataType;		
+		DataType								m_dataType;		
 		const char*					m_accessType;
 		const char*					m_DefaultValue;
-		char*						m_ActualValue;
+		char*											m_ActualValue;
 		EPDOMapping 				m_pdoMapping;
-		int							m_NodeID;
-		char*						m_UniqueIDRef;
-		int							m_ParameterIndex;
+		int													m_NodeID;
+		char*											m_UniqueIDRef;
+		int													m_ParameterIndex;
+		char*											m_dataTypeValue;					/* Only used for ObjectDictionary*/
 
 
 
@@ -137,6 +138,10 @@ class DllExport CBaseIndex
 	
 		char* getUniqueIDRef();
 		void setUniqueIDRef(char* UniqueID);
+		
+		char* getDataTypeValue();
+		void setDataTypeValue(char* value);
+
 
 		
 	};

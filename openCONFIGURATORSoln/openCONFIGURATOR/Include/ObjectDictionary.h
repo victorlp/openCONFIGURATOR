@@ -74,7 +74,10 @@
 #include "DataTypeCollection.h"
 #include "IndexCollection.h"
 #include "Declarations.h"
-#include "ComplexDataType.h"
+#include "Node.h"
+#include "TCollection.h"
+#include "Internal.h"
+#include <libxml/xmlreader.h>
 
 class CObjectDictionary
 	{
@@ -82,26 +85,39 @@ class CObjectDictionary
 		CObjectDictionary(void);
 		~CObjectDictionary(void);
 		private:
-		int m_IndexCount;
 		static bool instanceFlag;
-		static CObjectDictionary* ObjDictObject;
+		int m_s_attrIdx_SIdx;
+				
+			enum ObjectType
+		{
+			 INDEX =  0,
+				SUBINDEX
+		};
+	 typedef struct s_attrIdx_SIdx
+		{
+			char* Idx;
+			char* start_Index;
+			char* end_Index;
+			ObjectType	objectType;			
+		}s_attrIdx_SIdx;
 		
-		CDataTypeCollection *m_DataTypeCollection;
-		CIndexCollection *m_IndexCollection;
-		
-	private:
-		TCollection<CIndex> collectionObj;
-	public:
-		static CObjectDictionary* getObjDictObjectPointer();
-		void addIndex(CIndex objIndex);
-		void deleteIndex(int IndexID);
-		void DeleteIndexCollection();		
-		int getNumberofIndexes();
-		CIndex* getIndex(int Count);
-		CIndex* getIndexbyIndexValue(char* Index);		
-		
-		void CreateIndexCollection();
-		void CreateDataTypeCollection();
+		TCollection<s_attrIdx_SIdx> collectionObj;
+		public:
+		static CNode* objDictNode;
+		static CObjectDictionary* objectDictionary;
+
+	
+public:
+		void	CheckIfSameIndex(char* Index);
+		CIndex* getIndexDictAttribues(char* Index);
+		void ProcessObjectDictionary(xmlTextReaderPtr reader);
+		static CObjectDictionary* getObjDictPtr();
+		void addSameAttributesObjects(s_attrIdx_SIdx object);
+		void createSameattrObject(char* value, ObjectType objType, char*Idx );
+		CIndex* getObjectDictIndex(char* Idx);
+		CSubIndex* getObjectDictSubIndex(char* Idx, char* SIdx);
+	 bool checkInTheRange(char* Idx, char* StartIdx, char* EndIdx);
+		void printall();
 		
 	};
 #endif // ObjectDictionary_h

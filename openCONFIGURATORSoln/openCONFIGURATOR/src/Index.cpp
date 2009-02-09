@@ -71,6 +71,7 @@
 
 CIndex::CIndex(void)
 	{
+		int m_SubIndexCount = collectionObj.Count();
 	}
 
 CIndex::~CIndex(void)

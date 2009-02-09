@@ -67,75 +67,266 @@
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
 #include "../Include/ObjectDictionary.h"
+#include "../Include/Internal.h"
+#include "../Include/Exception.h"
 
+int LastObjDictIndexParsed=0;
 CObjectDictionary::CObjectDictionary(void)
-	{
-	}
+	{	
+			objDictNode = new CNode();		
+			objDictNode->CreateIndexCollection();
+			objDictNode->CreateDataTypeCollection();
+			objDictNode->CreateApplicationProcess();
+			m_s_attrIdx_SIdx = collectionObj.Count();
+		}
 
 CObjectDictionary::~CObjectDictionary(void)
 	{
-		instanceFlag =false;
+		
 	}
-
 bool CObjectDictionary::instanceFlag=false;
-CObjectDictionary* CObjectDictionary::ObjDictObject = NULL;
-
-CObjectDictionary* CObjectDictionary::getObjDictObjectPointer()
+CObjectDictionary* CObjectDictionary::objectDictionary = NULL;
+CNode* CObjectDictionary::objDictNode = NULL;
+CObjectDictionary* CObjectDictionary::getObjDictPtr()
 	{
 		if(!instanceFlag)
 			{
-				ObjDictObject = new CObjectDictionary();
+				objectDictionary = new CObjectDictionary();
 				instanceFlag=true;
 			}
-		return ObjDictObject;
+		return objectDictionary;
 		
 	}
-	
-void CObjectDictionary::addIndex(CIndex objIndex)
-	{
-		
-		int i = collectionObj.Add();
-		collectionObj[i] = objIndex;
-		m_IndexCount= collectionObj.Count();
-
-	}
-void CObjectDictionary::deleteIndex(int IndexID)
-	{
-	   collectionObj.Remove(IndexID);
-	   m_IndexCount = collectionObj.Count();
-	}	
-void CObjectDictionary::DeleteIndexCollection() 
-	{
-		collectionObj.Clear();
-		m_IndexCount = collectionObj.Count();
-	}
-CIndex* CObjectDictionary::getIndex(int Count)
-	{
-		return &collectionObj[Count];
-	}
-CIndex* CObjectDictionary::getIndexbyIndexValue(char* Index)
-	{
-		int i = 0;
-		for(int i =0; i<m_IndexCount;i++)
+	/**************************************************************************************************
+	* Function Name: ProcessObjectDictionary
+    * Description: Process the Node value,Name and its attributes
+/****************************************************************************************************/
+void CObjectDictionary::ProcessObjectDictionary(xmlTextReaderPtr reader)
+{
+		const xmlChar *name, *value;	
+		name = xmlTextReaderConstName(reader);
+    if (name == NULL)
+		printf("\n\n\n\nGot NULL for Name\n\n\n\n");
+	//	name = BAD_CAST "--";		
+    value = xmlTextReaderConstValue(reader);
+    
+		try
+		{ 
+		//If the NodeTYPE is ELEMENT
+		if( xmlTextReaderNodeType(reader)==1)
 		{
-			CIndex objIndex;
-			objIndex = collectionObj[i];
-			if(strcmp(objIndex.getIndexValue(),Index)==0)
-				return &collectionObj[i];
-		}		
-	}
-int CObjectDictionary::getNumberofIndexes()
-	{return m_IndexCount;}
+			if(strcmp(((char*)name),"defType")==0)
+				{
+					CDataTypeCollection* objDataTypeCollection;			
+					//printf("createed Nodecol\n");
+					DataType objDataType;
+					if (xmlTextReaderHasAttributes(reader)==1)
+						{						
+							while(xmlTextReaderMoveToNextAttribute(reader))
+								{
+									//printf("Calling setDataTypeAttributes..\n ");
+									setDataTypeAttributes(reader, &objDataType);
+									//$Svalue = xmlTextReaderConstValue(reader);
+									//$Sprintf("Value_1:%s\n", value);
+									//$Sname =xmlTextReaderConstName(reader);																									
+								}
+						}
+						
 
-void CObjectDictionary::CreateIndexCollection() 
+					objDataTypeCollection = objDictNode->getDataTypeCollection();
+					objDataTypeCollection->addDataType(objDataType);
+			
+
+				}
+			
+			else if(strcmp(((char*)name),"Object")==0)
+				{
+					CIndexCollection* objIndexCollection;
+					CIndex objIndex;		
+											
+						
+					if (xmlTextReaderHasAttributes(reader)==1)
+						{						
+							while(xmlTextReaderMoveToNextAttribute(reader))
+								{
+									value = xmlTextReaderConstValue(reader);
+									name = xmlTextReaderConstName(reader);	
+									if(strcmp(ConvertToUpper((char*)name), "DATATYPE")==0)		
+									{			
+										objIndex.setDataTypeValue((char*)value);
+									}
+									else if(strcmp(ConvertToUpper((char*)name), "RANGE")==0)								
+										createSameattrObject((char*)value, INDEX,(char*) objIndex.getIndexValue());
+										
+									else setIndexAttributes(reader, &objIndex);	
+									//$Svalue = xmlTextReaderConstValue(reader);
+									//$Sprintf("\tValue_2:%s\n", value);
+									//$Sname =xmlTextReaderConstName(reader);																								
+								}
+						}
+						
+						objIndexCollection = objDictNode->getIndexCollection();
+						
+						//Add Index object to the IndexCollection
+						objIndexCollection->addIndex(objIndex);				
+						LastObjDictIndexParsed = objIndexCollection->getNumberofIndexes()-1;
+						
+				}
+		else	if(strcmp(((char*)name),"SubObject")==0 )
+				{
+					CIndexCollection* objIndexCollection;
+					CSubIndex objSubIndex;
+					bool same = false;
+					if (xmlTextReaderHasAttributes(reader) ==1)
+						{
+							
+							while(xmlTextReaderMoveToNextAttribute(reader))
+								{
+									value = xmlTextReaderConstValue(reader);
+									name = xmlTextReaderConstName(reader);	
+									if(strcmp(ConvertToUpper((char*)name), "DATATYPE")==0)		
+									{			
+										objSubIndex.setDataTypeValue((char*)value);
+									}
+									else if(strcmp(ConvertToUpper((char*)name), "RANGE")==0)								
+									{
+										same =true;
+										createSameattrObject((char*)value, SUBINDEX, (char*)objSubIndex.getIndexValue());										
+									}
+										
+								else setSubIndexAttributes(reader,&objSubIndex);
+									//value = xmlTextReaderConstValue(reader);
+									//printf("\t\tValue_3:%s\n", value);
+									//name =xmlTextReaderConstName(reader);																									
+								}
+						}
+						CIndex* objIndexPtr;
+								
+					
+						objIndexCollection =objDictNode->getIndexCollection();
+						objIndexPtr =objIndexCollection->getIndex(LastObjDictIndexParsed);
+						objIndexPtr->addSubIndex(objSubIndex);
+						if (same)
+							printf("\n Same ********* Attr Index Name: %s",objIndexPtr->getName());
+				
+						
+				}	
+			}
+		
+		}
+		catch(ocfmException* ex)
+		{
+			 throw ex;
+		}	
+}
+/**************************************************************************************************
+	* Function Name: addSubIndex
+    * Description: add the SubIndex in the Index Object
+/****************************************************************************************************/
+
+void CObjectDictionary::addSameAttributesObjects(s_attrIdx_SIdx object)
 	{
-		CIndexCollection* objIndexCollection;
-		objIndexCollection = new CIndexCollection();
-		m_IndexCollection =objIndexCollection ;
+		int i = collectionObj.Add();
+		collectionObj[i] = object ;
+		m_s_attrIdx_SIdx = collectionObj.Count();
+		
 	}
-void CObjectDictionary::CreateDataTypeCollection() 
+void CObjectDictionary::createSameattrObject(char* value, ObjectType objType, char*Idx  )
+{
+		
+		s_attrIdx_SIdx object;											
+		char* s_idx, *e_idx = new char[3];
+									
+		e_idx = strchr(value, '-');			
+		s_idx = subString(value, 0, strlen(e_idx)-1);
+		e_idx = subString(e_idx, 1, strlen(e_idx));
+		
+		object.start_Index = new char[5];
+		object.end_Index		 = new char[5];
+		object.objectType = objType;
+		object.Idx								= new char[5];
+		
+		if(objType == INDEX) 
+		{
+			strcpy(object.end_Index, subString(Idx, 0, 4 - strlen(s_idx)));
+			strcat(object.end_Index, e_idx);
+		}
+		else strcpy(object.end_Index, e_idx);
+				
+		strcpy(object.start_Index, Idx);		
+		strcpy(object.Idx, Idx);
+		addSameAttributesObjects(object); 
+}
+CIndex* CObjectDictionary::getObjectDictIndex(char* Idx)
+{
+	CIndex* objIndex = NULL;
+	CIndexCollection* objIndexCol;
+	objIndexCol = objDictNode->getIndexCollection();
+	objIndex = objIndexCol->getIndexbyIndexValue(Idx);
+	if(objIndex!=NULL)
+	return objIndex;
+	else
 	{
-		CDataTypeCollection* objDataTypeCollection;
-		objDataTypeCollection = new CDataTypeCollection();
-		m_DataTypeCollection = objDataTypeCollection ;
+		for(int i=0; i<collectionObj.Count(); i++)
+		{
+			s_attrIdx_SIdx obj;
+			obj = collectionObj[i];
+			if(obj.objectType == INDEX)
+			{
+				if(checkInTheRange(Idx, obj.start_Index, obj.end_Index))
+				{
+					objIndex = objIndexCol->getIndexbyIndexValue(obj.start_Index);
+					return objIndex;
+				}
+			}
+		}
 	}
+}
+CSubIndex* CObjectDictionary::getObjectDictSubIndex(char* Idx, char* SIdx)
+{
+ CSubIndex* objSIdx = NULL;
+ CIndex* objIndex = NULL;
+ CIndexCollection* objIndexCol;
+	objIndexCol = objDictNode->getIndexCollection();
+	objIndex = objIndexCol->getIndexbyIndexValue(Idx);
+	
+	if(objIndex == NULL)
+	return objSIdx;
+	
+	objSIdx = objIndex->getSubIndexbyIndexValue(SIdx);
+	if(objSIdx!=NULL)
+	return objSIdx;
+	else
+	{
+		for(int i=0; i<collectionObj.Count(); i++)
+		{
+			s_attrIdx_SIdx obj;
+			obj = collectionObj[i];
+			if(obj.objectType == SUBINDEX)
+			{
+				if(checkInTheRange(Idx, obj.start_Index, obj.end_Index))
+				{
+					objSIdx = objIndex->getSubIndexbyIndexValue(obj.start_Index);
+					return objSIdx;
+				}
+			}
+		}
+	}
+}
+bool CObjectDictionary::checkInTheRange(char* Idx, char* StartIdx, char* EndIdx)
+{
+	if(hex2int(Idx) >= hex2int(StartIdx)&& (hex2int(Idx) <= hex2int(EndIdx)))
+	return true;
+	else return false;
+}
+void CObjectDictionary::printall()
+{
+	printf("\n Index		StartIndex		EndIndex		ObjectType\n");
+
+	for(int i=0; i<collectionObj.Count(); i++)
+	{
+				s_attrIdx_SIdx obj;
+				obj = collectionObj[i];
+		printf("\n %s  		%s  		%s	  	%d",obj.Idx, obj.start_Index, obj.end_Index, obj.objectType);
+}
+}

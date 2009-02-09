@@ -83,7 +83,7 @@ class ocfmException: public exception
 */
 ocfmException::ocfmException(void)
 	{
-				_ocfmRetCode = new ocfmRetCode;
+				_ocfmRetCode.code = OCFM_ERR_SUCCESS;
 	}
 
 ocfmException::~ocfmException(void)
@@ -94,8 +94,8 @@ ocfmException::~ocfmException(void)
 	void ocfmException::ocfm_Excpetion(EConfiuguratorErrors errcode)
 	{
 	
-		_ocfmRetCode->code = errcode;
-		_ocfmRetCode->errorString = new char[100];
+		_ocfmRetCode.code = errcode;
+		_ocfmRetCode.errorString = new char[100];
 		
 		//if(libxmlerrors)
 		//{
@@ -111,12 +111,17 @@ ocfmException::~ocfmException(void)
 			switch(errcode)
 			{
 				case OCFM_ERR_NODE_ALREADY_EXISTS:
-						strcpy(_ocfmRetCode->errorString,"Node Already Exists");				
+						strcpy(_ocfmRetCode.errorString,"Node Already Exists");				
 					break;
 				case OCFM_ERR_MODULE_INDEX_NOT_FOUND:
-					strcpy(_ocfmRetCode->errorString,"Module Index Not Found");
+						strcpy(_ocfmRetCode.errorString,"Module Index Not Found");
 					break;
-					
+			 case OCFM_ERR_NO_NODES_FOUND:
+						strcpy(_ocfmRetCode.errorString,"No Nodes are found");
+					break;
+				case OCFM_ERR_NO_CN_NODES_FOUND:
+						strcpy(_ocfmRetCode.errorString, "NO CN Nodes are found");
+					break;
 				default:
 					break;			
 			}

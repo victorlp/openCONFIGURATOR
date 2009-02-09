@@ -72,6 +72,7 @@
 
 CDataTypeCollection::CDataTypeCollection(void)
 	{
+		m_DataTypeCount = collectionObj.Count();
 	}
 
 CDataTypeCollection::~CDataTypeCollection(void)
