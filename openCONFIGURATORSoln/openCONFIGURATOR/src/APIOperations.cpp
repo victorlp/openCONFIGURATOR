@@ -229,7 +229,7 @@ ocfmRetCode DeleteIndex(int NodeID, ENodeType NodeType, char* IndexID)
 
 		objIndex.setNodeID(objNode.getNodeId());
 		objNodeCollection= CNodeCollection::getNodeColObjectPointer();
-		objNode = objNodeCollection->getNode(CN, NodeID);
+		objNode = objNodeCollection->getNode(NodeType, NodeID);
 
 		objIndexCollection = objNode.getIndexCollection();
 		//cout<< "Inside DeleteIndex: \n" << atoi(IndexID) <<endl;
@@ -270,6 +270,7 @@ ocfmRetCode DeleteSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* 
 		objIndex.setNodeID(objNode.getNodeId());
 		objNodeCollection= CNodeCollection::getNodeColObjectPointer();
 		objNode = objNodeCollection->getNode(NodeType, NodeID);
+
 
 		objIndexCollection = objNode.getIndexCollection();
 		objSubIndex =objIndexCollection->getIndex(IndexPos);
@@ -1594,7 +1595,7 @@ ocfmRetCode GetIndexAttributes(
 	ENodeType		NodeType, 
 	char* 			IndexID, 
 	EAttributeType 	AttributeType, 
-	char* 			AttributeValue)
+	char* 			Out_AttributeValue)
 {
 	int IndexPos;
 	ocfmRetCode ErrStruct;
@@ -1625,41 +1626,41 @@ ocfmRetCode GetIndexAttributes(
 		switch(AttributeType)
 		{
 			case 0:									
-					strcpy(AttributeValue, (char *)objIndexPtr->getName());
-					//cout<< "NAME:" << *AttributeValue << endl;
+					if(objIndexPtr->getName() != NULL)
+						strcpy(Out_AttributeValue, (char *)objIndexPtr->getName());
 					break;
 			case 1:
-					strcpy(AttributeValue, (char *)objIndexPtr->getObjectType());
-					//cout<< "OBJECTTYPE:" << *AttributeValue << endl;
+					if(objIndexPtr->getObjectType() != NULL)
+						strcpy(Out_AttributeValue, (char *)objIndexPtr->getObjectType());
 					break;
 			case 2:
 					DataType tmpDataType;
 					tmpDataType = objIndexPtr->getDataType();
-					strcpy(AttributeValue, tmpDataType.Name);				
-					//cout<< "DATATYPE:" << *AttributeValue << endl;
+					strcpy(Out_AttributeValue, tmpDataType.Name);
 					break;		
 			case 3:
-					strcpy(AttributeValue, (char *)objIndexPtr->getAccessType());
-					//cout<< "ACCESSTYPE:" << *AttributeValue << endl;
+					if(objIndexPtr->getAccessType() != NULL)
+						strcpy(Out_AttributeValue, (char *)objIndexPtr->getAccessType());
 					break;
 			case 4:
-					strcpy(AttributeValue, (char *) objIndexPtr->getDefaultValue());
-					//cout<< "DEFAULTVALUE:" << *AttributeValue << endl;
+					if(objIndexPtr->getDefaultValue() != NULL)
+						strcpy(Out_AttributeValue, (char *) objIndexPtr->getDefaultValue());
 					break;
 			case 5:
-					strcpy(AttributeValue, (char *) objIndexPtr->getActualValue());
-					//cout<< "ACTUALVALUE:" << *AttributeValue << endl;
+					if(objIndexPtr->getActualValue() != NULL)
+						strcpy(Out_AttributeValue, (char *) objIndexPtr->getActualValue());
 					break;
 			case 6:
-					strcpy(AttributeValue, (char *) objIndexPtr->getPDOMapping());
+					if(objIndexPtr->getPDOMapping() != NULL)
+						strcpy(Out_AttributeValue, (char *) objIndexPtr->getPDOMapping());
 					break;
 			case 7:
-					strcpy(AttributeValue, (char *) objIndexPtr->getLowLimit());
-					//cout<< "LOWLIMIT:" << *AttributeValue << endl;
+					if(objIndexPtr->getLowLimit() != NULL)
+						strcpy(Out_AttributeValue, (char *) objIndexPtr->getLowLimit());
 					break;
 			case 8:
-					strcpy(AttributeValue, (char *) objIndexPtr->getHighLimit());
-					//cout<< "LOWLIMIT:" << *AttributeValue << endl;
+					if(objIndexPtr->getHighLimit() != NULL)
+					strcpy(Out_AttributeValue, (char *) objIndexPtr->getHighLimit());
 					break;									
 			default:
 					cout << "invalid Attribute Type" << endl;
@@ -1681,7 +1682,7 @@ ocfmRetCode GetSubIndexAttributes(
 	char* 			IndexID, 
 	char* 			SubIndexID, 
 	EAttributeType 	AttributeType, 
-	char* 			AttributeValue)
+	char* 			Out_AttributeValue)
 {
 		CNode objNode;		
 		CNodeCollection *objNodeCollection;
@@ -1718,41 +1719,41 @@ ocfmRetCode GetSubIndexAttributes(
 		switch(AttributeType)
 		{
 			case 0:						
-					strcpy(AttributeValue, (char *)objSubIndexPtr->getName());
-					//cout<< "NAME:" << *AttributeValue << endl;
+					if(objSubIndexPtr->getName() != NULL)
+						strcpy(Out_AttributeValue, (char *)objSubIndexPtr->getName());
 					break;
 			case 1:
-					strcpy(AttributeValue, (char *)objSubIndexPtr->getObjectType());
-					//cout<< "OBJECTTYPE:" << *AttributeValue << endl;
+					if(objSubIndexPtr->getObjectType() != NULL)
+						strcpy(Out_AttributeValue, (char *)objSubIndexPtr->getObjectType());
 					break;
 			case 2:
 					DataType tmpDataType;
 					tmpDataType = objSubIndexPtr->getDataType();					
-					strcpy(AttributeValue, tmpDataType.Name);
-					//cout<< "DATATYPE:" << *AttributeValue << endl;
+					strcpy(Out_AttributeValue, tmpDataType.Name);
 					break;		
 			case 3:
-					strcpy(AttributeValue, (char *)objSubIndexPtr->getAccessType());
-					//cout<< "ACCESSTYPE:" << *AttributeValue << endl;
+					if(objSubIndexPtr->getAccessType() != NULL)
+						strcpy(Out_AttributeValue, (char *)objSubIndexPtr->getAccessType());
 					break;
 			case 4:
-					strcpy(AttributeValue, (char *) objSubIndexPtr->getDefaultValue());
-					//cout<< "DEFAULTVALUE:" << *AttributeValue << endl;
+					if(objSubIndexPtr->getDefaultValue() != NULL)
+						strcpy(Out_AttributeValue, (char *) objSubIndexPtr->getDefaultValue());
 					break;
 			case 5:
-					strcpy(AttributeValue, (char *) objSubIndexPtr->getActualValue());
-					//cout<< "ACTUALVALUE:" << *AttributeValue << endl;
+					if(objSubIndexPtr->getActualValue() != NULL)
+						strcpy(Out_AttributeValue, (char *) objSubIndexPtr->getActualValue());
 					break;
 			case 6:
-					strcpy(AttributeValue, (char *) objSubIndexPtr->getPDOMapping());
+					if(objSubIndexPtr->getPDOMapping() != NULL)
+						strcpy(Out_AttributeValue, (char *) objSubIndexPtr->getPDOMapping());
 					break;
 			case 7:
-					strcpy(AttributeValue, (char *) objSubIndexPtr->getLowLimit());
-					//cout<< "LOWLIMIT:" << *AttributeValue << endl;
+					if(objSubIndexPtr->getLowLimit() != NULL)
+						strcpy(Out_AttributeValue, (char *) objSubIndexPtr->getLowLimit());
 					break;
 			case 8:
-					strcpy(AttributeValue, (char *) objSubIndexPtr->getHighLimit());
-					//cout<< "LOWLIMIT:" << *AttributeValue << endl;
+					if(objSubIndexPtr->getHighLimit() != NULL)
+						strcpy(Out_AttributeValue, (char *) objSubIndexPtr->getHighLimit());
 					break;
 			default:
 					cout << "invalid Attribute Type" << endl;
@@ -1771,14 +1772,14 @@ ocfmRetCode GetSubIndexAttributes(
 /****************************************************************************************************/
 ocfmRetCode GetNodeCount(
 	int 		MNID, 
-	int* 		NodeCount)
+	int* 		Out_NodeCount)
 {
 	ocfmRetCode ErrStruct;
 	CNode objNode;
 	CNodeCollection *objNodeCollection;
 	objNodeCollection= CNodeCollection::getNodeColObjectPointer();
 	
-	*NodeCount = objNodeCollection->getNumberOfNodes();
+	*Out_NodeCount = objNodeCollection->getNumberOfNodes();
 	
 	ErrStruct.code = OCFM_ERR_SUCCESS;
 	return ErrStruct;
@@ -1815,7 +1816,7 @@ char* getParameterAccess(char* access)
 ocfmRetCode GetIndexCount(
 	int 		NodeID, 
 	ENodeType 	NodeType, 
-	int* 		IndexCount)
+	int* 		Out_IndexCount)
 {
 		ocfmRetCode ErrStruct;
 		
@@ -1843,7 +1844,7 @@ ocfmRetCode GetIndexCount(
 	objNode = objNodeCollection->getNode(NodeType, NodeID);
 	objIndexCollection = objNode.getIndexCollection();
 	
-	*IndexCount = objIndexCollection->getNumberofIndexes();
+	*Out_IndexCount = objIndexCollection->getNumberofIndexes();
 
 	ErrStruct.code = OCFM_ERR_SUCCESS;
 	return ErrStruct;
@@ -1858,7 +1859,7 @@ ocfmRetCode GetSubIndexCount(
 	int 		NodeID,
 	ENodeType 	NodeType,
 	char* 		IndexID,
-	int* 		SubIndexCount) 
+	int* 		Out_SubIndexCount) 
 {
 	CNode objNode;		
 	CNodeCollection *objNodeCollection;
@@ -1887,9 +1888,425 @@ ocfmRetCode GetSubIndexCount(
 	objIndexCollection = objNode.getIndexCollection();
 	objSubIndex =objIndexCollection->getIndex(IndexPos);
 	
-	*SubIndexCount = objSubIndex->getNumberofSubIndexes();
+	*Out_SubIndexCount = objSubIndex->getNumberofSubIndexes();
 	
 	ErrStruct.code = OCFM_ERR_SUCCESS;
 	return ErrStruct;
 }
 
+/**************************************************************************************************
+	* Function Name: GetNodeIDbyNodePos
+    * Description: Fills the NodeID and NodeType for the NodeCount
+	* Return value: ocfmRetCode
+/****************************************************************************************************/
+
+ocfmRetCode GetNodeIDbyNodePos(
+	int NodePos, 
+	ENodeType* NodeType, 
+	int* Out_NodeID)
+{
+	cout<< "Inside GetNodeIDbyNodeCount" << endl;
+	ocfmRetCode ErrStruct;
+	
+	int tmp_NodeCount;
+	try
+	{
+		// We do not have support for multiple MNs in this version.
+		GetNodeCount( 240, &tmp_NodeCount);
+		
+		if(NodePos > tmp_NodeCount)
+		{
+			ocfmException* objException = new ocfmException;
+			objException->ocfm_Excpetion(OCFM_ERR_INVALID_NODEPOS);		
+			throw objException;
+		}
+		else if(tmp_NodeCount == 0)
+		{
+			ocfmException* objException = new ocfmException;
+			objException->ocfm_Excpetion(OCFM_ERR_NO_NODES_FOUND);		
+			throw objException;
+		}
+		CNode objNode;		
+		CNodeCollection *objNodeCollection;
+		CIndexCollection *objIndexCollection;
+
+		objNodeCollection= CNodeCollection::getNodeColObjectPointer();
+		
+		objIndexCollection = objNode.getIndexCollection();
+
+		objNode = objNodeCollection->getNodebyCollectionIndex(NodePos);
+		
+		if(objNode.getNodeType() == NULL)
+		{
+			cout << "OCFM_ERR_INVALID_NODETYPE" << endl;
+			ocfmException* objException = new ocfmException;
+			objException->ocfm_Excpetion(OCFM_ERR_INVALID_NODETYPE);
+			throw objException;
+		}
+			*NodeType = objNode.getNodeType();
+			*Out_NodeID = objNode.getNodeId();
+				
+		ErrStruct.code = OCFM_ERR_SUCCESS;
+		return ErrStruct;
+	}
+	catch(ocfmException* ex)
+	{
+		return *(ex->_ocfmRetCode);
+	}
+}
+
+/**************************************************************************************************
+	* Function Name: GetIndexIDbyIndexPos
+    * Description: Fills the IndexID for the IndexCount, given NodeID and the NodeType
+	* Return value: ocfmRetCode
+/****************************************************************************************************/
+
+ocfmRetCode GetIndexIDbyIndexPos(
+	int NodeID, 
+	ENodeType NodeType, 
+	int IndexPos, 
+	char* Out_IndexID)
+{	
+	ocfmRetCode ErrStruct;
+		
+	CNode objNode;		
+	CNodeCollection *objNodeCollection;
+	CIndexCollection *objIndexCollection;
+	CIndex* objIndex;
+	
+	int NodePos;
+	try
+	{
+		ErrStruct = IfNodeExists(NodeID, NodeType, &NodePos);
+		if (ErrStruct.code == 0) 
+		{		
+			//retPos = ErrStruct.returnValue;
+		}
+		else
+		{	
+			cout << "$S\n\nErrStruct.errCode.code:" << ErrStruct.code << "\n\n!!!" << endl;
+			// Node Doesn't Exist
+			ocfmException* objException = new ocfmException;
+			objException->ocfm_Excpetion(OCFM_ERR_INVALID_NODEID);
+			throw objException;
+		}
+
+		objNodeCollection = CNodeCollection::getNodeColObjectPointer();
+		//objNode = objNodeCollection->getNode(NodeType, NodeID);
+		objNode = objNodeCollection->getNodebyCollectionIndex(NodePos);
+		objIndexCollection = objNode.getIndexCollection();
+		
+		int tmp_IndexCount = objIndexCollection->getNumberofIndexes();
+		
+		if(tmp_IndexCount == 0)
+		{
+			ocfmException* objException = new ocfmException;
+			objException->ocfm_Excpetion(OCFM_ERR_NO_INDEX_FOUND);
+			throw objException;
+		}
+		else if(tmp_IndexCount < IndexPos)
+		{
+			ocfmException* objException = new ocfmException;
+			objException->ocfm_Excpetion(OCFM_ERR_INVALID_INDEXPOS);
+			throw objException;
+		}
+		
+		objIndex = objIndexCollection->getIndex(IndexPos);
+		
+		if(objIndex->getIndexValue() != NULL)
+			strcpy(Out_IndexID, (char *) objIndex->getIndexValue());
+		
+		cout << "$SOut_IndexID:" << Out_IndexID << endl;
+
+		ErrStruct.code = OCFM_ERR_SUCCESS;
+		return ErrStruct;
+	}
+	catch(ocfmException* ex)
+	{
+		return *(ex->_ocfmRetCode);
+	}
+}
+
+/**************************************************************************************************
+	* Function Name: GetIndexIDbyPositions
+    * Description: Fills the IndexID for the IndexCount,
+	* Return value: ocfmRetCode
+/****************************************************************************************************/
+
+ocfmRetCode GetIndexIDbyPositions(
+	int NodePos, 
+	int IndexPos, 
+	char* Out_IndexID)
+{
+	ocfmRetCode ErrStruct;
+	CNode objNode;		
+	CNodeCollection *objNodeCollection;
+	CIndexCollection *objIndexCollection;
+	CIndex* objIndex;
+		
+	try
+	{
+		objNodeCollection= CNodeCollection::getNodeColObjectPointer();
+
+		int tmp_NodeCount = objNodeCollection->getNumberOfNodes();
+		
+		if(tmp_NodeCount == 0)
+		{
+			ocfmException* objException = new ocfmException;			
+			objException->ocfm_Excpetion(OCFM_ERR_NO_NODES_FOUND);
+			throw objException;
+		}
+		else if(tmp_NodeCount < NodePos)
+		{
+			ocfmException* objException = new ocfmException;
+			objException->ocfm_Excpetion(OCFM_ERR_INVALID_NODEPOS);
+			throw objException;
+		}
+		
+		objNode = objNodeCollection->getNodebyCollectionIndex(NodePos);
+		objIndexCollection = objNode.getIndexCollection();
+		
+		int tmp_IndexCount = objIndexCollection->getNumberofIndexes();
+		
+		if(tmp_IndexCount == 0)
+		{
+			ocfmException* objException = new ocfmException;
+			objException->ocfm_Excpetion(OCFM_ERR_NO_INDEX_FOUND);
+			throw objException;
+		}
+		else if(tmp_IndexCount < IndexPos)
+		{
+			ocfmException* objException = new ocfmException;
+			objException->ocfm_Excpetion(OCFM_ERR_INVALID_INDEXPOS);
+			throw objException;
+		}
+		
+		objIndex = objIndexCollection->getIndex(IndexPos);
+		
+		if(objIndex->getIndexValue() != NULL)
+			strcpy(Out_IndexID, (char *) objIndex->getIndexValue());
+		
+		cout << "Out_IndexID:" << Out_IndexID << endl;
+
+		ErrStruct.code = OCFM_ERR_SUCCESS;
+		return ErrStruct;
+	}
+	catch(ocfmException* ex)
+	{
+		return *(ex->_ocfmRetCode);
+	}
+	
+}
+
+/**************************************************************************************************
+	* Function Name: GetSubIndexIDbySubIndexPos
+    * Description: Fills the SubIndexID for the SubIndexPos, given NodeID, NodeType and the IndexID
+	* Return value: ocfmRetCode
+/****************************************************************************************************/
+
+ocfmRetCode GetSubIndexIDbySubIndexPos(
+	int NodeID, 
+	ENodeType NodeType, 
+	char* IndexID, 
+	int SubIndexPos, 
+	char* Out_SubIndexID)
+{
+	CNode objNode;		
+	CNodeCollection *objNodeCollection;
+	CIndexCollection *objIndexCollection;
+	CIndex objIndex;
+	CIndex* objSubIndex;
+	ocfmRetCode ErrStruct;
+	
+	int IndexPos;
+	try
+	{
+		
+		ErrStruct = IfIndexExists(NodeID, NodeType, IndexID, &IndexPos);
+		if (ErrStruct.code == 0)
+		{				
+			//IndexPos = ErrStruct.returnValue;
+		}
+		else
+		{	
+			ocfmException* objException = new ocfmException;
+			objException->ocfm_Excpetion(OCFM_ERR_INDEXID_NOT_FOUND);
+			throw objException;
+		}
+		
+		//objIndex.setNodeID(objNode.getNodeId());
+		objNodeCollection= CNodeCollection::getNodeColObjectPointer();
+		objNode = objNodeCollection->getNode(NodeType, NodeID);
+
+		objIndexCollection = objNode.getIndexCollection();
+		objSubIndex = objIndexCollection->getIndex(IndexPos);
+			
+		int tmp_SubIndexCount = objSubIndex->getNumberofSubIndexes();
+		if(tmp_SubIndexCount == 0)
+		{		
+			ocfmException* objException = new ocfmException;			
+			objException->ocfm_Excpetion(OCFM_ERR_NO_SUBINDEXS_FOUND);
+			throw objException;			
+		}
+		else if(tmp_SubIndexCount < SubIndexPos)
+		{
+			ocfmException* objException = new ocfmException;
+			objException->ocfm_Excpetion(OCFM_ERR_INVALID_SUBINDEXPOS);
+			throw objException;	
+		}
+	
+		CSubIndex* objSubIndexPtr;
+		objSubIndexPtr = objSubIndex->getSubIndex(SubIndexPos);
+		
+		if(objSubIndexPtr->getIndexValue() != NULL)
+			strcpy(Out_SubIndexID, (char *) objSubIndexPtr->getIndexValue());	
+		
+		ErrStruct.code = OCFM_ERR_SUCCESS;
+		return ErrStruct;
+	}
+	catch(ocfmException* ex)
+	{
+		return *(ex->_ocfmRetCode);
+	}
+}
+
+/**************************************************************************************************
+	* Function Name: GetSubIndexIDbyPositions
+    * Description: Fills the SubIndexID for the SubIndexPos, given NodePos and the IndexPos
+	* Return value: ocfmRetCode
+/****************************************************************************************************/
+
+ocfmRetCode GetSubIndexIDbyPositions(
+	int NodePos, 
+	int IndexPos, 
+	int SubIndexPos, 
+	char* Out_SubIndexID)
+
+{
+	CNode objNode;		
+	CNodeCollection *objNodeCollection;
+	CIndexCollection *objIndexCollection;
+	CIndex objIndex;
+	CIndex* objSubIndex;
+	ocfmRetCode ErrStruct;
+
+	try
+	{		
+		objNodeCollection= CNodeCollection::getNodeColObjectPointer();
+
+		int tmp_NodeCount = objNodeCollection->getNumberOfNodes();
+		
+		if(tmp_NodeCount == 0)
+		{
+			ocfmException* objException = new ocfmException;			
+			objException->ocfm_Excpetion(OCFM_ERR_NO_NODES_FOUND);
+			throw objException;
+		}
+		else if(tmp_NodeCount < NodePos)
+		{
+			ocfmException* objException = new ocfmException;
+			objException->ocfm_Excpetion(OCFM_ERR_INVALID_NODEPOS);
+			throw objException;
+		}
+		
+		objNode = objNodeCollection->getNodebyCollectionIndex(NodePos);		
+		objIndexCollection = objNode.getIndexCollection();
+		
+		int tmp_IndexCount = objIndexCollection->getNumberofIndexes();		
+		if(tmp_IndexCount == 0)
+		{
+			ocfmException* objException = new ocfmException;
+			objException->ocfm_Excpetion(OCFM_ERR_NO_INDEX_FOUND);
+			throw objException;
+		}
+		else if(tmp_IndexCount < IndexPos)
+		{
+			ocfmException* objException = new ocfmException;
+			objException->ocfm_Excpetion(OCFM_ERR_INVALID_INDEXPOS);
+			throw objException;
+		}
+		
+		objSubIndex = objIndexCollection->getIndex(IndexPos);
+			
+		int tmp_SubIndexCount = objSubIndex->getNumberofSubIndexes();
+		if(tmp_SubIndexCount == 0)
+		{		
+			ocfmException* objException = new ocfmException;			
+			objException->ocfm_Excpetion(OCFM_ERR_NO_SUBINDEXS_FOUND);
+			throw objException;			
+		}
+		else if(tmp_SubIndexCount < SubIndexPos)
+		{
+			ocfmException* objException = new ocfmException;
+			objException->ocfm_Excpetion(OCFM_ERR_INVALID_SUBINDEXPOS);
+			throw objException;	
+		}
+	
+		CSubIndex* objSubIndexPtr;
+		objSubIndexPtr = objSubIndex->getSubIndex(SubIndexPos);
+		
+		if(objSubIndexPtr->getIndexValue() != NULL)
+			strcpy(Out_SubIndexID, (char *) objSubIndexPtr->getIndexValue());	
+		
+		ErrStruct.code = OCFM_ERR_SUCCESS;
+		return ErrStruct;
+	}
+	catch(ocfmException* ex)
+	{
+		return *(ex->_ocfmRetCode);
+	}
+}
+
+/**************************************************************************************************
+	* Function Name: DeleteMNObjDict
+    * Description: Deletes the MN's Object Dictinary.
+	* Return value: ocfmRetCode
+/****************************************************************************************************/
+
+ocfmRetCode DeleteMNObjDict(
+	int NodeID)
+{
+	ocfmRetCode ErrStruct;
+	int NodePos;
+	cout << "\n$SInside DeleteMNObjDict..\n" << endl;
+	try
+	{	
+		ErrStruct = IfNodeExists(NodeID, MN, &NodePos);
+		
+		if(ErrStruct.code == 0)
+		{
+		}
+		else
+		{
+			ocfmException* objException = new ocfmException;
+			objException->ocfm_Excpetion(OCFM_ERR_INVALID_NODEID);
+			throw objException;
+		}
+		
+		CNode objNode;
+		CNodeCollection *objNodeCollection;
+		CIndexCollection *objIndexCollection;
+		CDataTypeCollection *objDataTypeCollection;
+		CIndex objIndex;
+
+		objIndex.setNodeID(objNode.getNodeId());
+		objNodeCollection= CNodeCollection::getNodeColObjectPointer();
+		objNode = objNodeCollection->getNode(MN, NodeID);
+		
+		objDataTypeCollection = objNode.getDataTypeCollection();
+
+		objIndexCollection = objNode.getIndexCollection();
+
+		// Delete IndexCollection
+		objIndexCollection->DeleteIndexCollection();
+		// Delete DataTypeCollection
+		objDataTypeCollection->DeleteDataTypeCollection();
+		cout << "\n\n$SDelete MN OBD Success" << endl;
+		ErrStruct.code = OCFM_ERR_SUCCESS;
+		return ErrStruct;
+	}
+	catch(ocfmException* ex)
+	{
+		return *(ex->_ocfmRetCode);
+	}
+}

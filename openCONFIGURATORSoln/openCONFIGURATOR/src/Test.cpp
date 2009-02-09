@@ -29,13 +29,16 @@ int main(int argc, char **argv)
 	
 	int NodeID;
 	int NodeType;
-	int IndexPos;
+	//int IndexPos;
 	char* IndexID;
 	char* SubIndexID;
 	char* IndexValue;
 	char* IndexName;
 	EAttributeType AttributeType;
-	int intAttributeType;	
+	int intAttributeType;
+	int NodePos;
+	int IndexPos;
+	int SubIndexPos;
 		
 	IndexValue = new char;
 	IndexName = new char;
@@ -81,6 +84,8 @@ int main(int argc, char **argv)
 			cout<<"20: Generate XAP"<<endl;
 			cout<<"21: GetSubIndexAttributes"<<endl;
 			cout<<"22: GetCounts:Node, Index, SubIndex"<<endl;
+			cout<<"23: GetNodeIDbyNodePos"<<endl;
+			cout<<"24:GetIndexIDbyIndexPos"<<endl;
 			
 			cout <<"Press 'E' for Exit"<<endl;
 								
@@ -556,6 +561,54 @@ int main(int argc, char **argv)
 								cout << "\tSubIndexCount:" << tmp_SubIndexCount << endl;
 							}
 																		
+							break;
+				case 23:
+							cout<<"Enter the Node Position:"<<endl;
+							cin >> NodePos;
+							ENodeType tmp_NodeType;
+							//ENodeType tmp_NodeType;
+							int tmp_NodeID;
+							ocfmRetCode ErrStruct;
+							ErrStruct = GetNodeIDbyNodePos(NodePos, &tmp_NodeType, &tmp_NodeID);
+							if(ErrStruct.code == 0)
+							{
+								cout << "tmp_NodeType:" << tmp_NodeType << endl;
+								cout << "tmp_NodeID:" << tmp_NodeID << endl;
+							}
+							else
+								cout << "\n\nErrCode:" << ErrStruct.code << endl;
+							break;
+				case 24:
+							cout<<"Enter the NodeID:"<<endl;
+							cin >> NodeID;
+							cout<<"Enter the NodePos:"<<endl;
+							cin >> NodePos;
+							cout<<"Enter the Node Type(MN=0/CN=1)"<<endl;								
+							cin>>NodeType;
+							cout<<"Enter the IndexPos:"<<endl;
+							cin >> IndexPos;
+							//cin >> IndexID;
+							//cout<<"Enter the SubIndex Pos:"<<endl;
+							//cin >> SubIndexPos;
+							if(NodeType == 1)
+							{
+								char tmp_IndexID[20] = {0};
+								char tmp_SubIndexID[20] = {0};
+								GetIndexIDbyIndexPos(NodeID, CN, IndexPos, tmp_IndexID);
+								//GetIndexIDbyIndexPos(NodePos, IndexPos, tmp_IndexID);
+								cout << "tmp_IndexID:" << tmp_IndexID << endl;
+								//GetSubIndexIDbySubIndexPos(NodeID, CN, IndexID, SubIndexPos, tmp_SubIndexID);
+							}
+							else if(NodeType == 0)
+							{
+								char tmp_IndexID[20] = {0};
+								char tmp_SubIndexID[20] = {0};
+								GetIndexIDbyIndexPos(NodeID, MN, IndexPos, tmp_IndexID);
+								//GetSubIndexIDbySubIndexPos(NodeID, MN, IndexID, SubIndexPos, tmp_SubIndexID);
+							}
+							break;
+				case 25:
+							DeleteMNObjDict(240);
 							break;
 				default :
 							break;

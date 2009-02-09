@@ -243,33 +243,43 @@ typedef enum
 /*****************************************************************************************/
 
 DllExport ocfmRetCode ImportXML(char* fileName, int NodeID, ENodeType NodeType);
+DllExport ocfmRetCode ReImportXML(char* fileName, int NodeID, ENodeType NodeType);
 
 //DllExport ocfmRetCode ImportObjDictXML(char* fileName);
-
+DllExport ocfmRetCode GenerateXAP(char* fileName);
 DllExport void GenerateCDC(char* fileName);
 //void GenerateMNOBD();
+
 DllExport ocfmRetCode CreateNode(int NodeID, ENodeType NodeType);
 DllExport ocfmRetCode parseFile(char* filename, int NodeID, ENodeType  NodeType);
 DllExport ocfmRetCode DeleteNode(int NodeID, ENodeType NodeType);
-//void DeleteNode(int NodePos);
+DllExport ocfmRetCode DeleteMNObjDict(int NodeID);
+
 DllExport ocfmRetCode DeleteIndex(int NodeID, ENodeType NodeType, char* IndexID);
 DllExport ocfmRetCode DeleteSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID);
 DllExport ocfmRetCode AddIndex(int NodeID, ENodeType NodeType, char* IndexID);
 DllExport ocfmRetCode AddSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID);
 DllExport ocfmRetCode SetIndexAttributes(int NodeID, ENodeType NodeType, char* IndexID, char* IndexValue, char* IndexName);
 DllExport ocfmRetCode SetSubIndexAttributes(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID, char* IndexValue, char* IndexName);
+
+//$S Test API. Should be deleted in the release code
 DllExport void DisplayNodeTree(void);
+
 DllExport ocfmRetCode IfNodeExists(int NodeID, ENodeType NodeType, int* NodePos);
-//DllExport int ocfmRetValError_getErrorCode(ocfmRetValError RetValError);
 DllExport ocfmRetCode IfIndexExists(int NodeID, ENodeType NodeType, char* IndexID, int* IndexPos);
 DllExport ocfmRetCode IfSubIndexExists(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID, int* SubIndexPos, int* IndexPos);
-DllExport ocfmRetCode ReImportXML(char* fileName, int NodeID, ENodeType NodeType);
-//DllExport int ocfmRetValError_getRetValue(ocfmRetValError RetValError);
-DllExport ocfmRetCode GenerateXAP(char* fileName);
 
-DllExport ocfmRetCode GetIndexAttributes(int NodeID, ENodeType NodeType, char* IndexID, EAttributeType AttributeType, char* AttributeValue);
-DllExport ocfmRetCode GetSubIndexAttributes(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID, EAttributeType AttributeType, char* AttributeValue);
-DllExport ocfmRetCode GetNodeCount(int MNID, int* NodeCount);
-DllExport ocfmRetCode GetIndexCount(int NodeID, ENodeType NodeType, int* IndexCount);
-DllExport ocfmRetCode GetSubIndexCount(int NodeID, ENodeType NodeType, char* IndexID, int* IndexCount);
+DllExport ocfmRetCode GetIndexAttributes(int NodeID, ENodeType NodeType, char* IndexID, EAttributeType AttributeType, char* Out_AttributeValue);
+DllExport ocfmRetCode GetSubIndexAttributes(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID, EAttributeType AttributeType, char* Out_AttributeValue);
+DllExport ocfmRetCode GetNodeCount(int MNID, int* Out_NodeCount);
+DllExport ocfmRetCode GetIndexCount(int NodeID, ENodeType NodeType, int* Out_IndexCount);
+DllExport ocfmRetCode GetSubIndexCount(int NodeID, ENodeType NodeType, char* IndexID, int* Out_SubIndexCount);
+
+DllExport ocfmRetCode GetNodeIDbyNodePos(int NodePos, ENodeType* NodeType, int* Out_NodeID);
+DllExport ocfmRetCode GetIndexIDbyIndexPos(int NodeID, ENodeType NodeType, int IndexPos, char* Out_IndexID);
+DllExport ocfmRetCode GetSubIndexIDbySubIndexPos(int NodeID, ENodeType NodeType, char* IndexID, int SubIndexPos, char* Out_SubIndexID);
+
+DllExport ocfmRetCode GetIndexIDbyPositions(int NodePos, int IndexPos, char* Out_IndexID);
+DllExport ocfmRetCode GetSubIndexIDbyPositions(int NodePos, int IndexPos, int SubIndexPos, char* Out_SubIndexID);
+
 #endif // declarations_h

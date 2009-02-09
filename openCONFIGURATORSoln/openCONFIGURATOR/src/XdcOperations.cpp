@@ -839,7 +839,7 @@ ocfmRetCode ReImportXML(char* fileName, int NodeID, ENodeType NodeType)
 
 		objIndex.setNodeID(objNode.getNodeId());
 		objNodeCollection= CNodeCollection::getNodeColObjectPointer();
-		objNode = objNodeCollection->getNode(CN, NodeID);
+		objNode = objNodeCollection->getNode(NodeType, NodeID);
 		
 		objDataTypeCollection = objNode.getDataTypeCollection();
 
