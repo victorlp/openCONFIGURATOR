@@ -123,7 +123,7 @@ void setIndexAttributes(xmlTextReaderPtr reader, CIndex* objIndex)
 		}
 
 		else if(strcmp(ConvertToUpper((char*)name), "OBJECTTYPE")==0)					
-		objIndex->setObjectType(atoi((const char*)value));
+		objIndex->setObjectType((char*)value);
 
 		else if(strcmp(ConvertToUpper((char*)name), "LOWLIMIT")==0)
 		{
@@ -170,7 +170,7 @@ void setSubIndexAttributes(xmlTextReaderPtr reader, CSubIndex* objSubIndex)
 		objSubIndex->setName((char*)value);
 
 		else if(strcmp(ConvertToUpper((char*)name), "OBJECTTYPE")==0)					
-		objSubIndex->setObjectType((int)value);
+		objSubIndex->setObjectType((char*)value);
 
 		else if(strcmp(ConvertToUpper((char*)name), "LOWLIMIT")==0)					
 		objSubIndex->setLowLimit((char*)value);
@@ -255,49 +255,6 @@ void setDataTypeAttributes(xmlTextReaderPtr reader ,DataType* objDataType)
 				}
 				printf("\noutside DataType");
 	}
-/**************************************************************************************************
-	* Function Name: AddIndexAttributes
-    * Description: Adds the default attributes to the Index, when addded.
-/****************************************************************************************************/
-static void AddIndexAttributes(char* IndexID, CIndex* objIndex)
-	{
-			
-				// Setting the Index Value
-				objIndex->setIndexValue(IndexID);
-				//$S The actual value for all the attributes has to come from ObjDict.xdd
-				objIndex->setName("Test_Name");
-				char* value = "Test_Values";
-				objIndex->setObjectType(atoi((const char*)value));
-				objIndex->setLowLimit((char*)value);
-				objIndex->setHighLimit((char*)value);
-				objIndex->setAccessType((char*)value);
-				//objIndex->setPDOMapping((char*)value);				
-				objIndex->setDefaultValue((char*)value);
-				objIndex->setActualValue((char*)value);
-				objIndex->setDataType((char*)value);
-	}
-
-/**************************************************************************************************
-	* Function Name: AddSubIndexAttributes
-    * Description: Adds the default attributes to the Index, when addded.
-/****************************************************************************************************/
-static void AddSubIndexAttributes(char* SubIndexID, CSubIndex* objSubIndex)
-	{
-			
-				// Setting the Index Value
-				objSubIndex->setIndexValue(SubIndexID);
-				//$S The actual value for all the attributes has to come from ObjDict.xdd
-				objSubIndex->setName("Test_Name");
-				char* value = "Test_Values";
-				objSubIndex->setObjectType(atoi((const char*)value));
-				objSubIndex->setLowLimit((char*)value);
-				objSubIndex->setHighLimit((char*)value);
-				objSubIndex->setAccessType((char*)value);
-				//objIndex->setPDOMapping((char*)value);				
-				objSubIndex->setDefaultValue((char*)value);
-				//objIndex->setActualValue((char*)value);
-				objSubIndex->setDataType((char*)value);
-	}
 
 void setParameterAttributes(xmlTextReaderPtr reader, Parameter* stParameter)
 	{
@@ -339,8 +296,8 @@ void setParameterAttributes(xmlTextReaderPtr reader, Parameter* stParameter)
 			ret = xmlTextReaderRead(reader);
 			value = xmlTextReaderConstValue(reader);
 		name =xmlTextReaderConstName(reader);			
-			
-			if(CheckifSimpleDT((char*)name))
+			char size[3];
+			if(CheckifSimpleDT((char*)name, size))
 			{
 					stParameter->name_id_dt_attr.setDataType((char*)name);
 			}		
@@ -379,7 +336,7 @@ void setParameterAttributes(xmlTextReaderPtr reader, Parameter* stParameter)
 		}
 			
 	}
-bool CheckifSimpleDT(char* Name)
+bool CheckifSimpleDT(char* Name, char* size)
 {
 
 	int count = 0;
@@ -387,15 +344,19 @@ bool CheckifSimpleDT(char* Name)
 	
 	while(count < g_simple_arr_size )
 	{
-			g_simple_element = (char*)g_Simple[count];
+			g_simple_element = (char*)g_Simple[count][0];
 		 if(strcmp(g_simple_element, Name)==0)
-		 return true;
+		 {
+				strcpy(size, (char*)g_Simple[count][1]);
+				return true;
+			}
 		 count++;
 		 	 
 	}
 	return false;
 	
 }
+
  void setVarDecAttributes(xmlTextReaderPtr reader, varDeclaration& vdecl)
 	{
 		const xmlChar* name,*value;
@@ -503,10 +464,11 @@ static void getVarDeclaration(xmlTextReaderPtr reader, CComplexDataType* objCDT)
 		/*	ret = xmlTextReaderRead(reader);
 		name = xmlTextReaderConstName(reader);
 		value = xmlTextReaderConstValue(reader);*/
-  
-			if(CheckifSimpleDT((char*)name))
+			char size[3];
+			if(CheckifSimpleDT((char*)name, size))
 			{
 					stvardecl.nam_id_dt_attr->setDataType((char*)name);
+					strcpy(stvardecl.size, size);
 			}		
 			if(CheckStartElement(xmlTextReaderNodeType(reader),(char*)name, "dataTypeIDRef"))
 		{
@@ -558,7 +520,10 @@ ocfmRetCode ImportXML(char* fileName, int NodeID, ENodeType NodeType)
 
 		/* Process PDO Objects*/
 		if (NodeType != MN)
-		ProcessPDONodes(NodeID);
+		{
+			printf("NodeType: %d", NodeType);
+			ProcessPDONodes(NodeID);
+		}
 
 		printf("Parsing Done");
 		 xmlCleanupParser();
@@ -778,8 +743,8 @@ ocfmRetCode parseFile(char* filename, int NodeIndex, ENodeType  NodeType)
 						}
 						else 
 						{
-							ocfmException* objException = new ocfmException;
-							objException->ocfm_Excpetion(OCFM_ERR_CANNOT_OPEN_FILE);
+							ocfmException objException;
+							objException.ocfm_Excpetion(OCFM_ERR_CANNOT_OPEN_FILE);
 							throw objException;
 						}
 					}

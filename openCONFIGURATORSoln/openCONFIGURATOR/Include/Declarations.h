@@ -79,6 +79,8 @@
 Constants
 ************************************************************************************************/
 const int MN_NODEID=240;
+const int OFFSET_INTEGER_8 = 0;
+const int OFFSET_UNSIGNED_INTEGER_8 = 0;
 
 /************************************************************************************************
 Enumerations
@@ -124,6 +126,11 @@ typedef enum
 			 readWriteOutput, /*both read and write, access, but represents process output data*/
 			 noAccess				 /*access denied				*/
 }EParameterAccess;
+	typedef enum EPIDirectionType
+	{
+		INPUT = 0,
+		OUTPUT
+	};
 struct DataType
 {
 		char*		Name;
@@ -152,6 +159,7 @@ typedef struct ProcessImage
 		{
 			ParametrIndex = 0;
 		}
+		EPIDirectionType			DirectionType;
 }ProcessImage;
 
 typedef struct appProcessCommon
@@ -211,7 +219,7 @@ struct varDeclaration
 			nam_id_dt_attr->dataTypeUniqueIDRef = NULL;
 			nam_id_dt_attr->m_Name = NULL;
 			nam_id_dt_attr->UniqueId = NULL;
-			strcpy(size,"000x");
+	
 		}
 	
 };
@@ -239,6 +247,7 @@ typedef enum
 	LOWLIMIT,
 	HIGHLIMIT
 }EAttributeType;
+
 
 /****************************************************************************************/
 /* Function Declarations

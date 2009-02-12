@@ -255,3 +255,15 @@ bool CheckAllowedCNIndexes(char* IndexValue)
 	return true;
 	else return false;							
 }
+char* ConvertToHexformat(char* hexValue, int padlength, bool DoPadding)
+{
+		
+	char* hex;
+	hex = (char*)malloc(padlength + 3);
+	strcpy(hex, "0x");
+	if(DoPadding)
+	hexValue = padLeft(hexValue, ' 0', padlength);
+	strcat(hex, hexValue);
+	
+	return hex;
+}

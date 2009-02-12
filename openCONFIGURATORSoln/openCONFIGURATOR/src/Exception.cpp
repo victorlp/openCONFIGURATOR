@@ -122,6 +122,10 @@ ocfmException::~ocfmException(void)
 				case OCFM_ERR_NO_CN_NODES_FOUND:
 						strcpy(_ocfmRetCode.errorString, "NO CN Nodes are found");
 					break;
+				case OCFM_ERR_CANNOT_OPEN_FILE:
+							strcpy(_ocfmRetCode.errorString, "File Cannot be opened");
+					break;
+				
 				default:
 					break;			
 			}

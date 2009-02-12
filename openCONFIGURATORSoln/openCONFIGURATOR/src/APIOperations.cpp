@@ -83,50 +83,75 @@
 #define MY_ENCODING "ISO-8859-1"
 
 int lastVarIndex = -1;
-bool CDTCompleted = false;
-
+static bool CDTCompleted = false;
+static bool NotLoadedOBD = true;
+static int InVars = -1;
+static int OutVars = -1;
+ProcessImage PIInCol[4000];
+ProcessImage PIOutCol[4000];
 /**************************************************************************************************
 	* Function Name: AddIndexAttributes
     * Description: Adds the default attributes to the Index, when addded.
 /****************************************************************************************************/
-static void AddIndexAttributes(char* IndexID, CIndex* objIndex)
+static void AddIndexAttributes(char* IndexID, CIndex* objIndex, CIndex* objDictIdx)
 	{
 			
 				// Setting the Index Value
 				objIndex->setIndexValue(IndexID);
 				//$S The actual value for all the attributes has to come from ObjDict.xdd
-				objIndex->setName((char*)objIndex->getName());
+				objIndex->setName((char*)objDictIdx->getName());
 				char* value = "Test_Values";
-				objIndex->setObjectType(atoi(objIndex->getObjectType()));
-				objIndex->setLowLimit((char*)value);
-				objIndex->setHighLimit((char*)value);
-				objIndex->setAccessType((char*)value);
-				//objIndex->setPDOMapping((char*)value);				
-				objIndex->setDefaultValue((char*)value);
-				objIndex->setActualValue((char*)value);
-				/*objIndex->setDataType(objIndex->getDataTypeValue());*/
+				objIndex->setObjectType((char*)objDictIdx->getObjectType());
+				
+				if(objDictIdx->getLowLimit() !=NULL)
+				objIndex->setLowLimit((char*)objDictIdx->getLowLimit());
+				
+				if(objDictIdx->getHighLimit() !=NULL)
+				objIndex->setHighLimit((char*)objDictIdx->getHighLimit());
+				
+				if(objDictIdx->getAccessType() !=NULL)
+				objIndex->setAccessType((char*)objDictIdx->getAccessType());
+				
+				if(objDictIdx->getPDOMapping() !=NULL)
+				objIndex->setPDOMapping((char*)objDictIdx->getPDOMapping());				
+				
+				if(objDictIdx->getDefaultValue() !=NULL)
+				objIndex->setDefaultValue((char*)objDictIdx->getDefaultValue());
+			/*	objIndex->setActualValue((char*)objIndex->getActualValue);
+			*/	/*objIndex->setDataType(objIndex->getDataTypeValue());*/
 	}
 
 /**************************************************************************************************
 	* Function Name: AddSubIndexAttributes
     * Description: Adds the default attributes to the Index, when addded.
 /****************************************************************************************************/
-static void AddSubIndexAttributes(char* SubIndexID, CSubIndex* objSubIndex)
+static void AddSubIndexAttributes(char* SubIndexID, CSubIndex* objSubIndex,  CSubIndex* objDictSIdx)
 	{
+			
 			
 				// Setting the Index Value
 				objSubIndex->setIndexValue(SubIndexID);
 				//$S The actual value for all the attributes has to come from ObjDict.xdd
-				objSubIndex->setName("Test_Name");
+				objSubIndex->setName((char*)objDictSIdx->getName());
 				char* value = "Test_Values";
-				objSubIndex->setObjectType(atoi((const char*)value));
-				objSubIndex->setLowLimit((char*)value);
-				objSubIndex->setHighLimit((char*)value);
-				objSubIndex->setAccessType((char*)value);
-				//objIndex->setPDOMapping((char*)value);				
-				objSubIndex->setDefaultValue((char*)value);
-				//objIndex->setActualValue((char*)value);
-				objSubIndex->setDataType((char*)value);
+				objSubIndex->setObjectType((char*)objDictSIdx->getObjectType());
+				
+				if(objDictSIdx->getLowLimit() !=NULL)
+				objSubIndex->setLowLimit((char*)objDictSIdx->getLowLimit());
+				
+				if(objDictSIdx->getHighLimit() !=NULL)
+				objSubIndex->setHighLimit((char*)objDictSIdx->getHighLimit());
+				
+				if(objDictSIdx->getAccessType() !=NULL)
+				objSubIndex->setAccessType((char*)objDictSIdx->getAccessType());
+				
+				if(objDictSIdx->getPDOMapping() !=NULL)
+				objSubIndex->setPDOMapping((char*)objDictSIdx->getPDOMapping());				
+				
+				if(objDictSIdx->getDefaultValue() !=NULL)
+				objSubIndex->setDefaultValue((char*)objDictSIdx->getDefaultValue());
+			/*	objSubIndex->setActualValue((char*)objIndex->getActualValue);
+			*/	/*objSubIndex->setDataType(objIndex->getDataTypeValue());*/
 	}
 
  
@@ -296,7 +321,13 @@ ocfmRetCode AddSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* Sub
 		int SubIndexPos;
 		int IndexPos;
 		ocfmRetCode ErrStruct;
-				
+		CSubIndex *objDictSIndex;
+		
+		if(NotLoadedOBD)
+		{
+			LoadObjectDictionary("OD.XML");
+			NotLoadedOBD = false;
+		}
 		ErrStruct = IfSubIndexExists(NodeID, NodeType, IndexID, SubIndexID, &SubIndexPos, &IndexPos);
 		if( (ErrStruct.code == OCFM_ERR_NO_SUBINDEXS_FOUND) || (ErrStruct.code == OCFM_ERR_SUBINDEXID_NOT_FOUND))
 		{
@@ -308,9 +339,15 @@ ocfmRetCode AddSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* Sub
 			objIndexPtr =objIndexCollection->getIndex(IndexPos);
 			CSubIndex objSubIndex;
 			
+			/* Get the Index from ObjectDictionary*/
+			CObjectDictionary* objOBD;
+			objOBD = CObjectDictionary::getObjDictPtr();
+			
+			objDictSIndex  = objOBD->getObjectDictSubIndex((char*)objIndexPtr->getIndexValue(), IndexID);
+			
 			//Set the NodeID
 			objSubIndex.setNodeID(objNode.getNodeId());
-			AddSubIndexAttributes(SubIndexID, &objSubIndex);									
+			AddSubIndexAttributes(SubIndexID, &objSubIndex, objDictSIndex);									
 			objIndexPtr->addSubIndex(objSubIndex);
 			printf("Added SubIndex \n\n");
 			ErrStruct.code = OCFM_ERR_SUCCESS;
@@ -330,19 +367,23 @@ ocfmRetCode AddIndex(int NodeID, ENodeType NodeType, char* IndexID)
 		CNode objNode;		
 		CNodeCollection *objNodeCollection;
 		CIndexCollection *objIndexCollection;
-		CIndex* objIndex;
+		CIndex objIndex;
+		CIndex *objDictIndex;
 		ocfmRetCode ErrStruct;
 		ErrStruct.code = OCFM_ERR_UNKNOWN;
 		ErrStruct.errorString = NULL;
-		/*
-		LoadObjectDictionary("C:\\PARSER\\OD.XML");*/
+		
+		if(NotLoadedOBD)
+		{
+			LoadObjectDictionary("OD.XML");
+			NotLoadedOBD = false;
+		}
 		
 		cout<< "Inside AddIndex \n"<<endl;
 		ErrStruct = IfIndexExists(NodeID, NodeType, IndexID, &IndexPos);
 		if( (ErrStruct.code == OCFM_ERR_NO_INDEX_FOUND) || (ErrStruct.code == OCFM_ERR_INDEXID_NOT_FOUND) )
 		{				
-			objIndex = new CIndex();
-			objIndex->setNodeID(objNode.getNodeId());
+			objIndex.setNodeID(objNode.getNodeId());
 			objNodeCollection= CNodeCollection::getNodeColObjectPointer();
 			objNode = objNodeCollection->getNode(NodeType, NodeID);
 			objIndexCollection = objNode.getIndexCollection();
@@ -351,10 +392,10 @@ ocfmRetCode AddIndex(int NodeID, ENodeType NodeType, char* IndexID)
 			CObjectDictionary* objOBD;
 			objOBD = CObjectDictionary::getObjDictPtr();
 			
-			objIndex = objOBD->getObjectDictIndex(IndexID);
-			if(objIndex!=NULL)				
-			AddIndexAttributes(IndexID, objIndex);
-			objIndexCollection->addIndex(*objIndex);	
+			objDictIndex  = objOBD->getObjectDictIndex(IndexID);
+			if(objDictIndex!=NULL)				
+			AddIndexAttributes(IndexID, &objIndex, objDictIndex);
+			objIndexCollection->addIndex(objIndex);	
 			printf("Added Index \n\n");
 			//return OCFM_ERR_SUCCESS;
 			ErrStruct.code = OCFM_ERR_SUCCESS;
@@ -538,7 +579,13 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 									actvalue = subString(actvalue,1,strlen(actvalue)-1);
 									strcat(Buffer,padLeft(actvalue,'0',padLength));
 								}
-								else	strcat(Buffer,padLeft((char*)objIndex->getActualValue(),'0',padLength));								
+								else
+								{
+									actvalue = itoa((int)objIndex->getActualValue(),actvalue,16);
+									printf("Index:% s actvalue: %s padlength:%d",objIndex->getIndexValue(),objIndex->getActualValue(),padLength);
+									//strcat(Buffer,padLeft((char*)objIndex->getActualValue(),'0',padLength));								
+									strcat(Buffer,padLeft(actvalue, '0', padLength));
+								}
 							}
 					
 							//else 
@@ -813,7 +860,8 @@ char* GenerateCNOBD(CNodeCollection* objNodeCol)
 							strcat(CNDataLength, "\t");
 							
 							//write the size of CN-n Buffer
-							int len = lenOfCNBuffer(Buffer2);
+							//int len = lenOfCNBuffer(Buffer2);
+							int len = getCNDataLen(Buffer2);
 
 							//Convert length to Hex
 							itoa(len,c,16);
@@ -997,7 +1045,7 @@ void GenerateCDC(char* fileName)
 //
 //
 //	}
-void  ProcessCDT(CComplexDataType* objCDT,CApplicationProcess* objAppProc, CNode* objNode, Parameter* para)
+void  ProcessCDT(CComplexDataType* objCDT,CApplicationProcess* objAppProc, CNode* objNode, Parameter* para, EPDOType pdoType)
 {
 
 	ocfmException objex;
@@ -1024,7 +1072,7 @@ void  ProcessCDT(CComplexDataType* objCDT,CApplicationProcess* objAppProc, CNode
 				lastVarIndex = i;
 				printf("\n previousCDT_UId : %s",objCDT->previousCDT_UId);
 				printf("\n DataRefID : %s",vd.nam_id_dt_attr->getDtUniqueRefId());
-				ProcessCDT(objCDT, objAppProc, objNode, para);
+				ProcessCDT(objCDT, objAppProc, objNode, para, pdoType);
 			}
 		if(!CDTCompleted)
 		{	
@@ -1033,6 +1081,11 @@ void  ProcessCDT(CComplexDataType* objCDT,CApplicationProcess* objAppProc, CNode
 			if(para->access !=NULL)
 			strcpy(pi.Direction,getParameterAccess(para->access));
 				
+			if(pdoType == PDO_TPDO)
+			pi.DirectionType = INPUT ;
+			else if(pdoType == PDO_RPDO)
+			pi.DirectionType = OUTPUT;
+			
 				if(vd.size != NULL)			
 				{
 				/*	pi.DataSize = (char*)malloc(5);*/
@@ -1061,7 +1114,7 @@ void  ProcessCDT(CComplexDataType* objCDT,CApplicationProcess* objAppProc, CNode
 			objNode->addProcessImage(pi);
 		}
 		
-		}
+	}
 
 		/*if(objCDT->VarIndex != -1)
 		{
@@ -1089,7 +1142,7 @@ void  ProcessCDT(CComplexDataType* objCDT,CApplicationProcess* objAppProc, CNode
 					printf("\n DataRefID : %s",vd.nam_id_dt_attr->getDtUniqueRefId());
 			
 					lastVarIndex = i;
-					ProcessCDT(objCDT, objAppProc, objNode, para);
+					ProcessCDT(objCDT, objAppProc, objNode, para, pdoType);
 				
 				}						
 			}
@@ -1100,7 +1153,7 @@ void  ProcessCDT(CComplexDataType* objCDT,CApplicationProcess* objAppProc, CNode
 	printf("exiting");
 }
 
-void DecodeUniqiueIDRef(char* uniquedIdref, CNode* objNode)
+void DecodeUniqiueIDRef(char* uniquedIdref, CNode* objNode, EPDOType pdoType)
 {
 	ocfmException objex;
 	Parameter* para;
@@ -1142,7 +1195,7 @@ void DecodeUniqiueIDRef(char* uniquedIdref, CNode* objNode)
 							objex.ocfm_Excpetion(OCFM_ERR_STRUCT_DATATYPE_NOT_FOUND);
 							throw objex;
 						}
-						ProcessCDT(objCDT, objAppProc, objNode, para); 
+						ProcessCDT(objCDT, objAppProc, objNode, para, pdoType); 
 						lastVarIndex = -1;
 						CDTCompleted = false;
 				}
@@ -1177,6 +1230,7 @@ void ProcessPDONodes(int NodeID)
 		/* Check RPDO Mapped objects*/
 
 
+		printf("\n NodeID %d",NodeID);
 
 		objPDOCollection = objNode->getPDOIndexCollection();
 		if(objPDOCollection!= NULL)
@@ -1200,6 +1254,7 @@ void ProcessPDONodes(int NodeID)
 							objSI = objIndex->getSubIndex(sicount);
 							if (objSI->getActualValue()!=NULL)
 							{
+									
 									const char* value = objSI->getActualValue();
 									int len = strlen(value);
 									char* reverseValue = (char*)malloc(len);
@@ -1242,10 +1297,12 @@ void ProcessPDONodes(int NodeID)
 											throw objex;
 										}
 										
-									
+																				
+										
+									printf("\n NodeID %d",objNode->getNodeId());
 										if(objSIndex->getUniqueIDRef()!=NULL)
 										{
-											DecodeUniqiueIDRef(objSIndex->getUniqueIDRef(), objNode);
+											DecodeUniqiueIDRef(objSIndex->getUniqueIDRef(), objNode, objIndex->getPDOType());
 											
 										}
 										else
@@ -1336,10 +1393,65 @@ void ConvertCdcToBinary(char* fileName,char* tempFile)
 		count = count -1;
 		// Write to Binary file
 		fwrite(&tempCn1Obd,1,count,fout);
+	
 	}
 	
 	fclose(fin);
 	fclose(fout);	
+}
+int getCNDataLen(char* Buffer)
+{
+	int count=0;
+	int num=0;
+	char ch=0;
+	int iCtr;
+	int iLength;
+	unsigned char ca_cn1obd[10000];
+	unsigned char tempCn1Obd[10000];
+	int i =0;
+	
+	ch = *(Buffer);
+	while(ch !='\0')
+	{
+		ch = *(Buffer + i);
+		if(ch == '/') 
+		{
+			while(ch != '\n')
+			{
+				ch = *(Buffer + i);
+				i++;
+			}
+				/*while(fgetc(fin) != '\n');*/
+		}
+		else if( ch != '\t' || ch != '\n' || ch != ' ')
+		{
+				// Convert to Upper case
+				ch = toupper(ch);
+				if((ch >= 65 && ch <= 70) || (ch >= 97 && ch <=102))
+				{
+					ca_cn1obd[num] = ch - 55;
+					num++;
+				}
+				else if (( ch >=48 && ch <= 57))
+				{
+					ca_cn1obd[num] = ch - 48;
+					num++;
+				}
+				i++;
+			}
+		
+		iLength = num;
+		//printf( "\niLength = %d\n",iLength);
+		//For Byte Packing
+		for (iCtr = 0 , count = 0; iCtr < iLength; iCtr++, count++ )
+		{
+			tempCn1Obd[count] = (unsigned char)( ( ca_cn1obd[ iCtr ] << 4 ) | ca_cn1obd[ ++iCtr ] );
+			//printf("0x%2x\t",tempCn1Obd[count]);
+		}
+		//printf("Size : %d\n", count);
+		/*count = count -1;*/
+		}
+		return count;
 }
  int lenOfCNBuffer(char* Buffer)
  {
@@ -1416,9 +1528,37 @@ CIndex* getMNIndexValues(char* Index)
 //	//printf("\n\n\nCalling xmlFreeTextReader\n\n\n\n");	
 //	
 //}
-void WriteXAPElements(ProcessImage pi, xmlTextWriterPtr& writer)
+void WriteXAPElements(ProcessImage piCol[], xmlTextWriterPtr& writer,int VarCount, EPIDirectionType piType)
 {
 	int rc;
+	if (VarCount!=0)
+	{
+	/* Start an element named "Channel". Since thist is the first
+     * element, this will be the root element of the document. */
+    rc = xmlTextWriterStartElement(writer, BAD_CAST "ProcessImage");
+    if (rc < 0)
+    {
+        printf("testXmlwriterDoc: Error at xmlTextWriterStartElement\n");
+        return;
+    }
+    if(piType ==INPUT)
+					rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "type",      
+                                   BAD_CAST "input");
+				else if(piType ==OUTPUT)
+					rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "type",      
+                                   BAD_CAST "output");
+				
+                                  
+    if (rc < 0)
+    {
+        printf("testXmlwriterDoc: Error at xmlTextWriterWriteAttribute\n");
+        return;
+    }
+    
+	for(int count =0 ; count<VarCount ; count++)
+			{
+					ProcessImage pi;
+					pi = piCol[count];
 	 /* Start an element named "Channel". Since thist is the first
      * element, this will be the root element of the document. */
     rc = xmlTextWriterStartElement(writer, BAD_CAST "Channel");
@@ -1427,7 +1567,7 @@ void WriteXAPElements(ProcessImage pi, xmlTextWriterPtr& writer)
         printf("testXmlwriterDoc: Error at xmlTextWriterStartElement\n");
         return;
     }
-
+			
 
 
     
@@ -1445,15 +1585,15 @@ void WriteXAPElements(ProcessImage pi, xmlTextWriterPtr& writer)
     
     
 
-    /* Add an attribute with name "direction" and value to channel */
-      printf("\n%s",pi.Direction);
-    rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "Direction",
-                                     BAD_CAST pi.Direction );
-    if (rc < 0)
-    {
-        printf("testXmlwriterDoc: Error at xmlTextWriterWriteAttribute\n");
-        return;
-    }
+    ///* Add an attribute with name "direction" and value to channel */
+    //  printf("\n%s",pi.Direction);
+    //rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "Direction",
+    //                                 BAD_CAST pi.Direction );
+    //if (rc < 0)
+    //{
+    //    printf("testXmlwriterDoc: Error at xmlTextWriterWriteAttribute\n");
+    //    return;
+    //}
 
 				/* Add an attribute with name "DataType" and value to channel */
 				 printf("\n%s",pi.DataType);
@@ -1465,7 +1605,7 @@ void WriteXAPElements(ProcessImage pi, xmlTextWriterPtr& writer)
         return;
     }
     
-    /* Add an attribute with name "dataSize" and value to channel */
+    ///* Add an attribute with name "dataSize" and value to channel */
     printf("\n%s",pi.DataSize);
     rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "dataSize",
                                      BAD_CAST pi.DataSize );
@@ -1475,9 +1615,16 @@ void WriteXAPElements(ProcessImage pi, xmlTextWriterPtr& writer)
         return;
     }
 			
-    
-
-    
+   
+     ///* Add an attribute with name "dataSize" and value to channel */
+    printf("\n%s",pi.ByteOffset);
+    rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "PIOffset",
+                                     BAD_CAST pi.ByteOffset );
+    if (rc < 0)
+    {
+        printf("testXmlwriterDoc: Error at xmlTextWriterWriteAttribute\n");
+        return;
+    }
     ///* Close the element named Channel. */
     rc = xmlTextWriterEndElement(writer);
     if (rc < 0)
@@ -1485,8 +1632,16 @@ void WriteXAPElements(ProcessImage pi, xmlTextWriterPtr& writer)
         printf("testXmlwriterDoc: Error at xmlTextWriterEndElement\n");
         return;
     }
+			}
+	 ///* Close the element named ProcessImage. */
+   rc = xmlTextWriterEndElement(writer);
+   if (rc < 0)
+   {
+       printf("testXmlwriterDoc: Error at xmlTextWriterEndElement\n");
+       return;
+   }
 
-   
+  }
 }
 void StartXAPxml(xmlTextWriterPtr& writer,  xmlDocPtr& doc)
 
@@ -1519,7 +1674,7 @@ void StartXAPxml(xmlTextWriterPtr& writer,  xmlDocPtr& doc)
             ("testXmlwriterDoc: Error at xmlTextWriterWriteFormatComment\n");
         return;
     }
-    rc = xmlTextWriterStartElement(writer, BAD_CAST "ProcessImage");
+    rc = xmlTextWriterStartElement(writer, BAD_CAST "ApplicationProcess");
     if (rc < 0) {
         printf("testXmlwriterDoc: Error at xmlTextWriterStartElement\n");
         return;
@@ -1529,10 +1684,15 @@ void StartXAPxml(xmlTextWriterPtr& writer,  xmlDocPtr& doc)
 void EndWrtitingXAP( xmlTextWriterPtr& writer, char* fileName, xmlDocPtr& doc)
 { 
 	int rc;
-    /* Here we could close the elements ORDER and EXAMPLE using the
-     * function xmlTextWriterEndElement, but since we do not want to
-     * write any other elements, we simply call xmlTextWriterEndDocument,
-     * which will do all the work. */
+
+   
+		 /*///* Close the element named ApplicationProcess. */
+    rc = xmlTextWriterEndElement(writer);
+    if (rc < 0)
+    {
+        printf("testXmlwriterDoc: Error at xmlTextWriterEndElement\n");
+        return;
+    }
     rc = xmlTextWriterEndDocument(writer);
     if (rc < 0) {
         printf("testXmlwriterDoc: Error at xmlTextWriterEndDocument\n");
@@ -1567,29 +1727,15 @@ ocfmRetCode GenerateXAP(char* fileName)
 			xmlDocPtr doc = NULL;
 			int picount = 0;
 			int i=10;
-			StartXAPxml(writer, doc);
-			for(int count=0; count<objNodeCollection->getNumberOfNodes(); count++)
-			{
-				objNode = objNodeCollection->getNodebyCollectionIndex(count);
-				if (objNode.getNodeType() == CN)
-				{
-						if(objNode.ProcessImageCollection.Count() !=0)
-						{
-							picount = 0;
-							while(picount<objNode.ProcessImageCollection.Count())
-							{
-									ProcessImage pi;
-									pi = objNode.ProcessImageCollection[picount];
-									WriteXAPElements(pi, writer);			
-									picount++;						
-							}
-												
-						}
-					}
-				
-			}
-				EndWrtitingXAP(writer, fileName, doc);
-				return objException._ocfmRetCode;
+			GroupInOutPIVariables();
+			CalculateOffsets();
+			StartXAPxml(writer, doc);	
+			
+			WriteXAPElements(PIInCol, writer, InVars, INPUT);
+			WriteXAPElements(PIOutCol, writer, OutVars, OUTPUT);
+
+			EndWrtitingXAP(writer, fileName, doc);
+			return objException._ocfmRetCode;
 		}
 		catch(ocfmException& ex)
 		{
@@ -2360,3 +2506,82 @@ ocfmRetCode DeleteMNObjDict(
 	}
 }
 
+void CalculateOffsets()
+{
+	for(int i=0; i<InVars; i++)
+	{
+		ProcessImage pi;
+		pi = PIInCol[i];
+		char size[3];
+		if(CheckifSimpleDT(pi.DataType, size))
+		{
+				int dataTypeSize;
+				int Offset;
+				char* PIOffset = new char[5];
+				dataTypeSize = atoi(size);
+				Offset = dataTypeSize*i;
+				PIOffset = itoa(Offset, PIOffset, 16);
+				pi.ByteOffset = ConvertToHexformat(PIOffset, 4, 1);
+		}
+		else
+		{
+			if(strcmp(pi.DataType, "BITSTRING")==0)
+			{
+				/*pi.ByteOffset = 
+				for(int count=0; count<8; count++)
+				{
+					int Offset;
+					pi.DataSize 
+				}*/
+			}
+		}
+		
+	}
+	
+}
+int TotalPIVarsCount()
+{
+	CNodeCollection* objNodeCol;
+	objNodeCol =  CNodeCollection::getNodeColObjectPointer();
+	int PIVarsCount =0;
+	for(int i=0; i< objNodeCol->getCNNodesCount(); i++)
+	{
+		CNode objNode;
+		objNode = objNodeCol->getNodebyCollectionIndex(i);	
+		PIVarsCount = objNode.ProcessImageCollection.Count() + PIVarsCount;		
+	}
+	return PIVarsCount;
+}
+void GroupInOutPIVariables()
+{
+
+	int count =  TotalPIVarsCount();
+	//PIInCol = (ProcessImage*)malloc(1*sizeof(ProcessImage));
+	//PIOutCol = (ProcessImage*)malloc(1*sizeof(ProcessImage));
+	
+	CNodeCollection* objNodeCol;
+	objNodeCol =  CNodeCollection::getNodeColObjectPointer();
+	int PIVarsCount =0;
+	for(int i=0; i< objNodeCol->getNumberOfNodes(); i++)
+	{
+		CNode objNode;
+		objNode = objNodeCol->getNodebyCollectionIndex(i);	
+		
+		for(int i=0; i<objNode.ProcessImageCollection.Count(); i++)
+		{
+			
+			if(objNode.ProcessImageCollection[i].DirectionType == INPUT)
+			{
+				InVars++;
+				PIInCol[InVars]  = objNode.ProcessImageCollection[i];
+				//PIInCol = (ProcessImage*)realloc(PIInCol,(size + 1)*sizeof(ProcessImage));			
+			}
+			else if(objNode.ProcessImageCollection[i].DirectionType == OUTPUT)
+			{
+				OutVars++;
+				PIOutCol[OutVars]  = objNode.ProcessImageCollection[i];
+				//PIOutCol = (PIOutCol *)realloc(PIOutCol,(size + 1)*sizeof(ProcessImage));
+			}
+		}
+}
+}

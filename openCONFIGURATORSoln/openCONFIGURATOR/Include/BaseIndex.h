@@ -126,7 +126,8 @@ class DllExport CBaseIndex
 		void setPDOMapping(char* pdoMappingValue);
 
 		const char* getObjectType();
-		void setObjectType(int objectTypeValue);
+		//void setObjectType(int objectTypeValue);
+		void setObjectType(char* objectType);
 
 	
 		int getNodeID();

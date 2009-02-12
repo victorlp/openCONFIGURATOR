@@ -181,31 +181,26 @@ void CBaseIndex::setAccessType(char* accessType)
 	* Function Name: setObjectType
     * Description: sets the Object of the Index Object
 /****************************************************************************************************/
-	void CBaseIndex::setObjectType(int objectType)
+	void CBaseIndex::setObjectType(char* objectType)
 	{	
 	
-		switch (objectType)
-			{
-			case 5:
-				m_objectType=DEFTYPE;
-				break;
-			case 6:
-				m_objectType=DEFSTRUCT;
-				break;
-			case 7:
-				m_objectType=VAR;
-				break;
-			case 8:
-				m_objectType=ARRAY;
-				break;
-			case 9:
-				m_objectType=RECORD;
-				break;
-			default:				
-				break;
-			}
-
+		if(strcmp(objectType, "5")==0 || strcmp(objectType, "DEFTYPE")==0 )
+		m_objectType = DEFTYPE;
 		
+		else if(strcmp(objectType, "6")==0 || strcmp(objectType, "DEFSTRUCT")==0)
+		m_objectType = DEFSTRUCT;
+		
+		else if(strcmp(objectType, "7")==0 || strcmp(objectType, "VAR")==0)
+		m_objectType = VAR;
+		
+		else if(strcmp(objectType, "8")==0 || strcmp(objectType, "ARRAY")==0)
+		m_objectType = ARRAY;
+		
+		else if(strcmp(objectType, "9")==0 || strcmp(objectType, "RECORD")==0)
+		m_objectType = RECORD;
+		
+				
+			
 	}	
 /**************************************************************************************************
 	* Function Name: getPDOMapping

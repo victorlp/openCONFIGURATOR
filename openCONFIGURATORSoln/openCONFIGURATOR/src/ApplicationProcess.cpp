@@ -142,6 +142,7 @@ CComplexDataType* CApplicationProcess::getCDTbyUniqueID(char *UniqueId)
 	{
 		CComplexDataType objCDT;
 		objCDT = CDTCollection[count];
+		printf("\n%s",objCDT.name_id_attr->getUniqueID());
 		if(strcmp(UniqueId, objCDT.name_id_attr->getUniqueID())==0)
 		return &CDTCollection[count];
 	}

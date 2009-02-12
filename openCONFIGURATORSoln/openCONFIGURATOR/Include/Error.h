@@ -68,7 +68,7 @@
 //  REVISION HISTORY:
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
-
+#include "Exports.h"
 typedef enum
 {
 					OCFM_ERR_SUCCESS					= 0,
@@ -105,7 +105,7 @@ typedef enum
 	
 }EConfiuguratorErrors;
 
-typedef struct ocfmRetCode
+DllExport typedef  struct ocfmRetCode
 {
 				EConfiuguratorErrors				code;/* Error code from EConfiuguratorErrors*/
 				char*		errorString; /* String Describes the error */

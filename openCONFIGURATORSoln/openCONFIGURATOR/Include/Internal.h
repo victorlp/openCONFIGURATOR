@@ -74,28 +74,28 @@
 #include <libxml/xmlwriter.h>
 #include <libxml/xmlreader.h>
 static const int g_simple_arr_size = 19;
-static const char *g_Simple[] = {
-																										"BOOL",
-																										"BITSTRING",
-																										"BYTE",
-																										"CHAR",
-																										"WORD",
-																										"DWORD",
-																										"LWORD",
-																										"SINT",
-																										"INT",
-																										"DINT",
-																										"LINT",
-																										"USINT",
-																										"UINT",
-																										"UDINT",
-																										"ULINT",
-																										"REAL",
-																										"LREAL",
-																										"STRING",
-																										"WSTRING"
+static const char *g_Simple[][2] = {
+																										{"BOOL" ,    "1"},
+																										{"BITSTRING","1"},
+																										{"BYTE",     "8"},
+																										{"CHAR",     "1"},
+																										{"WORD",     "16"},
+																										{"DWORD",    "32"},
+																										{"LWORD",    "64"},
+																										{"SINT",     "8"},
+																										{"INT",      "16"},
+																										{"DINT",     "32"},
+																										{"LINT",     "64"},
+																										{"USINT",    "8"},
+																										{"UINT",     "16	"},
+																										{"UDINT",    "32"},
+																										{"ULINT",    "64"},
+																										{"REAL",     "16"},
+																										{"LREAL",    "64"},
+																										{"STRING",   "1"},
+																										{"WSTRING",  "1"}
 																										};
-	
+
 /****************************************************************************************/
 /* Function Declarations
 /*****************************************************************************************/
@@ -119,18 +119,21 @@ bool CheckIfMappingPDO(char* Index);
 CIndex* getMNIndexValues(char* Index);
 bool CheckAllowedCNIndexes(char* IndexValue);
 void ConvertCdcToBinary(char* fileName,char* tempFile);
-void WriteXAPElements(ProcessImage pi, xmlTextWriterPtr& writer);
+void WriteXAPElements(ProcessImage piCol[], xmlTextWriterPtr& writer,int VarCount, EPIDirectionType piType);
 void StartXAPxml(xmlTextWriterPtr& writer,  xmlDocPtr& doc);
 void EndWrtitingXAP( xmlTextWriterPtr& writer, char* fileName, xmlDocPtr& doc);
 char* getParameterAccess(char* access);
 bool CheckEndElement(int NodeType, char* element, char* comparewith);
 bool CheckStartElement(int NodeType, char* element, char* comparewith);
-bool CheckifSimpleDT(char* Name);
+bool CheckifSimpleDT(char* Name, char* size);
 char* getPIName(int NodeID);
 void setIndexAttributes(xmlTextReaderPtr reader, CIndex* objIndex);
 void setSubIndexAttributes(xmlTextReaderPtr reader, CSubIndex* objSubIndex);
 void setDataTypeAttributes(xmlTextReaderPtr reader ,DataType* objDataType);
-
+void GroupInOutPIVariables();
+void CalculateOffsets();
+char* ConvertToHexformat(char* hexValue, int padlength, bool DoPadding);
+int getCNDataLen(char* Buffer);
 
 
 #endif // declarations_h
