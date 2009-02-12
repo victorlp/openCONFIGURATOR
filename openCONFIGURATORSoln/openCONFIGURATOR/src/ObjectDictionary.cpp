@@ -69,7 +69,8 @@
 #include "../Include/ObjectDictionary.h"
 #include "../Include/Internal.h"
 #include "../Include/Exception.h"
-
+#include <iostream>
+using namespace std;
 int LastObjDictIndexParsed=0;
 CObjectDictionary::CObjectDictionary(void)
 	{	
@@ -263,8 +264,10 @@ CIndex* CObjectDictionary::getObjectDictIndex(char* Idx)
 	CIndexCollection* objIndexCol;
 	objIndexCol = objDictNode->getIndexCollection();
 	objIndex = objIndexCol->getIndexbyIndexValue(Idx);
-	if(objIndex!=NULL)
-	return objIndex;
+	if(objIndex != NULL)
+	{
+		return objIndex;
+	}
 	else
 	{
 		for(int i=0; i<collectionObj.Count(); i++)
@@ -329,4 +332,36 @@ void CObjectDictionary::printall()
 				obj = collectionObj[i];
 		printf("\n %s  		%s  		%s	  	%d",obj.Idx, obj.start_Index, obj.end_Index, obj.objectType);
 }
+}
+
+int CObjectDictionary::ifObjectDictIndexExists(char* Idx)
+{
+	CIndex* objIndex = NULL;
+	CIndexCollection* objIndexCol;
+	objIndexCol = objDictNode->getIndexCollection();
+	objIndex = objIndexCol->getIndexbyIndexValue(Idx);
+	if(objIndex == NULL)
+	{
+		return 1;		
+	}
+	else
+		return 0;
+}
+
+int CObjectDictionary::ifObjectDictSubIndexExists(char* Idx, char* SIdx)
+{
+	CSubIndex* objSIdx = NULL;
+	CIndex* objIndex = NULL;
+	CIndexCollection* objIndexCol;
+	objIndexCol = objDictNode->getIndexCollection();
+	objIndex = objIndexCol->getIndexbyIndexValue(Idx);
+
+	if(objIndex == NULL)
+	return 1;
+
+	objSIdx = objIndex->getSubIndexbyIndexValue(SIdx);
+	if(objSIdx!=NULL)
+		return 1;
+	else
+		return 0;
 }

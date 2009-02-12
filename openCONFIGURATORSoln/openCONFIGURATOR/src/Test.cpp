@@ -83,7 +83,9 @@ int main(int argc, char **argv)
 			cout<<"21: GetSubIndexAttributes"<<endl;
 			cout<<"22: GetCounts:Node, Index, SubIndex"<<endl;
 			cout<<"23: GetNodeIDbyNodePos"<<endl;
-			cout<<"24:GetIndexIDbyIndexPos"<<endl;
+			cout<<"24: GetIndexIDbyIndexPos"<<endl;
+			cout<<"25: DeleteMNObjDict"<<endl;
+			cout<<"26: GetIndexAttributesbyPositions"<<endl;
 			
 			cout <<"Press 'E' for Exit"<<endl;
 								
@@ -611,6 +613,59 @@ int main(int argc, char **argv)
 							break;
 				case 25:
 							DeleteMNObjDict(240);
+							break;
+				case 26:
+							cout<<"Enter the NodePos:"<<endl;
+							cin >> NodePos;
+							cout<<"Enter the IndexPos:"<<endl;
+							cin >> IndexPos;
+							cout<<"Enter the SubIndexPos:"<<endl;
+							cin >> SubIndexPos;							
+							cout<<"Enter the AttributeType: [NAME=0, OBJECTTYPE=1, DATATYPE=2, ACCESSTYPE=3, \n\
+							DEFAULTVALUE=4, ACTUALVALUE=5, PDOMAPPING=6, LOWLIMIT=7, HIGHLIMIT=8]"<<endl;
+							cin >> intAttributeType;
+
+							switch(intAttributeType)
+							{
+								case 0:
+										AttributeType = NAME;
+										break;
+								case 1:
+										AttributeType = OBJECTTYPE;
+										break;
+								case 2:
+										AttributeType = DATATYPE;
+										break;		
+								case 3:
+										AttributeType = ACCESSTYPE;
+										break;
+								case 4:
+										AttributeType = DEFAULTVALUE;
+										break;
+								case 5:
+										AttributeType = ACTUALVALUE;
+										break;
+								case 6:
+										AttributeType = PDOMAPPING;
+										break;
+								case 7:
+										AttributeType = LOWLIMIT;
+										break;
+								case 8:
+										AttributeType = HIGHLIMIT;
+										break;
+								default:
+										cout << "invalid Attribute Type" << endl;
+										break;
+							}
+							
+							NodeType = 1;
+							if(NodeType == 1)
+							{
+								char tmp_AttributeValue[20] = {0};
+								//GetIndexAttributesbyPositions(NodePos, IndexPos, AttributeType, tmp_AttributeValue);
+								GetSubIndexAttributesbyPositions(NodePos, IndexPos, SubIndexPos, AttributeType, tmp_AttributeValue);
+							}
 							break;
 				default :
 							break;

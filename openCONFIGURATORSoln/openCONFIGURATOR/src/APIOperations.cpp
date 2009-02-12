@@ -93,65 +93,147 @@ ProcessImage PIOutCol[4000];
 	* Function Name: AddIndexAttributes
     * Description: Adds the default attributes to the Index, when addded.
 /****************************************************************************************************/
-static void AddIndexAttributes(char* IndexID, CIndex* objIndex, CIndex* objDictIdx)
+static void AddIndexAttributes(char* IndexID, CIndex* objIndex)
 	{
+		// Setting the Index Value
+		//
+		//if(strcmp((char*) objIndex->getIndexValue(), IndexID) != 0)
+		//{
+		//		exit;
+		//}
+		cout << "INDEXID" << objIndex->getIndexValue() << endl;
+		cout << "RX INDEXID" << IndexID << endl;
+		objIndex->setIndexValue(IndexID);
+		
+		//$S The Value for all the attributes has to come from ObjDict.xml
+		if(objIndex->getName() != NULL)
+			objIndex->setName((char*) objIndex->getName());
+		else
+			objIndex->setName("");
+
+		if(objIndex->getObjectType() != NULL)
+			objIndex->setObjectType((char*) objIndex->getObjectType());
+		else
+			//Setting "0", so default case is hit, when setting
+			objIndex->setObjectType("");
+				
+		if( objIndex->getLowLimit() != NULL)
+			objIndex->setLowLimit((char*) objIndex->getLowLimit());
+		else
+			objIndex->setLowLimit("");
 			
-				// Setting the Index Value
-				objIndex->setIndexValue(IndexID);
-				//$S The actual value for all the attributes has to come from ObjDict.xdd
-				objIndex->setName((char*)objDictIdx->getName());
-				char* value = "Test_Values";
-				objIndex->setObjectType((char*)objDictIdx->getObjectType());
-				
-				if(objDictIdx->getLowLimit() !=NULL)
-				objIndex->setLowLimit((char*)objDictIdx->getLowLimit());
-				
-				if(objDictIdx->getHighLimit() !=NULL)
-				objIndex->setHighLimit((char*)objDictIdx->getHighLimit());
-				
-				if(objDictIdx->getAccessType() !=NULL)
-				objIndex->setAccessType((char*)objDictIdx->getAccessType());
-				
-				if(objDictIdx->getPDOMapping() !=NULL)
-				objIndex->setPDOMapping((char*)objDictIdx->getPDOMapping());				
-				
-				if(objDictIdx->getDefaultValue() !=NULL)
-				objIndex->setDefaultValue((char*)objDictIdx->getDefaultValue());
-			/*	objIndex->setActualValue((char*)objIndex->getActualValue);
-			*/	/*objIndex->setDataType(objIndex->getDataTypeValue());*/
+		if(objIndex->getHighLimit() != NULL)
+			objIndex->setHighLimit((char*) objIndex->getHighLimit());
+		else
+			objIndex->setHighLimit("");
+			
+		if(objIndex->getAccessType() != NULL)
+			objIndex->setAccessType((char*) objIndex->getAccessType());
+		else
+			objIndex->setAccessType("");
+		
+		////$S To be checked by $M
+		if(objIndex->getPDOMapping() != NULL)
+		{
+			char *str = new char[50];
+			strcpy(str, (char*) objIndex->getPDOMapping());
+			objIndex->setPDOMapping(str);
+			delete [] str;
+		}
+		else
+		{
+			char *str = new char[5];
+			strcpy(str, (char*) "");
+			objIndex->setPDOMapping(str);
+			delete [] str;
+			//objIndex->setPDOMapping("NO");
+		}
+		//$S To be checked by $M
+		
+		////if(objIndex->getPDOMapping() != NULL)
+		////	objIndex->setPDOMapping((char*) objIndex->getPDOMapping());
+		////else
+		////	objIndex->setPDOMapping("");
+		
+		if(objIndex->getDefaultValue() != NULL)
+			objIndex->setDefaultValue((char*) objIndex->getDefaultValue());
+		else
+			objIndex->setDefaultValue("");
+			
+		if(objIndex->getActualValue() != NULL)
+			objIndex->setActualValue((char*) objIndex->getActualValue());
+		else
+			objIndex->setActualValue("");
+		//$STODO:
+		//if(objIndex->getDataTypeValue() != NULL)
+		//	objIndex->setDataType((char*) objIndex->getDataTypeValue());
+		//else
+		//	objIndex->setDataType("");
+
+		return;
 	}
 
 /**************************************************************************************************
 	* Function Name: AddSubIndexAttributes
     * Description: Adds the default attributes to the Index, when addded.
 /****************************************************************************************************/
-static void AddSubIndexAttributes(char* SubIndexID, CSubIndex* objSubIndex,  CSubIndex* objDictSIdx)
+static void AddSubIndexAttributes(char* SubIndexID, CSubIndex* objSubIndex)
 	{
 			
+		// Setting the Index Value
+		objSubIndex->setIndexValue(SubIndexID);
+		//$S The Value for all the attributes has to come from ObjDict.xml
+		if(objSubIndex->getName() != NULL)
+			objSubIndex->setName((char*) objSubIndex->getName());
+		else
+			objSubIndex->setName("");
+		if(objSubIndex->getObjectType() != NULL)
+			//objSubIndex->setObjectType(atoi(objSubIndex->getObjectType()));
+			objSubIndex->setObjectType((char*) (objSubIndex->getObjectType()));
+		else
+			//Setting "0", so default case is hit, when setting
+			objSubIndex->setObjectType("");
+				
+		if( objSubIndex->getLowLimit() != NULL)
+			objSubIndex->setLowLimit((char*) objSubIndex->getLowLimit());
+		else
+			objSubIndex->setLowLimit("");
 			
-				// Setting the Index Value
-				objSubIndex->setIndexValue(SubIndexID);
-				//$S The actual value for all the attributes has to come from ObjDict.xdd
-				objSubIndex->setName((char*)objDictSIdx->getName());
-				char* value = "Test_Values";
-				objSubIndex->setObjectType((char*)objDictSIdx->getObjectType());
+		if(objSubIndex->getHighLimit() != NULL)
+			objSubIndex->setHighLimit((char*) objSubIndex->getHighLimit());
+		else
+			objSubIndex->setHighLimit("");
+			
+		if(objSubIndex->getAccessType() != NULL)
+			objSubIndex->setAccessType((char*) objSubIndex->getAccessType());
+		else
+			objSubIndex->setAccessType("");
 				
-				if(objDictSIdx->getLowLimit() !=NULL)
-				objSubIndex->setLowLimit((char*)objDictSIdx->getLowLimit());
+		//if(objSubIndex->getPDOMapping() != NULL)
+		//{
+		//	char *str = new char[50];
+		//	strcpy(str, (char*) objSubIndex->getPDOMapping());
+		//	objSubIndex->setPDOMapping(str);
+		//	delete [] str;
+		//}
+		//else
+		//	objSubIndex->setPDOMapping("");
 				
-				if(objDictSIdx->getHighLimit() !=NULL)
-				objSubIndex->setHighLimit((char*)objDictSIdx->getHighLimit());
-				
-				if(objDictSIdx->getAccessType() !=NULL)
-				objSubIndex->setAccessType((char*)objDictSIdx->getAccessType());
-				
-				if(objDictSIdx->getPDOMapping() !=NULL)
-				objSubIndex->setPDOMapping((char*)objDictSIdx->getPDOMapping());				
-				
-				if(objDictSIdx->getDefaultValue() !=NULL)
-				objSubIndex->setDefaultValue((char*)objDictSIdx->getDefaultValue());
-			/*	objSubIndex->setActualValue((char*)objIndex->getActualValue);
-			*/	/*objSubIndex->setDataType(objIndex->getDataTypeValue());*/
+		if(objSubIndex->getDefaultValue() != NULL)
+			objSubIndex->setDefaultValue((char*) objSubIndex->getDefaultValue());
+		else
+			objSubIndex->setDefaultValue("");
+			
+		if(objSubIndex->getActualValue() != NULL)
+			objSubIndex->setActualValue((char*) objSubIndex->getActualValue());
+		else
+			objSubIndex->setActualValue("");
+		
+		//if(objSubIndex->getDataTypeValue() != NULL)
+		//	objSubIndex->setDataType((char*) objSubIndex->getDataTypeValue());
+		//else
+		//	objSubIndex->setDataType("");
+		return;
 	}
 
  
@@ -160,12 +242,13 @@ static void AddSubIndexAttributes(char* SubIndexID, CSubIndex* objSubIndex,  CSu
     * Description:
 /****************************************************************************************************/
 ocfmRetCode CreateNode(int NodeID, ENodeType NodeType)
+{
+	ocfmRetCode ErrStruct;
+	CNode objNode;
+	CNodeCollection *objNodeCollection;
+	int NodePos;
+	try
 	{
-		ocfmRetCode ErrStruct;
-		CNode objNode;
-		CNodeCollection *objNodeCollection;
-		int NodePos;
-		
 		// TODO:If Check is made when Zero nodes present, Seg Fault is happening
 		if(NodeType == CN)
 		{
@@ -174,8 +257,9 @@ ocfmRetCode CreateNode(int NodeID, ENodeType NodeType)
 			if(ErrStruct.code == OCFM_ERR_SUCCESS)								
 			{
 				cout << "OCFM_ERR_NODE_ALREADY_EXISTS" << OCFM_ERR_NODE_ALREADY_EXISTS << endl;
-				ErrStruct.code = OCFM_ERR_NODE_ALREADY_EXISTS;
-				return ErrStruct;
+				ocfmException* objException = new ocfmException;
+				objException->ocfm_Excpetion(OCFM_ERR_NODE_ALREADY_EXISTS);		
+				throw objException;				
 			}
 			else
 			{
@@ -194,6 +278,11 @@ ocfmRetCode CreateNode(int NodeID, ENodeType NodeType)
 		ErrStruct.code = OCFM_ERR_SUCCESS;
 		return ErrStruct;
 	}
+	catch(ocfmException* ex)
+	{
+		return ex->_ocfmRetCode;
+	}
+}
 
 /**************************************************************************************************
 	* Function Name: DeleteNode
@@ -329,6 +418,13 @@ ocfmRetCode AddSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* Sub
 			NotLoadedOBD = false;
 		}
 		ErrStruct = IfSubIndexExists(NodeID, NodeType, IndexID, SubIndexID, &SubIndexPos, &IndexPos);
+		
+		if( ErrStruct.code == OCFM_ERR_SUCCESS )
+		{
+			ErrStruct.code = OCFM_ERR_SUBINDEX_ALREADY_EXISTS;
+			return ErrStruct;
+		}
+		
 		if( (ErrStruct.code == OCFM_ERR_NO_SUBINDEXS_FOUND) || (ErrStruct.code == OCFM_ERR_SUBINDEXID_NOT_FOUND))
 		{
 			objIndex.setNodeID(objNode.getNodeId());
@@ -337,18 +433,33 @@ ocfmRetCode AddSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* Sub
 			objIndexCollection = objNode.getIndexCollection();
 			CIndex* objIndexPtr;
 			objIndexPtr =objIndexCollection->getIndex(IndexPos);
-			CSubIndex objSubIndex;
+			CSubIndex* objSubIndex;
 			
-			/* Get the Index from ObjectDictionary*/
+			objSubIndex = new CSubIndex;
+			//Set the NodeID
+			//objSubIndex.setNodeID(objNode.getNodeId());
+			
+			/* Get the SubIndex from ObjectDictionary*/
 			CObjectDictionary* objOBD;
 			objOBD = CObjectDictionary::getObjDictPtr();
 			
-			objDictSIndex  = objOBD->getObjectDictSubIndex((char*)objIndexPtr->getIndexValue(), IndexID);
 			
-			//Set the NodeID
-			objSubIndex.setNodeID(objNode.getNodeId());
-			AddSubIndexAttributes(SubIndexID, &objSubIndex, objDictSIndex);									
-			objIndexPtr->addSubIndex(objSubIndex);
+			if(objOBD->ifObjectDictSubIndexExists(IndexID, SubIndexID) == 1)
+			{
+				cout<< "\n\n\n$OCFM_ERR_INVALID_INDEXID \n"<<endl;
+				ErrStruct.code = OCFM_ERR_INVALID_SUBINDEXID;
+				return ErrStruct;
+			}						
+			
+			objSubIndex = objOBD->getObjectDictSubIndex(IndexID, SubIndexID);
+			if(objSubIndex != NULL)
+			{
+				AddSubIndexAttributes(SubIndexID, objSubIndex);
+				objIndexPtr->addSubIndex(*objSubIndex);
+			}
+			
+			//AddSubIndexAttributes(SubIndexID, &objSubIndex);									
+			
 			printf("Added SubIndex \n\n");
 			ErrStruct.code = OCFM_ERR_SUCCESS;
 			return ErrStruct;						
@@ -367,7 +478,7 @@ ocfmRetCode AddIndex(int NodeID, ENodeType NodeType, char* IndexID)
 		CNode objNode;		
 		CNodeCollection *objNodeCollection;
 		CIndexCollection *objIndexCollection;
-		CIndex objIndex;
+		CIndex* objIndex;
 		CIndex *objDictIndex;
 		ocfmRetCode ErrStruct;
 		ErrStruct.code = OCFM_ERR_UNKNOWN;
@@ -381,27 +492,49 @@ ocfmRetCode AddIndex(int NodeID, ENodeType NodeType, char* IndexID)
 		
 		cout<< "Inside AddIndex \n"<<endl;
 		ErrStruct = IfIndexExists(NodeID, NodeType, IndexID, &IndexPos);
+		
+		
+		cout << "\n\nErrStruct.code from IfIndexExists:" << ErrStruct.code << endl;
+		
+		if( ErrStruct.code == OCFM_ERR_SUCCESS )
+		{
+			ErrStruct.code = OCFM_ERR_INDEX_ALREADY_EXISTS;
+			return ErrStruct;
+		}
+		
 		if( (ErrStruct.code == OCFM_ERR_NO_INDEX_FOUND) || (ErrStruct.code == OCFM_ERR_INDEXID_NOT_FOUND) )
-		{				
-			objIndex.setNodeID(objNode.getNodeId());
+		{	
+			objIndex = new CIndex();
+			objIndex->setNodeID(objNode.getNodeId());
 			objNodeCollection= CNodeCollection::getNodeColObjectPointer();
 			objNode = objNodeCollection->getNode(NodeType, NodeID);
 			objIndexCollection = objNode.getIndexCollection();
-			
 			/* Get the Index from ObjectDictionary*/
 			CObjectDictionary* objOBD;
 			objOBD = CObjectDictionary::getObjDictPtr();
-			
-			objDictIndex  = objOBD->getObjectDictIndex(IndexID);
-			if(objDictIndex!=NULL)				
-			AddIndexAttributes(IndexID, &objIndex, objDictIndex);
-			objIndexCollection->addIndex(objIndex);	
+			if(objOBD->ifObjectDictIndexExists(IndexID) == 1)
+			{
+				cout<< "\n\n\n$OCFM_ERR_INVALID_INDEXID \n"<<endl;
+				ErrStruct.code = OCFM_ERR_INVALID_INDEXID;
+				return ErrStruct;
+			}
+			objIndex = objOBD->getObjectDictIndex(IndexID);
+			if(objIndex!=NULL)
+			{
+				AddIndexAttributes(IndexID, objIndex);
+				objIndexCollection->addIndex(*objIndex);
+			}
+			else
+			{
+				ErrStruct.code = OCFM_ERR_INVALID_INDEXID;
+				printf("\nAdded NOT Index \n\n");
+				return ErrStruct;
+			}
 			printf("Added Index \n\n");
 			//return OCFM_ERR_SUCCESS;
 			ErrStruct.code = OCFM_ERR_SUCCESS;
 			return ErrStruct;
-		}	
-		
+		}			
 		return ErrStruct;
 
 	}	
@@ -1787,49 +1920,202 @@ ocfmRetCode GetIndexAttributes(
 			case 0:									
 					if(objIndexPtr->getName() != NULL)
 						strcpy(Out_AttributeValue, (char *)objIndexPtr->getName());
+					else
+						strcpy(Out_AttributeValue, "");
 					break;
 			case 1:
 					if(objIndexPtr->getObjectType() != NULL)
 						strcpy(Out_AttributeValue, (char *)objIndexPtr->getObjectType());
+					else
+						strcpy(Out_AttributeValue, "");
 					break;
 			case 2:
 					DataType tmpDataType;
 					tmpDataType = objIndexPtr->getDataType();
-					strcpy(Out_AttributeValue, tmpDataType.Name);
+					if(tmpDataType.Name != NULL)
+						strcpy(Out_AttributeValue, tmpDataType.Name);
+					else
+						strcpy(Out_AttributeValue, "");					
 					break;		
 			case 3:
 					if(objIndexPtr->getAccessType() != NULL)
 						strcpy(Out_AttributeValue, (char *)objIndexPtr->getAccessType());
+					else
+						strcpy(Out_AttributeValue, "");
 					break;
 			case 4:
 					if(objIndexPtr->getDefaultValue() != NULL)
 						strcpy(Out_AttributeValue, (char *) objIndexPtr->getDefaultValue());
+					else
+						strcpy(Out_AttributeValue, "");
 					break;
 			case 5:
 					if(objIndexPtr->getActualValue() != NULL)
 						strcpy(Out_AttributeValue, (char *) objIndexPtr->getActualValue());
+					else
+						strcpy(Out_AttributeValue, "");
 					break;
 			case 6:
 					if(objIndexPtr->getPDOMapping() != NULL)
 						strcpy(Out_AttributeValue, (char *) objIndexPtr->getPDOMapping());
+					else
+						strcpy(Out_AttributeValue, "");
 					break;
 			case 7:
 					if(objIndexPtr->getLowLimit() != NULL)
 						strcpy(Out_AttributeValue, (char *) objIndexPtr->getLowLimit());
+					else
+						strcpy(Out_AttributeValue, "");
 					break;
 			case 8:
 					if(objIndexPtr->getHighLimit() != NULL)
-					strcpy(Out_AttributeValue, (char *) objIndexPtr->getHighLimit());
+						strcpy(Out_AttributeValue, (char *) objIndexPtr->getHighLimit());
+					else
+						strcpy(Out_AttributeValue, "");
 					break;									
 			default:
 					cout << "invalid Attribute Type" << endl;
 					ErrStruct.code = OCFM_ERR_INVALID_ATTRIBUTETYPE;
 					return ErrStruct;
 		}
-		
+	cout << "\n\n\n$SOut_AttributeValue:" << Out_AttributeValue << endl;
 	ErrStruct.code = OCFM_ERR_SUCCESS;
 	return ErrStruct;
 }
+
+/**************************************************************************************************
+	* Function Name: GetIndexAttributesbyPositions
+    * Description:
+	* Return value: ocfmRetCode
+/****************************************************************************************************/
+ocfmRetCode GetIndexAttributesbyPositions(
+	int 			NodePos, 
+	int 			IndexPos, 
+	EAttributeType 	AttributeType, 
+	char* 			Out_AttributeValue)
+{
+	ocfmRetCode ErrStruct;
+	try
+	{
+		// Check for the Existance of the Node in the NodePos
+		CNode objNode;		
+		CNodeCollection *objNodeCollection;
+		CIndexCollection *objIndexCollection;
+		CIndex* objIndexPtr;
+
+		objNodeCollection= CNodeCollection::getNodeColObjectPointer();
+		
+		//objIndexCollection = objNode.getIndexCollection();
+		
+		int tmp_NodeCount = objNodeCollection->getNumberOfNodes();		
+		cout << "\n\ntmp_NodeCount:" << tmp_NodeCount << endl;
+		if(NodePos >= tmp_NodeCount)
+		{
+			ocfmException* objException = new ocfmException;
+			objException->ocfm_Excpetion(OCFM_ERR_INVALID_NODEPOS);		
+			throw objException;
+		}
+		else if(tmp_NodeCount == 0)
+		{
+			ocfmException* objException = new ocfmException;
+			objException->ocfm_Excpetion(OCFM_ERR_NO_NODES_FOUND);		
+			throw objException;
+		}
+	
+		objNode = objNodeCollection->getNodebyCollectionIndex(NodePos);
+		objIndexCollection = objNode.getIndexCollection();
+		
+		int tmp_IndexCount = objIndexCollection->getNumberofIndexes();
+		cout << "\n\tmp_IndexCount:" << tmp_IndexCount << endl;
+		if(tmp_IndexCount == 0)
+		{
+			ocfmException* objException = new ocfmException;
+			objException->ocfm_Excpetion(OCFM_ERR_NO_INDEX_FOUND);
+			throw objException;
+		}
+		else if(IndexPos >= tmp_IndexCount)
+		{
+			ocfmException* objException = new ocfmException;
+			objException->ocfm_Excpetion(OCFM_ERR_INVALID_INDEXPOS);
+			throw objException;
+		}
+		
+		objIndexPtr = objIndexCollection->getIndex(IndexPos);
+		
+			switch(AttributeType)
+			{
+				case 0:									
+						if(objIndexPtr->getName() != NULL)
+							strcpy(Out_AttributeValue, (char *)objIndexPtr->getName());
+						else
+							strcpy(Out_AttributeValue, "");
+						break;
+				case 1:
+						if(objIndexPtr->getObjectType() != NULL)
+							strcpy(Out_AttributeValue, (char *)objIndexPtr->getObjectType());
+						else
+							strcpy(Out_AttributeValue, "");
+						break;
+				case 2:
+						DataType tmpDataType;
+						tmpDataType = objIndexPtr->getDataType();
+						if(tmpDataType.Name != NULL)
+							strcpy(Out_AttributeValue, tmpDataType.Name);
+						else
+							strcpy(Out_AttributeValue, "");					
+						break;		
+				case 3:
+						if(objIndexPtr->getAccessType() != NULL)
+							strcpy(Out_AttributeValue, (char *)objIndexPtr->getAccessType());
+						else
+							strcpy(Out_AttributeValue, "");
+						break;
+				case 4:
+						if(objIndexPtr->getDefaultValue() != NULL)
+							strcpy(Out_AttributeValue, (char *) objIndexPtr->getDefaultValue());
+						else
+							strcpy(Out_AttributeValue, "");
+						break;
+				case 5:
+						if(objIndexPtr->getActualValue() != NULL)
+							strcpy(Out_AttributeValue, (char *) objIndexPtr->getActualValue());
+						else
+							strcpy(Out_AttributeValue, "");
+						break;
+				case 6:
+						if(objIndexPtr->getPDOMapping() != NULL)
+							strcpy(Out_AttributeValue, (char *) objIndexPtr->getPDOMapping());
+						else
+							strcpy(Out_AttributeValue, "");
+						break;
+				case 7:
+						if(objIndexPtr->getLowLimit() != NULL)
+							strcpy(Out_AttributeValue, (char *) objIndexPtr->getLowLimit());
+						else
+							strcpy(Out_AttributeValue, "");
+						break;
+				case 8:
+						if(objIndexPtr->getHighLimit() != NULL)
+							strcpy(Out_AttributeValue, (char *) objIndexPtr->getHighLimit());
+						else
+							strcpy(Out_AttributeValue, "");
+						break;									
+				default:
+						cout << "invalid Attribute Type" << endl;
+						ErrStruct.code = OCFM_ERR_INVALID_ATTRIBUTETYPE;
+						return ErrStruct;
+			}
+	}
+	catch(ocfmException* ex)
+	{
+		cout << "\n\nCatch...\n" << endl;
+		return ex->_ocfmRetCode;
+	}
+	cout << "\n\n\n$SOut_AttributeValue:" << Out_AttributeValue << endl;
+	ErrStruct.code = OCFM_ERR_SUCCESS;
+	return ErrStruct;
+}
+
 /**************************************************************************************************
 	* Function Name: GetSubIndexAttributes
     * Description:
@@ -1880,39 +2166,58 @@ ocfmRetCode GetSubIndexAttributes(
 			case 0:						
 					if(objSubIndexPtr->getName() != NULL)
 						strcpy(Out_AttributeValue, (char *)objSubIndexPtr->getName());
+					else
+						strcpy(Out_AttributeValue, "");
 					break;
 			case 1:
 					if(objSubIndexPtr->getObjectType() != NULL)
 						strcpy(Out_AttributeValue, (char *)objSubIndexPtr->getObjectType());
+					else
+						strcpy(Out_AttributeValue, "");
 					break;
 			case 2:
 					DataType tmpDataType;
-					tmpDataType = objSubIndexPtr->getDataType();					
-					strcpy(Out_AttributeValue, tmpDataType.Name);
+					tmpDataType = objSubIndexPtr->getDataType();										
+					if(tmpDataType.Name != NULL)
+						strcpy(Out_AttributeValue, tmpDataType.Name);
+					else
+						strcpy(Out_AttributeValue, "");					
 					break;		
 			case 3:
 					if(objSubIndexPtr->getAccessType() != NULL)
 						strcpy(Out_AttributeValue, (char *)objSubIndexPtr->getAccessType());
+					else
+						strcpy(Out_AttributeValue, "");
 					break;
 			case 4:
 					if(objSubIndexPtr->getDefaultValue() != NULL)
 						strcpy(Out_AttributeValue, (char *) objSubIndexPtr->getDefaultValue());
+					else
+						strcpy(Out_AttributeValue, "");
 					break;
 			case 5:
 					if(objSubIndexPtr->getActualValue() != NULL)
 						strcpy(Out_AttributeValue, (char *) objSubIndexPtr->getActualValue());
+					else
+						strcpy(Out_AttributeValue, "");
 					break;
 			case 6:
 					if(objSubIndexPtr->getPDOMapping() != NULL)
 						strcpy(Out_AttributeValue, (char *) objSubIndexPtr->getPDOMapping());
+					else
+						strcpy(Out_AttributeValue, "");
 					break;
 			case 7:
 					if(objSubIndexPtr->getLowLimit() != NULL)
 						strcpy(Out_AttributeValue, (char *) objSubIndexPtr->getLowLimit());
+					else
+						strcpy(Out_AttributeValue, "");
 					break;
 			case 8:
 					if(objSubIndexPtr->getHighLimit() != NULL)
 						strcpy(Out_AttributeValue, (char *) objSubIndexPtr->getHighLimit());
+					else
+						strcpy(Out_AttributeValue, "");
 					break;
 			default:
 					cout << "invalid Attribute Type" << endl;
@@ -1924,6 +2229,159 @@ ocfmRetCode GetSubIndexAttributes(
 		return ErrStruct;
 }
 
+/**************************************************************************************************
+	* Function Name: GetSubIndexAttributesbyPositions
+    * Description:
+	* Return value: ocfmRetCode
+/****************************************************************************************************/
+ocfmRetCode GetSubIndexAttributesbyPositions(
+	int 			NodePos, 
+	int 			IndexPos,
+	int				SubIndexPos,
+	EAttributeType 	AttributeType, 
+	char* 			Out_AttributeValue)
+{
+	ocfmRetCode ErrStruct;
+	try
+	{
+				// Check for the Existance of the Node in the NodePos
+		CNode objNode;		
+		CNodeCollection *objNodeCollection;
+		CIndexCollection *objIndexCollection;
+		CIndex* objIndexPtr;
+
+		objNodeCollection= CNodeCollection::getNodeColObjectPointer();
+		
+		//objIndexCollection = objNode.getIndexCollection();
+		
+		int tmp_NodeCount = objNodeCollection->getNumberOfNodes();		
+		cout << "\n\ntmp_NodeCount:" << tmp_NodeCount << endl;
+		if(NodePos >= tmp_NodeCount)
+		{
+			ocfmException* objException = new ocfmException;
+			objException->ocfm_Excpetion(OCFM_ERR_INVALID_NODEPOS);		
+			throw objException;
+		}
+		else if(tmp_NodeCount == 0)
+		{
+			ocfmException* objException = new ocfmException;
+			objException->ocfm_Excpetion(OCFM_ERR_NO_NODES_FOUND);		
+			throw objException;
+		}
+	
+		objNode = objNodeCollection->getNodebyCollectionIndex(NodePos);
+		objIndexCollection = objNode.getIndexCollection();
+		
+		int tmp_IndexCount = objIndexCollection->getNumberofIndexes();
+		cout << "\n\tmp_IndexCount:" << tmp_IndexCount << endl;
+		if(tmp_IndexCount == 0)
+		{
+			ocfmException* objException = new ocfmException;
+			objException->ocfm_Excpetion(OCFM_ERR_NO_INDEX_FOUND);
+			throw objException;
+		}
+		else if(IndexPos >= tmp_IndexCount)
+		{
+			ocfmException* objException = new ocfmException;
+			objException->ocfm_Excpetion(OCFM_ERR_INVALID_INDEXPOS);
+			throw objException;
+		}
+		
+		objIndexPtr = objIndexCollection->getIndex(IndexPos);
+		
+		int tmp_SubIndexCount = objIndexPtr->getNumberofSubIndexes();
+		cout << "\n\ntmp_SubIndexCount:" << tmp_SubIndexCount << endl;
+
+		if(SubIndexPos >= tmp_SubIndexCount)
+		{
+			ocfmException* objException = new ocfmException;
+			objException->ocfm_Excpetion(OCFM_ERR_INVALID_SUBINDEXPOS);		
+			throw objException;
+		}
+		else if(tmp_SubIndexCount == 0)
+		{
+			ocfmException* objException = new ocfmException;
+			objException->ocfm_Excpetion(OCFM_ERR_NO_SUBINDEXS_FOUND);		
+			throw objException;
+		}
+		
+		CSubIndex* objSubIndexPtr;
+		objSubIndexPtr = objIndexPtr->getSubIndex(SubIndexPos);			
+		
+		switch(AttributeType)
+		{
+			case 0:						
+					if(objSubIndexPtr->getName() != NULL)
+						strcpy(Out_AttributeValue, (char *)objSubIndexPtr->getName());
+					else
+						strcpy(Out_AttributeValue, "");
+					break;
+			case 1:
+					if(objSubIndexPtr->getObjectType() != NULL)
+						strcpy(Out_AttributeValue, (char *)objSubIndexPtr->getObjectType());
+					else
+						strcpy(Out_AttributeValue, "");
+					break;
+			case 2:
+					DataType tmpDataType;
+					tmpDataType = objSubIndexPtr->getDataType();										
+					if(tmpDataType.Name != NULL)
+						strcpy(Out_AttributeValue, tmpDataType.Name);
+					else
+						strcpy(Out_AttributeValue, "");					
+					break;		
+			case 3:
+					if(objSubIndexPtr->getAccessType() != NULL)
+						strcpy(Out_AttributeValue, (char *)objSubIndexPtr->getAccessType());
+					else
+						strcpy(Out_AttributeValue, "");
+					break;
+			case 4:
+					if(objSubIndexPtr->getDefaultValue() != NULL)
+						strcpy(Out_AttributeValue, (char *) objSubIndexPtr->getDefaultValue());
+					else
+						strcpy(Out_AttributeValue, "");
+					break;
+			case 5:
+					if(objSubIndexPtr->getActualValue() != NULL)
+						strcpy(Out_AttributeValue, (char *) objSubIndexPtr->getActualValue());
+					else
+						strcpy(Out_AttributeValue, "");
+					break;
+			case 6:
+					if(objSubIndexPtr->getPDOMapping() != NULL)
+						strcpy(Out_AttributeValue, (char *) objSubIndexPtr->getPDOMapping());
+					else
+						strcpy(Out_AttributeValue, "");
+					break;
+			case 7:
+					if(objSubIndexPtr->getLowLimit() != NULL)
+						strcpy(Out_AttributeValue, (char *) objSubIndexPtr->getLowLimit());
+					else
+						strcpy(Out_AttributeValue, "");
+					break;
+			case 8:
+					if(objSubIndexPtr->getHighLimit() != NULL)
+						strcpy(Out_AttributeValue, (char *) objSubIndexPtr->getHighLimit());
+					else
+						strcpy(Out_AttributeValue, "");
+					break;
+			default:
+					cout << "invalid Attribute Type" << endl;
+					ErrStruct.code = OCFM_ERR_INVALID_ATTRIBUTETYPE;
+					return ErrStruct;
+		}			
+	}
+	catch(ocfmException* ex)
+	{
+		cout << "\n\nCatch...\n" << endl;
+		return ex->_ocfmRetCode;
+	}
+	cout << "\n\n\n$SOut_AttributeValue:" << Out_AttributeValue << endl;
+	ErrStruct.code = OCFM_ERR_SUCCESS;
+	return ErrStruct;
+
+}
 /**************************************************************************************************
 	* Function Name: GetNodeCount
     * Description:
@@ -2131,13 +2589,13 @@ ocfmRetCode GetNodeIDbyNodePos(
 
 		objNode = objNodeCollection->getNodebyCollectionIndex(NodePos);
 		
-		if(objNode.getNodeType() == NULL)
-		{
-			cout << "OCFM_ERR_INVALID_NODETYPE" << endl;
-			ocfmException* objException = new ocfmException;
-			objException->ocfm_Excpetion(OCFM_ERR_INVALID_NODETYPE);
-			throw objException;
-		}
+		//if(objNode.getNodeType() == NULL)
+		//{
+		//	cout << "OCFM_ERR_INVALID_NODETYPE" << endl;
+		//	ocfmException* objException = new ocfmException;
+		//	objException->ocfm_Excpetion(OCFM_ERR_INVALID_NODETYPE);
+		//	throw objException;
+		//}
 			*NodeType = objNode.getNodeType();
 			*Out_NodeID = objNode.getNodeId();
 				
@@ -2513,7 +2971,7 @@ void CalculateOffsets()
 		ProcessImage pi;
 		pi = PIInCol[i];
 		char size[3];
-		if(CheckifSimpleDT(pi.DataType, size))
+		if(CheckifSimpleDT((char*) pi.DataType, size))
 		{
 				int dataTypeSize;
 				int Offset;
@@ -2521,7 +2979,7 @@ void CalculateOffsets()
 				dataTypeSize = atoi(size);
 				Offset = dataTypeSize*i;
 				PIOffset = itoa(Offset, PIOffset, 16);
-				pi.ByteOffset = ConvertToHexformat(PIOffset, 4, 1);
+				//pi.ByteOffset = ConvertToHexformat(PIOffset, 4, 1);
 		}
 		else
 		{

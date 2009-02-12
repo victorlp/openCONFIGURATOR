@@ -213,22 +213,16 @@ const char* CBaseIndex::getPDOMapping ()
 		{
 			case NO:
 				return "NO";				
-				break;
 			case DEFAULT:
-				return "DEFAULT";
-				break;
+				return "DEFAULT";				
 			case OPTIONAL:
 				return "OPTIONAL";
-				break;
 			case RPDO:
 				return "RPDO";
-				break;
 			case TPDO:
 				return "TPDO";
-				break;
 			default:
-				return NULL;
-				break;
+				return NULL;			
 		}
 		//return m_pdoMapping;
 	}
@@ -239,15 +233,18 @@ const char* CBaseIndex::getPDOMapping ()
 /****************************************************************************************************/
 void CBaseIndex::setPDOMapping(char* pdoMapping)
 	{		
-		if(strcmp(ConvertToUpper((char*)pdoMapping), "DEFAULT")==0)
+		char *str = new char[50];
+		strcpy(str, ConvertToUpper((char*)pdoMapping));	
+		//if(strcmp(ConvertToUpper((char*)pdoMapping), "DEFAULT")==0)
+		if(strcmp(ConvertToUpper(str), "DEFAULT")==0)
 		m_pdoMapping=DEFAULT;
-		
-		else if(strcmp(ConvertToUpper((char*)pdoMapping), "NO")==0)
-		m_pdoMapping = NO;		 
-		else if(strcmp(ConvertToUpper((char*)pdoMapping), "OPTIONAL")==0)
-		m_pdoMapping = OPTIONAL;		 
-
-		
+		//else if(strcmp(ConvertToUpper((char*)pdoMapping), "NO")==0)
+		else if(strcmp(ConvertToUpper(str), "NO")==0)
+		m_pdoMapping = NO;	 
+		//else if(strcmp(ConvertToUpper((char*)pdoMapping), "OPTIONAL")==0)
+		else if(strcmp(ConvertToUpper(str), "OPTIONAL")==0)
+		m_pdoMapping = OPTIONAL;
+		delete [] str;
 	}
 /**************************************************************************************************
 	* Function Name: getDataType

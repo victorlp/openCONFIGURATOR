@@ -116,6 +116,8 @@ public:
 		void createSameattrObject(char* value, ObjectType objType, char*Idx );
 		CIndex* getObjectDictIndex(char* Idx);
 		CSubIndex* getObjectDictSubIndex(char* Idx, char* SIdx);
+		int ifObjectDictIndexExists(char* Index);
+		int ifObjectDictSubIndexExists(char* Idx, char* SIdx);
 	 bool checkInTheRange(char* Idx, char* StartIdx, char* EndIdx);
 		void printall();
 		

@@ -68,6 +68,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "../Include/Validation.h"
+#include "../Include/Exception.h"
 #include <iostream>
 #include <stdio.h>
 #include <errno.h>
@@ -76,16 +77,7 @@
 /**************************************************************************************************
 	* Function Name: IfNodeExists
     * Description:	Checks for existance of a Node
-	Returns -1 and fills the error string if the node doesnot exist. Returns the node position 
-	[signed integer] on existance.
-	
-	Return value Legend:
-	On success	- OCFM_ERR_SUCCESS
-	On error	- Return appropriate error code
-	Node Doesn't Exist 		- -1
-	Index Doesn't Exist 	- -2
-	SubIndex Doesn't Exist 	- -3
-	Invalid NodeType		- -4
+	* Return value: ocfmRetCode
 /****************************************************************************************************/
 ocfmRetCode IfNodeExists(int NodeID, ENodeType NodeType, int* NodePos)
 {	
@@ -93,29 +85,25 @@ ocfmRetCode IfNodeExists(int NodeID, ENodeType NodeType, int* NodePos)
 	CNode objNode;		
 	CNodeCollection *objNodeCollection = NULL;
 	ocfmRetCode ErrStruct;
-	
-	// TODO: Check for Invalid NodeType. Yet to Implement
-		//if(NodeType == 1)
-		//temp_ret 
-	//else if(NodeType == 0)
-		//temp_ret = IfNodeExists(NodeID, NodeType, ErrStr);
-	//else
-	//{
-	//	printf("Invalid Node Type");
-	//	return -4;
-	//}
-	
-	objNodeCollection = CNodeCollection::getNodeColObjectPointer();	
-	if(objNodeCollection == NULL)
+	try
 	{
-		cout<< "objNodeCollection is NULL!!!" << endl;
-		exit;
-	}
-	cout<< "getNumberOfNodes: \n" <<objNodeCollection->getNumberOfNodes()<<endl;
-	if( objNodeCollection->getNumberOfNodes() > 0)
-	{
-		for(int count = 0; count < objNodeCollection->getNumberOfNodes(); count++)
+		//if(NodeType != CN || NodeType != MN)
+		//{
+		//	ocfmException* objException = new ocfmException;
+		//	objException->ocfm_Excpetion(OCFM_ERR_INVALID_NODETYPE);
+		//	throw objException;	
+		//}
+				
+		objNodeCollection = CNodeCollection::getNodeColObjectPointer();	
+		if(objNodeCollection == NULL)
 		{
+			cout<< "objNodeCollection is NULL!!!" << endl;
+		}
+		cout<< "getNumberOfNodes: \n" <<objNodeCollection->getNumberOfNodes()<<endl;
+		if( objNodeCollection->getNumberOfNodes() > 0)
+		{
+			for(int count = 0; count < objNodeCollection->getNumberOfNodes(); count++)
+			{
 				objNode = objNodeCollection->getNodebyCollectionIndex(count);
 				if (objNode.getNodeType() == NodeType)
 				{
@@ -131,17 +119,20 @@ ocfmRetCode IfNodeExists(int NodeID, ENodeType NodeType, int* NodePos)
 					{
 						//Node Doesn't match
 					}
-				}
-					
+				}						
+			}
+		}
+		else
+		{
+			ocfmException* objException = new ocfmException;
+			objException->ocfm_Excpetion(OCFM_ERR_NO_NODES_FOUND);
+			throw objException;	
 		}
 	}
-	else
+	catch(ocfmException* ex)
 	{
-			ErrStruct.code = OCFM_ERR_NO_NODES_FOUND;
-			return ErrStruct;
+		return ex->_ocfmRetCode;
 	}
-	ErrStruct.code = OCFM_ERR_NODEID_NOT_FOUND;
-	return ErrStruct;
 }
 
 /**************************************************************************************************
