@@ -572,16 +572,16 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 							if (objIndex->getActualValue()!=NULL)
 							{									
 								char* actvalue;
-								actvalue = (char*)malloc(50);
-								actvalue = strchr((char*)objIndex->getActualValue(),'x');
-								if(actvalue!=NULL)
+								actvalue = new char[50];								
+								if(strchr((char*)objIndex->getActualValue(),'x')!=NULL)
 								{
+									actvalue = strchr((char*)objIndex->getActualValue(),'x');
 									actvalue = subString(actvalue,1,strlen(actvalue)-1);
 									strcat(Buffer,padLeft(actvalue,'0',padLength));
 								}
 								else
 								{
-									actvalue = itoa((int)objIndex->getActualValue(),actvalue,16);
+									actvalue = itoa(atoi(objIndex->getActualValue()),actvalue,16);
 									printf("Index:% s actvalue: %s padlength:%d",objIndex->getIndexValue(),objIndex->getActualValue(),padLength);
 									//strcat(Buffer,padLeft((char*)objIndex->getActualValue(),'0',padLength));								
 									strcat(Buffer,padLeft(actvalue, '0', padLength));
