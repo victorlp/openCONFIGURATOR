@@ -74,13 +74,23 @@
 using namespace std;
 char* ConvertToUpper(char* str)
 	{
-		int t;
+	/*	int t;
 
-		for(t=0; str[t]; ++t)
+		for(t=0; str[t] ; ++t)
 		{
 			str[t] = toupper(str[t]);
 		}
-		return str;
+		return str;*/
+		int t;
+		int len = strlen(str);
+		char* str1;
+		str1 = new char[len];
+		for(t=0; t<strlen(str); ++t)
+		{
+			str1[t] = toupper(str[t]);
+		}		
+		str1[t] = '\0';
+		return str1;
 	}
 char* reverse(char* str)
 {
@@ -168,6 +178,7 @@ char *itoa(int value, char *digits, int base)
     } else
         u = value;
     utoa(u, d, base);
+
     return digits;
 }
 

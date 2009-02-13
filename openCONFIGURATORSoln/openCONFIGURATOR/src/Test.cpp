@@ -52,7 +52,8 @@ int main(int argc, char **argv)
 	CNodeCollection *objNodeCollection;							
 
 	CNode objNode;
-	CIndexCollection *objIndexCollection;				
+	CIndexCollection *objIndexCollection;		
+	ocfmRetCode retCode;		
 	
 	while(ch!='E')
 	{
@@ -120,9 +121,10 @@ int main(int argc, char **argv)
 									char* errorstring;
 									errorstring = new char;
 									if (NodeType ==0 )							
-									ImportXML(filePath, NodeID, MN);
+									retCode = ImportXML(filePath, NodeID, MN);
 									else if (NodeType==1)
-									ImportXML(filePath, NodeID, CN);															
+									retCode = ImportXML(filePath, NodeID, CN);															
+									cout <<"\n Error:"<< retCode.errorString;
 									cin.get();
 									cin.get();
 							}

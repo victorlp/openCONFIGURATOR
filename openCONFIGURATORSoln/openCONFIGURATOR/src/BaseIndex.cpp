@@ -3,6 +3,7 @@
 #include "../Include/Declarations.h"
 #include "../Include/Internal.h"
 
+
 CBaseIndex::CBaseIndex(void)
 	{
 		
@@ -184,7 +185,7 @@ void CBaseIndex::setAccessType(char* accessType)
 	void CBaseIndex::setObjectType(char* objectType)
 	{	
 	
-		if(strcmp(objectType, "5")==0 || strcmp(objectType, "DEFTYPE")==0 )
+		if(strcmp(objectType, "5")==0 || strcmp(ConvertToUpper(objectType), "DEFTYPE")==0 )
 		m_objectType = DEFTYPE;
 		
 		else if(strcmp(objectType, "6")==0 || strcmp(objectType, "DEFSTRUCT")==0)
@@ -260,14 +261,14 @@ DataType CBaseIndex::getDataType ()
 /****************************************************************************************************/
 void CBaseIndex::setDataType(char* dataTypeName)
 	{	
-		DataType dt;
+		DataType* dt;
 		CNodeCollection* objNodeCol;
 		objNodeCol= CNodeCollection::getNodeColObjectPointer();
 		CNode objNode = objNodeCol->getNode(m_NodeID);
 		CDataTypeCollection* dtcol;
 		dtcol=objNode.getDataTypeCollection();
-		dt = dtcol->getDataType(dataTypeName);
-		m_dataType= dt;
+		dt = dtcol->getDataType(dataTypeName);	
+		m_dataType= *dt;
 		/*m_dataType.DataTypeValue =dt.DataTypeValue;
 		m_dataType.Name =dt.Name ;*/
 	}

@@ -149,7 +149,16 @@ void setIndexAttributes(xmlTextReaderPtr reader, CIndex* objIndex)
 		objIndex->setActualValue((char*)value);
 
 		else if(strcmp(ConvertToUpper((char*)name), "DATATYPE")==0)					
-		objIndex->setDataType((char*)value);							
+		{
+			if(CheckIfDataTypeExists((char*)value, objIndex->getNodeID()))
+			objIndex->setDataType((char*)value);		
+			else
+			{
+				ocfmException ex;
+				ex.ocfm_Excpetion(OCFM_ERR_DATATYPE_NOT_FOUND);
+				throw ex;
+			}					
+		}
 
 		else if(strcmp(ConvertToUpper((char*)name), "UNIQUEIDREF")==0)					
 		objIndex->setUniqueIDRef((char*)value);							
@@ -501,43 +510,42 @@ ocfmRetCode ImportXML(char* fileName, int NodeID, ENodeType NodeType)
 	{
 
 		
-		ocfmRetCode ocfmError;
+		/*ocfmRetCode ocfmError;
 		ocfmError.code = OCFM_ERR_SUCCESS;
 
-		/*char* fileLocation;
-		fileLocation= fileName + filePath;*/
-		//fileLocation ="E:\\Kalycito\\checkout\\Source\\SharedLibrary\\openCONFIGURATORSoln\\XMLParser\\12345678_MyName.xml";
-		//parseFile("E:\\Kalycito\\checkout\\Source\\SharedLibrary\\openCONFIGURATORSoln\\XMLParser\\12345678_MyName_BitCoding.xml",(ENodeType)NodeType,NodeID);
+		ocfmRetCode ErrStruct;*/			
 		ocfmRetCode ErrStruct;
-
-
-		printf("Inside Importxml");
-	 ocfmError = parseFile(fileName, NodeID, NodeType);
-		//Cleanup function for the XML library.
-
-		/* Check if UniqueIDRefs are present, fetch the value from parameter and struct tags*/
-		//ProcessUniqueIDRefs();
-
-		/* Process PDO Objects*/
-		if (NodeType != MN)
+		try
 		{
-			printf("NodeType: %d", NodeType);
-			ProcessPDONodes(NodeID);
+			printf("Inside Importxml");
+			/*ErrStruct = */
+			parseFile(fileName, NodeID, NodeType);
+			//if(ErrStruct.code != OCFM_ERR_SUCCESS)
+			//{
+			//	ocfmException objException;
+			//	/*objException->ocfm_Excpetion(o, true);*/
+			//	objException.ocfm_Excpetion(OCFM_ERR_PARSE_XML);
+			//	throw objException;
+			//}
+			//Cleanup function for the XML library.
+
+					/* Process PDO Objects*/
+				if (NodeType != MN)
+				{
+					printf("NodeType: %d", NodeType);
+					ProcessPDONodes(NodeID);
+				}
+				printf("Parsing Done");
+			 xmlCleanupParser();
+			/*
+			* this is to debug memory for regression tests
+			*/
+			xmlMemoryDump();
 		}
-
-		printf("Parsing Done");
-		 xmlCleanupParser();
-		/*
-		* this is to debug memory for regression tests
-		*/
-		xmlMemoryDump();
-
-
-		return ocfmError;
-
-		ErrStruct.code = OCFM_ERR_SUCCESS;
-		return ErrStruct;
-
+		catch(ocfmException& ex)
+		{
+			return ex._ocfmRetCode;
+		}	
 	}
 /**************************************************************************************************
 	* Function Name: processNode
@@ -709,6 +717,7 @@ void processNode(xmlTextReaderPtr reader,ENodeType NodeType,int NodeIndex)
 		}
 		catch(ocfmException* ex)
 		{
+			
 			 throw ex;
 		}	
 }
@@ -727,50 +736,35 @@ ocfmRetCode parseFile(char* filename, int NodeIndex, ENodeType  NodeType)
     {
 					if (reader != NULL)
 					{
-						 ret = xmlTextReaderRead(reader);
-       while (ret == 1)
-							{		
-									processNode(reader,NodeType,NodeIndex );
-									ret = xmlTextReaderRead(reader);
-							}
-							if(ret!=0)
-							{
-								ocfmException objException;
-								/*objException->ocfm_Excpetion(o, true);*/
-								objException.ocfm_Excpetion(OCFM_ERR_PARSE_XML);
-								throw objException;
-							}
+					 ret = xmlTextReaderRead(reader);
+      while (ret == 1)
+						{		
+								processNode(reader,NodeType,NodeIndex );
+								ret = xmlTextReaderRead(reader);
 						}
-						else 
+						if(ret!=0)
 						{
 							ocfmException objException;
-							objException.ocfm_Excpetion(OCFM_ERR_CANNOT_OPEN_FILE);
+							/*objException->ocfm_Excpetion(o, true);*/
+							objException.ocfm_Excpetion(OCFM_ERR_PARSE_XML);
 							throw objException;
 						}
 					}
-					catch(ocfmException& ex)
+					else 
 					{
-						return ex._ocfmRetCode;
+						ocfmException objException;
+						objException.ocfm_Excpetion(OCFM_ERR_CANNOT_OPEN_FILE);
+						throw objException;
 					}
-				
+			}								
 		
-				printf("\n\n\nCalling xmlFreeTextReader\n\n\n\n");
+				catch(ocfmException& ex)
+				{
+					DeleteNode(NodeIndex, NodeType);
+					return ex._ocfmRetCode;
+				}
 
-	//				xmlFreeTextReader(reader);
- //       if (ret != 0)
-	//				{
- //           fprintf(stderr, "%s : failed to parse\n", filename);
-	//		/*strerr= strerror(errno);
-	//		strerr =" Error:" +strerr;*/
-	//				}
- //   }
-	//else 
-	//	{
-	//		/*strerr=strerror(errno);
-	//		strerr =" Error:" +strerr;*/
- //      fprintf(stderr, "Unable to open %s\n", filename);
-	//	}
- }
+}
  
 /**************************************************************************************************
 	* Function Name: ReImport

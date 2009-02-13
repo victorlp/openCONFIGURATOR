@@ -977,7 +977,7 @@ char* GenerateCNOBD(CNodeCollection* objNodeCol)
 						}*/
 							
 							//Convert CN NodeID to Hex
-							itoa(count+1,c,16);	
+							itoa(objNode.getNodeId(),c,16);	
 							char CNDataLength[18];
 							strcpy(CNDataLength, "1F22\t");
 							c = padLeft(c, '0', 2);
@@ -1243,7 +1243,8 @@ void  ProcessCDT(CComplexDataType* objCDT,CApplicationProcess* objAppProc, CNode
 					strcpy(pi.DataType,(const char*)vd.nam_id_dt_attr->getDataType());
 				}
 		
-
+			pi.BitOffset = NULL;
+			pi.ByteOffset = NULL;
 			objNode->addProcessImage(pi);
 		}
 		
@@ -1758,6 +1759,15 @@ void WriteXAPElements(ProcessImage piCol[], xmlTextWriterPtr& writer,int VarCoun
         printf("testXmlwriterDoc: Error at xmlTextWriterWriteAttribute\n");
         return;
     }
+    
+    if(pi.BitOffset !=NULL)
+    rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "BitOffset",
+                                     BAD_CAST pi.BitOffset );
+    if (rc < 0)
+    {
+        printf("testXmlwriterDoc: Error at xmlTextWriterWriteAttribute\n");
+        return;
+    }
     ///* Close the element named Channel. */
     rc = xmlTextWriterEndElement(writer);
     if (rc < 0)
@@ -1861,7 +1871,13 @@ ocfmRetCode GenerateXAP(char* fileName)
 			int picount = 0;
 			int i=10;
 			GroupInOutPIVariables();
-			CalculateOffsets();
+			/* Calculate Offsets for Input Variable*/
+			CalculateOffsets(InVars, INPUT);
+			
+				/* Calculate Offsets for Input Variable*/
+			CalculateOffsets(OutVars, OUTPUT);
+			
+			
 			StartXAPxml(writer, doc);	
 			
 			WriteXAPElements(PIInCol, writer, InVars, INPUT);
@@ -2964,38 +2980,58 @@ ocfmRetCode DeleteMNObjDict(
 	}
 }
 
-void CalculateOffsets()
+void CalculateOffsets(int VarCount,  EPIDirectionType type)
 {
-	for(int i=0; i<InVars; i++)
+	int arrOfOffsets[6][2] = {{-1, -1}, {-1, -1},{-1, -1},{-1,-1},{-1, -1}, {-1, -1}};			/* Contain last offsets of Int8,Uint8,Int16, UInt16, Int32,UInt32*/	
+	for(int i=0; i<VarCount; i++)
 	{
-		ProcessImage pi;
-		pi = PIInCol[i];
-		char size[3];
-		if(CheckifSimpleDT((char*) pi.DataType, size))
-		{
-				int dataTypeSize;
-				int Offset;
-				char* PIOffset = new char[5];
-				dataTypeSize = atoi(size);
-				Offset = dataTypeSize*i;
-				PIOffset = itoa(Offset, PIOffset, 16);
-				//pi.ByteOffset = ConvertToHexformat(PIOffset, 4, 1);
-		}
-		else
-		{
-			if(strcmp(pi.DataType, "BITSTRING")==0)
-			{
-				/*pi.ByteOffset = 
-				for(int count=0; count<8; count++)
-				{
-					int Offset;
-					pi.DataSize 
-				}*/
-			}
-		}
-		
-	}
+
+		ProcessImage* pi;
+		if(type==INPUT)
+		pi = &PIInCol[i];
+		else if(type == OUTPUT)
+		pi = &PIOutCol[i];	
+		int dataTypeSize;
+		int Offset;
+		int BitOffset ;
+		char* PIByteOffset = new char[7];
+		char* PIBitOffset		= new char[5];
 	
+		/*if(strcmp(pi.DataType == "USINT"))*/
+	
+		
+		if(strcmp(pi->DataType,"BITSTRING")==0)
+		{
+			if(arrOfOffsets[1][1] == 7)
+			{
+				Offset = arrOfOffsets[1][0] + 1;
+				BitOffset = 0;				
+				
+			}
+			else
+			{
+				if(arrOfOffsets[1][1] ==-1)
+				Offset  = arrOfOffsets[1][0] + 1;
+				else
+				Offset  = arrOfOffsets[1][0];
+				BitOffset = arrOfOffsets[1][1] + 1;				
+			}		
+			arrOfOffsets[1][1] = BitOffset;
+			PIBitOffset = itoa(BitOffset, PIBitOffset, 16);
+			pi->BitOffset = (char*)malloc(2);
+			strcpy(pi->BitOffset, ConvertToHexformat(PIBitOffset, 2, 1));
+			printf("\nName: %s", pi->Name);
+			printf("\nBit Offset: %s", pi->BitOffset);
+		}
+			
+			else	Offset = arrOfOffsets[1][0] + atoi(pi->DataSize)/8;
+			PIByteOffset = itoa(Offset, PIByteOffset, 16);
+			pi->ByteOffset = (char*)malloc(6);
+			strcpy(pi->ByteOffset, ConvertToHexformat(PIByteOffset, 4, 1));
+			printf("\nName: %s", pi->Name);
+			printf("\nByte Offset: %s", pi->ByteOffset);
+			arrOfOffsets[1][0] = Offset;		
+	}
 }
 int TotalPIVarsCount()
 {

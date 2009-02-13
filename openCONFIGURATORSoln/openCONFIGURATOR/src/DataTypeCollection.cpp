@@ -91,16 +91,20 @@ void CDataTypeCollection::DeleteDataTypeCollection()
 	}
 int CDataTypeCollection::getNumberOfDataTypes()
 	{ return collectionObj.Count();}
-DataType* CDataTypeCollection::getDataType(int DataTypeId)
-	{ return &collectionObj[DataTypeId];}
-DataType CDataTypeCollection::getDataType(char* DatatypeValue)
+DataType* CDataTypeCollection::getDataTypeElement(int DataTypeId)
 	{
+	 return &collectionObj[DataTypeId];
+	}
+DataType* CDataTypeCollection::getDataType(char* DatatypeValue)
+	{
+		DataType* dt = NULL;
 		for(int i=0;i<this->getNumberOfDataTypes() ;i++)
-			{
-				DataType* dt;
-				dt=this->getDataType(i);
+			{				
+				dt=this->getDataTypeElement(i);
 				if(strcmp(dt->DataTypeValue,DatatypeValue)==0)
-					return *dt;
+					return dt;
 
 			}
+			dt = NULL;			
+			return dt;
 	}

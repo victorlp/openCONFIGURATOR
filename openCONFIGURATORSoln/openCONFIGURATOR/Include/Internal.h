@@ -115,7 +115,6 @@ bool IsAscii(char c);
 int lenOfCNBuffer(char* Buffer);
 char* padLeft(char* str, char padChar, int padLength);
 unsigned long hex2int(char *a);
-bool CheckIfMappingPDO(char* Index);
 CIndex* getMNIndexValues(char* Index);
 bool CheckAllowedCNIndexes(char* IndexValue);
 void ConvertCdcToBinary(char* fileName,char* tempFile);
@@ -131,9 +130,11 @@ void setIndexAttributes(xmlTextReaderPtr reader, CIndex* objIndex);
 void setSubIndexAttributes(xmlTextReaderPtr reader, CSubIndex* objSubIndex);
 void setDataTypeAttributes(xmlTextReaderPtr reader ,DataType* objDataType);
 void GroupInOutPIVariables();
-void CalculateOffsets();
+void CalculateOffsets(int VarCount,  EPIDirectionType type);
 char* ConvertToHexformat(char* hexValue, int padlength, bool DoPadding);
 int getCNDataLen(char* Buffer);
+bool CheckIfDataTypeExists(char* dtVal, int NodeID);
+bool CheckIfMappingPDO(char* Index);
 
 
 #endif // declarations_h

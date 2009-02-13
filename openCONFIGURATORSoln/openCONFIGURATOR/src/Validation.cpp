@@ -87,6 +87,15 @@ ocfmRetCode IfNodeExists(int NodeID, ENodeType NodeType, int* NodePos)
 	ocfmRetCode ErrStruct;
 	try
 	{
+
+		cout<< "objNodeCollection is NULL!!!" << endl;
+		exit(0);
+
+	cout<< "getNumberOfNodes: \n" <<objNodeCollection->getNumberOfNodes()<<endl;
+	if( objNodeCollection->getNumberOfNodes() > 0)
+	{
+		for(int count = 0; count < objNodeCollection->getNumberOfNodes(); count++)
+
 		//if(NodeType != CN || NodeType != MN)
 		//{
 		//	ocfmException* objException = new ocfmException;
@@ -96,6 +105,7 @@ ocfmRetCode IfNodeExists(int NodeID, ENodeType NodeType, int* NodePos)
 				
 		objNodeCollection = CNodeCollection::getNodeColObjectPointer();	
 		if(objNodeCollection == NULL)
+
 		{
 			cout<< "objNodeCollection is NULL!!!" << endl;
 		}
@@ -121,6 +131,7 @@ ocfmRetCode IfNodeExists(int NodeID, ENodeType NodeType, int* NodePos)
 					}
 				}						
 			}
+		}
 		}
 		else
 		{
@@ -297,4 +308,17 @@ ocfmRetCode IfSubIndexExists(int NodeID, ENodeType NodeType, char* IndexID, char
 	ErrStruct.code = OCFM_ERR_UNKNOWN;
 	return ErrStruct;
 	//return -3;
+}
+bool CheckIfDataTypeExists(char* dtValue, int NodeID)
+{
+	CNodeCollection* objNodeCol;
+	objNodeCol= CNodeCollection::getNodeColObjectPointer();
+	CNode objNode = objNodeCol->getNode(NodeID);
+	CDataTypeCollection* dtcol;
+	dtcol=objNode.getDataTypeCollection();
+	DataType* dt;
+	dt = dtcol->getDataType(dtValue);
+	if (dt== NULL)
+	return false;
+	else return true;
 }

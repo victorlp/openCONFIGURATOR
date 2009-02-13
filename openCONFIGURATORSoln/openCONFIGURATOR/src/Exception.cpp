@@ -97,38 +97,104 @@ ocfmException::~ocfmException(void)
 		_ocfmRetCode.code = errcode;
 		_ocfmRetCode.errorString = new char[100];
 		
-		//if(libxmlerrors)
-		//{
-		//	switch(errcode)
-		//	{
-		//		case XML_ERR_TAG_NAME_MISMATCH:
-		//			strcpy(_ocfmRetCode->errorString,"Opening and Ending Tag Mismatch");	
-		//			break;	
-		//	}
-		//}
-		//else
-		//{
-			switch(errcode)
-			{
-				case OCFM_ERR_NODE_ALREADY_EXISTS:
-						strcpy(_ocfmRetCode.errorString,"Node Already Exists");				
+		switch(errcode)
+		{
+			case OCFM_ERR_FILE_NOT_PRESENT:
+					strcpy(_ocfmRetCode.errorString,"File not present");
 					break;
-				case OCFM_ERR_MODULE_INDEX_NOT_FOUND:
-						strcpy(_ocfmRetCode.errorString,"Module Index Not Found");
+			case OCFM_ERR_FILE_CANNOT_OPEN:
+					strcpy(_ocfmRetCode.errorString,"File cannot open");
 					break;
-			 case OCFM_ERR_NO_NODES_FOUND:
-						strcpy(_ocfmRetCode.errorString,"No Nodes are found");
+			case OCFM_ERR_INVALID_NODEID:
+					strcpy(_ocfmRetCode.errorString,"Invalid Node ID");
 					break;
-				case OCFM_ERR_NO_CN_NODES_FOUND:
-						strcpy(_ocfmRetCode.errorString, "NO CN Nodes are found");
+			case OCFM_ERR_INVALID_NODEPOS:
+					strcpy(_ocfmRetCode.errorString,"Invalid Node position");
 					break;
-				case OCFM_ERR_CANNOT_OPEN_FILE:
-							strcpy(_ocfmRetCode.errorString, "File Cannot be opened");
+			case OCFM_ERR_INVALID_NODETYPE:
+					strcpy(_ocfmRetCode.errorString,"Invalid Node type");
 					break;
-				
-				default:
-					break;			
-			}
-		//}
-		//
+			case OCFM_ERR_DATATYPE_NOT_FOUND:
+							strcpy(_ocfmRetCode.errorString, "DataType Not Found in the DataTypeList of XDC");
+					break;
+
+			case OCFM_ERR_INVALID_INDEXID:
+					strcpy(_ocfmRetCode.errorString,"Invalid Index ID");
+					break;
+			case OCFM_ERR_INVALID_INDEXPOS:
+					strcpy(_ocfmRetCode.errorString,"Invalid Index position");
+					break;
+			case OCFM_ERR_INVALID_SUBINDEXID:
+					strcpy(_ocfmRetCode.errorString,"Invalid SubIndex ID");
+					break;
+			case OCFM_ERR_INVALID_SUBINDEXPOS:
+					strcpy(_ocfmRetCode.errorString,"Invalid SubIndex position");
+					break;
+			case OCFM_ERR_INVALID_ATTRIBUTETYPE:
+					strcpy(_ocfmRetCode.errorString,"Invalid Attribute type");
+					break;												
+			case OCFM_ERR_NO_NODES_FOUND:
+					strcpy(_ocfmRetCode.errorString,"No Nodes found");
+					break;
+			case OCFM_ERR_NO_INDEX_FOUND:
+					strcpy(_ocfmRetCode.errorString,"No Indexes found");
+					break;
+			case OCFM_ERR_NO_SUBINDEXS_FOUND:
+					strcpy(_ocfmRetCode.errorString,"No SubIndexes found");
+					break;
+			case OCFM_ERR_NODEID_NOT_FOUND:
+					strcpy(_ocfmRetCode.errorString,"Node ID not found");
+					break;
+			case OCFM_ERR_INDEXID_NOT_FOUND:
+					strcpy(_ocfmRetCode.errorString,"Index ID not found");
+					break;
+			case OCFM_ERR_SUBINDEXID_NOT_FOUND:
+					strcpy(_ocfmRetCode.errorString,"SubIndex ID not found");
+					break;
+			case OCFM_ERR_NODE_ALREADY_EXISTS:
+					strcpy(_ocfmRetCode.errorString,"Node Already Exists");				
+					break;						
+			case OCFM_ERR_INDEX_ALREADY_EXISTS:
+					strcpy(_ocfmRetCode.errorString,"Index Already Exists");
+					break;
+			case OCFM_ERR_SUBINDEX_ALREADY_EXISTS:
+					strcpy(_ocfmRetCode.errorString,"SubIndex Already Exists");
+					break;						
+			case OCFM_ERR_INVALID_VALUE:
+					strcpy(_ocfmRetCode.errorString,"Invalid value");
+					break;
+			case OCFM_ERR_INVALID_NAME:
+					strcpy(_ocfmRetCode.errorString,"Invalid name");
+					break;
+			case OCFM_ERR_XML_FILE_CORRUPTED:
+					strcpy(_ocfmRetCode.errorString,"XML file corrupted");
+					break;
+			case OCFM_ERR_CANNOT_OPEN_FILE:
+					strcpy(_ocfmRetCode.errorString,"Cannot open file");
+					break;
+			case OCFM_ERR_PARSE_XML:
+					strcpy(_ocfmRetCode.errorString,"Cannot parse XML");
+					break;
+			case OCFM_ERR_MODULE_INDEX_NOT_FOUND:
+					strcpy(_ocfmRetCode.errorString,"Module Index Not Found");
+					break;						
+			case OCFM_ERR_MODULE_SUBINDEX_NOT_FOUND:
+					strcpy(_ocfmRetCode.errorString,"Module SubIndex Not Found");
+					break;						
+			case OCFM_ERR_UNIQUE_ID_REF_NOT_FOUND:
+						strcpy(_ocfmRetCode.errorString, "Unique ID reference not found");
+						break;
+			case OCFM_ERR_STRUCT_DATATYPE_NOT_FOUND:
+						strcpy(_ocfmRetCode.errorString, "Struct Datatype not found");
+						break;				
+			case OCFM_ERR_NO_CN_NODES_FOUND:
+					strcpy(_ocfmRetCode.errorString, "NO CN Nodes are found");
+					break;
+			case OCFM_ERR_UNKNOWN:
+						strcpy(_ocfmRetCode.errorString, "Unknown error");
+						break;				
+			default:
+						break;			
+		}
+
 	}

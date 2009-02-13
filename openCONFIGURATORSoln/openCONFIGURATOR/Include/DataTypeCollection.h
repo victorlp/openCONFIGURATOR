@@ -86,8 +86,8 @@ class DllExport CDataTypeCollection
 		void addDataType(DataType objDataType);
 		void DeleteDataTypeCollection();
 		int getNumberOfDataTypes();
-		DataType* getDataType(int DataTypeId);
-		DataType getDataType(char* Name);
+		DataType* getDataTypeElement(int DataTypeId);
+		DataType* getDataType(char* Name);
 
 	};
 #endif // DataTypeCollection_h

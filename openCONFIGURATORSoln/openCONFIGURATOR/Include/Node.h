@@ -124,6 +124,8 @@ class DllExport CNode
 		CIndexCollection*getPDOIndexCollection();
 		
 		ProcessImage* getPIbyParaIndex(int paraIndex);
+		/*void UpdatePIOffset(char* ByteOffset);*/
+		
 		
 		bool isNull();
 			
