@@ -264,7 +264,7 @@ DllExport void GenerateCDC(char* fileName);
 DllExport ocfmRetCode CreateNode(int NodeID, ENodeType NodeType);
 DllExport ocfmRetCode parseFile(char* filename, int NodeID, ENodeType  NodeType);
 DllExport ocfmRetCode DeleteNode(int NodeID, ENodeType NodeType);
-DllExport ocfmRetCode DeleteMNObjDict(int NodeID);
+DllExport ocfmRetCode DeleteNodeObjDict(int NodeID, ENodeType NodeType);
 
 DllExport ocfmRetCode DeleteIndex(int NodeID, ENodeType NodeType, char* IndexID);
 DllExport ocfmRetCode DeleteSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID);
@@ -292,8 +292,12 @@ DllExport ocfmRetCode GetSubIndexIDbySubIndexPos(int NodeID, ENodeType NodeType,
 
 DllExport ocfmRetCode GetIndexIDbyPositions(int NodePos, int IndexPos, char* Out_IndexID);
 DllExport ocfmRetCode GetSubIndexIDbyPositions(int NodePos, int IndexPos, int SubIndexPos, char* Out_SubIndexID);
+
+DllExport ocfmRetCode GetSubIndexAttributesbyPositions(int 			NodePos, int 			IndexPos,	int				SubIndexPos,EAttributeType 	AttributeType, 	char* 			Out_AttributeValue);
+
 DllExport ocfmRetCode GetIndexAttributesbyPositions(int NodePos, int IndexPos, EAttributeType AttributeType, char* Out_AttributeValue);
 DllExport ocfmRetCode GetSubIndexAttributesbyPositions(int NodePos, int IndexPos, int SubIndexPos, EAttributeType AttributeType, char* Out_AttributeValue);
+
 
 
 //DllExport ocfmRetCode GetSubIndexCount(char* IndexID, int* IndexCount);

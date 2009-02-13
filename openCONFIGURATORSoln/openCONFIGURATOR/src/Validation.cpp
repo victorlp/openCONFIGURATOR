@@ -87,15 +87,6 @@ ocfmRetCode IfNodeExists(int NodeID, ENodeType NodeType, int* NodePos)
 	ocfmRetCode ErrStruct;
 	try
 	{
-
-		cout<< "objNodeCollection is NULL!!!" << endl;
-		exit(0);
-
-	cout<< "getNumberOfNodes: \n" <<objNodeCollection->getNumberOfNodes()<<endl;
-	if( objNodeCollection->getNumberOfNodes() > 0)
-	{
-		for(int count = 0; count < objNodeCollection->getNumberOfNodes(); count++)
-
 		//if(NodeType != CN || NodeType != MN)
 		//{
 		//	ocfmException* objException = new ocfmException;
@@ -105,7 +96,6 @@ ocfmRetCode IfNodeExists(int NodeID, ENodeType NodeType, int* NodePos)
 				
 		objNodeCollection = CNodeCollection::getNodeColObjectPointer();	
 		if(objNodeCollection == NULL)
-
 		{
 			cout<< "objNodeCollection is NULL!!!" << endl;
 		}
@@ -131,7 +121,6 @@ ocfmRetCode IfNodeExists(int NodeID, ENodeType NodeType, int* NodePos)
 					}
 				}						
 			}
-		}
 		}
 		else
 		{

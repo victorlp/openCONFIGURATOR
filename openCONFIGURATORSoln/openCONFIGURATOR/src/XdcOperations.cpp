@@ -211,7 +211,7 @@ void setSubIndexAttributes(xmlTextReaderPtr reader, CSubIndex* objSubIndex)
 	
 void setDataTypeAttributes(xmlTextReaderPtr reader ,DataType* objDataType)
 	{
-		const xmlChar* name,*value;
+		const xmlChar* name,*value;		
 		int ret;
 
 		objDataType->Name = NULL;
@@ -232,7 +232,24 @@ void setDataTypeAttributes(xmlTextReaderPtr reader ,DataType* objDataType)
 			//printf("objDataType->DataTypeValue:%s\n",objDataType->DataTypeValue);
 			//Read the Equivalent name of a datatype
 			ret = xmlTextReaderRead(reader);
+			
+			if(ret!=1)
+			{
+			
+						ocfmException objException;						
+						objException.ocfm_Excpetion(OCFM_ERR_XML_FILE_CORRUPTED);
+						throw objException;
+				
+			}
 			ret = xmlTextReaderRead(reader);
+			if(ret!=1)
+			{
+			
+						ocfmException objException;						
+						objException.ocfm_Excpetion(OCFM_ERR_XML_FILE_CORRUPTED);
+						throw objException;
+				
+			}
 			value = xmlTextReaderConstValue(reader);
 			name =xmlTextReaderConstName(reader);
 					
@@ -298,13 +315,26 @@ void setParameterAttributes(xmlTextReaderPtr reader, Parameter* stParameter)
   
   ret = xmlTextReaderRead(reader);
   
+  if(ret!=1)
+  {
+				ocfmException objException;						
+				objException.ocfm_Excpetion(OCFM_ERR_XML_FILE_CORRUPTED);
+				throw objException;
+  }
+  
   name = xmlTextReaderConstName(reader);
   value = xmlTextReaderConstValue(reader);
 		while(!(CheckEndElement(xmlTextReaderNodeType(reader),(char*)name, "parameter")))
 		{
 			ret = xmlTextReaderRead(reader);
+			if(ret!=1)
+			{
+				ocfmException objException;						
+				objException.ocfm_Excpetion(OCFM_ERR_XML_FILE_CORRUPTED);
+				throw objException;
+			}
 			value = xmlTextReaderConstValue(reader);
-		name =xmlTextReaderConstName(reader);			
+			name =xmlTextReaderConstName(reader);			
 			char size[3];
 			if(CheckifSimpleDT((char*)name, size))
 			{
@@ -411,6 +441,13 @@ static void getVarDeclaration(xmlTextReaderPtr reader, CComplexDataType* objCDT)
   varDeclaration stvardecl;
 		stvardecl.Initialize();
   ret = xmlTextReaderRead(reader);
+  
+  if(ret!=1)
+  {
+  	ocfmException objException;						
+			objException.ocfm_Excpetion(OCFM_ERR_XML_FILE_CORRUPTED);
+			throw objException;
+		}
   
   name = xmlTextReaderConstName(reader);
   value = xmlTextReaderConstValue(reader);
@@ -519,7 +556,9 @@ ocfmRetCode ImportXML(char* fileName, int NodeID, ENodeType NodeType)
 		{
 			printf("Inside Importxml");
 			/*ErrStruct = */
-			parseFile(fileName, NodeID, NodeType);
+			ErrStruct = parseFile(fileName, NodeID, NodeType);
+			if(ErrStruct.code!= 0)
+				return ErrStruct;
 			//if(ErrStruct.code != OCFM_ERR_SUCCESS)
 			//{
 			//	ocfmException objException;
@@ -537,6 +576,8 @@ ocfmRetCode ImportXML(char* fileName, int NodeID, ENodeType NodeType)
 				}
 				printf("Parsing Done");
 			 xmlCleanupParser();
+			 ErrStruct.code = OCFM_ERR_SUCCESS;
+			 return ErrStruct;
 			/*
 			* this is to debug memory for regression tests
 			*/
@@ -760,7 +801,7 @@ ocfmRetCode parseFile(char* filename, int NodeIndex, ENodeType  NodeType)
 		
 				catch(ocfmException& ex)
 				{
-					DeleteNode(NodeIndex, NodeType);
+					DeleteNodeObjDict(NodeIndex, NodeType);
 					return ex._ocfmRetCode;
 				}
 

@@ -360,7 +360,7 @@ int CObjectDictionary::ifObjectDictSubIndexExists(char* Idx, char* SIdx)
 	return 1;
 
 	objSIdx = objIndex->getSubIndexbyIndexValue(SIdx);
-	if(objSIdx!=NULL)
+	if(objSIdx == NULL)
 		return 1;
 	else
 		return 0;

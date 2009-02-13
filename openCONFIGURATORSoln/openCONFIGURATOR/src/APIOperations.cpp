@@ -111,11 +111,11 @@ static void AddIndexAttributes(char* IndexID, CIndex* objIndex)
 		else
 			objIndex->setName("");
 
-		if(objIndex->getObjectType() != NULL)
+		if(objIndex->getObjectType() != NULL)		
 			objIndex->setObjectType((char*) objIndex->getObjectType());
 		else
 			//Setting "0", so default case is hit, when setting
-			objIndex->setObjectType("");
+			objIndex->setObjectType((char*) "");
 				
 		if( objIndex->getLowLimit() != NULL)
 			objIndex->setLowLimit((char*) objIndex->getLowLimit());
@@ -247,8 +247,8 @@ ocfmRetCode CreateNode(int NodeID, ENodeType NodeType)
 	CNode objNode;
 	CNodeCollection *objNodeCollection;
 	int NodePos;
-	try
-	{
+	//try
+	//{
 		// TODO:If Check is made when Zero nodes present, Seg Fault is happening
 		if(NodeType == CN)
 		{
@@ -256,10 +256,12 @@ ocfmRetCode CreateNode(int NodeID, ENodeType NodeType)
 								
 			if(ErrStruct.code == OCFM_ERR_SUCCESS)								
 			{
-				cout << "OCFM_ERR_NODE_ALREADY_EXISTS" << OCFM_ERR_NODE_ALREADY_EXISTS << endl;
-				ocfmException* objException = new ocfmException;
-				objException->ocfm_Excpetion(OCFM_ERR_NODE_ALREADY_EXISTS);		
-				throw objException;				
+				//cout << "OCFM_ERR_NODE_ALREADY_EXISTS:" << OCFM_ERR_NODE_ALREADY_EXISTS << endl;
+				//ocfmException* objException = new ocfmException;
+				//objException->ocfm_Excpetion(OCFM_ERR_NODE_ALREADY_EXISTS);		
+				//throw objException;
+				ErrStruct.code = OCFM_ERR_NODE_ALREADY_EXISTS;
+				return ErrStruct;
 			}
 			else
 			{
@@ -275,13 +277,15 @@ ocfmRetCode CreateNode(int NodeID, ENodeType NodeType)
 
 		objNodeCollection = CNodeCollection::getNodeColObjectPointer();
 		objNodeCollection->addNode(objNode);
+		cout<< "\n\nNode Created!!\n\n\n" << endl;
 		ErrStruct.code = OCFM_ERR_SUCCESS;
 		return ErrStruct;
-	}
-	catch(ocfmException* ex)
-	{
-		return ex->_ocfmRetCode;
-	}
+	//}
+	//catch(ocfmException* ex)
+	//{
+	//	cout<< "\n\nNode Not Created!!\n\n\n" << endl;
+	//	return ex->_ocfmRetCode;
+	//}
 }
 
 /**************************************************************************************************
@@ -414,7 +418,7 @@ ocfmRetCode AddSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* Sub
 		
 		if(NotLoadedOBD)
 		{
-			LoadObjectDictionary("OD.XML");
+			LoadObjectDictionary("od.xml");
 			NotLoadedOBD = false;
 		}
 		ErrStruct = IfSubIndexExists(NodeID, NodeType, IndexID, SubIndexID, &SubIndexPos, &IndexPos);
@@ -443,13 +447,13 @@ ocfmRetCode AddSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* Sub
 			CObjectDictionary* objOBD;
 			objOBD = CObjectDictionary::getObjDictPtr();
 			
-			
+			cout << "\n\nobjOBD->ifObjectDictSubIndexExists(IndexID, SubIndexID):" << objOBD->ifObjectDictSubIndexExists(IndexID, SubIndexID) << endl;
 			if(objOBD->ifObjectDictSubIndexExists(IndexID, SubIndexID) == 1)
 			{
-				cout<< "\n\n\n$OCFM_ERR_INVALID_INDEXID \n"<<endl;
+				cout<< "\n\n\n$OCFM_ERR_INVALID_SUBINDEXID \n"<<endl;
 				ErrStruct.code = OCFM_ERR_INVALID_SUBINDEXID;
 				return ErrStruct;
-			}						
+			}	
 			
 			objSubIndex = objOBD->getObjectDictSubIndex(IndexID, SubIndexID);
 			if(objSubIndex != NULL)
@@ -479,14 +483,13 @@ ocfmRetCode AddIndex(int NodeID, ENodeType NodeType, char* IndexID)
 		CNodeCollection *objNodeCollection;
 		CIndexCollection *objIndexCollection;
 		CIndex* objIndex;
-		CIndex *objDictIndex;
 		ocfmRetCode ErrStruct;
 		ErrStruct.code = OCFM_ERR_UNKNOWN;
 		ErrStruct.errorString = NULL;
 		
 		if(NotLoadedOBD)
 		{
-			LoadObjectDictionary("OD.XML");
+			LoadObjectDictionary("od.xml");
 			NotLoadedOBD = false;
 		}
 		
@@ -2927,20 +2930,20 @@ ocfmRetCode GetSubIndexIDbyPositions(
 }
 
 /**************************************************************************************************
-	* Function Name: DeleteMNObjDict
-    * Description: Deletes the MN's Object Dictinary.
+	* Function Name: DeleteNodeObjDict
+    * Description: Deletes the Node Object Dictinary.
 	* Return value: ocfmRetCode
 /****************************************************************************************************/
 
-ocfmRetCode DeleteMNObjDict(
-	int NodeID)
+ocfmRetCode DeleteNodeObjDict(
+	int NodeID, ENodeType NodeType)
 {
 	ocfmRetCode ErrStruct;
 	int NodePos;
 	cout << "\n$SInside DeleteMNObjDict..\n" << endl;
 	try
 	{	
-		ErrStruct = IfNodeExists(NodeID, MN, &NodePos);
+		ErrStruct = IfNodeExists(NodeID, NodeType, &NodePos);
 		
 		if(ErrStruct.code == 0)
 		{
@@ -2960,7 +2963,7 @@ ocfmRetCode DeleteMNObjDict(
 
 		objIndex.setNodeID(objNode.getNodeId());
 		objNodeCollection= CNodeCollection::getNodeColObjectPointer();
-		objNode = objNodeCollection->getNode(MN, NodeID);
+		objNode = objNodeCollection->getNode(NodeType, NodeID);
 		
 		objDataTypeCollection = objNode.getDataTypeCollection();
 

@@ -114,6 +114,7 @@ int main(int argc, char **argv)
 								cout <<"Do you want to Parse the file(y/n)?"<<endl;
 								char c;
 								cin >> c;
+
 								if(c=='y')
 								{
 									cout<<"Enter the filepath"<<endl;
@@ -123,7 +124,8 @@ int main(int argc, char **argv)
 									if (NodeType ==0 )							
 									retCode = ImportXML(filePath, NodeID, MN);
 									else if (NodeType==1)
-									retCode = ImportXML(filePath, NodeID, CN);															
+									retCode = ImportXML(filePath, NodeID, CN);			
+									if(retCode.code !=0)												
 									cout <<"\n Error:"<< retCode.errorString;
 									cin.get();
 									cin.get();
@@ -414,6 +416,16 @@ int main(int argc, char **argv)
 							cout<<"Enter the IndexID:"<<endl;
 							cin >> IndexID;
 							cout<<"Enter the AttributeType:"<<endl;
+							cout <<" Enter 0 for NAME" << endl;
+							cout <<" Enter 1 for OBJECTTYPE" << endl;
+							cout <<" Enter 2 for DATATYPE" << endl;
+							cout <<" Enter 3 for ACCESSTYPE" << endl;
+							cout <<" Enter 4 for DEFAULTVALUE" << endl;
+							cout <<" Enter 5 for ACTUALVALUE" << endl;
+							cout <<" Enter 6 for PDOMAPPING" << endl;
+							cout <<" Enter 7 for LOWLIMIT" << endl;
+							cout <<" Enter 8 for HIGHLIMIT" << endl;
+							
 							cin >> intAttributeType;
 							//cout<<"Enter the SubIndexID:"<<endl;
 							//cin >> SubIndexID;
@@ -468,6 +480,8 @@ int main(int argc, char **argv)
 								else
 									cout << "\n\n\n\n\nAttributeValue:" << AttributeValue << endl;
 							}
+							cin.get();
+							cin.get();
 							break;
 							
 				case 21:	
@@ -536,6 +550,8 @@ int main(int argc, char **argv)
 									else
 										cout << "\n\n\n\n\nAttributeValue:" << AttributeValue << endl;
 								}
+								cin.get();
+							cin.get();
 							break;
 				case 22:	
 							cout<<"Enter the NodeID: [240]"<<endl;
@@ -614,7 +630,7 @@ int main(int argc, char **argv)
 							}
 							break;
 				case 25:
-							DeleteMNObjDict(240);
+							DeleteNodeObjDict(240, MN);
 							break;
 				case 26:
 							cout<<"Enter the NodePos:"<<endl;
