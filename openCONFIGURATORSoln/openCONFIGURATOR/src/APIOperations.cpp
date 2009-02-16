@@ -247,8 +247,8 @@ ocfmRetCode CreateNode(int NodeID, ENodeType NodeType)
 	CNode objNode;
 	CNodeCollection *objNodeCollection;
 	int NodePos;
-	//try
-	//{
+	try
+	{
 		// TODO:If Check is made when Zero nodes present, Seg Fault is happening
 		if(NodeType == CN)
 		{
@@ -256,12 +256,12 @@ ocfmRetCode CreateNode(int NodeID, ENodeType NodeType)
 								
 			if(ErrStruct.code == OCFM_ERR_SUCCESS)								
 			{
-				//cout << "OCFM_ERR_NODE_ALREADY_EXISTS:" << OCFM_ERR_NODE_ALREADY_EXISTS << endl;
-				//ocfmException* objException = new ocfmException;
-				//objException->ocfm_Excpetion(OCFM_ERR_NODE_ALREADY_EXISTS);		
-				//throw objException;
-				ErrStruct.code = OCFM_ERR_NODE_ALREADY_EXISTS;
-				return ErrStruct;
+				cout << "from CreateNode OCFM_ERR_NODE_ALREADY_EXISTS:" << OCFM_ERR_NODE_ALREADY_EXISTS << endl;
+				ocfmException* objException = new ocfmException;
+				objException->ocfm_Excpetion(OCFM_ERR_NODE_ALREADY_EXISTS);		
+				throw objException;
+				//ErrStruct.code = OCFM_ERR_NODE_ALREADY_EXISTS;
+				//return ErrStruct;
 			}
 			else
 			{
@@ -280,12 +280,12 @@ ocfmRetCode CreateNode(int NodeID, ENodeType NodeType)
 		cout<< "\n\nNode Created!!\n\n\n" << endl;
 		ErrStruct.code = OCFM_ERR_SUCCESS;
 		return ErrStruct;
-	//}
-	//catch(ocfmException* ex)
-	//{
-	//	cout<< "\n\nNode Not Created!!\n\n\n" << endl;
-	//	return ex->_ocfmRetCode;
-	//}
+	}
+	catch(ocfmException* ex)
+	{
+		cout<< "\n\nNode Not Created!!\n\n\n" << endl;
+		return ex->_ocfmRetCode;
+	}
 }
 
 /**************************************************************************************************
@@ -573,10 +573,19 @@ ocfmRetCode SetIndexAttributes(int NodeID, ENodeType NodeType, char* IndexID, ch
 	objIndexCollection = objNode.getIndexCollection();
 	objIndexPtr =objIndexCollection->getIndex(IndexPos);			
 	//cout << "EditIndexValue:Index Actual Value:" << objIndexPtr->getActualValue() << IndexValue << endl;
-	objIndexPtr->setActualValue(IndexValue);
+	/* Check if the value is valid*/
 	objIndexPtr->setName(IndexName);
+	if(objIndexPtr->IsIndexVaueValid(IndexValue))
+	{
+		objIndexPtr->setActualValue(IndexValue);
+		
 	//printf("EditIndexValue:Index Actual Value:%s-%s\n", objIndexPtr->getActualValue(), IndexValue);
-	ErrStruct.code = OCFM_ERR_SUCCESS;
+		ErrStruct.code = OCFM_ERR_SUCCESS;
+	}
+	else
+	{
+			ErrStruct.code = OCFM_ERR_VALUE_NOT_WITHIN_RANGE;
+	}
 	return ErrStruct;
 	
 }
@@ -620,10 +629,19 @@ ocfmRetCode SetSubIndexAttributes(int NodeID, ENodeType NodeType, char* IndexID,
 		
 		objSubIndexPtr = objSubIndex->getSubIndex(SubIndexPos);						
 		printf("SubIndexValue:%s-%s\n", objSubIndexPtr->getName(), SubIndexID);
-		objSubIndexPtr->setActualValue(IndexValue);
+		objSubIndexPtr->setName(IndexName);
+		if(objSubIndexPtr->IsIndexVaueValid(IndexValue))		
+		{
+			objSubIndexPtr->setActualValue(IndexValue);
+			ErrStruct.code = OCFM_ERR_SUCCESS;
+		}
+		else
+		{
+			ErrStruct.code =  OCFM_ERR_VALUE_NOT_WITHIN_RANGE;
+		}
 		objSubIndexPtr->setName(IndexName);
 		printf("SubIndexValue:%s-%s\n", objSubIndexPtr->getName(), SubIndexID);
-		ErrStruct.code = OCFM_ERR_SUCCESS;
+		/*ErrStruct.code = OCFM_ERR_SUCCESS;*/
 		return ErrStruct;
 }
 

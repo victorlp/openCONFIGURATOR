@@ -338,8 +338,25 @@ void CBaseIndex::SaveChanges(char* Index,char* Name)
 	* Function Name: ValidateIndex
     * Description: Saves the changes of the Index properties
 /****************************************************************************************************/
-void CBaseIndex::ValidateIndex()
+bool CBaseIndex::IsIndexVaueValid(char* hexValue)
 	{
-		
+		unsigned long l,lowlimit,highLimit;
+		bool flag;
+		l = hex2int(hexValue);
+		if(this->m_LowLimit != NULL)
+		{		
+		 lowlimit = hex2int((char *)m_LowLimit);	
+		 if(l>= lowlimit)
+			flag = true;
+		 else flag = false;	 
+		}
+		if(this->m_HighLimit!= NULL)
+		{
+			highLimit = hex2int((char *)m_HighLimit);
+			if(l<= highLimit)
+			flag = true;
+			else flag = false;
+		} 
+		return flag;
 	}
 #pragma endregion MemberFunctions

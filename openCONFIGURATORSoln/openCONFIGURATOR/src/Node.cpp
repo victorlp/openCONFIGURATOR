@@ -77,6 +77,7 @@ CNode::CNode(void)
 		m_DataTypeCollection =  NULL;	 
 		m_IndexCollection = NULL;
 		m_ApplicationProcess = NULL;
+		m_HasPdoObjects = false;
 	}
 
 CNode::~CNode(void)
@@ -145,6 +146,22 @@ void CNode::setNodeName(char* NodeName)
 	{	
 		m_NodeName = new char[strlen(NodeName)];
 		strcpy((char*)m_NodeName, NodeName);
+	}
+	/**************************************************************************************************
+	* Function Name: HasPdoObjects
+    * Description: Returns true if PDO Objects are present else false
+/****************************************************************************************************/
+
+bool CNode::HasPdoObjects()
+	{return m_HasPdoObjects;}
+
+/**************************************************************************************************
+	* Function Name: setNodeName
+    * Description: sets the Name of the Node
+/****************************************************************************************************/
+void CNode::setFlagForPdoObjects(bool flag)
+	{	
+		m_HasPdoObjects = flag;
 	}
 /**************************************************************************************************
 	* Function Name: getIndexCollection

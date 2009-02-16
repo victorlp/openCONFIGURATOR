@@ -121,6 +121,8 @@ ocfmRetCode IfNodeExists(int NodeID, ENodeType NodeType, int* NodePos)
 					}
 				}						
 			}
+			ErrStruct.code = OCFM_ERR_NODEID_NOT_FOUND;
+			return ErrStruct;
 		}
 		else
 		{

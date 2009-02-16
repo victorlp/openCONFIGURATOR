@@ -127,8 +127,11 @@ CSubIndex* CIndex::getSubIndex(int SubIndexId)
 			if(strcmp(objSIndex->getIndexValue(),Index)==0)
 				return objSIndex;
 			else
-			objSIndex = NULL;
-		}		
+			{
+				objSIndex = NULL;
+			}
+		}
+		objSIndex = NULL;
 		return objSIndex;
 	}
 #pragma endregion MemberFunctions

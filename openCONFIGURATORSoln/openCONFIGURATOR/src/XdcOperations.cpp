@@ -80,7 +80,7 @@
 
 int LastIndexParsed=0;
 
-void setIndexAttributes(xmlTextReaderPtr reader, CIndex* objIndex)
+void setIndexAttributes(xmlTextReaderPtr reader, CIndex* objIndex, bool& hasPDO)
 	{
 		const xmlChar* name, *value;
 		//Retrieve the name and Value of an attribute
@@ -105,11 +105,13 @@ void setIndexAttributes(xmlTextReaderPtr reader, CIndex* objIndex)
 				char* data = (char*) value;
 				if(strncmp(data,"14",2)==0 ||strncmp(data,"16",2) ==0)
 					{
-						objIndex->setPDOType(PDO_RPDO);
+						objIndex->setPDOType(PDO_RPDO);				
+						hasPDO  = true;		
 					}
 				else if(strncmp(data,"18",2 )==0 ||strncmp(data,"1A",2) ==0)
 					{
 						objIndex->setPDOType(PDO_TPDO);
+						hasPDO		= true;
 					}
 
 			}
@@ -559,29 +561,29 @@ ocfmRetCode ImportXML(char* fileName, int NodeID, ENodeType NodeType)
 			ErrStruct = parseFile(fileName, NodeID, NodeType);
 			if(ErrStruct.code!= 0)
 				return ErrStruct;
-			//if(ErrStruct.code != OCFM_ERR_SUCCESS)
-			//{
-			//	ocfmException objException;
-			//	/*objException->ocfm_Excpetion(o, true);*/
-			//	objException.ocfm_Excpetion(OCFM_ERR_PARSE_XML);
-			//	throw objException;
-			//}
-			//Cleanup function for the XML library.
 
-					/* Process PDO Objects*/
-				if (NodeType != MN)
+
+					/* Process PDO Objects for CN*/
+				if (NodeType != MN )
 				{
-					printf("NodeType: %d", NodeType);
-					ProcessPDONodes(NodeID);
+					CNode objNode;
+					CNodeCollection  *objNodeCol;
+					objNodeCol = CNodeCollection ::getNodeColObjectPointer();
+					objNode = objNodeCol->getNode(NodeType, NodeID);
+					/* Check if any PDO's present */
+					if(objNode.HasPdoObjects())	
+					{
+						ProcessPDONodes(NodeID);
+					}
 				}
 				printf("Parsing Done");
 			 xmlCleanupParser();
-			 ErrStruct.code = OCFM_ERR_SUCCESS;
-			 return ErrStruct;
 			/*
 			* this is to debug memory for regression tests
 			*/
 			xmlMemoryDump();
+			ErrStruct.code = OCFM_ERR_SUCCESS;
+			return ErrStruct;
 		}
 		catch(ocfmException& ex)
 		{
@@ -597,7 +599,7 @@ void processNode(xmlTextReaderPtr reader,ENodeType NodeType,int NodeIndex)
 		const xmlChar *name, *value;
 	
 		CNodeCollection *objNodeCollection;
-		CNode objNode;
+		CNode *objNode;
 	
     name = xmlTextReaderConstName(reader);
     if (name == NULL)
@@ -627,8 +629,8 @@ void processNode(xmlTextReaderPtr reader,ENodeType NodeType,int NodeIndex)
 								}
 						}
 
-					objNode = objNodeCollection->getNode(NodeType,NodeIndex);							
-					objDataTypeCollection = objNode.getDataTypeCollection();
+					objNode = objNodeCollection->getNodePtr(NodeType,NodeIndex);							
+					objDataTypeCollection = objNode->getDataTypeCollection();
 					objDataTypeCollection->addDataType(objDataType);
 			
 
@@ -640,7 +642,7 @@ void processNode(xmlTextReaderPtr reader,ENodeType NodeType,int NodeIndex)
 					Parameter stParameter;
 
 					
-					objNode = objNodeCollection->getNode(NodeType, NodeIndex);	
+					objNode = objNodeCollection->getNodePtr(NodeType, NodeIndex);	
 					
 					if (xmlTextReaderHasAttributes(reader)==1)
 						{						
@@ -652,7 +654,7 @@ void processNode(xmlTextReaderPtr reader,ENodeType NodeType,int NodeIndex)
 						
 						getParaDT(reader, &stParameter);
 						// Add parameter to the parameter collection of a node
-						objApplicationProcess = objNode.getApplicationProcess();
+						objApplicationProcess = objNode->getApplicationProcess();
 						objApplicationProcess->addParameter(stParameter);
 					
 				}
@@ -662,7 +664,7 @@ void processNode(xmlTextReaderPtr reader,ENodeType NodeType,int NodeIndex)
 					CApplicationProcess* objApplicationProcess;		
 					CComplexDataType objCDT;				
 			
-					objNode = objNodeCollection->getNode(NodeType, NodeIndex);	
+					objNode = objNodeCollection->getNodePtr(NodeType, NodeIndex);	
 					
 					if (xmlTextReaderHasAttributes(reader)==1)
 						{						
@@ -674,7 +676,7 @@ void processNode(xmlTextReaderPtr reader,ENodeType NodeType,int NodeIndex)
 						
 						 getVarDeclaration(reader,&objCDT);
 						// Add parameter to the parameter collection of a node
-						objApplicationProcess = objNode.getApplicationProcess();
+						objApplicationProcess = objNode->getApplicationProcess();
 						objApplicationProcess->addComplexDataType(objCDT);
 					
 				}
@@ -685,23 +687,25 @@ void processNode(xmlTextReaderPtr reader,ENodeType NodeType,int NodeIndex)
 					CIndex objIndex;
 
 					
-					objNode = objNodeCollection->getNode(NodeType, NodeIndex);	
+					objNode = objNodeCollection->getNodePtr(NodeType, NodeIndex);	
 						//Set the NodeID
-						objIndex.setNodeID(objNode.getNodeId());
+						objIndex.setNodeID(objNode->getNodeId());
+						bool hasPDO = false;
 
 					if (xmlTextReaderHasAttributes(reader)==1)
 						{						
 							while(xmlTextReaderMoveToNextAttribute(reader))
 								{
 									//printf("Calling setIndexAttributes..\n ");
-									setIndexAttributes(reader, &objIndex);	
+									setIndexAttributes(reader, &objIndex, hasPDO);	
 									//$Svalue = xmlTextReaderConstValue(reader);
 									//$Sprintf("\tValue_2:%s\n", value);
 									//$Sname =xmlTextReaderConstName(reader);																								
 								}
 						}
-						
-						objIndexCollection = objNode.getIndexCollection();
+						if(hasPDO)
+						objNode->setFlagForPdoObjects(hasPDO);
+						objIndexCollection = objNode->getIndexCollection();
 						
 						//Add Index object to the IndexCollection
 						objIndexCollection->addIndex(objIndex);				
@@ -713,9 +717,9 @@ void processNode(xmlTextReaderPtr reader,ENodeType NodeType,int NodeIndex)
 					objNodeCollection = CNodeCollection::getNodeColObjectPointer();
 					CIndexCollection* objIndexCollection;
 					CSubIndex objSubIndex;
-					objNode =objNodeCollection->getNode(NodeType,NodeIndex);
+					objNode =objNodeCollection->getNodePtr(NodeType,NodeIndex);
 						//Set the NodeID
-						objSubIndex.setNodeID(objNode.getNodeId());		
+						objSubIndex.setNodeID(objNode->getNodeId());		
 
 					if (xmlTextReaderHasAttributes(reader) ==1)
 						{
@@ -731,7 +735,7 @@ void processNode(xmlTextReaderPtr reader,ENodeType NodeType,int NodeIndex)
 						CIndex* objIndexPtr;
 								
 				
-						objIndexCollection =objNode.getIndexCollection();
+						objIndexCollection =objNode->getIndexCollection();
 						objIndexPtr =objIndexCollection->getIndex(LastIndexParsed);
 						//				
 						//if(strcmp(objIndexPtr->getIndexValue(),"2103")==0)
@@ -804,7 +808,9 @@ ocfmRetCode parseFile(char* filename, int NodeIndex, ENodeType  NodeType)
 					DeleteNodeObjDict(NodeIndex, NodeType);
 					return ex._ocfmRetCode;
 				}
-
+		ocfmRetCode ErrStruct;		 
+		ErrStruct.code = OCFM_ERR_SUCCESS;
+		return ErrStruct;
 }
  
 /**************************************************************************************************

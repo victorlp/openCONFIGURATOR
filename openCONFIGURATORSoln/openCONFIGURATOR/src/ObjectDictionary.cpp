@@ -152,6 +152,7 @@ void CObjectDictionary::ProcessObjectDictionary(xmlTextReaderPtr reader)
 								{
 									value = xmlTextReaderConstValue(reader);
 									name = xmlTextReaderConstName(reader);	
+									bool hasPDO;
 									if(strcmp(ConvertToUpper((char*)name), "DATATYPE")==0)		
 									{			
 										objIndex.setDataTypeValue((char*)value);
@@ -159,7 +160,8 @@ void CObjectDictionary::ProcessObjectDictionary(xmlTextReaderPtr reader)
 									else if(strcmp(ConvertToUpper((char*)name), "RANGE")==0)								
 										createSameattrObject((char*)value, INDEX,(char*) objIndex.getIndexValue());
 										
-									else setIndexAttributes(reader, &objIndex);	
+									
+									else setIndexAttributes(reader, &objIndex, hasPDO);	
 									//$Svalue = xmlTextReaderConstValue(reader);
 									//$Sprintf("\tValue_2:%s\n", value);
 									//$Sname =xmlTextReaderConstName(reader);																								

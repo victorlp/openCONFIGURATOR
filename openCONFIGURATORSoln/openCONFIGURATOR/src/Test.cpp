@@ -146,7 +146,9 @@ int main(int argc, char **argv)
 							if (NodeType ==0 )							
 							ret = ImportXML(filePath,NodeID, MN);
 							else if (NodeType==1)
-							ret = ImportXML(filePath, NodeID, CN);		
+							ret = ImportXML(filePath, NodeID, CN);
+							cout<<"\n\nRet.code:" << ret.code <<endl;
+							//cout<<"\n\nRet.errorstring:" << ret.errorString <<endl;
 							cin.get();
 							cin.get();							
 							break;
@@ -249,18 +251,18 @@ int main(int argc, char **argv)
 							cin >> NodeID;												
 							cout<<"Enter the Node Type(MN=0/CN=1)"<<endl;								
 							cin>>NodeType;
-							ocfmRetValError retPos;
+							ocfmRetCode retPos;
 							try
 							{
 							if(NodeType == 1)
 							{
-							/*	retPos = IfNodeExists(NodeID, CN, &NodePos);
-							*/}	
+								retPos = IfNodeExists(NodeID, CN, &NodePos);
+							}	
 							else if(NodeType == 0)
-								/*retPos = IfNodeExists(NodeID, MN, &NodePos);
-							*/if(retPos.errCode.code == 0)
+								retPos = IfNodeExists(NodeID, MN, &NodePos);
+							if(retPos.code != 0)
 							{
-								printf("\n\nIfNodeExists ret:%d\n\n", retPos.returnValue);
+								printf("\n\nIfNodeExists ret:%s\n\n", retPos.errorString);
 								
 							}
 					/*		else

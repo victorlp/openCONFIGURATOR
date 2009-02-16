@@ -133,7 +133,7 @@ class DllExport CBaseIndex
 		int getNodeID();
 		void setNodeID(int NodeID);
 
-		void ValidateIndex();
+		bool IsIndexVaueValid(char* value);
 		void SaveChanges(char* Name, char* Value);
 		
 	

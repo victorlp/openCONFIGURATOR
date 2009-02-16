@@ -126,7 +126,7 @@ bool CheckEndElement(int NodeType, char* element, char* comparewith);
 bool CheckStartElement(int NodeType, char* element, char* comparewith);
 bool CheckifSimpleDT(char* Name, char* size);
 char* getPIName(int NodeID);
-void setIndexAttributes(xmlTextReaderPtr reader, CIndex* objIndex);
+void setIndexAttributes(xmlTextReaderPtr reader, CIndex* objIndex, bool& hasPDO);
 void setSubIndexAttributes(xmlTextReaderPtr reader, CSubIndex* objSubIndex);
 void setDataTypeAttributes(xmlTextReaderPtr reader ,DataType* objDataType);
 void GroupInOutPIVariables();

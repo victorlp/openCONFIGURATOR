@@ -87,10 +87,11 @@ class DllExport CNode
 		CIndexCollection *m_IndexCollection;
 		CApplicationProcess* m_ApplicationProcess;
 				
-		int m_NodeId;
-		ENodeType m_NodeType;
-		int m_NodeIndex;
-		char* m_NodeName;/*
+		int								m_NodeId;
+		ENodeType		m_NodeType;
+		int								m_NodeIndex;
+		bool							m_HasPdoObjects;
+		char*						m_NodeName;/*
 	//*/	/*typedef TCollection<ProcessImage> PICollection;*/
 	public:
 		/*typedef _PICollection PICollection;*/
@@ -111,6 +112,9 @@ class DllExport CNode
 
 		ENodeType getNodeType();
 		void setNodeType(ENodeType NodeType);
+		
+		bool HasPdoObjects();
+		void setFlagForPdoObjects(bool flag);
 
 		void CreateIndexCollection();
 		void CreateDataTypeCollection();
