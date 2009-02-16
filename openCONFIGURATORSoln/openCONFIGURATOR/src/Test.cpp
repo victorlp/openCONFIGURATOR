@@ -125,6 +125,7 @@ int main(int argc, char **argv)
 									retCode = ImportXML(filePath, NodeID, MN);
 									else if (NodeType==1)
 									retCode = ImportXML(filePath, NodeID, CN);			
+
 									if(retCode.code !=0)												
 									cout <<"\n Error:"<< retCode.errorString;
 									cin.get();
@@ -155,8 +156,10 @@ int main(int argc, char **argv)
 
 				case 3:							
 							cout<<"Enter the filepath"<<endl;
-							cin>>filePath;
-							GenerateCDC(filePath);  
+							cin>>filePath;						
+							ret = GenerateCDC(filePath);  
+							if(ret.code !=0)
+							cout << ret.errorString <<endl;
 							break;
 				case 4:
 							objNodeCollection= CNodeCollection::getNodeColObjectPointer();	
@@ -254,12 +257,14 @@ int main(int argc, char **argv)
 							ocfmRetCode retPos;
 							try
 							{
+									bool flag = false;
 							if(NodeType == 1)
 							{
-								retPos = IfNodeExists(NodeID, CN, &NodePos);
+								
+								retPos = IfNodeExists(NodeID, CN, &NodePos, flag);
 							}	
 							else if(NodeType == 0)
-								retPos = IfNodeExists(NodeID, MN, &NodePos);
+								retPos = IfNodeExists(NodeID, MN, &NodePos, flag);
 							if(retPos.code != 0)
 							{
 								printf("\n\nIfNodeExists ret:%s\n\n", retPos.errorString);
@@ -383,19 +388,19 @@ int main(int argc, char **argv)
 							cin>>NodeType;
 							cout<<"Enter the IndexID:"<<endl;
 							cin >> IndexID;
-							cout<<"Enter the SubIndexID:"<<endl;
-							cin >> SubIndexID;
+							/*cout<<"Enter the SubIndexID:"<<endl;
+							cin >> SubIndexID;*/
 							cout<<"Enter the IndexValue:"<<endl;
 							cin >> IndexValue;
 							cout<<"Enter the IndexName:"<<endl;
 							cin >> IndexName;
 							if (NodeType == 0)					
-							SetSubIndexAttributes(NodeID, MN, IndexID, SubIndexID,IndexValue, IndexName);
-							//SetIndexAttributes(NodeID, MN, IndexID, IndexValue, IndexName);
+						//	SetSubIndexAttributes(NodeID, MN, IndexID, SubIndexID,IndexValue, IndexName);
+							SetIndexAttributes(NodeID, MN, IndexID, IndexValue, IndexName);
 							//(int NodeID, ENodeType NodeType, char* IndexID, char* IndexValue, char* IndexName);
 							else if (NodeType == 1)
-							SetSubIndexAttributes(NodeID, CN, IndexID, SubIndexID,IndexValue, IndexName);
-							//SetIndexAttributes(NodeID, CN, IndexID, IndexValue, IndexName);
+							//SetSubIndexAttributes(NodeID, CN, IndexID, SubIndexID,IndexValue, IndexName);
+							SetIndexAttributes(NodeID, CN, IndexID, IndexValue, IndexName);
 							break;
 
 				case 20:

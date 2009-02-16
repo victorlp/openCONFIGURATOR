@@ -98,7 +98,7 @@ void CNodeCollection::deleteNode(int NodeID)
 		
        collectionObj.Remove(NodeID);
 	   m_NodeCount = collectionObj.Count();
-	   printf("\n\nAfter Delete - Count:%d\n\n", m_NodeCount);
+	   //printf("\n\nAfter Delete - Count:%d\n\n", m_NodeCount);
 
 	}	
 	

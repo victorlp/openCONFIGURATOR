@@ -216,7 +216,7 @@ void CNode::CreateApplicationProcess()
 
 CIndexCollection* CNode::getPDOIndexCollection(EPDOType PDOType)
 	{
-		printf("\nGetPDOCollection starts");
+		//printf("\nGetPDOCollection starts");
 		CIndexCollection* PDOCollection = new CIndexCollection();
 		for(int count=0;count<m_IndexCollection->getNumberofIndexes();count++)
 			{
@@ -225,12 +225,12 @@ CIndexCollection* CNode::getPDOIndexCollection(EPDOType PDOType)
 				if(objIndex->getPDOType() ==PDOType)
 					PDOCollection->addIndex(*objIndex);					
 			}
-			printf("\nGetPDOCollection ends");
+			//printf("\nGetPDOCollection ends");
 		return PDOCollection;
 	}
 	CIndexCollection* CNode::getPDOIndexCollection()
 	{
-		printf("\nGetPDOCollection starts");
+		//printf("\nGetPDOCollection starts");
 		CIndexCollection* PDOCollection = new CIndexCollection();
 		for(int count=0;count<m_IndexCollection->getNumberofIndexes();count++)
 			{
@@ -239,7 +239,7 @@ CIndexCollection* CNode::getPDOIndexCollection(EPDOType PDOType)
 				if(objIndex->getPDOType() ==  PDO_TPDO || objIndex->getPDOType() ==  PDO_RPDO)
 					PDOCollection->addIndex(*objIndex);					
 			}
-			printf("\nGetPDOCollection ends");
+			//printf("\nGetPDOCollection ends");
 		return PDOCollection;
 	}
 CIndexCollection* CNode::getIndexCollectionWithoutPDO()

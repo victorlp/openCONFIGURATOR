@@ -98,7 +98,7 @@ void setIndexAttributes(xmlTextReaderPtr reader, CIndex* objIndex, bool& hasPDO)
 				// For Testing. 
 				Buffer = (char *) malloc(sizeof(objIndex->getIndexValue()));
 				strcpy(Buffer, objIndex->getIndexValue());
-				printf("\tName:%s, objIndex->getIndexValue:%s\n", name, Buffer);
+				//printf("\tName:%s, objIndex->getIndexValue:%s\n", name, Buffer);
 				
 				/*$S Commented out the TPDO and RPDO grouping $S*/
 				//TODO: Check point 1 
@@ -121,7 +121,7 @@ void setIndexAttributes(xmlTextReaderPtr reader, CIndex* objIndex, bool& hasPDO)
 			objIndex->setName((char*)value);
 			//objIndex->setName("CFM_VerifyConfiguration_REC12ksdhksdhk");
 			// Test print
-			printf("\tName:%s, objIndex->getName:%s\n", name, objIndex->getName());
+			//printf("\tName:%s, objIndex->getName:%s\n", name, objIndex->getName());
 		}
 
 		else if(strcmp(ConvertToUpper((char*)name), "OBJECTTYPE")==0)					
@@ -261,7 +261,7 @@ void setDataTypeAttributes(xmlTextReaderPtr reader ,DataType* objDataType)
 			//printf("\n Size of Name:%d", strlen((char*)name));
 			strcpy(objDataType->Name, (char*)name);
 			//printf("\n outsideName:%s", objDataType->Name);
-			printf("objDataType->DataTypeValue:%s, objDataType->Name:%s\n", objDataType->DataTypeValue, objDataType->Name);
+			//printf("objDataType->DataTypeValue:%s, objDataType->Name:%s\n", objDataType->DataTypeValue, objDataType->Name);
 			objDataType->DataSize = new char[4];
 			if((strcmp(ConvertToUpper(objDataType->Name),"UNSIGNED8")==0) ||
 				(strcmp(ConvertToUpper(objDataType->Name),"BOOLEAN")==0 ) ||
@@ -281,7 +281,7 @@ void setDataTypeAttributes(xmlTextReaderPtr reader ,DataType* objDataType)
 				strcpy(objDataType->DataSize,"0008");
 			
 				}
-				printf("\noutside DataType");
+				//printf("\noutside DataType");
 	}
 
 void setParameterAttributes(xmlTextReaderPtr reader, Parameter* stParameter)
@@ -475,8 +475,8 @@ static void getVarDeclaration(xmlTextReaderPtr reader, CComplexDataType* objCDT)
 			}
 			name = xmlTextReaderConstName(reader);
 			value = xmlTextReaderConstValue(reader);
-			printf("\nName:%s",name);
-			printf("\n NodeType: %d",xmlTextReaderNodeType(reader));
+			//printf("\nName:%s",name);
+			//printf("\n NodeType: %d",xmlTextReaderNodeType(reader));
 			
 			if(CheckEndElement(xmlTextReaderNodeType(reader),(char*)name, "varDeclaration"))
 			{
@@ -487,24 +487,29 @@ static void getVarDeclaration(xmlTextReaderPtr reader, CComplexDataType* objCDT)
 			}
 			if(CheckStartElement(xmlTextReaderNodeType(reader),(char*)name, "varDeclaration"))
 			{
-						printf("\nELEMENT----- Name = %s ",name);
+						//printf("\nELEMENT----- Name = %s ",name);
 						if (value==NULL)
-						printf("Value = NULL \n");  
+						{
+							//printf("Value = NULL \n");  
+						}
 						else
-							printf("Value= %s",value);
+						{
+							//printf("Value= %s",value);
+						}
 					if (xmlTextReaderHasAttributes(reader)==1)
 						{						
 							while(xmlTextReaderMoveToNextAttribute(reader))
 								{
 
 										setVarDecAttributes(reader,stvardecl);		
-										printf("\n***Attribute  *********\n");
+										//printf("\n***Attribute  *********\n");
 										value = xmlTextReaderConstValue(reader);
 										name =xmlTextReaderConstName(reader);
-										printf("\ndepth : %d NodeType= %d Name= %s ,value= %s\n", 
+										/*printf("\ndepth : %d NodeType= %d Name= %s ,value= %s\n", 
 										xmlTextReaderDepth(reader),
 										xmlTextReaderNodeType(reader),
 										name,value);																												
+										*/
 								}
 							}
 						}
@@ -556,12 +561,11 @@ ocfmRetCode ImportXML(char* fileName, int NodeID, ENodeType NodeType)
 		ocfmRetCode ErrStruct;
 		try
 		{
-			printf("Inside Importxml");
+			//printf("Inside Importxml");
 			/*ErrStruct = */
 			ErrStruct = parseFile(fileName, NodeID, NodeType);
 			if(ErrStruct.code!= 0)
 				return ErrStruct;
-
 
 					/* Process PDO Objects for CN*/
 				if (NodeType != MN )
@@ -576,7 +580,7 @@ ocfmRetCode ImportXML(char* fileName, int NodeID, ENodeType NodeType)
 						ProcessPDONodes(NodeID);
 					}
 				}
-				printf("Parsing Done");
+				//printf("Parsing Done");
 			 xmlCleanupParser();
 			/*
 			* this is to debug memory for regression tests
@@ -603,7 +607,7 @@ void processNode(xmlTextReaderPtr reader,ENodeType NodeType,int NodeIndex)
 	
     name = xmlTextReaderConstName(reader);
     if (name == NULL)
-		printf("\n\n\n\nGot NULL for Name\n\n\n\n");
+		//printf("\n\n\n\nGot NULL for Name\n\n\n\n");
 	//	name = BAD_CAST "--";		
     value = xmlTextReaderConstValue(reader);
  try
@@ -826,37 +830,48 @@ ocfmRetCode ReImportXML(char* fileName, int NodeID, ENodeType NodeType)
 	//if((IfNodeExists(NodeID, NodeType, errorString)) >= 0)
 	//ocfmRetValError retPos;
 	ocfmRetCode ErrStruct;
-	ErrStruct = IfNodeExists(NodeID, NodeType, &NodePos);
-	if(ErrStruct.code == 0)
+	try
 	{
-		CNode objNode;
-		CNodeCollection *objNodeCollection;
-		CIndexCollection *objIndexCollection;
-		CDataTypeCollection *objDataTypeCollection;
-		CIndex objIndex;
+			bool flag = false;
+		ErrStruct = IfNodeExists(NodeID, NodeType, &NodePos, flag);
+		if(ErrStruct.code == 0 && flag ==true)
+		{
+			CNode objNode;
+			CNodeCollection *objNodeCollection;
+			CIndexCollection *objIndexCollection;
+			CDataTypeCollection *objDataTypeCollection;
+			CIndex objIndex;
 
-		objIndex.setNodeID(objNode.getNodeId());
-		objNodeCollection= CNodeCollection::getNodeColObjectPointer();
-		objNode = objNodeCollection->getNode(NodeType, NodeID);
-		
-		objDataTypeCollection = objNode.getDataTypeCollection();
+			objIndex.setNodeID(objNode.getNodeId());
+			objNodeCollection= CNodeCollection::getNodeColObjectPointer();
+			objNode = objNodeCollection->getNode(NodeType, NodeID);
+			
+			objDataTypeCollection = objNode.getDataTypeCollection();
 
-		objIndexCollection = objNode.getIndexCollection();
-		//cout<< "Number of DataType:" << objDataTypeCollection->getNumberOfDataTypes() << endl;
-		// Delete IndexCollection
-		objIndexCollection->DeleteIndexCollection();
-		// Delete DataTypeCollection
-		objDataTypeCollection->DeleteDataTypeCollection();
-		//cout<< "Number of DataType:" << objDataTypeCollection->getNumberOfDataTypes() << endl;
-		parseFile(fileName, NodeID, NodeType);
-		ErrStruct.code = OCFM_ERR_SUCCESS;
-		return ErrStruct;
+			objIndexCollection = objNode.getIndexCollection();
+			//cout<< "Number of DataType:" << objDataTypeCollection->getNumberOfDataTypes() << endl;
+			// Delete IndexCollection
+			objIndexCollection->DeleteIndexCollection();
+			// Delete DataTypeCollection
+			objDataTypeCollection->DeleteDataTypeCollection();
+			//cout<< "Number of DataType:" << objDataTypeCollection->getNumberOfDataTypes() << endl;
+			parseFile(fileName, NodeID, NodeType);
+			ErrStruct.code = OCFM_ERR_SUCCESS;
+			return ErrStruct;
+		}
+		else
+		{
+			//printf("\nCannot ReImport!!\n");
+			//ErrStruct.code = OCFM_ERR_INVALID_NODEID;
+			//return ErrStruct;
+			ocfmException objException;				
+			objException.ocfm_Excpetion(OCFM_ERR_INVALID_NODEID);
+			throw objException;
+		}
 	}
-	else
+	catch(ocfmException* ex)
 	{
-		printf("\nCannot ReImport!!\n");
-		ErrStruct.code = OCFM_ERR_INVALID_NODEID;
-		return ErrStruct;
+		return ex->_ocfmRetCode;
 	}
 } 
  

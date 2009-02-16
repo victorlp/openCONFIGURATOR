@@ -135,6 +135,6 @@ char* ConvertToHexformat(char* hexValue, int padlength, bool DoPadding);
 int getCNDataLen(char* Buffer);
 bool CheckIfDataTypeExists(char* dtVal, int NodeID);
 bool CheckIfMappingPDO(char* Index);
-
+bool CheckIfHex(char* value);
 
 #endif // declarations_h

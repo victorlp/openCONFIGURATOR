@@ -107,7 +107,7 @@ void CIndex::deleteSubIndex(int SubIndexID)
 	{
 		collectionObj.Remove(SubIndexID);
 		m_SubIndexCount = collectionObj.Count();
-		printf("\n\nAfter Delete - SubIndexCount:%d\n\n", m_SubIndexCount);
+		//printf("\n\nAfter Delete - SubIndexCount:%d\n\n", m_SubIndexCount);
 	}
 	
 int CIndex::getNumberofSubIndexes()
@@ -121,7 +121,8 @@ CSubIndex* CIndex::getSubIndex(int SubIndexId)
 	{
 		int i = 0;
 		CSubIndex* objSIndex;
-		for(int i =0; i<m_SubIndexCount;i++)
+
+		for(int i =0; i<collectionObj.Count();i++)
 		{			
 			objSIndex = &collectionObj[i];
 			if(strcmp(objSIndex->getIndexValue(),Index)==0)

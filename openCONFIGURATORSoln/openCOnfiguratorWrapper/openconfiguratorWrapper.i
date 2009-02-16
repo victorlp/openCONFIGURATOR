@@ -1,5 +1,12 @@
+%module openConfiguratorWrapper
+#define DllExport
+/* Windows Platform */
+#if defined(_WIN32) && defined(_MSC_VER)
+	 #undef DllExport
+	 #define DllExport  __declspec(dllexport)
+	 
+#endif
 
-%module openconfiguratorwrapper
 %{
 #include "../openCONFIGURATOR/Include/ApplicationProcess.h"
 #include "../openCONFIGURATOR/Include/BaseIndex.h"
@@ -19,22 +26,6 @@
 #include "../openCONFIGURATOR/Include/template.h"
 %}
 
-/* Let's just grab the original header file here */
-%include "E:\Kalycito\checkout\Source\SharedLibrary\openCONFIGURATORSoln\openCONFIGURATOR\Include\Exports.h"
-%include "E:\Kalycito\checkout\Source\SharedLibrary\openCONFIGURATORSoln\openCONFIGURATOR\Include\openCONFIGURATOR.h"
-%include "E:\Kalycito\checkout\Source\SharedLibrary\openCONFIGURATORSoln\openCONFIGURATOR\Include\BaseIndex.h"
-%include "E:\Kalycito\checkout\Source\SharedLibrary\openCONFIGURATORSoln\openCONFIGURATOR\Include\DataTypeCollection.h"
-%include "E:\Kalycito\checkout\Source\SharedLibrary\openCONFIGURATORSoln\openCONFIGURATOR\Include\Declarations.h"
-%include "E:\Kalycito\checkout\Source\SharedLibrary\openCONFIGURATORSoln\openCONFIGURATOR\Include\globals.h"
-%include "E:\Kalycito\checkout\Source\SharedLibrary\openCONFIGURATORSoln\openCONFIGURATOR\Include\IndexCollection.h"
-%include "E:\Kalycito\checkout\Source\SharedLibrary\openCONFIGURATORSoln\openCONFIGURATOR\Include\Index.h"
-%include "E:\Kalycito\checkout\Source\SharedLibrary\openCONFIGURATORSoln\openCONFIGURATOR\Include\NodeCollection.h"
-%include "E:\Kalycito\checkout\Source\SharedLibrary\openCONFIGURATORSoln\openCONFIGURATOR\Include\Node.h"
-%include "E:\Kalycito\checkout\Source\SharedLibrary\openCONFIGURATORSoln\openCONFIGURATOR\Include\Socket.h"
-%include "E:\Kalycito\checkout\Source\SharedLibrary\openCONFIGURATORSoln\openCONFIGURATOR\Include\SubIndex.h"
-%include "E:\Kalycito\checkout\Source\SharedLibrary\openCONFIGURATORSoln\openCONFIGURATOR\Include\TCollection.h"
-%include "E:\Kalycito\checkout\Source\SharedLibrary\openCONFIGURATORSoln\openCONFIGURATOR\Include\template.h"
-
 %include cpointer.i
 %include cstring.i
 %pointer_functions(char, charp)
@@ -49,7 +40,10 @@
 %cstring_bounded_output(char *Out_NodeName, 100);
 
 %include typemaps.i
+%include exception.i
+%include std_except.i
 
+/* Let's just grab the original header file here */
 
 %include "../openCONFIGURATOR/Include/ApplicationProcess.h"
 %include "../openCONFIGURATOR/Include/BaseIndex.h"

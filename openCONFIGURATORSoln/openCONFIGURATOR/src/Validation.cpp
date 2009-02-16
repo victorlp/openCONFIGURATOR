@@ -79,9 +79,9 @@
     * Description:	Checks for existance of a Node
 	* Return value: ocfmRetCode
 /****************************************************************************************************/
-ocfmRetCode IfNodeExists(int NodeID, ENodeType NodeType, int* NodePos)
+ocfmRetCode IfNodeExists(int NodeID, ENodeType NodeType, int* NodePos, bool& ExistfFlag)
 {	
-	cout << "NodeType:" << NodeType << endl;
+	//cout << "NodeType:" << NodeType << endl;
 	CNode objNode;		
 	CNodeCollection *objNodeCollection = NULL;
 	ocfmRetCode ErrStruct;
@@ -97,9 +97,9 @@ ocfmRetCode IfNodeExists(int NodeID, ENodeType NodeType, int* NodePos)
 		objNodeCollection = CNodeCollection::getNodeColObjectPointer();	
 		if(objNodeCollection == NULL)
 		{
-			cout<< "objNodeCollection is NULL!!!" << endl;
+			//cout<< "objNodeCollection is NULL!!!" << endl;
 		}
-		cout<< "getNumberOfNodes: \n" <<objNodeCollection->getNumberOfNodes()<<endl;
+		//cout<< "getNumberOfNodes: \n" <<objNodeCollection->getNumberOfNodes()<<endl;
 		if( objNodeCollection->getNumberOfNodes() > 0)
 		{
 			for(int count = 0; count < objNodeCollection->getNumberOfNodes(); count++)
@@ -109,20 +109,21 @@ ocfmRetCode IfNodeExists(int NodeID, ENodeType NodeType, int* NodePos)
 				{
 					if(objNode.getNodeId() == NodeID)
 					{
-						printf("Node Pos:%d\n\n", count);
+						//printf("Node Pos:%d\n\n", count);
 						//ErrStruct.returnValue = count;
 						*NodePos = count;
 						ErrStruct.code = OCFM_ERR_SUCCESS;
+						ExistfFlag = true;
 						return ErrStruct;
-					}
-					else
-					{
-						//Node Doesn't match
-					}
+					}					
 				}						
 			}
-			ErrStruct.code = OCFM_ERR_NODEID_NOT_FOUND;
-			return ErrStruct;
+			//ErrStruct.code = OCFM_ERR_NODEID_NOT_FOUND;
+			//return ErrStruct;
+		/*	ocfmException objException;				
+			objException.ocfm_Excpetion(OCFM_ERR_NODEID_NOT_FOUND);
+			throw objException;*/
+			
 		}
 		else
 		{
@@ -152,74 +153,97 @@ ocfmRetCode IfIndexExists(int NodeID, ENodeType NodeType, char* IndexID, int *In
 	CIndex objIndex;
 	ocfmRetCode ErrStruct;
 	int NodePos;
-
-	ErrStruct = IfNodeExists(NodeID, NodeType, &NodePos);
-	if (ErrStruct.code == 0) 
-	{		
-		//retPos = ErrStruct.returnValue;
-	}
-	else
-	{	
-		cout << "\n\nErrStruct.errCode.code:" << ErrStruct.code << "\n\n!!!" << endl;
-		// Node Doesn't Exist
-		ErrStruct.code = OCFM_ERR_INVALID_NODEID;
-		return ErrStruct;
-	}
-	objNodeCollection = CNodeCollection::getNodeColObjectPointer();
-	objNode = objNodeCollection->getNode(NodeType, NodeID);
-	objIndexCollection = objNode.getIndexCollection();
-	
-	cout <<"Node Exists: objIndexCollection->getNumberofIndexes()" << objIndexCollection->getNumberofIndexes() <<endl;
-
-	if(objIndexCollection->getNumberofIndexes() == 0)
+	bool flag = false;
+	try
 	{
-		//AddIndexAttributes(IndexID, &objIndex);
-		//objIndexCollection->addIndex(objIndex);	
-		printf("Index Doesn't exist!!\n\n");
-		// Index Doesn't Exist
-		//return -2;
-		ErrStruct.code = OCFM_ERR_NO_INDEX_FOUND;
-		ErrStruct.errorString = NULL;
-		*IndexPos = 0;
-		return ErrStruct;
-	}
-	
-	else if(objIndexCollection->getNumberofIndexes() > 0)
-	{
-		//Check for existance of the Index
-		for(int tmpIndexcount = 0; tmpIndexcount < objIndexCollection->getNumberofIndexes(); tmpIndexcount++)
+		ErrStruct = IfNodeExists(NodeID, NodeType, &NodePos, flag );
+		if (ErrStruct.code == 0 && flag ==true) 
+		{		
+			//retPos = ErrStruct.returnValue;
+		}
+		else
+		{	
+			//cout << "\n\nErrStruct.errCode.code:" << ErrStruct.code << "\n\n!!!" << endl;
+			// Node Doesn't Exist
+			//ErrStruct.code = OCFM_ERR_INVALID_NODEID;
+			//return ErrStruct;
+			ocfmException objException;				
+			objException.ocfm_Excpetion(OCFM_ERR_INVALID_NODEID);
+			throw objException;
+		}
+		objNodeCollection = CNodeCollection::getNodeColObjectPointer();
+		objNode = objNodeCollection->getNode(NodeType, NodeID);
+		objIndexCollection = objNode.getIndexCollection();
+		
+		//cout <<"Node Exists: objIndexCollection->getNumberofIndexes()" << objIndexCollection->getNumberofIndexes() <<endl;
+
+		if(objIndexCollection->getNumberofIndexes() == 0)
 		{
-			CIndex* objIndexPtr;
-			objIndexPtr =objIndexCollection->getIndex(tmpIndexcount);						
-			printf("IndexValue:%s-%s\n", objIndexPtr->getIndexValue(), IndexID);
-			if((strcmp(ConvertToUpper((char*) objIndexPtr->getIndexValue()), ConvertToUpper(IndexID)) == 0))
+			//AddIndexAttributes(IndexID, &objIndex);
+			//objIndexCollection->addIndex(objIndex);	
+			//printf("Index Doesn't exist!!\n\n");
+			// Index Doesn't Exist
+			//return -2;
+			//ErrStruct.code = OCFM_ERR_NO_INDEX_FOUND;
+			//ErrStruct.errorString = NULL;
+			*IndexPos = 0;
+			//return ErrStruct;
+			ocfmException objException;				
+			objException.ocfm_Excpetion(OCFM_ERR_NO_INDEX_FOUND);
+			throw objException;
+		}
+		
+		else if(objIndexCollection->getNumberofIndexes() > 0)
+		{
+			//Check for existance of the Index
+			for(int tmpIndexcount = 0; tmpIndexcount < objIndexCollection->getNumberofIndexes(); tmpIndexcount++)
 			{
-				printf("Index Already Exists tmpIndexcount:%d!\n",tmpIndexcount);
 				CIndex* objIndexPtr;
-				objIndexPtr = objIndexCollection->getIndex(tmpIndexcount);
-				cout<< "objIndex.getName():" << objIndexPtr->getName() << endl;
-				if(objIndexPtr->getActualValue() == NULL)
-					cout<< "objIndex.getActualValue():NULL" << endl;
-				else
-				cout<< "objIndex.getActualValue():" << objIndexPtr->getActualValue() << endl;
-				
-				*IndexPos = tmpIndexcount;
-				ErrStruct.code = OCFM_ERR_SUCCESS;
-				return ErrStruct;
-			}
-			else if(tmpIndexcount == (objIndexCollection->getNumberofIndexes() - 1))
-			{
-				printf("Index Doesn't exist.. \n\n");
-				// Index Doesn't Exist
-				ErrStruct.code = OCFM_ERR_INDEXID_NOT_FOUND;
-				return ErrStruct;
+				objIndexPtr =objIndexCollection->getIndex(tmpIndexcount);						
+				//printf("IndexValue:%s-%s\n", objIndexPtr->getIndexValue(), IndexID);
+				if((strcmp(ConvertToUpper((char*) objIndexPtr->getIndexValue()), ConvertToUpper(IndexID)) == 0))
+				{
+					//printf("Index Already Exists tmpIndexcount:%d!\n",tmpIndexcount);
+					CIndex* objIndexPtr;
+					objIndexPtr = objIndexCollection->getIndex(tmpIndexcount);
+					//cout<< "objIndex.getName():" << objIndexPtr->getName() << endl;
+					if(objIndexPtr->getActualValue() == NULL)
+					{
+						//cout<< "objIndex.getActualValue():NULL" << endl;
+					}
+					else
+					{
+						//cout<< "objIndex.getActualValue():" << objIndexPtr->getActualValue() << endl;
+					}
+					
+					*IndexPos = tmpIndexcount;
+					ErrStruct.code = OCFM_ERR_SUCCESS;
+					return ErrStruct;
+				}
+				else if(tmpIndexcount == (objIndexCollection->getNumberofIndexes() - 1))
+				{
+					//printf("Index Doesn't exist.. \n\n");
+					// Index Doesn't Exist
+					ErrStruct.code = OCFM_ERR_INDEXID_NOT_FOUND;
+					return ErrStruct;
+					//ocfmException objException;				
+					//objException.ocfm_Excpetion(OCFM_ERR_INDEXID_NOT_FOUND);
+					//throw objException;
+				}
 			}
 		}
+		// Index Doesn't Exist
+		//printf("\n\n$S Index Doesn't Exist\n\n\n");
+		//ErrStruct.code = OCFM_ERR_UNKNOWN;
+		//return ErrStruct;
+		ocfmException objException;				
+		objException.ocfm_Excpetion(OCFM_ERR_UNKNOWN);
+		throw objException;
 	}
-	// Index Doesn't Exist
-	printf("\n\n$S Index Doesn't Exist\n\n\n");
-	ErrStruct.code = OCFM_ERR_UNKNOWN;
-	return ErrStruct;
+	catch(ocfmException* ex)
+	{
+		return ex->_ocfmRetCode;
+	}
 }
 
 /**************************************************************************************************
@@ -241,64 +265,82 @@ ocfmRetCode IfSubIndexExists(int NodeID, ENodeType NodeType, char* IndexID, char
 		CIndex objIndex;
 		CIndex* objSubIndex;
 		ocfmRetCode ErrStruct;
-		
-		ErrStruct = IfIndexExists(NodeID, NodeType, IndexID, IndexPos);
-		if (ErrStruct.code == 0)
-		{				
-			//IndexPos = ErrStruct.returnValue;
-		}
-		else
-		{	
-			cout << "\n\nErrStruct.errCode.code:" << ErrStruct.code << "\n\n!!!" << endl;
-			// Node Doesn't Exist
-			ErrStruct.code = OCFM_ERR_INDEXID_NOT_FOUND;
-			return ErrStruct;
-		}
-			cout <<"Index Exists"<<endl;
-			objIndex.setNodeID(objNode.getNodeId());
-			objNodeCollection= CNodeCollection::getNodeColObjectPointer();
-			objNode = objNodeCollection->getNode(NodeType, NodeID);
-
-			objIndexCollection = objNode.getIndexCollection();
-			objSubIndex =objIndexCollection->getIndex(*IndexPos);
-			cout << "NumberofSubIndexes:" << objSubIndex->getNumberofSubIndexes()<< endl;
-			if(objSubIndex->getNumberofSubIndexes() == 0)
-			{
-				cout << "SubIndex Doesn't Exist" << endl;
-				ErrStruct.code = OCFM_ERR_NO_SUBINDEXS_FOUND;
-				return ErrStruct;
-				//return -3;
+		try
+		{
+			ErrStruct = IfIndexExists(NodeID, NodeType, IndexID, IndexPos);
+			if (ErrStruct.code == 0)
+			{				
+				//IndexPos = ErrStruct.returnValue;
 			}
-			else if(objSubIndex->getNumberofSubIndexes() > 0)
-			{
-				//Check for existance of the SubIndex
-				for(int tmpSubIndexcount = 0; tmpSubIndexcount < objSubIndex->getNumberofSubIndexes(); tmpSubIndexcount++)
+			else
+			{	
+				//cout << "\n\nErrStruct.errCode.code:" << ErrStruct.code << "\n\n!!!" << endl;
+				// Node Doesn't Exist
+				ErrStruct.code = OCFM_ERR_INDEXID_NOT_FOUND;
+				return ErrStruct;
+				//ocfmException objException;				
+				//objException.ocfm_Excpetion(OCFM_ERR_INDEXID_NOT_FOUND);
+				//throw objException;
+			}
+				//cout <<"Index Exists"<<endl;
+				objIndex.setNodeID(objNode.getNodeId());
+				objNodeCollection= CNodeCollection::getNodeColObjectPointer();
+				objNode = objNodeCollection->getNode(NodeType, NodeID);
+
+				objIndexCollection = objNode.getIndexCollection();
+				objSubIndex =objIndexCollection->getIndex(*IndexPos);
+				//cout << "NumberofSubIndexes:" << objSubIndex->getNumberofSubIndexes()<< endl;
+				if(objSubIndex->getNumberofSubIndexes() == 0)
 				{
-					CSubIndex* objSubIndexPtr;
-					objSubIndexPtr = objSubIndex->getSubIndex(tmpSubIndexcount);						
-					printf("SubIndexValue:%s-%s\n", objSubIndexPtr->getIndexValue(), SubIndexID);
-					if((strcmp(ConvertToUpper((char*) objSubIndexPtr->getIndexValue()), ConvertToUpper(SubIndexID)) == 0))
+					//cout << "SubIndex Doesn't Exist" << endl;
+					//ocfmException objException;				
+					//objException.ocfm_Excpetion(OCFM_ERR_NO_SUBINDEXS_FOUND);
+					//throw objException;
+					ErrStruct.code = OCFM_ERR_NO_SUBINDEXS_FOUND;
+					return ErrStruct;
+					//return -3;
+				}
+				else if(objSubIndex->getNumberofSubIndexes() > 0)
+				{
+					//Check for existance of the SubIndex
+					for(int tmpSubIndexcount = 0; tmpSubIndexcount < objSubIndex->getNumberofSubIndexes(); tmpSubIndexcount++)
 					{
-						printf("SubIndex Already Exists tmpIndexcount:%d!\n",tmpSubIndexcount);				
-						ErrStruct.code = OCFM_ERR_SUCCESS;
-						*SubIndexPos = tmpSubIndexcount;
-						return ErrStruct;						
-						//return tmpSubIndexcount;
-					}
-					else if(tmpSubIndexcount == (objSubIndex->getNumberofSubIndexes() - 1))
-					{
-						printf("SubIndex Doesn't exist \n\n");
-						// SubIndex Doesn't Exist
-						ErrStruct.code = OCFM_ERR_SUBINDEXID_NOT_FOUND;
-						return ErrStruct;
-						//return -3;
+						CSubIndex* objSubIndexPtr;
+						objSubIndexPtr = objSubIndex->getSubIndex(tmpSubIndexcount);						
+						//printf("SubIndexValue:%s-%s\n", objSubIndexPtr->getIndexValue(), SubIndexID);
+						if((strcmp(ConvertToUpper((char*) objSubIndexPtr->getIndexValue()), ConvertToUpper(SubIndexID)) == 0))
+						{
+							//printf("SubIndex Already Exists tmpIndexcount:%d!\n",tmpSubIndexcount);				
+							ErrStruct.code = OCFM_ERR_SUCCESS;
+							*SubIndexPos = tmpSubIndexcount;
+							return ErrStruct;
+							//return tmpSubIndexcount;
+						}
+						else if(tmpSubIndexcount == (objSubIndex->getNumberofSubIndexes() - 1))
+						{
+							//printf("SubIndex Doesn't exist \n\n");
+							// SubIndex Doesn't Exist
+							ErrStruct.code = OCFM_ERR_SUBINDEXID_NOT_FOUND;
+							return ErrStruct;
+							//ocfmException objException;				
+							//objException.ocfm_Excpetion(OCFM_ERR_SUBINDEXID_NOT_FOUND);
+							//throw objException;
+							//return -3;
+						}
 					}
 				}
-			}
+			
+		//ErrStruct.code = OCFM_ERR_UNKNOWN;
+		//return ErrStruct;
+		ocfmException objException;				
+		objException.ocfm_Excpetion(OCFM_ERR_UNKNOWN);
+		throw objException;
 		
-	ErrStruct.code = OCFM_ERR_UNKNOWN;
-	return ErrStruct;
-	//return -3;
+	}
+	catch(ocfmException* ex)
+	{
+		return ex->_ocfmRetCode;
+	}
 }
 bool CheckIfDataTypeExists(char* dtValue, int NodeID)
 {

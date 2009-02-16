@@ -101,8 +101,9 @@ static void AddIndexAttributes(char* IndexID, CIndex* objIndex)
 		//{
 		//		exit;
 		//}
-		cout << "INDEXID" << objIndex->getIndexValue() << endl;
-		cout << "RX INDEXID" << IndexID << endl;
+		
+		//cout << "INDEXID" << objIndex->getIndexValue() << endl;
+		//cout << "RX INDEXID" << IndexID << endl;
 		objIndex->setIndexValue(IndexID);
 		
 		//$S The Value for all the attributes has to come from ObjDict.xml
@@ -250,13 +251,20 @@ ocfmRetCode CreateNode(int NodeID, ENodeType NodeType)
 	try
 	{
 		// TODO:If Check is made when Zero nodes present, Seg Fault is happening
+		if(NodeType ==MN)
+		{
+			//cout << "loading od.xml"<< endl;
+			LoadObjectDictionary("od.xml");
+			//cout << "loaded xml" << endl;
+		}
 		if(NodeType == CN)
 		{
-			ErrStruct = IfNodeExists(NodeID, NodeType, &NodePos);
+			bool flag = false;
+			ErrStruct = IfNodeExists(NodeID, NodeType, &NodePos, flag );
 								
-			if(ErrStruct.code == OCFM_ERR_SUCCESS)								
+			if(ErrStruct.code == OCFM_ERR_SUCCESS && flag == true)								
 			{
-				cout << "from CreateNode OCFM_ERR_NODE_ALREADY_EXISTS:" << OCFM_ERR_NODE_ALREADY_EXISTS << endl;
+				//cout << "from CreateNode OCFM_ERR_NODE_ALREADY_EXISTS:" << OCFM_ERR_NODE_ALREADY_EXISTS << endl;
 				ocfmException* objException = new ocfmException;
 				objException->ocfm_Excpetion(OCFM_ERR_NODE_ALREADY_EXISTS);		
 				throw objException;
@@ -265,7 +273,9 @@ ocfmRetCode CreateNode(int NodeID, ENodeType NodeType)
 			}
 			else
 			{
-				cout<< "OCFM_ERR_NODEID_NOT_FOUND" << OCFM_ERR_NODEID_NOT_FOUND << endl;;
+				//cout<< "OCFM_ERR_NODEID_NOT_FOUND" << OCFM_ERR_NODEID_NOT_FOUND << endl;;
+				
+				
 			}
 		}
 		objNode.setNodeId(NodeID);
@@ -277,13 +287,13 @@ ocfmRetCode CreateNode(int NodeID, ENodeType NodeType)
 
 		objNodeCollection = CNodeCollection::getNodeColObjectPointer();
 		objNodeCollection->addNode(objNode);
-		cout<< "\n\nNode Created!!\n\n\n" << endl;
+		//cout<< "\n\nNode Created!!\n\n\n" << endl;
 		ErrStruct.code = OCFM_ERR_SUCCESS;
 		return ErrStruct;
 	}
 	catch(ocfmException* ex)
 	{
-		cout<< "\n\nNode Not Created!!\n\n\n" << endl;
+		//cout<< "\n\nNode Not Created!!\n\n\n" << endl;
 		return ex->_ocfmRetCode;
 	}
 }
@@ -297,23 +307,31 @@ ocfmRetCode DeleteNode(int NodeID, ENodeType NodeType)
 	{
 		int NodePos;
 		ocfmRetCode ErrStruct;
-		ErrStruct = IfNodeExists(NodeID, NodeType, &NodePos);
+		bool flag = false;
+		ErrStruct = IfNodeExists(NodeID, NodeType, &NodePos, flag);
 							
-		if(ErrStruct.code == OCFM_ERR_SUCCESS)								
+		if(flag!= true)
 		{
-			//NodePos = ErrStruct.returnValue;
-		}
-		else
-		{
-			cout << "\n\nErrStruct.code:" << ErrStruct.code << "\n\n!!!" << endl;
-			// Node Doesn't Exist
+			/* Function didnt throw any exception but Node doesnt exist */
+			if(ErrStruct.code == OCFM_ERR_SUCCESS)								
+			{
+				ErrStruct.code = OCFM_ERR_NODEID_NOT_FOUND;
+			}
+			/* Function threw exception*/
+			else
+			{
+				//cout << "\n\nErrStruct.code:" << ErrStruct.code << "\n\n!!!" << endl;
+				// Node Doesn't Exist
+				
+			}
 			return ErrStruct;
 		}
+		
 
 		CNode objNode;		
 		CNodeCollection *objNodeCollection;
 		objNodeCollection= CNodeCollection::getNodeColObjectPointer();	
-		cout<< "Inside DeleteNode: \n" <<objNodeCollection->getNumberOfNodes()<<endl;
+		//cout<< "Inside DeleteNode: \n" <<objNodeCollection->getNumberOfNodes()<<endl;
 		objNodeCollection = CNodeCollection::getNodeColObjectPointer();
 		objNodeCollection->deleteNode(NodePos);
 		ErrStruct.code = OCFM_ERR_SUCCESS;
@@ -329,34 +347,40 @@ ocfmRetCode DeleteIndex(int NodeID, ENodeType NodeType, char* IndexID)
 	{
 		
 		int IndexPos;
-		
-		ocfmRetCode ErrStruct;
-		ErrStruct = IfIndexExists(NodeID, NodeType, IndexID, &IndexPos);
-		if(ErrStruct.code == OCFM_ERR_SUCCESS)
+		try
 		{
-			//IndexPos = ErrStruct.returnValue;
-		}
-		else
+			ocfmRetCode ErrStruct;
+			ErrStruct = IfIndexExists(NodeID, NodeType, IndexID, &IndexPos);
+			if(ErrStruct.code == OCFM_ERR_SUCCESS)
+			{
+				//IndexPos = ErrStruct.returnValue;
+			}
+			else
+			{
+				ocfmException objException;				
+				objException.ocfm_Excpetion(OCFM_ERR_INDEXID_NOT_FOUND);
+				throw objException;
+			}
+			CNode objNode;		
+			CNodeCollection *objNodeCollection;
+			CIndexCollection *objIndexCollection;
+			CIndex objIndex;
+
+			objIndex.setNodeID(objNode.getNodeId());
+			objNodeCollection= CNodeCollection::getNodeColObjectPointer();
+			objNode = objNodeCollection->getNode(NodeType, NodeID);
+
+			objIndexCollection = objNode.getIndexCollection();
+			//cout<< "Inside DeleteIndex: \n" << atoi(IndexID) <<endl;
+			//cout<< "Inside DeleteIndex: \n" << IndexPos <<endl;
+			objIndexCollection->deleteIndex(IndexPos);
+			ErrStruct.code = OCFM_ERR_SUCCESS;
+			return ErrStruct;
+		}	
+		catch(ocfmException& ex)
 		{
-			 //OCFM_ERR_INDEXID_NOT_FOUND;
-			 return ErrStruct;
+			return ex._ocfmRetCode;
 		}
-		CNode objNode;		
-		CNodeCollection *objNodeCollection;
-		CIndexCollection *objIndexCollection;
-		CIndex objIndex;
-
-		objIndex.setNodeID(objNode.getNodeId());
-		objNodeCollection= CNodeCollection::getNodeColObjectPointer();
-		objNode = objNodeCollection->getNode(NodeType, NodeID);
-
-		objIndexCollection = objNode.getIndexCollection();
-		//cout<< "Inside DeleteIndex: \n" << atoi(IndexID) <<endl;
-		cout<< "Inside DeleteIndex: \n" << IndexPos <<endl;
-		objIndexCollection->deleteIndex(IndexPos);
-		ErrStruct.code = OCFM_ERR_SUCCESS;
-		return ErrStruct;
-
 	}
 	
 /**************************************************************************************************
@@ -374,31 +398,37 @@ ocfmRetCode DeleteSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* 
 		int SubIndexPos;
 		int IndexPos;
 		ocfmRetCode ErrStruct;
-		
-		ErrStruct = IfSubIndexExists(NodeID, NodeType, IndexID, SubIndexID, &SubIndexPos, &IndexPos);
-		if(ErrStruct.code == OCFM_ERR_SUCCESS)
+		try
 		{
-			//SubIndexPos = Tmp_ErrStruct.returnValue;
-		}
-		else
-		{
-			//OCFM_ERR_INVALID_SUBINDEXID;
+			ErrStruct = IfSubIndexExists(NodeID, NodeType, IndexID, SubIndexID, &SubIndexPos, &IndexPos);
+			if(ErrStruct.code == OCFM_ERR_SUCCESS)
+			{
+				//SubIndexPos = Tmp_ErrStruct.returnValue;
+			}
+			else
+			{
+					ocfmException objException;				
+					objException.ocfm_Excpetion(OCFM_ERR_SUBINDEXID_NOT_FOUND);
+					throw objException;
+			}
+
+			objIndex.setNodeID(objNode.getNodeId());
+			objNodeCollection= CNodeCollection::getNodeColObjectPointer();
+			objNode = objNodeCollection->getNode(NodeType, NodeID);
+
+
+			objIndexCollection = objNode.getIndexCollection();
+			objSubIndex =objIndexCollection->getIndex(IndexPos);
+			
+			//cout << "NumberofSubIndexes:" << objIndex.getNumberofSubIndexes()<< endl;
+			objSubIndex->deleteSubIndex(SubIndexPos);
+			ErrStruct.code = OCFM_ERR_SUCCESS;
 			return ErrStruct;
 		}
-
-		objIndex.setNodeID(objNode.getNodeId());
-		objNodeCollection= CNodeCollection::getNodeColObjectPointer();
-		objNode = objNodeCollection->getNode(NodeType, NodeID);
-
-
-		objIndexCollection = objNode.getIndexCollection();
-		objSubIndex =objIndexCollection->getIndex(IndexPos);
-		
-		cout << "NumberofSubIndexes:" << objIndex.getNumberofSubIndexes()<< endl;
-		objSubIndex->deleteSubIndex(SubIndexPos);
-		ErrStruct.code = OCFM_ERR_SUCCESS;
-		return ErrStruct;
-
+		catch(ocfmException& ex)
+		{
+			return ex._ocfmRetCode;
+		}		
 	}
 /**************************************************************************************************
 	* Function Name: AddSubIndex
@@ -407,6 +437,7 @@ ocfmRetCode DeleteSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* 
 /****************************************************************************************************/
 ocfmRetCode AddSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID)
 	{
+	//cout << "\nInside AddSubIndex\n" << endl;
 		CNode objNode;		
 		CNodeCollection *objNodeCollection;
 		CIndexCollection *objIndexCollection;
@@ -416,59 +447,84 @@ ocfmRetCode AddSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* Sub
 		ocfmRetCode ErrStruct;
 		CSubIndex *objDictSIndex;
 		
-		if(NotLoadedOBD)
+		try
 		{
-			LoadObjectDictionary("od.xml");
-			NotLoadedOBD = false;
-		}
-		ErrStruct = IfSubIndexExists(NodeID, NodeType, IndexID, SubIndexID, &SubIndexPos, &IndexPos);
-		
-		if( ErrStruct.code == OCFM_ERR_SUCCESS )
-		{
-			ErrStruct.code = OCFM_ERR_SUBINDEX_ALREADY_EXISTS;
-			return ErrStruct;
-		}
-		
-		if( (ErrStruct.code == OCFM_ERR_NO_SUBINDEXS_FOUND) || (ErrStruct.code == OCFM_ERR_SUBINDEXID_NOT_FOUND))
-		{
-			objIndex.setNodeID(objNode.getNodeId());
-			objNodeCollection= CNodeCollection::getNodeColObjectPointer();
-			objNode = objNodeCollection->getNode(NodeType, NodeID);
-			objIndexCollection = objNode.getIndexCollection();
-			CIndex* objIndexPtr;
-			objIndexPtr =objIndexCollection->getIndex(IndexPos);
-			CSubIndex* objSubIndex;
-			
-			objSubIndex = new CSubIndex;
-			//Set the NodeID
-			//objSubIndex.setNodeID(objNode.getNodeId());
-			
-			/* Get the SubIndex from ObjectDictionary*/
-			CObjectDictionary* objOBD;
-			objOBD = CObjectDictionary::getObjDictPtr();
-			
-			cout << "\n\nobjOBD->ifObjectDictSubIndexExists(IndexID, SubIndexID):" << objOBD->ifObjectDictSubIndexExists(IndexID, SubIndexID) << endl;
-			if(objOBD->ifObjectDictSubIndexExists(IndexID, SubIndexID) == 1)
+			/*if(NotLoadedOBD)
 			{
-				cout<< "\n\n\n$OCFM_ERR_INVALID_SUBINDEXID \n"<<endl;
-				ErrStruct.code = OCFM_ERR_INVALID_SUBINDEXID;
-				return ErrStruct;
-			}	
-			
-			objSubIndex = objOBD->getObjectDictSubIndex(IndexID, SubIndexID);
-			if(objSubIndex != NULL)
+			cout << "loading od.xml..." << endl;
+				LoadObjectDictionary("od.xml");
+				cout << "loaded od.xml..." << endl;
+				NotLoadedOBD = false;
+			}*/
+			ErrStruct = IfSubIndexExists(NodeID, NodeType, IndexID, SubIndexID, &SubIndexPos, &IndexPos);
+		//	cout << "1\n" << endl;
+			if( ErrStruct.code == OCFM_ERR_SUCCESS )
 			{
-				AddSubIndexAttributes(SubIndexID, objSubIndex);
-				objIndexPtr->addSubIndex(*objSubIndex);
+				//ErrStruct.code = OCFM_ERR_SUBINDEX_ALREADY_EXISTS;
+				//return ErrStruct;
+				ocfmException objException;				
+				objException.ocfm_Excpetion(OCFM_ERR_SUBINDEX_ALREADY_EXISTS);
+		//		cout << "2\n" << endl;
+				throw objException;
 			}
 			
-			//AddSubIndexAttributes(SubIndexID, &objSubIndex);									
-			
-			printf("Added SubIndex \n\n");
-			ErrStruct.code = OCFM_ERR_SUCCESS;
-			return ErrStruct;						
+			if( (ErrStruct.code == OCFM_ERR_NO_SUBINDEXS_FOUND) || (ErrStruct.code == OCFM_ERR_SUBINDEXID_NOT_FOUND))
+			{
+			//cout << "3\n" << endl;
+				objIndex.setNodeID(objNode.getNodeId());
+				objNodeCollection= CNodeCollection::getNodeColObjectPointer();
+				objNode = objNodeCollection->getNode(NodeType, NodeID);
+				objIndexCollection = objNode.getIndexCollection();
+				CIndex* objIndexPtr;
+				objIndexPtr =objIndexCollection->getIndex(IndexPos);
+				CSubIndex* objSubIndex;
+				
+				objSubIndex = new CSubIndex;
+				//Set the NodeID
+				//objSubIndex.setNodeID(objNode.getNodeId());
+				
+				/* Get the SubIndex from ObjectDictionary*/
+				CObjectDictionary* objOBD;
+				objOBD = CObjectDictionary::getObjDictPtr();
+				
+				//cout << "\n\nobjOBD->ifObjectDictSubIndexExists(IndexID, SubIndexID):" << objOBD->ifObjectDictSubIndexExists(IndexID, SubIndexID) << endl;
+				//if(objOBD->ifObjectDictSubIndexExists(IndexID, SubIndexID) == 1)
+				//{
+				//	//cout<< "\n\n\n$OCFM_ERR_INVALID_SUBINDEXID \n"<<endl;
+				//	//ErrStruct.code = OCFM_ERR_INVALID_SUBINDEXID;
+				//	//return ErrStruct;
+				//	ocfmException objException;				
+				//	objException.ocfm_Excpetion(OCFM_ERR_INVALID_SUBINDEXID);
+				//	throw objException;
+				//}	
+				
+				objSubIndex = objOBD->getObjectDictSubIndex(IndexID, SubIndexID);
+				if(objSubIndex != NULL)
+				{
+				//	cout << "4\n" << endl;
+					AddSubIndexAttributes(SubIndexID, objSubIndex);
+					objIndexPtr->addSubIndex(*objSubIndex);
+				}
+				else
+				{
+			//	cout << "5\n" << endl;
+						ocfmException objException;				
+						objException.ocfm_Excpetion(OCFM_ERR_INVALID_SUBINDEXID);
+						throw objException;
+				}
+				
+				//AddSubIndexAttributes(SubIndexID, &objSubIndex);									
+				
+				//printf("Added SubIndex \n\n");
+				ErrStruct.code = OCFM_ERR_SUCCESS;
+				return ErrStruct;						
+			}
+			return ErrStruct;
 		}
-		return ErrStruct;
+		catch(ocfmException& ex)
+		{
+			return ex._ocfmRetCode;
+		}
 	}	
 
 /**************************************************************************************************
@@ -487,59 +543,74 @@ ocfmRetCode AddIndex(int NodeID, ENodeType NodeType, char* IndexID)
 		ErrStruct.code = OCFM_ERR_UNKNOWN;
 		ErrStruct.errorString = NULL;
 		
-		if(NotLoadedOBD)
+		try 
 		{
-			LoadObjectDictionary("od.xml");
-			NotLoadedOBD = false;
-		}
-		
-		cout<< "Inside AddIndex \n"<<endl;
-		ErrStruct = IfIndexExists(NodeID, NodeType, IndexID, &IndexPos);
-		
-		
-		cout << "\n\nErrStruct.code from IfIndexExists:" << ErrStruct.code << endl;
-		
-		if( ErrStruct.code == OCFM_ERR_SUCCESS )
-		{
-			ErrStruct.code = OCFM_ERR_INDEX_ALREADY_EXISTS;
+			/*if(NotLoadedOBD)
+			{
+				LoadObjectDictionary("od.xml");
+				NotLoadedOBD = false;
+			}*/
+			
+			//cout<< "Inside AddIndex \n"<<endl;
+			ErrStruct = IfIndexExists(NodeID, NodeType, IndexID, &IndexPos);
+			
+			
+			//cout << "\n\nErrStruct.code from IfIndexExists:" << ErrStruct.code << endl;
+			
+			if( ErrStruct.code == OCFM_ERR_SUCCESS )
+			{
+				//ErrStruct.code = OCFM_ERR_INDEX_ALREADY_EXISTS;
+				//return ErrStruct;
+				ocfmException objException;				
+				objException.ocfm_Excpetion(OCFM_ERR_INDEX_ALREADY_EXISTS);
+				throw objException;
+			}
+			
+			if( (ErrStruct.code == OCFM_ERR_NO_INDEX_FOUND) || (ErrStruct.code == OCFM_ERR_INDEXID_NOT_FOUND) )
+			{	
+				objIndex = new CIndex();
+				objIndex->setNodeID(objNode.getNodeId());
+				objNodeCollection= CNodeCollection::getNodeColObjectPointer();
+				objNode = objNodeCollection->getNode(NodeType, NodeID);
+				objIndexCollection = objNode.getIndexCollection();
+				/* Get the Index from ObjectDictionary*/
+				CObjectDictionary* objOBD;
+				objOBD = CObjectDictionary::getObjDictPtr();
+				//if(objOBD->ifObjectDictIndexExists(IndexID) == 1)
+				//{
+				//	//cout<< "\n\n\n$OCFM_ERR_INVALID_INDEXID \n"<<endl;
+				//	//ErrStruct.code = OCFM_ERR_INVALID_INDEXID;
+				//	//return ErrStruct;
+				//	ocfmException objException;				
+				//	objException.ocfm_Excpetion(OCFM_ERR_INVALID_INDEXID);
+				//	throw objException;
+				//}
+				objIndex = objOBD->getObjectDictIndex(IndexID);
+				if(objIndex!=NULL)
+				{
+					AddIndexAttributes(IndexID, objIndex);
+					objIndexCollection->addIndex(*objIndex);
+				}
+				else
+				{
+					//ErrStruct.code = OCFM_ERR_INVALID_INDEXID;
+					//printf("\nAdded NOT Index \n\n");
+					//return ErrStruct;
+					ocfmException objException;				
+					objException.ocfm_Excpetion(OCFM_ERR_INVALID_INDEXID);
+					throw objException;
+				}
+				//printf("Added Index \n\n");
+				//return OCFM_ERR_SUCCESS;
+				ErrStruct.code = OCFM_ERR_SUCCESS;
+				return ErrStruct;
+			}			
 			return ErrStruct;
 		}
-		
-		if( (ErrStruct.code == OCFM_ERR_NO_INDEX_FOUND) || (ErrStruct.code == OCFM_ERR_INDEXID_NOT_FOUND) )
-		{	
-			objIndex = new CIndex();
-			objIndex->setNodeID(objNode.getNodeId());
-			objNodeCollection= CNodeCollection::getNodeColObjectPointer();
-			objNode = objNodeCollection->getNode(NodeType, NodeID);
-			objIndexCollection = objNode.getIndexCollection();
-			/* Get the Index from ObjectDictionary*/
-			CObjectDictionary* objOBD;
-			objOBD = CObjectDictionary::getObjDictPtr();
-			if(objOBD->ifObjectDictIndexExists(IndexID) == 1)
-			{
-				cout<< "\n\n\n$OCFM_ERR_INVALID_INDEXID \n"<<endl;
-				ErrStruct.code = OCFM_ERR_INVALID_INDEXID;
-				return ErrStruct;
-			}
-			objIndex = objOBD->getObjectDictIndex(IndexID);
-			if(objIndex!=NULL)
-			{
-				AddIndexAttributes(IndexID, objIndex);
-				objIndexCollection->addIndex(*objIndex);
-			}
-			else
-			{
-				ErrStruct.code = OCFM_ERR_INVALID_INDEXID;
-				printf("\nAdded NOT Index \n\n");
-				return ErrStruct;
-			}
-			printf("Added Index \n\n");
-			//return OCFM_ERR_SUCCESS;
-			ErrStruct.code = OCFM_ERR_SUCCESS;
-			return ErrStruct;
-		}			
-		return ErrStruct;
-
+		catch(ocfmException& ex)
+		{
+			return ex._ocfmRetCode;
+		}
 	}	
 /**************************************************************************************************
 	* Function Name: EditIndex
@@ -549,45 +620,58 @@ ocfmRetCode AddIndex(int NodeID, ENodeType NodeType, char* IndexID)
 ocfmRetCode SetIndexAttributes(int NodeID, ENodeType NodeType, char* IndexID, char* IndexValue, char* IndexName)
 {
 	int IndexPos;
-	ocfmRetCode ErrStruct;		
-	ErrStruct = IfIndexExists(NodeID, NodeType, IndexID, &IndexPos);
-	if(ErrStruct.code == OCFM_ERR_SUCCESS)
+	ocfmRetCode ErrStruct;
+	try 
 	{
-		//IndexPos = ErrStruct.returnValue;
-	}
-	else
-	{
-		//OCFM_ERR_INDEXID_NOT_FOUND
+		ErrStruct = IfIndexExists(NodeID, NodeType, IndexID, &IndexPos);
+		if(ErrStruct.code == OCFM_ERR_SUCCESS)
+		{
+			//IndexPos = ErrStruct.returnValue;
+		}
+		else
+		{
+			//OCFM_ERR_INDEXID_NOT_FOUND
+			//return ErrStruct;
+			ocfmException objException;				
+			objException.ocfm_Excpetion(OCFM_ERR_INDEXID_NOT_FOUND);
+			throw objException;
+		}
+		CIndex* objIndexPtr;
+
+		CNode objNode;		
+		CNodeCollection *objNodeCollection;
+		CIndexCollection *objIndexCollection;
+		CIndex objIndex;
+		
+		objIndex.setNodeID(objNode.getNodeId());
+		objNodeCollection= CNodeCollection::getNodeColObjectPointer();
+		objNode = objNodeCollection->getNode(NodeType, NodeID);
+		objIndexCollection = objNode.getIndexCollection();
+		objIndexPtr =objIndexCollection->getIndex(IndexPos);			
+		//cout << "EditIndexValue:Index Actual Value:" << objIndexPtr->getActualValue() << IndexValue << endl;
+		/* Check if the value is valid*/
+		objIndexPtr->setName(IndexName);
+		if(objIndexPtr->IsIndexVaueValid(IndexValue))
+		{
+			//printf("\nIndex value%s",IndexValue);
+			objIndexPtr->setActualValue(IndexValue);
+			
+		//printf("EditIndexValue:Index Actual Value:%s-%s\n", objIndexPtr->getActualValue(), IndexValue);
+			ErrStruct.code = OCFM_ERR_SUCCESS;
+		}
+		else
+		{
+				ocfmException objException;				
+				objException.ocfm_Excpetion(OCFM_ERR_VALUE_NOT_WITHIN_RANGE);
+				throw objException;
+				//ErrStruct.code = OCFM_ERR_VALUE_NOT_WITHIN_RANGE;
+		}
 		return ErrStruct;
 	}
-	CIndex* objIndexPtr;
-
-	CNode objNode;		
-	CNodeCollection *objNodeCollection;
-	CIndexCollection *objIndexCollection;
-	CIndex objIndex;
-	
-	objIndex.setNodeID(objNode.getNodeId());
-	objNodeCollection= CNodeCollection::getNodeColObjectPointer();
-	objNode = objNodeCollection->getNode(NodeType, NodeID);
-	objIndexCollection = objNode.getIndexCollection();
-	objIndexPtr =objIndexCollection->getIndex(IndexPos);			
-	//cout << "EditIndexValue:Index Actual Value:" << objIndexPtr->getActualValue() << IndexValue << endl;
-	/* Check if the value is valid*/
-	objIndexPtr->setName(IndexName);
-	if(objIndexPtr->IsIndexVaueValid(IndexValue))
+	catch(ocfmException& ex)
 	{
-		objIndexPtr->setActualValue(IndexValue);
-		
-	//printf("EditIndexValue:Index Actual Value:%s-%s\n", objIndexPtr->getActualValue(), IndexValue);
-		ErrStruct.code = OCFM_ERR_SUCCESS;
+		return ex._ocfmRetCode;
 	}
-	else
-	{
-			ErrStruct.code = OCFM_ERR_VALUE_NOT_WITHIN_RANGE;
-	}
-	return ErrStruct;
-	
 }
 
 /**************************************************************************************************
@@ -607,42 +691,56 @@ ocfmRetCode SetSubIndexAttributes(int NodeID, ENodeType NodeType, char* IndexID,
 		ocfmRetCode ErrStruct;
 		//CSubIndex* objSubIndex;
 		
-		ErrStruct = IfSubIndexExists(NodeID, NodeType, IndexID, SubIndexID, &SubIndexPos, &IndexPos);
-		if(ErrStruct.code == OCFM_ERR_SUCCESS)
+		try
 		{
-			//SubIndexPos = Tmp_ErrStruct.returnValue;
-		}
-		else
-		{
-			//OCFM_ERR_INVALID_SUBINDEXID
+			ErrStruct = IfSubIndexExists(NodeID, NodeType, IndexID, SubIndexID, &SubIndexPos, &IndexPos);
+			if(ErrStruct.code == OCFM_ERR_SUCCESS)
+			{
+				//SubIndexPos = Tmp_ErrStruct.returnValue;
+			}
+			else
+			{
+				//OCFM_ERR_INVALID_SUBINDEXID
+				ocfmException objException;				
+				objException.ocfm_Excpetion(OCFM_ERR_INVALID_SUBINDEXID);
+				throw objException;
+//				return ErrStruct;
+			}
+			
+			CSubIndex* objSubIndexPtr;
+				
+			objIndex.setNodeID(objNode.getNodeId());
+			objNodeCollection= CNodeCollection::getNodeColObjectPointer();
+			objNode = objNodeCollection->getNode(NodeType, NodeID);
+
+			objIndexCollection = objNode.getIndexCollection();
+			objSubIndex =objIndexCollection->getIndex(IndexPos);
+			
+			objSubIndexPtr = objSubIndex->getSubIndex(SubIndexPos);						
+			//printf("SubIndexValue:%s-%s\n", objSubIndexPtr->getName(), SubIndexID);
+			objSubIndexPtr->setName(IndexName);
+			if(objSubIndexPtr->IsIndexVaueValid(IndexValue))		
+			{
+				printf("\nIndex value%s",IndexValue);
+				objSubIndexPtr->setActualValue(IndexValue);
+				ErrStruct.code = OCFM_ERR_SUCCESS;
+			}
+			else
+			{
+				ocfmException objException;				
+				objException.ocfm_Excpetion(OCFM_ERR_VALUE_NOT_WITHIN_RANGE);
+				throw objException;
+				//ErrStruct.code =  OCFM_ERR_VALUE_NOT_WITHIN_RANGE;
+			}
+			objSubIndexPtr->setName(IndexName);
+			//printf("SubIndexValue:%s-%s\n", objSubIndexPtr->getName(), SubIndexID);
+			/*ErrStruct.code = OCFM_ERR_SUCCESS;*/
 			return ErrStruct;
 		}
-		
-		CSubIndex* objSubIndexPtr;
-			
-		objIndex.setNodeID(objNode.getNodeId());
-		objNodeCollection= CNodeCollection::getNodeColObjectPointer();
-		objNode = objNodeCollection->getNode(NodeType, NodeID);
-
-		objIndexCollection = objNode.getIndexCollection();
-		objSubIndex =objIndexCollection->getIndex(IndexPos);
-		
-		objSubIndexPtr = objSubIndex->getSubIndex(SubIndexPos);						
-		printf("SubIndexValue:%s-%s\n", objSubIndexPtr->getName(), SubIndexID);
-		objSubIndexPtr->setName(IndexName);
-		if(objSubIndexPtr->IsIndexVaueValid(IndexValue))		
+		catch(ocfmException& ex)
 		{
-			objSubIndexPtr->setActualValue(IndexValue);
-			ErrStruct.code = OCFM_ERR_SUCCESS;
+			return ex._ocfmRetCode;
 		}
-		else
-		{
-			ErrStruct.code =  OCFM_ERR_VALUE_NOT_WITHIN_RANGE;
-		}
-		objSubIndexPtr->setName(IndexName);
-		printf("SubIndexValue:%s-%s\n", objSubIndexPtr->getName(), SubIndexID);
-		/*ErrStruct.code = OCFM_ERR_SUCCESS;*/
-		return ErrStruct;
 }
 
 /**************************************************************************************************
@@ -667,13 +765,13 @@ void DisplayNodeTree()
 					{						
 						//int tmp_NodeID = objNode.getNodeId();
 						//objNode =objNodeCollection->getNode(CN,tmp_NodeID);
-						printf("NodePos:%d, NodeID:%d\n", count, objNode.getNodeId());
+						//printf("NodePos:%d, NodeID:%d\n", count, objNode.getNodeId());
 					}						
 			}
 		}
 		else
 		{
-				printf("No Nodes found!\n");
+				//printf("No Nodes found!\n");
 				return;
 		}
 			
@@ -702,7 +800,7 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 					len = strlen(Buffer);
 					//Buffer =(char*)realloc(Buffer,2);
 					strcat(Buffer,"\t");
-					printf("%s",Buffer);
+					//printf("\n%s",Buffer);
 
 					//If subindexes are none, add "00"
 					//	Buffer =(char*)realloc(Buffer,4);
@@ -724,19 +822,21 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 							strcat(Buffer,"\t");
 						
 							if (objIndex->getActualValue()!=NULL)
-							{									
-								char* actvalue;
-								actvalue = new char[50];								
-								if(strchr((char*)objIndex->getActualValue(),'x')!=NULL)
+							{	
+												
+								char* actvalue = new char[30];												
+								if(strchr((char*)objIndex->getActualValue(),'x')!=NULL )
 								{
-									actvalue = strchr((char*)objIndex->getActualValue(),'x');
-									actvalue = subString(actvalue,1,strlen(actvalue)-1);
+									strcpy(actvalue,strchr((char*)objIndex->getActualValue(),'x'));
+									strcpy(actvalue, subString(actvalue,1,strlen(actvalue)-1));
 									strcat(Buffer,padLeft(actvalue,'0',padLength));
 								}
 								else
 								{
-									actvalue = itoa(atoi(objIndex->getActualValue()),actvalue,16);
-									printf("Index:% s actvalue: %s padlength:%d",objIndex->getIndexValue(),objIndex->getActualValue(),padLength);
+								 
+									actvalue =  itoa(atoi(objIndex->getActualValue()),actvalue,16);
+									/*printf("\n actval%s",actvalue);*/
+									//printf("Index:% s actvalue: %s padlength:%d",objIndex->getIndexValue(),objIndex->getActualValue(),padLength);
 									//strcat(Buffer,padLeft((char*)objIndex->getActualValue(),'0',padLength));								
 									strcat(Buffer,padLeft(actvalue, '0', padLength));
 								}
@@ -778,7 +878,7 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 						//Place a tab			
 						len = strlen(Buffer);
 						strcat(Buffer,"\t");
-						printf("%s",Buffer);
+						//printf("%s",Buffer);
 
 							/*if(objSubIndex->getActualValue() != NULL || objSubIndex->getDefaultValue()!=NULL)*/
 								strcat(Buffer, objSubIndex->getIndexValue());
@@ -798,13 +898,14 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 							
 								if (objSubIndex->getActualValue()!=NULL)
 								{
-										char* actvalue;
-										actvalue = (char*)malloc(50);
+										char actvalue[20];
+									//	actvalue = (char*)malloc(20);
 								
 								// Add the reset value for that Index,SubIndex
 									if(strcmp(objSubIndex->getIndexValue(),"00")==0 && CheckIfMappingPDO((char*)objIndex->getIndexValue()) &&
 												resetValueAdded==false )
 									{
+										char actvalue[20];
 										strcpy(actvalue,"0");
 										strcat(Buffer,padLeft(actvalue,'0',padLength));
 										resetValueAdded = true;
@@ -812,14 +913,24 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 									}
 									else
 									{
-											actvalue = strchr((char*)objSubIndex->getActualValue(),'x');
+										char* actvalue;
+										actvalue = new char[20];
+										actvalue =strchr((char*)objSubIndex->getActualValue(),'x');
+										/*strcpy(actvalue, strchr((char*)objSubIndex->getActualValue(),'x'));*/
 										if(actvalue!=NULL)
 										{
-											actvalue = subString(actvalue,1,strlen(actvalue)-1);
+											strcpy(actvalue, subString(actvalue,1,strlen(actvalue)-1));
 											strcat(Buffer,padLeft(actvalue,'0',padLength));
 										}
-											else	strcat(Buffer,padLeft((char*)objSubIndex->getActualValue(),'0',padLength));
+											else
+											{
+												actvalue = new char[20];
+												actvalue = itoa(atoi(objSubIndex->getActualValue()),actvalue,16);
+												//strcpy(actvalue, itoa(atoi(objIndex->getActualValue()),actvalue,16));
+												strcat(Buffer,padLeft(actvalue, '0', padLength));
+											}
 										}
+										/*free(actvalue);*/
 								}
 									/*else strcat(Buffer,objSubIndex->getDefaultValue());*/
 								strcat(Buffer,"\n");
@@ -884,7 +995,7 @@ char* GenerateCNOBD(CNodeCollection* objNodeCol)
 		int len;
 		CIndexCollection* objIndexCollection;
 	
-
+			//printf("\n\n\n CN-S Data Started**********************");
 		//Buffer2 = NULL;
 //		strcpy(Buffer3,"");
 		char* c = (char*)malloc(4);	
@@ -896,14 +1007,17 @@ char* GenerateCNOBD(CNodeCollection* objNodeCol)
 		int CNCount=0;
 		if (( fileptr = fopen(fileName,"a+")) == NULL)
 		{
-			cout << "Problem" <<endl;
+			//cout << "Problem" <<endl;
 		}
 		for(int count=0; count<objNodeCollection->getNumberOfNodes(); count++)
 			{
 				objNode = objNodeCollection->getNodebyCollectionIndex(count);
 				if (objNode.getNodeType() == CN)
 					{
-						
+						if (( fileptr = fopen(fileName,"a+")) == NULL)
+						{
+							//cout << "Problem" <<endl;
+						}
 							objIndexCollection = objNode.getIndexCollection();
 							char* comment= (char*)malloc(30);
 							itoa(CNCount+1,c,10);
@@ -915,7 +1029,7 @@ char* GenerateCNOBD(CNodeCollection* objNodeCol)
 							len = strlen(comment);
 							if((fwrite(comment, sizeof(char),len,fileptr))!=NULL)
 							{
-								printf("\nComments for CN-%d",count);
+								//printf("\nComments for CN-%d",count);
 								fclose(fileptr);
 							}
 							//comment = strcat(comment,(char*)count);
@@ -928,9 +1042,9 @@ char* GenerateCNOBD(CNodeCollection* objNodeCol)
 							char* Buffer4;
 									
 						/*************WRITE MN'S 1006,1020 Indexes Values *******************************/			
-							Buffer4 = (char*)malloc(300);	
+							Buffer4 = (char*)malloc(500);	
 							objIndex = getMNIndexValues("1006");
-							Buffer2 = (char*)malloc(sizeof(char)*strlen(Buffer4)+1);				
+							Buffer2 = (char*)malloc(5000);				
 							GetIndexData(objIndex,Buffer4);
 							strcpy(Buffer2, Buffer4);
 							
@@ -941,7 +1055,7 @@ char* GenerateCNOBD(CNodeCollection* objNodeCol)
 								GetIndexData(objIndex,Buffer4);
 								strcat(Buffer2, Buffer4);
 							}
-									
+					
 							/*************WRITE Other Required CN Indexes in CDC *******************************/
 								for(int i=0; i<NumberOfIndexes; i++)
 								{
@@ -966,49 +1080,17 @@ char* GenerateCNOBD(CNodeCollection* objNodeCol)
 																								
 											GetIndexData(objIndex, Buffer4);
 											strcat(Buffer2, Buffer4);
-											/*if(firstBuffer)
-											{
-												Buffer2 = (char*)malloc(sizeof(char)*strlen(Buffer4)+1);																				
-												strcpy(Buffer2, Buffer4);
-												firstBuffer = false;											
-											}
-											else
-											{
-												printf("length of Buffer1 %d",strlen(Buffer4));
-												printf("\nlength of Buffer2 %d",strlen(Buffer2));
-												strcat(Buffer2, Buffer4);
-											}*/
-											//free(Buffer1);
-											//strcat(Buffer2, Buffer4);
 										}									
 								}	
-						/**************write module data********************************/
-					/*	if(objNode.ProcessImageCollection.Count() !=0)
-						{
-							int count = objNode.ProcessImageCollection.Count();
-							
-							for(int i=0; i<count; i++)
-							{
-										char* Index = (char*)malloc(4);	
-										CIndex* objIndex;										
-										strcpy(Index,objNode.ProcessImageCollection[i].Index);
-										objIndex = objIndexCollection->getIndexbyIndexValue(Index);
+								delete[] Buffer4;
 										
-							}
-						}*/
 							
 							//Convert CN NodeID to Hex
 							itoa(objNode.getNodeId(),c,16);	
 							char CNDataLength[18];
 							strcpy(CNDataLength, "1F22\t");
 							c = padLeft(c, '0', 2);
-							/*if (strlen(c)< 2)
-								{
-									char clen[2];
-									strcpy(clen,c);
-									strcpy(c,"0");
-									strcat(c,clen);
-								}
+					
 							*///write CN-n NodeID  in the next to 1F22
 							strcat(CNDataLength, c);
 							strcat(CNDataLength, "\t");
@@ -1019,7 +1101,7 @@ char* GenerateCNOBD(CNodeCollection* objNodeCol)
 
 							//Convert length to Hex
 							itoa(len,c,16);
-							printf("c%s",c);
+							//printf("c%s",c);
 							
 							c = padLeft(c, '0', 4);
 							strcat(CNDataLength, c);				
@@ -1037,134 +1119,181 @@ char* GenerateCNOBD(CNodeCollection* objNodeCol)
 							len = strlen(Buffer3);
 							if (( fileptr = fopen(fileName,"a+")) == NULL)
 							{
-								cout << "Problem" <<endl;
+								//cout << "Problem" <<endl;
 							}
 							if((fwrite(Buffer3, sizeof(char),len,fileptr))!=NULL)
 								{
-									printf("success");				
+									//printf("success");				
 									fclose(fileptr);	
+									/*delete[] Buffer2;
+									delete[] Buffer3;		*/
+															
 								}
+					delete[] Buffer2;
+					delete[] Buffer3;
 					}
+			
 			}
+		
 	}
 /**************************************************************************************************
 	* Function Name: GenerateCDC
     * Description: Generates the CDC file
 /****************************************************************************************************/
-void GenerateCDC(char* fileName)
+ocfmRetCode GenerateCDC(char* fileName)
 	{
 		CNode objNode;	
 		CIndexCollection* objIndexCollection;
 		//ofstream file;
 		char *Buffer1;
 		int len;
+		ocfmRetCode retCode;
 		const char tempFileName[9] = "temp.txt";
 
-		printf("Inside GenerateCDC");
+		//printf("Inside GenerateCDC");
+		
+		try
+		{
 				
-		Buffer1 = NULL;		
+			Buffer1 = NULL;		
 
-		//get the MN Node object from the NodeCollection
-		CNodeCollection* objNodeCollection;
-		objNodeCollection = CNodeCollection::getNodeColObjectPointer();		
-		
-	/******************************* Write MN's Indexes ******************************************************************/
-		objNode = objNodeCollection->getMNNode();
-
-		if(objNode.isNull())
-		{
-			printf("No MN Node exists");
-			exit(1);
-		}
-		printf("Node id %d",objNode.getNodeId());
-
-		FILE* fileptr = new FILE();
-		if (( fileptr = fopen(tempFileName,"w+")) == NULL)
-			{
-				printf ( "Cannot open file you have named...!\n" );
+			//get the MN Node object from the NodeCollection
+			CNodeCollection* objNodeCollection;
+			objNodeCollection = CNodeCollection::getNodeColObjectPointer();		
 			
-			}
-		else
-			{
-			}
-
-		objIndexCollection = objNode.getIndexCollection();
+		/******************************* Write MN's Indexes ******************************************************************/
 		
+			
+			objNode = objNodeCollection->getMNNode();
+			if(objNodeCollection->getNumberOfNodes()==0)
+			{
+				ocfmException ex;
+				ex.ocfm_Excpetion(OCFM_ERR_NO_NODES_FOUND);
+				throw ex;
+			}
+			if(objNode.isNull())
+			{			
+				ocfmException ex;
+				ex.ocfm_Excpetion(OCFM_ERR_MN_NODE_DOESNT_EXIST);
+				throw ex;			
+			}
+			if(objNodeCollection->getCNNodesCount()==0)
+			{
+				ocfmException ex;
+				ex.ocfm_Excpetion(OCFM_ERR_NO_CN_NODES_FOUND);
+				throw ex;
+			}
+			//printf("Node id %d",objNode.getNodeId());
 
-		//Get all the MN's Default Data in Buffer1
-		for(int i=0;i < objIndexCollection->getNumberofIndexes ();i++)
-			{
-				CIndex* objIndex;
-				objIndex = objIndexCollection->getIndex(i);
-			/*	if(CheckIfNotPDO((char*)objIndex->getIndexValue()))
-					{	*/					
-						printf("Index%s",objIndex->getIndexValue());						
-						Buffer1 = (char*)malloc(200);
-						len = strlen(Buffer1);
-						
-						GetIndexData(objIndex,Buffer1);
-						len = strlen(Buffer1);
-						if((fwrite(Buffer1, sizeof(char),len,fileptr))!=NULL)
-						{
-							printf("Buffer1 written");
-						
-						}
-						delete[] Buffer1;
-				/*	}*/
-						
-			}
-			fclose(fileptr);
+			FILE* fileptr = new FILE();
+			if (( fileptr = fopen(tempFileName,"w+")) == NULL)
+				{
+					printf ( "Cannot open file you have named...!\n" );
+					ocfmException ex;
+					ex.ocfm_Excpetion(OCFM_ERR_CANNOT_OPEN_FILE);
+					throw ex;							
+				}
+				objIndexCollection = objNode.getIndexCollection();
 			
-		/*************************Write CN's Data in Buffer2***************************************************/
-		WriteCNsData((char*)tempFileName);
-		
-		//Get all the IF81 ENTRY in Buffer1
-		if(objNodeCollection->getNumberOfNodes()!=0)
-		{
-			if (( fileptr = fopen(tempFileName,"a+")) == NULL)
-			{
-				printf ( "Cannot open file you have named...!\n" );
-			
-			}
-		else
-			{
-			}
-			for(int i=0;i < objNodeCollection->getNumberOfNodes();i++)
-			{
-					CNode objNode;
-					objNode = objNodeCollection->getNodebyCollectionIndex(i);
-					if(objNode.getNodeType() ==CN)
-					{
-							printf("\nInside 1F81");
-							Buffer1 = (char*)malloc(100);
+
+			//Get all the MN's Default Data in Buffer1
+			for(int i=0;i < objIndexCollection->getNumberofIndexes ();i++)
+				{
+					CIndex* objIndex;
+					objIndex = objIndexCollection->getIndex(i);
+				/*	if(CheckIfNotPDO((char*)objIndex->getIndexValue()))
+						{	*/					
+							//printf("Index%s",objIndex->getIndexValue());						
+							Buffer1 = (char*)malloc(200);
 							len = strlen(Buffer1);
-							strcpy(Buffer1, "//// NodeId Reassignment\n");
-							strcat(Buffer1, "1F81");
-							strcat(Buffer1, "\t");
-							int NodeID = objNode.getNodeId();		
-							char* hex = (char*)malloc(3);					
-							hex = itoa(NodeID,hex,16);
-							hex = padLeft(hex,'0',2);
-							strcat(Buffer1, hex);
-							strcat(Buffer1, "\t0004\t80000007\n");
+							
+							GetIndexData(objIndex,Buffer1);
 							len = strlen(Buffer1);
 							if((fwrite(Buffer1, sizeof(char),len,fileptr))!=NULL)
 							{
-								fclose(fileptr);
-								printf("Buffer1 written");
+								//printf("Buffer1 written");
 							
 							}
+							/*else
+							{
+								ocfmException ex;
+								ex.ocfm_Excpetion(OCFM_ERR_CANNOT_OPEN_FILE);
+								throw ex;		
+							}*/
+							
 							delete[] Buffer1;
-					}
+					/*	}*/
+							
 				}
-				/*	}*/
-						
-			}
-		
-		printf("\nText cdc generated");
-		// Convert CDC txt file to Binary
-		ConvertCdcToBinary(fileName,(char*) tempFileName);
-		
+				fclose(fileptr);
+				
+			/*************************Write CN's Data in Buffer2***************************************************/
+			WriteCNsData((char*)tempFileName);
+			
+			//Get all the IF81 ENTRY in Buffer1
+			if(objNodeCollection->getNumberOfNodes()!=0)
+			{
+				if (( fileptr = fopen(tempFileName,"a+")) == NULL)
+				{
+					ocfmException ex;
+					ex.ocfm_Excpetion(OCFM_ERR_CANNOT_OPEN_FILE);
+					throw ex;						
+				}
+			
+				for(int i=0;i < objNodeCollection->getNumberOfNodes();i++)
+				{
+						CNode objNode;
+						objNode = objNodeCollection->getNodebyCollectionIndex(i);
+						if(objNode.getNodeType() ==CN)
+						{
+								if (( fileptr = fopen(tempFileName,"a+")) == NULL)
+								{
+									ocfmException ex;
+									ex.ocfm_Excpetion(OCFM_ERR_CANNOT_OPEN_FILE);
+									throw ex;						
+								}
+								//printf("\nInside 1F81");
+								Buffer1 = (char*)malloc(100);
+								len = strlen(Buffer1);
+								strcpy(Buffer1, "//// NodeId Reassignment\n");
+								strcat(Buffer1, "1F81");
+								strcat(Buffer1, "\t");
+								int NodeID = objNode.getNodeId();		
+								char* hex = (char*)malloc(3);					
+								hex = itoa(NodeID,hex,16);
+								hex = padLeft(hex,'0',2);
+								strcat(Buffer1, hex);
+								strcat(Buffer1, "\t0004\t80000007\n");
+								len = strlen(Buffer1);
+								if((fwrite(Buffer1, sizeof(char),len,fileptr))!=NULL)
+								{
+									fclose(fileptr);
+									//printf("Buffer1 written");
+								
+								}
+								/*else
+								{
+									ocfmException ex;
+									ex.ocfm_Excpetion(OCFM_ERR_CANNOT_OPEN_FILE);
+									throw ex;		
+								}*/
+								delete[] Buffer1;
+						}
+					}
+					/*	}*/
+							
+				}
+			
+			//printf("\nText cdc generated");
+			// Convert CDC txt file to Binary
+			ConvertCdcToBinary(fileName,(char*) tempFileName);
+			retCode.code =  OCFM_ERR_SUCCESS ;
+			return retCode;
+		}
+		catch(ocfmException & ex)
+		{
+			return ex._ocfmRetCode;
+		}
 	}
 
 /**************************************************************************************************
@@ -1224,8 +1353,8 @@ void  ProcessCDT(CComplexDataType* objCDT,CApplicationProcess* objAppProc, CNode
 				/*objCDT->previousCDT_UId = (char*)malloc(strlen(vd.StructUniqueId)+1);
 				strcpy(objCDT->previousCDT_UId, vd.StructUniqueId);*/
 				lastVarIndex = i;
-				printf("\n previousCDT_UId : %s",objCDT->previousCDT_UId);
-				printf("\n DataRefID : %s",vd.nam_id_dt_attr->getDtUniqueRefId());
+				//printf("\n previousCDT_UId : %s",objCDT->previousCDT_UId);
+				//printf("\n DataRefID : %s",vd.nam_id_dt_attr->getDtUniqueRefId());
 				ProcessCDT(objCDT, objAppProc, objNode, para, pdoType);
 			}
 		if(!CDTCompleted)
@@ -1255,7 +1384,7 @@ void  ProcessCDT(CComplexDataType* objCDT,CApplicationProcess* objAppProc, CNode
 					pi.Name = (char*)malloc(strlen(vd.nam_id_dt_attr->getName()) +4);
 					strcpy(pi.Name,getPIName(objNode->getNodeId()));
 					strcat(pi.Name,vd.nam_id_dt_attr->getName());
-					printf("\n PI Name: %s",pi.Name);
+					//printf("\n PI Name: %s",pi.Name);
 				}
 					
 				if(vd.nam_id_dt_attr->getDataType()!=NULL)
@@ -1284,17 +1413,17 @@ void  ProcessCDT(CComplexDataType* objCDT,CApplicationProcess* objAppProc, CNode
 			if(!CDTCompleted)
 			{
 				varDeclaration vd;
-				printf("\n i : %d",i);
+				//printf("\n i : %d",i);
 				vd = objCDT->varCollection[i];
-				printf("\nVar Count: %d",objCDT->varCollection.Count());
+				//printf("\nVar Count: %d",objCDT->varCollection.Count());
 				if(vd.nam_id_dt_attr->getDtUniqueRefId() != NULL)
 				{
 					/*objCDT->previousCDT_UId = (char*)malloc(strlen(vd.StructUniqueId)+1);
 					strcpy(objCDT->previousCDT_UId, vd.StructUniqueId);	*/	
 					objCDT = objAppProc->getCDTbyUniqueID(vd.nam_id_dt_attr->getDtUniqueRefId());
 					objAppProc->updatePreviousCDT_UId(vd.StructUniqueId, objCDT->Index);
-					printf("\n previousCDT_UId : %s",objCDT->previousCDT_UId);
-					printf("\n DataRefID : %s",vd.nam_id_dt_attr->getDtUniqueRefId());
+					//printf("\n previousCDT_UId : %s",objCDT->previousCDT_UId);
+					//printf("\n DataRefID : %s",vd.nam_id_dt_attr->getDtUniqueRefId());
 			
 					lastVarIndex = i;
 					ProcessCDT(objCDT, objAppProc, objNode, para, pdoType);
@@ -1305,7 +1434,7 @@ void  ProcessCDT(CComplexDataType* objCDT,CApplicationProcess* objAppProc, CNode
 		
 	}
 	CDTCompleted = true;
-	printf("exiting");
+	//printf("exiting");
 }
 
 void DecodeUniqiueIDRef(char* uniquedIdref, CNode* objNode, EPDOType pdoType)
@@ -1385,7 +1514,7 @@ void ProcessPDONodes(int NodeID)
 		/* Check RPDO Mapped objects*/
 
 
-		printf("\n NodeID %d",NodeID);
+		//printf("\n NodeID %d",NodeID);
 
 		objPDOCollection = objNode->getPDOIndexCollection();
 		if(objPDOCollection!= NULL)
@@ -1454,7 +1583,7 @@ void ProcessPDONodes(int NodeID)
 										
 																				
 										
-									printf("\n NodeID %d",objNode->getNodeId());
+									//printf("\n NodeID %d",objNode->getNodeId());
 										if(objSIndex->getUniqueIDRef()!=NULL)
 										{
 											DecodeUniqiueIDRef(objSIndex->getUniqueIDRef(), objNode, objIndex->getPDOType());
@@ -1693,7 +1822,7 @@ void WriteXAPElements(ProcessImage piCol[], xmlTextWriterPtr& writer,int VarCoun
     rc = xmlTextWriterStartElement(writer, BAD_CAST "ProcessImage");
     if (rc < 0)
     {
-        printf("testXmlwriterDoc: Error at xmlTextWriterStartElement\n");
+        //printf("testXmlwriterDoc: Error at xmlTextWriterStartElement\n");
         return;
     }
     if(piType ==INPUT)
@@ -1706,7 +1835,7 @@ void WriteXAPElements(ProcessImage piCol[], xmlTextWriterPtr& writer,int VarCoun
                                   
     if (rc < 0)
     {
-        printf("testXmlwriterDoc: Error at xmlTextWriterWriteAttribute\n");
+        //printf("testXmlwriterDoc: Error at xmlTextWriterWriteAttribute\n");
         return;
     }
     
@@ -1719,7 +1848,7 @@ void WriteXAPElements(ProcessImage piCol[], xmlTextWriterPtr& writer,int VarCoun
     rc = xmlTextWriterStartElement(writer, BAD_CAST "Channel");
     if (rc < 0)
     {
-        printf("testXmlwriterDoc: Error at xmlTextWriterStartElement\n");
+        //printf("testXmlwriterDoc: Error at xmlTextWriterStartElement\n");
         return;
     }
 			
@@ -1728,13 +1857,13 @@ void WriteXAPElements(ProcessImage piCol[], xmlTextWriterPtr& writer,int VarCoun
     
 
     /* Add an attribute with name "Name" and value  to channel. */
-     printf("\n%s",pi.Name);
+     //printf("\n%s",pi.Name);
     rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "Name",      
                                    BAD_CAST pi.Name);
                                   
     if (rc < 0)
     {
-        printf("testXmlwriterDoc: Error at xmlTextWriterWriteAttribute\n");
+        //printf("testXmlwriterDoc: Error at xmlTextWriterWriteAttribute\n");
         return;
     }
     
@@ -1751,33 +1880,33 @@ void WriteXAPElements(ProcessImage piCol[], xmlTextWriterPtr& writer,int VarCoun
     //}
 
 				/* Add an attribute with name "DataType" and value to channel */
-				 printf("\n%s",pi.DataType);
+				 //printf("\n%s",pi.DataType);
     rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "dataType",
                                      BAD_CAST pi.DataType );
     if (rc < 0)
     {
-        printf("testXmlwriterDoc: Error at xmlTextWriterWriteAttribute\n");
+        //printf("testXmlwriterDoc: Error at xmlTextWriterWriteAttribute\n");
         return;
     }
     
     ///* Add an attribute with name "dataSize" and value to channel */
-    printf("\n%s",pi.DataSize);
+    //printf("\n%s",pi.DataSize);
     rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "dataSize",
                                      BAD_CAST pi.DataSize );
     if (rc < 0)
     {
-        printf("testXmlwriterDoc: Error at xmlTextWriterWriteAttribute\n");
+        //printf("testXmlwriterDoc: Error at xmlTextWriterWriteAttribute\n");
         return;
     }
 			
    
      ///* Add an attribute with name "dataSize" and value to channel */
-    printf("\n%s",pi.ByteOffset);
+    //printf("\n%s",pi.ByteOffset);
     rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "PIOffset",
                                      BAD_CAST pi.ByteOffset );
     if (rc < 0)
     {
-        printf("testXmlwriterDoc: Error at xmlTextWriterWriteAttribute\n");
+        //printf("testXmlwriterDoc: Error at xmlTextWriterWriteAttribute\n");
         return;
     }
     
@@ -1786,14 +1915,14 @@ void WriteXAPElements(ProcessImage piCol[], xmlTextWriterPtr& writer,int VarCoun
                                      BAD_CAST pi.BitOffset );
     if (rc < 0)
     {
-        printf("testXmlwriterDoc: Error at xmlTextWriterWriteAttribute\n");
+        //printf("testXmlwriterDoc: Error at xmlTextWriterWriteAttribute\n");
         return;
     }
     ///* Close the element named Channel. */
     rc = xmlTextWriterEndElement(writer);
     if (rc < 0)
     {
-        printf("testXmlwriterDoc: Error at xmlTextWriterEndElement\n");
+        //printf("testXmlwriterDoc: Error at xmlTextWriterEndElement\n");
         return;
     }
 			}
@@ -1801,7 +1930,7 @@ void WriteXAPElements(ProcessImage piCol[], xmlTextWriterPtr& writer,int VarCoun
    rc = xmlTextWriterEndElement(writer);
    if (rc < 0)
    {
-       printf("testXmlwriterDoc: Error at xmlTextWriterEndElement\n");
+       //printf("testXmlwriterDoc: Error at xmlTextWriterEndElement\n");
        return;
    }
 
@@ -1817,7 +1946,7 @@ void StartXAPxml(xmlTextWriterPtr& writer,  xmlDocPtr& doc)
     /* Create a new XmlWriter for DOM, with no compression. */
     writer = xmlNewTextWriterDoc(&doc, 0);
     if (writer == NULL) {
-        printf("testXmlwriterDoc: Error creating the xml writer\n");
+        //printf("testXmlwriterDoc: Error creating the xml writer\n");
         return;
     }
 
@@ -1826,7 +1955,7 @@ void StartXAPxml(xmlTextWriterPtr& writer,  xmlDocPtr& doc)
      * declaration. */
     rc = xmlTextWriterStartDocument(writer, NULL, MY_ENCODING, NULL);
     if (rc < 0) {
-        printf("testXmlwriterDoc: Error at xmlTextWriterStartDocument\n");
+       //printf("testXmlwriterDoc: Error at xmlTextWriterStartDocument\n");
         return;
     }
 
@@ -1834,13 +1963,12 @@ void StartXAPxml(xmlTextWriterPtr& writer,  xmlDocPtr& doc)
 		 rc = xmlTextWriterWriteComment(writer,BAD_CAST "This file was autogenerated by openCONFIGURATOR");
     if (rc < 0)
      {
-        printf
-            ("testXmlwriterDoc: Error at xmlTextWriterWriteFormatComment\n");
+        //printf("testXmlwriterDoc: Error at xmlTextWriterWriteFormatComment\n");
         return;
     }
     rc = xmlTextWriterStartElement(writer, BAD_CAST "ApplicationProcess");
     if (rc < 0) {
-        printf("testXmlwriterDoc: Error at xmlTextWriterStartElement\n");
+        //printf("testXmlwriterDoc: Error at xmlTextWriterStartElement\n");
         return;
     }
 }
@@ -1854,12 +1982,12 @@ void EndWrtitingXAP( xmlTextWriterPtr& writer, char* fileName, xmlDocPtr& doc)
     rc = xmlTextWriterEndElement(writer);
     if (rc < 0)
     {
-        printf("testXmlwriterDoc: Error at xmlTextWriterEndElement\n");
+       // printf("testXmlwriterDoc: Error at xmlTextWriterEndElement\n");
         return;
     }
     rc = xmlTextWriterEndDocument(writer);
     if (rc < 0) {
-        printf("testXmlwriterDoc: Error at xmlTextWriterEndDocument\n");
+        //printf("testXmlwriterDoc: Error at xmlTextWriterEndDocument\n");
         return;
     }
 
@@ -1929,15 +2057,20 @@ ocfmRetCode GetIndexAttributes(
 	int IndexPos;
 	ocfmRetCode ErrStruct;
 	
-	ErrStruct = IfIndexExists(NodeID, NodeType, IndexID, &IndexPos);
+	try
+	{
+		ErrStruct = IfIndexExists(NodeID, NodeType, IndexID, &IndexPos);
 		if(ErrStruct.code == OCFM_ERR_SUCCESS)
 		{
-			cout << "IndexPos:" << IndexPos << endl;
+			//cout << "IndexPos:" << IndexPos << endl;
 		}
 		else
 		{
 			 //OCFM_ERR_INDEXID_NOT_FOUND;
-			 return ErrStruct;
+			//return ErrStruct;
+			ocfmException objException;				
+			objException.ocfm_Excpetion(OCFM_ERR_INDEXID_NOT_FOUND);
+			throw objException;
 		}
 		CNode objNode;		
 		CNodeCollection *objNodeCollection;
@@ -2011,13 +2144,21 @@ ocfmRetCode GetIndexAttributes(
 						strcpy(Out_AttributeValue, "");
 					break;									
 			default:
-					cout << "invalid Attribute Type" << endl;
-					ErrStruct.code = OCFM_ERR_INVALID_ATTRIBUTETYPE;
-					return ErrStruct;
+					//cout << "invalid Attribute Type" << endl;
+					//ErrStruct.code = OCFM_ERR_INVALID_ATTRIBUTETYPE;
+					//return ErrStruct;
+					ocfmException objException;				
+					objException.ocfm_Excpetion(OCFM_ERR_INVALID_ATTRIBUTETYPE);
+					throw objException;
 		}
-	cout << "\n\n\n$SOut_AttributeValue:" << Out_AttributeValue << endl;
-	ErrStruct.code = OCFM_ERR_SUCCESS;
-	return ErrStruct;
+		//cout << "\n\n\n$SOut_AttributeValue:" << Out_AttributeValue << endl;
+		ErrStruct.code = OCFM_ERR_SUCCESS;
+		return ErrStruct;
+	}
+	catch(ocfmException* ex)
+	{
+		return ex->_ocfmRetCode;
+	}
 }
 
 /**************************************************************************************************
@@ -2045,7 +2186,7 @@ ocfmRetCode GetIndexAttributesbyPositions(
 		//objIndexCollection = objNode.getIndexCollection();
 		
 		int tmp_NodeCount = objNodeCollection->getNumberOfNodes();		
-		cout << "\n\ntmp_NodeCount:" << tmp_NodeCount << endl;
+		//cout << "\n\ntmp_NodeCount:" << tmp_NodeCount << endl;
 		if(NodePos >= tmp_NodeCount)
 		{
 			ocfmException* objException = new ocfmException;
@@ -2063,7 +2204,7 @@ ocfmRetCode GetIndexAttributesbyPositions(
 		objIndexCollection = objNode.getIndexCollection();
 		
 		int tmp_IndexCount = objIndexCollection->getNumberofIndexes();
-		cout << "\n\tmp_IndexCount:" << tmp_IndexCount << endl;
+		//cout << "\n\tmp_IndexCount:" << tmp_IndexCount << endl;
 		if(tmp_IndexCount == 0)
 		{
 			ocfmException* objException = new ocfmException;
@@ -2138,17 +2279,17 @@ ocfmRetCode GetIndexAttributesbyPositions(
 							strcpy(Out_AttributeValue, "");
 						break;									
 				default:
-						cout << "invalid Attribute Type" << endl;
+						//cout << "invalid Attribute Type" << endl;
 						ErrStruct.code = OCFM_ERR_INVALID_ATTRIBUTETYPE;
 						return ErrStruct;
 			}
 	}
 	catch(ocfmException* ex)
 	{
-		cout << "\n\nCatch...\n" << endl;
+		//cout << "\n\nCatch...\n" << endl;
 		return ex->_ocfmRetCode;
 	}
-	cout << "\n\n\n$SOut_AttributeValue:" << Out_AttributeValue << endl;
+	//cout << "\n\n\n$SOut_AttributeValue:" << Out_AttributeValue << endl;
 	ErrStruct.code = OCFM_ERR_SUCCESS;
 	return ErrStruct;
 }
@@ -2175,95 +2316,109 @@ ocfmRetCode GetSubIndexAttributes(
 		int IndexPos;
 		ocfmRetCode ErrStruct;
 		
-		ErrStruct = IfSubIndexExists(NodeID, NodeType, IndexID, SubIndexID, &SubIndexPos, &IndexPos);
-		if(ErrStruct.code == OCFM_ERR_SUCCESS)
+		try
 		{
-			//SubIndexPos = Tmp_ErrStruct.returnValue;
-		}
-		else
-		{
-			//OCFM_ERR_INVALID_SUBINDEXID;
+		
+			ErrStruct = IfSubIndexExists(NodeID, NodeType, IndexID, SubIndexID, &SubIndexPos, &IndexPos);
+			if(ErrStruct.code == OCFM_ERR_SUCCESS)
+			{
+				//SubIndexPos = Tmp_ErrStruct.returnValue;
+			}
+			else
+			{
+				//OCFM_ERR_INVALID_SUBINDEXID;
+				//return ErrStruct;
+				ocfmException objException;				
+				objException.ocfm_Excpetion(OCFM_ERR_INVALID_SUBINDEXID);
+				throw objException;
+			}
+
+			objIndex.setNodeID(objNode.getNodeId());
+			objNodeCollection= CNodeCollection::getNodeColObjectPointer();
+			objNode = objNodeCollection->getNode(NodeType, NodeID);
+
+			objIndexCollection = objNode.getIndexCollection();
+			objSubIndex =objIndexCollection->getIndex(IndexPos);
+			
+			//cout << "NumberofSubIndexes:" << objIndex.getNumberofSubIndexes()<< endl;
+
+			CSubIndex* objSubIndexPtr;
+			objSubIndexPtr = objSubIndex->getSubIndex(SubIndexPos);	
+			
+			switch(AttributeType)
+			{
+				case 0:						
+						if(objSubIndexPtr->getName() != NULL)
+							strcpy(Out_AttributeValue, (char *)objSubIndexPtr->getName());
+						else
+							strcpy(Out_AttributeValue, "");
+						break;
+				case 1:
+						if(objSubIndexPtr->getObjectType() != NULL)
+							strcpy(Out_AttributeValue, (char *)objSubIndexPtr->getObjectType());
+						else
+							strcpy(Out_AttributeValue, "");
+						break;
+				case 2:
+						DataType tmpDataType;
+						tmpDataType = objSubIndexPtr->getDataType();										
+						if(tmpDataType.Name != NULL)
+							strcpy(Out_AttributeValue, tmpDataType.Name);
+						else
+							strcpy(Out_AttributeValue, "");					
+						break;		
+				case 3:
+						if(objSubIndexPtr->getAccessType() != NULL)
+							strcpy(Out_AttributeValue, (char *)objSubIndexPtr->getAccessType());
+						else
+							strcpy(Out_AttributeValue, "");
+						break;
+				case 4:
+						if(objSubIndexPtr->getDefaultValue() != NULL)
+							strcpy(Out_AttributeValue, (char *) objSubIndexPtr->getDefaultValue());
+						else
+							strcpy(Out_AttributeValue, "");
+						break;
+				case 5:
+						if(objSubIndexPtr->getActualValue() != NULL)
+							strcpy(Out_AttributeValue, (char *) objSubIndexPtr->getActualValue());
+						else
+							strcpy(Out_AttributeValue, "");
+						break;
+				case 6:
+						if(objSubIndexPtr->getPDOMapping() != NULL)
+							strcpy(Out_AttributeValue, (char *) objSubIndexPtr->getPDOMapping());
+						else
+							strcpy(Out_AttributeValue, "");
+						break;
+				case 7:
+						if(objSubIndexPtr->getLowLimit() != NULL)
+							strcpy(Out_AttributeValue, (char *) objSubIndexPtr->getLowLimit());
+						else
+							strcpy(Out_AttributeValue, "");
+						break;
+				case 8:
+						if(objSubIndexPtr->getHighLimit() != NULL)
+							strcpy(Out_AttributeValue, (char *) objSubIndexPtr->getHighLimit());
+						else
+							strcpy(Out_AttributeValue, "");
+						break;
+				default:
+						//cout << "invalid Attribute Type" << endl;
+						//ErrStruct.code = OCFM_ERR_INVALID_ATTRIBUTETYPE;
+						//return ErrStruct;
+						ocfmException objException;				
+						objException.ocfm_Excpetion(OCFM_ERR_INVALID_SUBINDEXID);
+						throw objException;
+			}		
+			
+			ErrStruct.code = OCFM_ERR_SUCCESS;
 			return ErrStruct;
 		}
-
-		objIndex.setNodeID(objNode.getNodeId());
-		objNodeCollection= CNodeCollection::getNodeColObjectPointer();
-		objNode = objNodeCollection->getNode(NodeType, NodeID);
-
-		objIndexCollection = objNode.getIndexCollection();
-		objSubIndex =objIndexCollection->getIndex(IndexPos);
-		
-		cout << "NumberofSubIndexes:" << objIndex.getNumberofSubIndexes()<< endl;
-
-		CSubIndex* objSubIndexPtr;
-		objSubIndexPtr = objSubIndex->getSubIndex(SubIndexPos);	
-		
-		switch(AttributeType)
+		catch(ocfmException* ex)
 		{
-			case 0:						
-					if(objSubIndexPtr->getName() != NULL)
-						strcpy(Out_AttributeValue, (char *)objSubIndexPtr->getName());
-					else
-						strcpy(Out_AttributeValue, "");
-					break;
-			case 1:
-					if(objSubIndexPtr->getObjectType() != NULL)
-						strcpy(Out_AttributeValue, (char *)objSubIndexPtr->getObjectType());
-					else
-						strcpy(Out_AttributeValue, "");
-					break;
-			case 2:
-					DataType tmpDataType;
-					tmpDataType = objSubIndexPtr->getDataType();										
-					if(tmpDataType.Name != NULL)
-						strcpy(Out_AttributeValue, tmpDataType.Name);
-					else
-						strcpy(Out_AttributeValue, "");					
-					break;		
-			case 3:
-					if(objSubIndexPtr->getAccessType() != NULL)
-						strcpy(Out_AttributeValue, (char *)objSubIndexPtr->getAccessType());
-					else
-						strcpy(Out_AttributeValue, "");
-					break;
-			case 4:
-					if(objSubIndexPtr->getDefaultValue() != NULL)
-						strcpy(Out_AttributeValue, (char *) objSubIndexPtr->getDefaultValue());
-					else
-						strcpy(Out_AttributeValue, "");
-					break;
-			case 5:
-					if(objSubIndexPtr->getActualValue() != NULL)
-						strcpy(Out_AttributeValue, (char *) objSubIndexPtr->getActualValue());
-					else
-						strcpy(Out_AttributeValue, "");
-					break;
-			case 6:
-					if(objSubIndexPtr->getPDOMapping() != NULL)
-						strcpy(Out_AttributeValue, (char *) objSubIndexPtr->getPDOMapping());
-					else
-						strcpy(Out_AttributeValue, "");
-					break;
-			case 7:
-					if(objSubIndexPtr->getLowLimit() != NULL)
-						strcpy(Out_AttributeValue, (char *) objSubIndexPtr->getLowLimit());
-					else
-						strcpy(Out_AttributeValue, "");
-					break;
-			case 8:
-					if(objSubIndexPtr->getHighLimit() != NULL)
-						strcpy(Out_AttributeValue, (char *) objSubIndexPtr->getHighLimit());
-					else
-						strcpy(Out_AttributeValue, "");
-					break;
-			default:
-					cout << "invalid Attribute Type" << endl;
-					ErrStruct.code = OCFM_ERR_INVALID_ATTRIBUTETYPE;
-					return ErrStruct;
-		}		
-		
-		ErrStruct.code = OCFM_ERR_SUCCESS;
-		return ErrStruct;
+			return ex->_ocfmRetCode;
+		}
 }
 
 /**************************************************************************************************
@@ -2292,7 +2447,7 @@ ocfmRetCode GetSubIndexAttributesbyPositions(
 		//objIndexCollection = objNode.getIndexCollection();
 		
 		int tmp_NodeCount = objNodeCollection->getNumberOfNodes();		
-		cout << "\n\ntmp_NodeCount:" << tmp_NodeCount << endl;
+		//cout << "\n\ntmp_NodeCount:" << tmp_NodeCount << endl;
 		if(NodePos >= tmp_NodeCount)
 		{
 			ocfmException* objException = new ocfmException;
@@ -2310,7 +2465,7 @@ ocfmRetCode GetSubIndexAttributesbyPositions(
 		objIndexCollection = objNode.getIndexCollection();
 		
 		int tmp_IndexCount = objIndexCollection->getNumberofIndexes();
-		cout << "\n\tmp_IndexCount:" << tmp_IndexCount << endl;
+		//cout << "\n\tmp_IndexCount:" << tmp_IndexCount << endl;
 		if(tmp_IndexCount == 0)
 		{
 			ocfmException* objException = new ocfmException;
@@ -2327,7 +2482,7 @@ ocfmRetCode GetSubIndexAttributesbyPositions(
 		objIndexPtr = objIndexCollection->getIndex(IndexPos);
 		
 		int tmp_SubIndexCount = objIndexPtr->getNumberofSubIndexes();
-		cout << "\n\ntmp_SubIndexCount:" << tmp_SubIndexCount << endl;
+		//cout << "\n\ntmp_SubIndexCount:" << tmp_SubIndexCount << endl;
 
 		if(SubIndexPos >= tmp_SubIndexCount)
 		{
@@ -2404,17 +2559,17 @@ ocfmRetCode GetSubIndexAttributesbyPositions(
 						strcpy(Out_AttributeValue, "");
 					break;
 			default:
-					cout << "invalid Attribute Type" << endl;
+					//cout << "invalid Attribute Type" << endl;
 					ErrStruct.code = OCFM_ERR_INVALID_ATTRIBUTETYPE;
 					return ErrStruct;
 		}			
 	}
 	catch(ocfmException* ex)
 	{
-		cout << "\n\nCatch...\n" << endl;
+		//cout << "\n\nCatch...\n" << endl;
 		return ex->_ocfmRetCode;
 	}
-	cout << "\n\n\n$SOut_AttributeValue:" << Out_AttributeValue << endl;
+	//cout << "\n\n\n$SOut_AttributeValue:" << Out_AttributeValue << endl;
 	ErrStruct.code = OCFM_ERR_SUCCESS;
 	return ErrStruct;
 
@@ -2431,12 +2586,25 @@ ocfmRetCode GetNodeCount(
 	ocfmRetCode ErrStruct;
 	CNode objNode;
 	CNodeCollection *objNodeCollection;
-	objNodeCollection= CNodeCollection::getNodeColObjectPointer();
-	
-	*Out_NodeCount = objNodeCollection->getNumberOfNodes();
-	
-	ErrStruct.code = OCFM_ERR_SUCCESS;
-	return ErrStruct;
+	try
+	{
+		objNodeCollection= CNodeCollection::getNodeColObjectPointer();
+		if(objNodeCollection->getNumberOfNodes() < 0)
+		{
+			ocfmException objException;				
+			objException.ocfm_Excpetion(OCFM_ERR_NO_NODES_FOUND);
+			throw objException;
+		}
+		
+		*Out_NodeCount = objNodeCollection->getNumberOfNodes();
+		
+		ErrStruct.code = OCFM_ERR_SUCCESS;
+		return ErrStruct;
+	}
+	catch(ocfmException* ex)
+	{
+		return ex->_ocfmRetCode;
+	}
 }
 
 char* getPIName(int NodeID)
@@ -2472,36 +2640,46 @@ ocfmRetCode GetIndexCount(
 	ENodeType 	NodeType, 
 	int* 		Out_IndexCount)
 {
-		ocfmRetCode ErrStruct;
+	ocfmRetCode ErrStruct;
 		
+	try
+	{
+		CNode objNode;		
+		CNodeCollection *objNodeCollection;
+		CIndexCollection *objIndexCollection;
+		CIndex objIndex;
+		bool flag = false;;
 		
-	CNode objNode;		
-	CNodeCollection *objNodeCollection;
-	CIndexCollection *objIndexCollection;
-	CIndex objIndex;
-	
-	int NodePos;
-	ErrStruct = IfNodeExists(NodeID, NodeType, &NodePos);
-	if (ErrStruct.code == 0) 
-	{		
-		//retPos = ErrStruct.returnValue;
-	}
-	else
-	{	
-		cout << "\n\nErrStruct.errCode.code:" << ErrStruct.code << "\n\n!!!" << endl;
-		// Node Doesn't Exist
-		ErrStruct.code = OCFM_ERR_INVALID_NODEID;
+		int NodePos;
+		ErrStruct = IfNodeExists(NodeID, NodeType, &NodePos, flag);
+		if (ErrStruct.code == 0 && flag==true) 
+		{		
+			//retPos = ErrStruct.returnValue;
+		}
+		else
+		{	
+			//cout << "\n\nErrStruct.errCode.code:" << ErrStruct.code << "\n\n!!!" << endl;
+			// Node Doesn't Exist
+			//ErrStruct.code = OCFM_ERR_INVALID_NODEID;
+			//return ErrStruct;
+			ocfmException objException;				
+			objException.ocfm_Excpetion(OCFM_ERR_INVALID_NODEID);
+			throw objException;
+		}
+
+		objNodeCollection = CNodeCollection::getNodeColObjectPointer();
+		objNode = objNodeCollection->getNode(NodeType, NodeID);
+		objIndexCollection = objNode.getIndexCollection();
+		
+		*Out_IndexCount = objIndexCollection->getNumberofIndexes();
+
+		ErrStruct.code = OCFM_ERR_SUCCESS;
 		return ErrStruct;
 	}
-
-	objNodeCollection = CNodeCollection::getNodeColObjectPointer();
-	objNode = objNodeCollection->getNode(NodeType, NodeID);
-	objIndexCollection = objNode.getIndexCollection();
-	
-	*Out_IndexCount = objIndexCollection->getNumberofIndexes();
-
-	ErrStruct.code = OCFM_ERR_SUCCESS;
-	return ErrStruct;
+	catch(ocfmException* ex)
+	{
+		return ex->_ocfmRetCode;
+	}
 }
 
 /**************************************************************************************************
@@ -2524,35 +2702,45 @@ ocfmRetCode GetSubIndexCount(
 	
 	int IndexPos;
 	
-	ErrStruct = IfIndexExists(NodeID, NodeType, IndexID, &IndexPos);
-	if (ErrStruct.code == 0)
-	{				
-		//IndexPos = ErrStruct.returnValue;
-	}
-	else
-	{	
-		ErrStruct.code = OCFM_ERR_INDEXID_NOT_FOUND;
+	try
+	{
+		ErrStruct = IfIndexExists(NodeID, NodeType, IndexID, &IndexPos);
+		if (ErrStruct.code == 0)
+		{				
+			//IndexPos = ErrStruct.returnValue;
+		}
+		else
+		{	
+			//ErrStruct.code = OCFM_ERR_INDEXID_NOT_FOUND;
+			//return ErrStruct;
+			ocfmException objException;				
+			objException.ocfm_Excpetion(OCFM_ERR_INDEXID_NOT_FOUND);
+			throw objException;
+		}
+		
+		objIndex.setNodeID(objNode.getNodeId());
+		objNodeCollection= CNodeCollection::getNodeColObjectPointer();
+		objNode = objNodeCollection->getNode(NodeType, NodeID);
+
+		objIndexCollection = objNode.getIndexCollection();
+		objSubIndex =objIndexCollection->getIndex(IndexPos);
+		
+		*Out_SubIndexCount = objSubIndex->getNumberofSubIndexes();
+		
+		ErrStruct.code = OCFM_ERR_SUCCESS;
 		return ErrStruct;
 	}
-	
-	objIndex.setNodeID(objNode.getNodeId());
-	objNodeCollection= CNodeCollection::getNodeColObjectPointer();
-	objNode = objNodeCollection->getNode(NodeType, NodeID);
-
-	objIndexCollection = objNode.getIndexCollection();
-	objSubIndex =objIndexCollection->getIndex(IndexPos);
-	
-	*Out_SubIndexCount = objSubIndex->getNumberofSubIndexes();
-	
-	ErrStruct.code = OCFM_ERR_SUCCESS;
-	return ErrStruct;
+	catch(ocfmException* ex)
+	{
+		return ex->_ocfmRetCode;
+	}
 }
 
 
 void LoadObjectDictionary(char* fileName)
 	{
 	
-		printf("Inside ObjectDictionary");
+		//printf("Inside ObjectDictionary");
   xmlTextReaderPtr reader;
   int ret;
 		CObjectDictionary* objDict;
@@ -2575,7 +2763,7 @@ void LoadObjectDictionary(char* fileName)
 				}
 			}
 					
-		printf("Parsing ObjectDictionary5 Done");
+		//printf("Parsing ObjectDictionary5 Done");
 		objDict->printall();
 		 xmlCleanupParser();
 		/*
@@ -2595,7 +2783,7 @@ ocfmRetCode GetNodeIDbyNodePos(
 	ENodeType* NodeType, 
 	int* Out_NodeID)
 {
-	cout<< "Inside GetNodeIDbyNodeCount" << endl;
+	//cout<< "Inside GetNodeIDbyNodeCount" << endl;
 	ocfmRetCode ErrStruct;
 	
 	int tmp_NodeCount;
@@ -2667,14 +2855,15 @@ ocfmRetCode GetIndexIDbyIndexPos(
 	int NodePos;
 	try
 	{
-		ErrStruct = IfNodeExists(NodeID, NodeType, &NodePos);
-		if (ErrStruct.code == 0) 
+		bool flag = false;
+		ErrStruct = IfNodeExists(NodeID, NodeType, &NodePos, flag);
+		if (ErrStruct.code == 0 && flag==true) 
 		{		
 			//retPos = ErrStruct.returnValue;
 		}
 		else
 		{	
-			cout << "$S\n\nErrStruct.errCode.code:" << ErrStruct.code << "\n\n!!!" << endl;
+			//cout << "$S\n\nErrStruct.errCode.code:" << ErrStruct.code << "\n\n!!!" << endl;
 			// Node Doesn't Exist
 			ocfmException* objException = new ocfmException;
 			objException->ocfm_Excpetion(OCFM_ERR_INVALID_NODEID);
@@ -2706,7 +2895,7 @@ ocfmRetCode GetIndexIDbyIndexPos(
 		if(objIndex->getIndexValue() != NULL)
 			strcpy(Out_IndexID, (char *) objIndex->getIndexValue());
 		
-		cout << "$SOut_IndexID:" << Out_IndexID << endl;
+		//cout << "$SOut_IndexID:" << Out_IndexID << endl;
 
 		ErrStruct.code = OCFM_ERR_SUCCESS;
 		return ErrStruct;
@@ -2776,7 +2965,7 @@ ocfmRetCode GetIndexIDbyPositions(
 		if(objIndex->getIndexValue() != NULL)
 			strcpy(Out_IndexID, (char *) objIndex->getIndexValue());
 		
-		cout << "Out_IndexID:" << Out_IndexID << endl;
+		//cout << "Out_IndexID:" << Out_IndexID << endl;
 
 		ErrStruct.code = OCFM_ERR_SUCCESS;
 		return ErrStruct;
@@ -2958,12 +3147,13 @@ ocfmRetCode DeleteNodeObjDict(
 {
 	ocfmRetCode ErrStruct;
 	int NodePos;
-	cout << "\n$SInside DeleteMNObjDict..\n" << endl;
+	//cout << "\n$SInside DeleteMNObjDict..\n" << endl;
 	try
 	{	
-		ErrStruct = IfNodeExists(NodeID, NodeType, &NodePos);
+		bool flag = false;
+		ErrStruct = IfNodeExists(NodeID, NodeType, &NodePos, flag);
 		
-		if(ErrStruct.code == 0)
+		if(ErrStruct.code == 0 && flag ==true)
 		{
 		}
 		else
@@ -2991,7 +3181,7 @@ ocfmRetCode DeleteNodeObjDict(
 		objIndexCollection->DeleteIndexCollection();
 		// Delete DataTypeCollection
 		objDataTypeCollection->DeleteDataTypeCollection();
-		cout << "\n\n$SDelete MN OBD Success" << endl;
+		//cout << "\n\n$SDelete MN OBD Success" << endl;
 		ErrStruct.code = OCFM_ERR_SUCCESS;
 		return ErrStruct;
 	}
@@ -3041,16 +3231,16 @@ void CalculateOffsets(int VarCount,  EPIDirectionType type)
 			PIBitOffset = itoa(BitOffset, PIBitOffset, 16);
 			pi->BitOffset = (char*)malloc(2);
 			strcpy(pi->BitOffset, ConvertToHexformat(PIBitOffset, 2, 1));
-			printf("\nName: %s", pi->Name);
-			printf("\nBit Offset: %s", pi->BitOffset);
+			//printf("\nName: %s", pi->Name);
+			//printf("\nBit Offset: %s", pi->BitOffset);
 		}
 			
 			else	Offset = arrOfOffsets[1][0] + atoi(pi->DataSize)/8;
 			PIByteOffset = itoa(Offset, PIByteOffset, 16);
 			pi->ByteOffset = (char*)malloc(6);
 			strcpy(pi->ByteOffset, ConvertToHexformat(PIByteOffset, 4, 1));
-			printf("\nName: %s", pi->Name);
-			printf("\nByte Offset: %s", pi->ByteOffset);
+			//printf("\nName: %s", pi->Name);
+			//printf("\nByte Offset: %s", pi->ByteOffset);
 			arrOfOffsets[1][0] = Offset;		
 	}
 }

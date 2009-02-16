@@ -258,7 +258,7 @@ DllExport ocfmRetCode ReImportXML(char* fileName, int NodeID, ENodeType NodeType
 
 //DllExport ocfmRetCode ImportObjDictXML(char* fileName);
 DllExport ocfmRetCode GenerateXAP(char* fileName);
-DllExport void GenerateCDC(char* fileName);
+DllExport ocfmRetCode GenerateCDC(char* fileName);
 //void GenerateMNOBD();
 
 DllExport ocfmRetCode CreateNode(int NodeID, ENodeType NodeType);
@@ -276,7 +276,7 @@ DllExport ocfmRetCode SetSubIndexAttributes(int NodeID, ENodeType NodeType, char
 //$S Test API. Should be deleted in the release code
 DllExport void DisplayNodeTree(void);
 
-DllExport ocfmRetCode IfNodeExists(int NodeID, ENodeType NodeType, int* NodePos);
+DllExport ocfmRetCode IfNodeExists(int NodeID, ENodeType NodeType, int* NodePos, bool& ExistfFlag);
 DllExport ocfmRetCode IfIndexExists(int NodeID, ENodeType NodeType, char* IndexID, int* IndexPos);
 DllExport ocfmRetCode IfSubIndexExists(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID, int* SubIndexPos, int* IndexPos);
 

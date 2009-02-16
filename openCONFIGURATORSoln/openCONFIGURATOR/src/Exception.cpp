@@ -192,7 +192,13 @@ ocfmException::~ocfmException(void)
 					break;
 			case OCFM_ERR_UNKNOWN:
 						strcpy(_ocfmRetCode.errorString, "Unknown error");
-						break;				
+						break;
+			case OCFM_ERR_VALUE_NOT_WITHIN_RANGE:
+						strcpy(_ocfmRetCode.errorString, "Value out of range");
+						break;
+			case OCFM_ERR_MN_NODE_DOESNT_EXIST:
+					strcpy(_ocfmRetCode.errorString, "MN Node doesnt exist");
+						break;
 			default:
 						break;			
 		}

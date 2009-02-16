@@ -106,13 +106,13 @@ char* reverse(char* str)
 }
 char* padLeft(char* str, char padChar, int padLength)
 {
-			char* temp;
+			char temp[50];
 			int i=0;
 			int len = strlen(str);
 			
 			if (len < padLength)
 			{
-				temp = new char[padLength-len+1];		
+				//temp = new char[padLength-len+1];		
 				str = reverse(str);
 				while(i<(padLength-len))
 				{
@@ -120,7 +120,7 @@ char* padLeft(char* str, char padChar, int padLength)
 					i++;
 				}
 				temp[i] = '\0';
-				strcat(str, temp);
+				strcat(str, temp);				
 				str = reverse(str);
 			}
 			return str;
@@ -278,3 +278,29 @@ char* ConvertToHexformat(char* hexValue, int padlength, bool DoPadding)
 	
 	return hex;
 }
+bool CheckIfHex(char* value)
+{
+	if(strchr(value,'x')==NULL)
+	{
+		if(strchr(value,'X')==NULL)
+		return false;
+		else return true;
+	}
+	else return true;
+		
+}
+//char* ReplaceChars(char ch, int num, char* str)
+//{
+//		int t;
+//		char st[2];
+//		for(t=0; str[t] ; ++t)
+//		{
+//			for(int i =0; i<num ;i++)
+//			{
+//				strcpy(st[i], 
+//			}
+//			if(str[t] == ch)
+//			
+//		}
+//		return str;
+//}

@@ -90,7 +90,7 @@ void CIndexCollection::deleteIndex(int IndexID)
 	{
 	   collectionObj.Remove(IndexID);
 	   m_IndexCount = collectionObj.Count();
-	   printf("\n\nAfter Delete - Count:%d\n\n", m_IndexCount);
+	   //printf("\n\nAfter Delete - Count:%d\n\n", m_IndexCount);
 
 	}
 	

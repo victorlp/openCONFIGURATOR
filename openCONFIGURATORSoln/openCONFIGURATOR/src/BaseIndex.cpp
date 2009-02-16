@@ -341,7 +341,8 @@ void CBaseIndex::SaveChanges(char* Index,char* Name)
 bool CBaseIndex::IsIndexVaueValid(char* hexValue)
 	{
 		unsigned long l,lowlimit,highLimit;
-		bool flag;
+		bool flag = true;
+		return flag;
 		l = hex2int(hexValue);
 		if(this->m_LowLimit != NULL)
 		{		
