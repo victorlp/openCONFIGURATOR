@@ -218,6 +218,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\ProcessImage.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\Socket.cpp"
 				>
 			</File>
@@ -309,6 +313,10 @@
 			</File>
 			<File
 				RelativePath=".\Include\openCONFIGURATOR.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Include\ProcessImage.h"
 				>
 			</File>
 			<File

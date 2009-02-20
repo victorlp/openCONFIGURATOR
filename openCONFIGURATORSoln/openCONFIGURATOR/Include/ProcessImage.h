@@ -1,8 +1,8 @@
-#ifndef Node_h
-#define Node_h
+#ifndef processImage_h
+#define processImage_h
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //
-// $Header: $
+//  $Header: $
 //
 // NAME:  ClassNAME
 //
@@ -69,69 +69,44 @@
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-#pragma once
-#include "DataTypeCollection.h"
-#include "IndexCollection.h"
-#include "Declarations.h"
-#include "ApplicationProcess.h"
-#include "ProcessImage.h"
-
-class DllExport CNode
-//class CNode
+#include <libxml/xmlreader.h>
+#include <libxml/xmlwriter.h>
+#include <libxml/encoding.h>
+	typedef enum EPIDirectionType
 	{
-	public:
-		CNode(void);
-		~CNode(void);
-	private:
-		CDataTypeCollection *m_DataTypeCollection;
-		CIndexCollection *m_IndexCollection;
-		CApplicationProcess* m_ApplicationProcess;
-				
-		int								m_NodeId;
-		ENodeType		m_NodeType;
-		int								m_NodeIndex;
-		bool							m_HasPdoObjects;
-		char*						m_NodeName;/*
-	//*/	/*typedef TCollection<ProcessImage> PICollection;*/
-	public:
-		/*typedef _PICollection PICollection;*/
-		TCollection<ProcessImage> ProcessImageCollection;
-	public:
-		CDataTypeCollection* getDataTypeCollection();
-		CIndexCollection* getIndexCollection();
-		CApplicationProcess* getApplicationProcess();
-		
-		int getNodeId();
-		void setNodeId(int NodeId);
+		INPUT = 0,
+		OUTPUT
+	}EPIDirectionType;
+	
+typedef struct ProcessImage
+{
+		char*					Name;
+		char					Direction[3];
+		char*					DataType;
+		char					DataSize[5];
+		char*					ByteOffset;
+		char*					Value;
+		char*					subindex;
+		char*					Index;
+		char*					BitOffset;
+		int							ParametrIndex;
+		void Initialize()
+		{
+			ParametrIndex = 0;
+		}
+		EPIDirectionType			DirectionType;
+}ProcessImage;
 
-		int getNodeIndex();
-		void setNodeIndex(int NodeIndex);
+static int InVars = -1;
+static int OutVars = -1;
+static ProcessImage PIInCol[4000];
+static ProcessImage PIOutCol[4000];
 
-		char* getNodeName();
-		void setNodeName(char* NodeName);
-
-		ENodeType getNodeType();
-		void setNodeType(ENodeType NodeType);
-		
-		bool HasPdoObjects();
-		void setFlagForPdoObjects(bool flag);
-
-		void CreateIndexCollection();
-		void CreateDataTypeCollection();
-		void CreateApplicationProcess();
-		
-		void addProcessImage(ProcessImage processImage);
+void GroupInOutPIVariables();
+void CalculateOffsets(int VarCount,  EPIDirectionType type);
+void WriteXAPElements(ProcessImage piCol[], xmlTextWriterPtr& writer,int VarCount, EPIDirectionType piType);
+void StartXAPxml(xmlTextWriterPtr& writer,  xmlDocPtr& doc);
+void EndWrtitingXAP( xmlTextWriterPtr& writer, char* fileName, xmlDocPtr& doc);
 
 
-		CIndexCollection* getPDOIndexCollection(EPDOType PDOType);
-		CIndexCollection* getIndexCollectionWithoutPDO();
-		CIndexCollection*getPDOIndexCollection();
-		
-		ProcessImage* getPIbyParaIndex(int paraIndex);
-		/*void UpdatePIOffset(char* ByteOffset);*/
-		
-		
-		bool isNull();
-			
-	};
-#endif // Node_h
+#endif // processImage_h

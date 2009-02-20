@@ -126,11 +126,6 @@ typedef enum
 			 readWriteOutput, /*both read and write, access, but represents process output data*/
 			 noAccess				 /*access denied				*/
 }EParameterAccess;
-	typedef enum EPIDirectionType
-	{
-		INPUT = 0,
-		OUTPUT
-	}EPIDirectionType;
 struct DataType
 {
 		char*		Name;
@@ -143,25 +138,6 @@ struct DataType
 			strcpy(Name,DataTypeName);	
 		}
 };
-typedef struct ProcessImage
-{
-		char*					Name;
-		char					Direction[3];
-		char*					DataType;
-		char					DataSize[5];
-		char*					ByteOffset;
-		char*					Value;
-		char*					subindex;
-		char*					Index;
-		char*					BitOffset;
-		int							ParametrIndex;
-		void Initialize()
-		{
-			ParametrIndex = 0;
-		}
-		EPIDirectionType			DirectionType;
-}ProcessImage;
-
 typedef struct appProcessCommon
 {
 
@@ -297,6 +273,7 @@ DllExport ocfmRetCode GetSubIndexAttributesbyPositions(int 			NodePos, int 			In
 
 DllExport ocfmRetCode GetIndexAttributesbyPositions(int NodePos, int IndexPos, EAttributeType AttributeType, char* Out_AttributeValue);
 DllExport ocfmRetCode GetSubIndexAttributesbyPositions(int NodePos, int IndexPos, int SubIndexPos, EAttributeType AttributeType, char* Out_AttributeValue);
+DllExport void LoadObjectDictionary(char* fileName);
 
 
 

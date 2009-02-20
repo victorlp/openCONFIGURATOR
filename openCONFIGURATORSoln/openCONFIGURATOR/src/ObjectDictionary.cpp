@@ -78,6 +78,7 @@ CObjectDictionary::CObjectDictionary(void)
 			objDictNode->CreateIndexCollection();
 			objDictNode->CreateDataTypeCollection();
 			objDictNode->CreateApplicationProcess();
+			printf("\n Object collections Created");
 			m_s_attrIdx_SIdx = collectionObj.Count();
 		}
 
@@ -93,6 +94,7 @@ CObjectDictionary* CObjectDictionary::getObjDictPtr()
 		if(!instanceFlag)
 			{
 				objectDictionary = new CObjectDictionary();
+				printf("\n Object Created");
 				instanceFlag=true;
 			}
 		return objectDictionary;
@@ -136,7 +138,7 @@ void CObjectDictionary::ProcessObjectDictionary(xmlTextReaderPtr reader)
 
 					objDataTypeCollection = objDictNode->getDataTypeCollection();
 					objDataTypeCollection->addDataType(objDataType);
-			
+					printf("\n Datatypes added");
 
 				}
 			
@@ -173,7 +175,7 @@ void CObjectDictionary::ProcessObjectDictionary(xmlTextReaderPtr reader)
 						//Add Index object to the IndexCollection
 						objIndexCollection->addIndex(objIndex);				
 						LastObjDictIndexParsed = objIndexCollection->getNumberofIndexes()-1;
-						
+						printf("\n index %s Indexes added",objIndex.getIndexValue());
 				}
 		else	if(strcmp(((char*)name),"SubObject")==0 )
 				{
@@ -210,10 +212,11 @@ void CObjectDictionary::ProcessObjectDictionary(xmlTextReaderPtr reader)
 				
 					
 							objIndexPtr->addSubIndex(objSubIndex);
-						if (same)
-							{
-								//printf("\n Same ********* Attr Index Name: %s",objIndexPtr->getName());
-							}
+								printf("\n  subIndexes added");
+						//if (same)
+						//	{
+						//		//printf("\n Same ********* Attr Index Name: %s",objIndexPtr->getName());
+						//	}
 				
 						
 				}	

@@ -71,6 +71,7 @@
 #include "../Include/Internal.h"
 #include "../Include/Exception.h"
 #include "../Include/ObjectDictionary.h"
+#include "../Include/ProcessImage.h"
 #include <iostream>
 #include <fstream>
 #include <stdio.h>
@@ -85,10 +86,7 @@
 int lastVarIndex = -1;
 static bool CDTCompleted = false;
 static bool NotLoadedOBD = true;
-static int InVars = -1;
-static int OutVars = -1;
-ProcessImage PIInCol[4000];
-ProcessImage PIOutCol[4000];
+
 /**************************************************************************************************
 	* Function Name: AddIndexAttributes
     * Description: Adds the default attributes to the Index, when addded.
@@ -251,12 +249,12 @@ ocfmRetCode CreateNode(int NodeID, ENodeType NodeType)
 	try
 	{
 		// TODO:If Check is made when Zero nodes present, Seg Fault is happening
-		if(NodeType ==MN)
-		{
-			//cout << "loading od.xml"<< endl;
-			LoadObjectDictionary("od.xml");
-			//cout << "loaded xml" << endl;
-		}
+		//if(NodeType ==MN)
+		//{
+		//	//cout << "loading od.xml"<< endl;
+		//	LoadObjectDictionary("od.xml");
+		//	//cout << "loaded xml" << endl;
+		//}
 		if(NodeType == CN)
 		{
 			bool flag = false;
@@ -2740,15 +2738,17 @@ ocfmRetCode GetSubIndexCount(
 void LoadObjectDictionary(char* fileName)
 	{
 	
-		//printf("Inside ObjectDictionary");
+		printf("Inside ObjectDictionary");
   xmlTextReaderPtr reader;
   int ret;
 		CObjectDictionary* objDict;
-		
+		printf("Inside ObjectDictionary3");
 		objDict = CObjectDictionary::getObjDictPtr();
-		
+		if(objDict==NULL)
+		printf("NULL");
+		printf("Inside ObjectDictionary1");
   reader = xmlReaderForFile(fileName, NULL, 0);
-  
+  printf("Inside ObjectDictionary2");
 		if (reader != NULL)
 		{
 			 ret = xmlTextReaderRead(reader);
@@ -2762,9 +2762,9 @@ void LoadObjectDictionary(char* fileName)
 					printf("Error parsing file");
 				}
 			}
-					
+			cout << "file parsed" <<endl;		
 		//printf("Parsing ObjectDictionary5 Done");
-		objDict->printall();
+		//objDict->printall();
 		 xmlCleanupParser();
 		/*
 		* this is to debug memory for regression tests
@@ -3189,104 +3189,4 @@ ocfmRetCode DeleteNodeObjDict(
 	{
 		return ex->_ocfmRetCode;
 	}
-}
-
-void CalculateOffsets(int VarCount,  EPIDirectionType type)
-{
-	int arrOfOffsets[6][2] = {{-1, -1}, {-1, -1},{-1, -1},{-1,-1},{-1, -1}, {-1, -1}};			/* Contain last offsets of Int8,Uint8,Int16, UInt16, Int32,UInt32*/	
-	for(int i=0; i<VarCount; i++)
-	{
-
-		ProcessImage* pi;
-		if(type==INPUT)
-		pi = &PIInCol[i];
-		else if(type == OUTPUT)
-		pi = &PIOutCol[i];	
-		int dataTypeSize;
-		int Offset;
-		int BitOffset ;
-		char* PIByteOffset = new char[7];
-		char* PIBitOffset		= new char[5];
-	
-		/*if(strcmp(pi.DataType == "USINT"))*/
-	
-		
-		if(strcmp(pi->DataType,"BITSTRING")==0)
-		{
-			if(arrOfOffsets[1][1] == 7)
-			{
-				Offset = arrOfOffsets[1][0] + 1;
-				BitOffset = 0;				
-				
-			}
-			else
-			{
-				if(arrOfOffsets[1][1] ==-1)
-				Offset  = arrOfOffsets[1][0] + 1;
-				else
-				Offset  = arrOfOffsets[1][0];
-				BitOffset = arrOfOffsets[1][1] + 1;				
-			}		
-			arrOfOffsets[1][1] = BitOffset;
-			PIBitOffset = itoa(BitOffset, PIBitOffset, 16);
-			pi->BitOffset = (char*)malloc(2);
-			strcpy(pi->BitOffset, ConvertToHexformat(PIBitOffset, 2, 1));
-			//printf("\nName: %s", pi->Name);
-			//printf("\nBit Offset: %s", pi->BitOffset);
-		}
-			
-			else	Offset = arrOfOffsets[1][0] + atoi(pi->DataSize)/8;
-			PIByteOffset = itoa(Offset, PIByteOffset, 16);
-			pi->ByteOffset = (char*)malloc(6);
-			strcpy(pi->ByteOffset, ConvertToHexformat(PIByteOffset, 4, 1));
-			//printf("\nName: %s", pi->Name);
-			//printf("\nByte Offset: %s", pi->ByteOffset);
-			arrOfOffsets[1][0] = Offset;		
-	}
-}
-int TotalPIVarsCount()
-{
-	CNodeCollection* objNodeCol;
-	objNodeCol =  CNodeCollection::getNodeColObjectPointer();
-	int PIVarsCount =0;
-	for(int i=0; i< objNodeCol->getCNNodesCount(); i++)
-	{
-		CNode objNode;
-		objNode = objNodeCol->getNodebyCollectionIndex(i);	
-		PIVarsCount = objNode.ProcessImageCollection.Count() + PIVarsCount;		
-	}
-	return PIVarsCount;
-}
-void GroupInOutPIVariables()
-{
-
-	int count =  TotalPIVarsCount();
-	//PIInCol = (ProcessImage*)malloc(1*sizeof(ProcessImage));
-	//PIOutCol = (ProcessImage*)malloc(1*sizeof(ProcessImage));
-	
-	CNodeCollection* objNodeCol;
-	objNodeCol =  CNodeCollection::getNodeColObjectPointer();
-	int PIVarsCount =0;
-	for(int i=0; i< objNodeCol->getNumberOfNodes(); i++)
-	{
-		CNode objNode;
-		objNode = objNodeCol->getNodebyCollectionIndex(i);	
-		
-		for(int i=0; i<objNode.ProcessImageCollection.Count(); i++)
-		{
-			
-			if(objNode.ProcessImageCollection[i].DirectionType == INPUT)
-			{
-				InVars++;
-				PIInCol[InVars]  = objNode.ProcessImageCollection[i];
-				//PIInCol = (ProcessImage*)realloc(PIInCol,(size + 1)*sizeof(ProcessImage));			
-			}
-			else if(objNode.ProcessImageCollection[i].DirectionType == OUTPUT)
-			{
-				OutVars++;
-				PIOutCol[OutVars]  = objNode.ProcessImageCollection[i];
-				//PIOutCol = (PIOutCol *)realloc(PIOutCol,(size + 1)*sizeof(ProcessImage));
-			}
-		}
-}
 }

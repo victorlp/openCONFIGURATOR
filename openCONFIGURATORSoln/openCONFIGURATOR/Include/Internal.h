@@ -100,7 +100,7 @@ static const char *g_Simple[][2] = {
 /* Function Declarations
 /*****************************************************************************************/
 
-void LoadObjectDictionary(char* fileName);
+//void LoadObjectDictionary(char* fileName);
 char* ConvertToUpper(char* str);
 char* itoa( int value, char* result, int base );
 bool CheckIfNotPDO(char* Index);
@@ -118,9 +118,6 @@ unsigned long hex2int(char *a);
 CIndex* getMNIndexValues(char* Index);
 bool CheckAllowedCNIndexes(char* IndexValue);
 void ConvertCdcToBinary(char* fileName,char* tempFile);
-void WriteXAPElements(ProcessImage piCol[], xmlTextWriterPtr& writer,int VarCount, EPIDirectionType piType);
-void StartXAPxml(xmlTextWriterPtr& writer,  xmlDocPtr& doc);
-void EndWrtitingXAP( xmlTextWriterPtr& writer, char* fileName, xmlDocPtr& doc);
 char* getParameterAccess(char* access);
 bool CheckEndElement(int NodeType, char* element, char* comparewith);
 bool CheckStartElement(int NodeType, char* element, char* comparewith);
@@ -129,8 +126,6 @@ char* getPIName(int NodeID);
 void setIndexAttributes(xmlTextReaderPtr reader, CIndex* objIndex, bool& hasPDO);
 void setSubIndexAttributes(xmlTextReaderPtr reader, CSubIndex* objSubIndex);
 void setDataTypeAttributes(xmlTextReaderPtr reader ,DataType* objDataType);
-void GroupInOutPIVariables();
-void CalculateOffsets(int VarCount,  EPIDirectionType type);
 char* ConvertToHexformat(char* hexValue, int padlength, bool DoPadding);
 int getCNDataLen(char* Buffer);
 bool CheckIfDataTypeExists(char* dtVal, int NodeID);
