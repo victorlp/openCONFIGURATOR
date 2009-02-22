@@ -275,8 +275,8 @@ DllExport ocfmRetCode GetIndexAttributesbyPositions(int NodePos, int IndexPos, E
 DllExport ocfmRetCode GetSubIndexAttributesbyPositions(int NodePos, int IndexPos, int SubIndexPos, EAttributeType AttributeType, char* Out_AttributeValue);
 DllExport void LoadObjectDictionary(char* fileName);
 
-
-
+DllExport ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType);
+DllExport ocfmRetCode SaveProject(char* ProjectPath);
 //DllExport ocfmRetCode GetSubIndexCount(char* IndexID, int* IndexCount);
 
 #endif // declarations_h

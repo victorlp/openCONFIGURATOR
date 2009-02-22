@@ -198,7 +198,22 @@ ocfmException::~ocfmException(void)
 						break;
 			case OCFM_ERR_MN_NODE_DOESNT_EXIST:
 					strcpy(_ocfmRetCode.errorString, "MN Node doesnt exist");
-						break;
+						break;					
+			case OCFM_ERR_CREATE_XML_WRITER_FAILED:
+					strcpy(_ocfmRetCode.errorString, "Error creating the xml writer");
+					break;
+			case OCFM_ERR_XML_WRITER_START_ELT_FAILED:
+					strcpy(_ocfmRetCode.errorString, "Error at xmlTextWriterStartElement");
+					break;
+			case OCFM_ERR_XML_WRITER_END_ELT_FAILED:
+					strcpy(_ocfmRetCode.errorString, "Error at xmlTextWriterEndElement");
+					break;
+			case OCFM_ERR_XML_START_DOC_FAILED:
+					strcpy(_ocfmRetCode.errorString, "Error at xmlTextWriterStartDocument");
+					break;
+			case OCFM_ERR_XML_END_DOC_FAILED:
+					strcpy(_ocfmRetCode.errorString, "Error at xmlTextWriterEndDocument");
+					break;					
 			default:
 						break;			
 		}

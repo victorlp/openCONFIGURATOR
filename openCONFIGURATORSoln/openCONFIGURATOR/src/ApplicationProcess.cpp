@@ -173,3 +173,22 @@ void CApplicationProcess::updatePreviousCDT_UId(char *UniqueID, int Index)
 		objCDT->previousCDT_UId = (char*)malloc(strlen(UniqueID)+1);
 		strcpy(objCDT->previousCDT_UId, UniqueID);
 }
+
+Parameter CApplicationProcess::get_UniqueIDRef_by_ParameterIndex(int ParameterIndex)
+{
+	Parameter objPara;
+	objPara = ParameterCollection[ParameterIndex];
+	return objPara;
+}
+
+int CApplicationProcess::getCDTCount()
+{
+	return CDTCollection.Count();
+}
+
+CComplexDataType* CApplicationProcess::getCDTbyCount(int count)
+{
+	//CComplexDataType objCDT;
+	//objCDT = CDTCollection[count];
+	return &CDTCollection[count];
+}

@@ -156,8 +156,8 @@ void CBaseIndex::setAccessType(char* accessType)
 	{
 		switch (m_objectType)
 			{
-			case DEFAULT:
-				return "DFEAULT";
+			case DEFTYPE:
+				return "DEFTYPE";
 				break;
 			case DEFSTRUCT:
 				return "DEFSTRUCT";

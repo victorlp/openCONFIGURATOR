@@ -87,6 +87,7 @@ int main(int argc, char **argv)
 			cout<<"24: GetIndexIDbyIndexPos"<<endl;
 			cout<<"25: DeleteMNObjDict"<<endl;
 			cout<<"26: GetIndexAttributesbyPositions"<<endl;
+			cout<<"27: SaveXDC"<<endl;
 			
 			cout <<"Press 'E' for Exit"<<endl;
 								
@@ -691,6 +692,15 @@ int main(int argc, char **argv)
 								//GetIndexAttributesbyPositions(NodePos, IndexPos, AttributeType, tmp_AttributeValue);
 								GetSubIndexAttributesbyPositions(NodePos, IndexPos, SubIndexPos, AttributeType, tmp_AttributeValue);
 							}
+							break;
+				case 27: 
+							//SaveNode("/home/selva/Desktop/myxdc.xdc", 1 , CN);
+							int len;
+							len = strlen("/home/selva/Desktop/MyPjt/");
+							char* PjtPath;
+							PjtPath = new char[len + 1];
+							strcpy(PjtPath, "/home/selva/Desktop/MyPjt/");
+							SaveProject(PjtPath);
 							break;
 				default :
 							break;

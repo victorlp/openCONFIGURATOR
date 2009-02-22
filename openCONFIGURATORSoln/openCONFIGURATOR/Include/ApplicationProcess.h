@@ -97,7 +97,9 @@ class DllExport CApplicationProcess
 		CComplexDataType* getCDTbydtIndex(int Index);
 		int get_CDT_UniqueIDRef(char *UniqueIdRef);
 		void updatePreviousCDT_UId(char *UniqueID, int Index);
-		
+		Parameter get_UniqueIDRef_by_ParameterIndex(int ParameterIndex);
+		int getCDTCount();
+		CComplexDataType* getCDTbyCount(int count);
 	};
 
 #endif // ApplicationProcess_h

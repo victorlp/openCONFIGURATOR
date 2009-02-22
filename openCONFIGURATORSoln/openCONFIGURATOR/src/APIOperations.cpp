@@ -3190,3 +3190,56 @@ ocfmRetCode DeleteNodeObjDict(
 		return ex->_ocfmRetCode;
 	}
 }
+
+/**************************************************************************************************
+	* Function Name: SaveProject
+    * Description: Saves all the Nodes into the Project location
+	* Return value: ocfmRetCode
+/****************************************************************************************************/
+
+ocfmRetCode SaveProject(char* ProjectPath)
+{
+	CNode objNode;		
+	CNodeCollection *objNodeCollection = NULL;
+	ocfmRetCode ErrStruct;
+	try
+	{		
+		objNodeCollection = CNodeCollection::getNodeColObjectPointer();	
+		if(objNodeCollection == NULL)
+		{
+			ocfmException* objException = new ocfmException;
+			objException->ocfm_Excpetion(OCFM_ERR_NO_NODES_FOUND);
+			throw objException;
+		}
+		//cout<< "getNumberOfNodes: \n" <<objNodeCollection->getNumberOfNodes()<<endl;
+		if( objNodeCollection->getNumberOfNodes() > 0)
+		{
+			for(int count = 0; count < objNodeCollection->getNumberOfNodes(); count++)
+			{				
+				objNode = objNodeCollection->getNodebyCollectionIndex(count);
+				
+				char *fileName;	
+				fileName = new char[80];
+				// Saves the nodes with their nodeId as the name
+				sprintf(fileName, "%s%d", ProjectPath, objNode.getNodeId());
+				
+				//cout << "\fileName:" << fileName << endl;
+				//cout << "\ngetNodeId-getNodeType:" << objNode.getNodeId() << objNode.getNodeType() << endl;
+				SaveNode(fileName, objNode.getNodeId(), objNode.getNodeType());				
+			}
+			ErrStruct.code = OCFM_ERR_SUCCESS;
+			return ErrStruct;
+		}
+		else
+		{
+			ocfmException* objException = new ocfmException;
+			objException->ocfm_Excpetion(OCFM_ERR_NO_NODES_FOUND);
+			throw objException;			
+		}
+	}
+	catch(ocfmException* ex)
+	{
+		return ex->_ocfmRetCode;
+	}
+	
+}
