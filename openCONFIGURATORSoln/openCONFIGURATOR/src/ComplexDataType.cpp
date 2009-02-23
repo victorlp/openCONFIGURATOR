@@ -11,6 +11,7 @@ CComplexDataType::CComplexDataType(void)
 			name_id_attr->m_Name = NULL;
 			name_id_attr->UniqueId = NULL;
 			VarIndex = -1;
+			previousCDT_UId = NULL;
 			
 	}
 

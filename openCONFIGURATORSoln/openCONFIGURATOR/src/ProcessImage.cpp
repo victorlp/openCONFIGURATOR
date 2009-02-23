@@ -79,74 +79,99 @@
 
 int InVars =0;
 int OutVars = 0;
-extern ProcessImage PIInCol[4000] = {};
-extern ProcessImage PIOutCol[4000]= {};
+//extern ProcessImage PIInCol[4000] = {};
+//extern ProcessImage PIOutCol[4000]= {};
 
-void CalculateOffsets(int VarCount,  EPIDirectionType type)
+void SetPIOffsets(ProcessImage* pi,int& StartByteOffset, int pos, int& StartBitOffset  )
 {
-	int arrOfOffsets[6][2] = {{-1, -1}, {-1, -1},{-1, -1},{-1,-1},{-1, -1}, {-1, -1}};			/* Contain last offsets of size 1Bytes, 2 bytes, 4 bytes and 8 bytes*/	
-	for(int i=0; i<VarCount; i++)
+	if(pi->DataInfo.DataSize == 1 )
 	{
-
-		ProcessImage* pi;
-		if(type==INPUT)
-		pi = &PIInCol[i];
-		else if(type == OUTPUT)
-		pi = &PIOutCol[i];	
-		int Offset;
-		int BitOffset ;
-		char* PIByteOffset = new char[7];
-		char* PIBitOffset		= new char[5];
-	
-		/*if(strcmp(pi.DataType == "USINT"))*/
-	
+		if(StartBitOffset  == -1)
+		{		
+		//	StartByteOffset = StartByteOffset + 1;
+			pi->ByteOffset = StartByteOffset;
 		
-		if(pi->DataInfo._dt_enum ==BITSTRING)
-		{
-			if(arrOfOffsets[1][1] == 7)
-			{
-				Offset = arrOfOffsets[1][0] + 1;
-				BitOffset = 0;				
-				
-			}
-			else
-			{
-				if(arrOfOffsets[1][1] ==-1)
-				Offset  = arrOfOffsets[1][0] + 1;
-				else
-				Offset  = arrOfOffsets[1][0];
-				BitOffset = arrOfOffsets[1][1] + 1;				
-			}		
-			arrOfOffsets[1][1] = BitOffset;
-			pi->BitOffset =  BitOffset;
-			//printf("\nName: %s", pi->Name);
-			//printf("\nBit Offset: %s", pi->BitOffset);
 		}
-			
-			else	Offset = arrOfOffsets[1][0] + (pi->DataInfo.DataSize)/8;
-			pi->ByteOffset = Offset;
-						//printf("\nName: %s", pi->Name);
-			//printf("\nByte Offset: %s", pi->ByteOffset);
-			arrOfOffsets[1][0] = Offset;		
+		StartBitOffset = StartBitOffset + 1;
+		pi->BitOffset = StartBitOffset;
+		pi->ByteOffset = StartByteOffset;
+		if(StartBitOffset ==7)
+		StartByteOffset = StartByteOffset + 1;
+	
 	}
-}
-int TotalPIVarsCount()
-{
-	CNodeCollection* objNodeCol;
-	objNodeCol =  CNodeCollection::getNodeColObjectPointer();
-	int PIVarsCount =0;
-	for(int i=0; i< objNodeCol->getCNNodesCount(); i++)
+	else
 	{
-		CNode objNode;
-		objNode = objNodeCol->getNodebyCollectionIndex(i);	
-		PIVarsCount = objNode.ProcessImageCollection.Count() + PIVarsCount;		
-	}
-	return PIVarsCount;
+		
+		//StartByteOffset = StartByteOffset + pos*(pi->DataInfo.DataSize);
+		pi->ByteOffset = StartByteOffset;
+		StartByteOffset =  StartByteOffset + (pi->DataInfo.DataSize)/8;
+	}	
 }
-void GroupInOutPIVariables()
+//void CalculateOffsets(int VarCount,  EPIDirectionType type)
+//{
+//	int arrOfOffsets[6][2] = {{-1, -1}, {-1, -1},{-1, -1},{-1,-1},{-1, -1}, {-1, -1}};			/* Contain last offsets of size 1Bytes, 2 bytes, 4 bytes and 8 bytes*/	
+//	for(int i=0; i<VarCount; i++)
+//	{
+//
+//		ProcessImage* pi;
+//		if(type==INPUT)
+//		pi = &PIInCol[i];
+//		else if(type == OUTPUT)
+//		pi = &PIOutCol[i];	
+//		int Offset;
+//		int BitOffset ;
+//		char* PIByteOffset = new char[7];
+//		char* PIBitOffset		= new char[5];
+//	
+//		/*if(strcmp(pi.DataType == "USINT"))*/
+//	
+//		
+//		if(pi->DataInfo._dt_enum ==BITSTRING)
+//		{
+//			if(arrOfOffsets[1][1] == 7)
+//			{
+//				Offset = arrOfOffsets[1][0] + 1;
+//				BitOffset = 0;				
+//				
+//			}
+//			else
+//			{
+//				if(arrOfOffsets[1][1] ==-1)
+//				Offset  = arrOfOffsets[1][0] + 1;
+//				else
+//				Offset  = arrOfOffsets[1][0];
+//				BitOffset = arrOfOffsets[1][1] + 1;				
+//			}		
+//			arrOfOffsets[1][1] = BitOffset;
+//			pi->BitOffset =  BitOffset;
+//			//printf("\nName: %s", pi->Name);
+//			//printf("\nBit Offset: %s", pi->BitOffset);
+//		}
+//			
+//			else	Offset = arrOfOffsets[1][0] + (pi->DataInfo.DataSize)/8;
+//			pi->ByteOffset = Offset;
+//						//printf("\nName: %s", pi->Name);
+//			//printf("\nByte Offset: %s", pi->ByteOffset);
+//			arrOfOffsets[1][0] = Offset;		
+//	}
+//}
+//int TotalPIVarsCount()
+//{
+//	CNodeCollection* objNodeCol;
+//	objNodeCol =  CNodeCollection::getNodeColObjectPointer();
+//	int PIVarsCount =0;
+//	for(int i=0; i< objNodeCol->getCNNodesCount(); i++)
+//	{
+//		CNode objNode;
+//		objNode = objNodeCol->getNodebyCollectionIndex(i);	
+//		PIVarsCount = objNode.ProcessImageCollection.Count() + PIVarsCount;		
+//	}
+//	return PIVarsCount;
+//}
+void GroupInOutPIVariables(ProcessImage PIInCol[], ProcessImage PIOutCol[])
 {
 
-	int count =  TotalPIVarsCount();
+	//int count =  TotalPIVarsCount();
 
 	//PIInCol = (ProcessImage*)malloc(1*sizeof(ProcessImage));
 	//PIOutCol = (ProcessImage*)malloc(1*sizeof(ProcessImage));
@@ -154,6 +179,8 @@ void GroupInOutPIVariables()
 	CNodeCollection* objNodeCol;
 	objNodeCol =  CNodeCollection::getNodeColObjectPointer();
 	int PIVarsCount =0;
+	InVars = 0;
+	OutVars = 0;
 	for(int i=0; i< objNodeCol->getNumberOfNodes(); i++)
 	{
 		CNode objNode;
@@ -165,7 +192,7 @@ void GroupInOutPIVariables()
 			if(objNode.ProcessImageCollection[i].DirectionType == INPUT)
 			{
 				PIInCol[InVars]  = objNode.ProcessImageCollection[i];
-				OutVars++;
+				InVars++;
 				//PIInCol = (ProcessImage*)realloc(PIInCol,(size + 1)*sizeof(ProcessImage));			
 			}
 			else if(objNode.ProcessImageCollection[i].DirectionType == OUTPUT)
@@ -360,46 +387,118 @@ void GroupInOutPIVariables()
 //	
 //		}
 //	}
-IEC_Datatype getIECDT(char* dtStr)
+PIDataInfo* getIECDT(char* dtStr)
 {
-
+	PIDataInfo *di = new PIDataInfo;
+	di->_dt_Name = new char[strlen(dtStr)+1];
+	strcpy(di->_dt_Name, dtStr);
+	
 	if(dtStr!=NULL)
 	{
 		if(strcmp(dtStr, "BITSTRING")==0)
-		return BITSTRING;
+		{
+			di->DataSize = 1;
+			di->_dt_enum = BITSTRING;
+		}
 		else if(strcmp(dtStr, "BOOL")==0)
-		return BOOL;
+		{
+			di->DataSize = 1;
+			di->_dt_enum = BOOL;
+		}
 		else if(strcmp(dtStr, "_CHAR")==0)
-		return _CHAR;
-		else if(strcmp(dtStr, "BYTE")==0)
-		return BYTE;
+		{
+			di->DataSize = 1;
+			di->_dt_enum = _CHAR;
+		}
+		else if(strcmp(dtStr, "WORD")==0)
+		{
+			di->DataSize = 8;	
+			di->_dt_enum = BYTE;
+		}		
 		else if(strcmp(dtStr, "DWORD")==0)
-		return DWORD;
+			{
+			di->DataSize = 32;
+			di->_dt_enum = DWORD;
+		}
+	
 		else if(strcmp(dtStr, "LWORD")==0)
-		return LWORD;
+			{
+			di->DataSize = 64;
+			di->_dt_enum = LWORD;
+		}
+		
 		else if(strcmp(dtStr, "SINT")==0)
-		return SINT;
+			{
+			di->DataSize = 8;
+			di->_dt_enum = SINT;
+		}
+	
 		else if(strcmp(dtStr, "INT")==0)
-		return INT;
+		{
+			di->DataSize = 16;
+			di->_dt_enum = INT;
+		}
+	
 		else if(strcmp(dtStr, "DINT")==0)
-		return DINT;
+		{
+			di->DataSize = 32;
+			di->_dt_enum = DINT;
+		}
+		
 		else if(strcmp(dtStr, "LINT")==0)
-		return LINT;
+		{
+			di->DataSize = 64;
+			di->_dt_enum = LINT;
+		}
+		
 		else if(strcmp(dtStr, "USINT")==0)
-		return USINT;
+		{
+			di->DataSize = 8;
+			di->_dt_enum = USINT;
+		}
+		
 		else if(strcmp(dtStr, "UINT")==0)
-		return UINT;
+		{
+			di->DataSize = 16;
+			di->_dt_enum = UINT;
+		}
+	
 		else if(strcmp(dtStr, "UDINT")==0)
-		return UDINT;
+		{
+			di->DataSize = 32;
+			di->_dt_enum = UDINT;
+		}
+	
 		else if(strcmp(dtStr, "ULINT")==0)
-		return ULINT;
+		{
+			di->DataSize = 64;
+			di->_dt_enum = ULINT;
+		}
+		
 		else if(strcmp(dtStr, "REAL")==0)
-		return REAL;
+		{
+			di->DataSize = 16;
+			di->_dt_enum = REAL;
+		}
+	
 		else if(strcmp(dtStr, "LREAL")==0)
-		return LREAL;
+		{
+			di->DataSize = 64;
+			di->_dt_enum = LREAL;
+		}
+	
 		else if(strcmp(dtStr, "STRING")==0)
-		return STRING;
+		{
+			di->DataSize = 1;
+			di->_dt_enum = STRING;
+		}
+		
 		else if(strcmp(dtStr, "WSTRING")==0)
-		return WSTRING;
+		{
+			di->DataSize = 1;
+			di->_dt_enum = WSTRING;
+		}
+	
 	}
+	return di;
 }

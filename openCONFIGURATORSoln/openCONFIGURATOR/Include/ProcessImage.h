@@ -72,12 +72,13 @@
 //#include <libxml/xmlreader.h>
 //#include <libxml/xmlwriter.h>
 //#include <libxml/encoding.h>
+#include "Declarations.h"
 	typedef enum EPIDirectionType
 	{
 		INPUT = 0,
 		OUTPUT
 	}EPIDirectionType;
-	typedef enum EDataType
+	typedef enum ePDODataType
 	{
 		UNSIGNED8 = 0,
 		INTEGER8,
@@ -85,7 +86,7 @@
 		INTEGER16,
 		UNSIGNED32,
 		INTEGER32
-	}e_DataType;
+	}PDODataType;
 	
 	typedef enum IEC_Datatype
 	{
@@ -107,14 +108,15 @@
 		LREAL,
 		STRING,
 		WSTRING
-	};
+	}IEC_Datatype;
+
 	typedef struct PIDataInfo
 	{
 		IEC_Datatype _dt_enum;
 		int										DataSize;
 		char*								_dt_Name;
-	};
-typedef struct ProcessImage
+	}PIDataInfo;
+struct ProcessImage
 {
 		char*					Name;
 		char					Direction[3];
@@ -133,12 +135,12 @@ typedef struct ProcessImage
 			ParametrIndex = 0;
 		}
 		EPIDirectionType			DirectionType;
-}ProcessImage;
+};
 
 struct StAddressTable
 {
 	char Address[5];
-	e_DataType dt;
+	PDODataType dt;
 	EPIDirectionType Direction;
 	
 };
@@ -149,8 +151,8 @@ struct stOffsets
 };
 extern int InVars;
 extern int OutVars;
-extern ProcessImage PIInCol[4000];
-extern ProcessImage PIOutCol[4000];
+//extern ProcessImage PIInCol[4000];
+//extern ProcessImage PIOutCol[4000];
 
 static StAddressTable AddressTable[12] = {
 																												{"A000", UNSIGNED8,		INPUT},
@@ -169,9 +171,12 @@ static StAddressTable AddressTable[12] = {
 																												};			
 
 
-void GroupInOutPIVariables();
+//void GroupInOutPIVariables();
+void GroupInOutPIVariables(ProcessImage PIInCol[], ProcessImage PIOutCol[]);
 void CalculateOffsets(int VarCount,  EPIDirectionType type);
-IEC_Datatype getIECDT(char* dtStr);
-
+PIDataInfo* getIECDT(char* dtStr);
+int ComputeINOffset(int NodeID, int dataSize, EPDOType pdoType);
+int ComputeOUTOffset(int NodeID, int dataSize, EPDOType pdoType);
+void SetPIOffsets(ProcessImage* pi,int& StartingByteOffset, int pos, int& StartBitOffset);
 
 #endif // processImage_h

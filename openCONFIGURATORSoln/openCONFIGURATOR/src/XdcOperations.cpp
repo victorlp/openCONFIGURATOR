@@ -487,14 +487,14 @@ static void getVarDeclaration(xmlTextReaderPtr reader, CComplexDataType* objCDT)
 			}
 			if(CheckStartElement(xmlTextReaderNodeType(reader),(char*)name, "varDeclaration"))
 			{
-						printf("\nELEMENT----- Name = %s ",name);
+						//printf("\nELEMENT----- Name = %s ",name);
 						if (value==NULL)
 						{
 							//printf("Value = NULL \n");  
 						}
 						else
 						{
-							printf("Value= %s",value);
+							//printf("Value= %s",value);
 						}
 					if (xmlTextReaderHasAttributes(reader)==1)
 						{						
@@ -502,13 +502,13 @@ static void getVarDeclaration(xmlTextReaderPtr reader, CComplexDataType* objCDT)
 								{
 
 										setVarDecAttributes(reader,stvardecl);		
-										printf("\n***Attribute  *********\n");
+										//printf("\n***Attribute  *********\n");
 										value = xmlTextReaderConstValue(reader);
 										name =xmlTextReaderConstName(reader);
-										printf("\ndepth : %d NodeType= %d Name= %s ,value= %s\n", 
-										xmlTextReaderDepth(reader),
-										xmlTextReaderNodeType(reader),
-										name,value);																												
+										////printf("\ndepth : %d NodeType= %d Name= %s ,value= %s\n", 
+										//xmlTextReaderDepth(reader),
+										//xmlTextReaderNodeType(reader),
+										//name,value);																												
 										
 								}
 							}
@@ -567,19 +567,7 @@ ocfmRetCode ImportXML(char* fileName, int NodeID, ENodeType NodeType)
 			if(ErrStruct.code!= 0)
 				return ErrStruct;
 
-					/* Process PDO Objects for CN*/
-				if (NodeType != MN )
-				{
-					CNode objNode;
-					CNodeCollection  *objNodeCol;
-					objNodeCol = CNodeCollection ::getNodeColObjectPointer();
-					objNode = objNodeCol->getNode(NodeType, NodeID);
-					/* Check if any PDO's present */
-					if(objNode.HasPdoObjects())	
-					{
-						ProcessPDONodes(NodeID);
-					}
-				}
+				
 				//printf("Parsing Done");
 			 xmlCleanupParser();
 			/*
@@ -1602,19 +1590,22 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 			if(tmpDataType.DataTypeValue != NULL)// TODO:$S
 			if(strlen(tmpDataType.DataTypeValue) != 0)
 			{				
-				//cout << "\nstrlen(tmpDataType.DataTypeValue):" << strlen(tmpDataType.DataTypeValue) << endl;
 				rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "dataType", BAD_CAST tmpDataType.DataTypeValue);
-				//cout << "\ntmpDataType.DataTypeValue:" << tmpDataType.DataTypeValue << endl;
 			}
-			if(objIndexPtr->getAccessType() != NULL)
+			if((objIndexPtr->getAccessType() != NULL))
+			if( strlen(objIndexPtr->getAccessType()) != 0 )
 				rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "accessType", BAD_CAST objIndexPtr->getAccessType());
-			if(objIndexPtr->getDefaultValue() != NULL)
+			if((objIndexPtr->getDefaultValue() != NULL)) 
+			if(strlen(objIndexPtr->getDefaultValue()) != 0)
 				rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "defaultValue", BAD_CAST objIndexPtr->getDefaultValue());
-			if(objIndexPtr->getActualValue() != NULL)
+			if((objIndexPtr->getActualValue() != NULL))
+			if(strlen(objIndexPtr->getActualValue()) != 0)
 				rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "actualValue", BAD_CAST objIndexPtr->getActualValue());
-			if(objIndexPtr->getPDOMapping() != NULL)
+			if((objIndexPtr->getPDOMapping() != NULL))
+			if(strlen(objIndexPtr->getPDOMapping()) != 0)
 				rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "PDOmapping", BAD_CAST objIndexPtr->getPDOMapping());
 			if(objIndexPtr->getUniqueIDRef() != NULL)
+			if(strlen(objIndexPtr->getUniqueIDRef()) != 0)
 				rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "uniqueIDRef", BAD_CAST objIndexPtr->getUniqueIDRef());
 				
 			xmlTextWriterSetIndent(writer, 1);
@@ -1647,7 +1638,8 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 						rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "objectType", BAD_CAST objSubIndexPtr->getObjectType());
 					DataType tmpDataType;
 					tmpDataType = objSubIndexPtr->getDataType();		
-					if(tmpDataType.DataTypeValue != NULL)			
+					if(tmpDataType.DataTypeValue != NULL)
+					if(strlen(tmpDataType.DataTypeValue) != 0)
 						rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "dataType", BAD_CAST tmpDataType.DataTypeValue);
 					if(objSubIndexPtr->getAccessType() != NULL)
 						rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "accessType", BAD_CAST objSubIndexPtr->getAccessType());

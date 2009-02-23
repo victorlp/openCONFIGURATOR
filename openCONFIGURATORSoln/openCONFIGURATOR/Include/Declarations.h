@@ -134,7 +134,7 @@ struct DataType
 		char* getName(){return Name;}
 		void setName(char* DataTypeName)
 		{
-			Name = new char[sizeof(DataTypeName)];
+			Name = new char[strlen(DataTypeName) + 1];
 			strcpy(Name,DataTypeName);	
 		}
 };
@@ -211,12 +211,15 @@ typedef struct Parameter
 			
 }Parameter;
 
-typedef struct MNPdoVariables
+typedef struct MNPdoVariable
 {
 	char* Index;
 	char* SubIndex;
-	char* Offset;
-};
+	int Offset;
+	char*	 Value;
+	int			DataSize;
+	EPDOType pdoType;
+}MNPdoVariable;
 typedef enum
 {
 	NAME	= 0,	// Name of the Attribute
@@ -284,5 +287,6 @@ DllExport void LoadObjectDictionary(char* fileName);
 DllExport ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType);
 DllExport ocfmRetCode SaveProject(char* ProjectPath);
 //DllExport ocfmRetCode GetSubIndexCount(char* IndexID, int* IndexCount);
+DllExport ocfmRetCode GenerateMNOBD();
 
 #endif // declarations_h

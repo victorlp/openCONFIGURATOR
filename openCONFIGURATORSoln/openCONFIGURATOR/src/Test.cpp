@@ -88,6 +88,7 @@ int main(int argc, char **argv)
 			cout<<"25: DeleteMNObjDict"<<endl;
 			cout<<"26: GetIndexAttributesbyPositions"<<endl;
 			cout<<"27: SaveXDC"<<endl;
+			cout<<"28: AutoGenerateMN'S OBD"<<endl;
 			
 			cout <<"Press 'E' for Exit"<<endl;
 								
@@ -702,8 +703,38 @@ int main(int argc, char **argv)
 							strcpy(PjtPath, "/home/selva/Desktop/MyPjt/");
 							SaveProject(PjtPath);
 							break;
-				default :
+				case 28:
+						retCode =  GenerateMNOBD();
+						if(retCode.code !=0)
+						{
+							printf("\n%s",retCode.errorString);
 							break;
+						}
+							CNodeCollection * objNodecol;
+							objNodecol =  CNodeCollection::getNodeColObjectPointer();
+							CNode objNode;							
+							CIndexCollection *objIndexCol;
+							objNode = objNodecol->getMNNode();
+							objIndexCol = objNode.getIndexCollection();
+							for(int i = 0; i< objIndexCol->getNumberofIndexes(); i++)
+							{
+								CIndex* objIndex;
+								objIndex = objIndexCol->getIndex(i);
+								printf("\n**************************");
+								printf("\n Index value :%s", objIndex->getIndexValue());
+								for(int y = 0; y<objIndex->getNumberofSubIndexes(); y++)
+								{
+									CSubIndex* objSubIndex;
+									DataType dt;
+									objSubIndex = objIndex->getSubIndex(y);
+									dt = objSubIndex->getDataType();
+									printf("\n SubIndex: %s \n DataType = %s \n Actual Value = %s",objSubIndex->getIndexValue(),dt.DataSize,
+																																																																								objSubIndex->getActualValue());
+								}
+							}
+
+						break;
+			
 		}
 	
 	};

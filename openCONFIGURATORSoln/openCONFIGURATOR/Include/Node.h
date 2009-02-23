@@ -77,7 +77,6 @@
 #include "ProcessImage.h"
 
 class DllExport CNode
-//class CNode
 	{
 	public:
 		CNode(void);
@@ -97,6 +96,7 @@ class DllExport CNode
 	public:
 		/*typedef _PICollection PICollection;*/
 		TCollection<ProcessImage> ProcessImageCollection;
+		TCollection<MNPdoVariable> MNPDOINVarCollection, MNPDOOUTVarCollection ;
 	public:
 		CDataTypeCollection* getDataTypeCollection();
 		CIndexCollection* getIndexCollection();
@@ -122,13 +122,15 @@ class DllExport CNode
 		void CreateApplicationProcess();
 		
 		void addProcessImage(ProcessImage processImage);
+		void addMNPDOvar(MNPdoVariable variable, EPDOType pdoType);
 
-
+	
 		CIndexCollection* getPDOIndexCollection(EPDOType PDOType);
 		CIndexCollection* getIndexCollectionWithoutPDO();
 		CIndexCollection*getPDOIndexCollection();
 		
 		ProcessImage* getPIbyParaIndex(int paraIndex);
+		void DeleteCollectionsForPI();
 		/*void UpdatePIOffset(char* ByteOffset);*/
 		
 		

@@ -188,9 +188,11 @@ ocfmRetCode IfIndexExists(int NodeID, ENodeType NodeType, char* IndexID, int *In
 			//ErrStruct.errorString = NULL;
 			*IndexPos = 0;
 			//return ErrStruct;
-			ocfmException objException;				
-			objException.ocfm_Excpetion(OCFM_ERR_NO_INDEX_FOUND);
-			throw objException;
+			//ocfmException objException;			
+			ErrStruct.code = OCFM_ERR_NO_INDEX_FOUND;	
+				return ErrStruct;
+			//objException.ocfm_Excpetion(OCFM_ERR_NO_INDEX_FOUND);
+			//throw objException;
 		}
 		
 		else if(objIndexCollection->getNumberofIndexes() > 0)
@@ -201,7 +203,11 @@ ocfmRetCode IfIndexExists(int NodeID, ENodeType NodeType, char* IndexID, int *In
 				CIndex* objIndexPtr;
 				objIndexPtr =objIndexCollection->getIndex(tmpIndexcount);						
 				//printf("IndexValue:%s-%s\n", objIndexPtr->getIndexValue(), IndexID);
-				if((strcmp(ConvertToUpper((char*) objIndexPtr->getIndexValue()), ConvertToUpper(IndexID)) == 0))
+				char *str = new char[50];
+					strcpy(str, (char*)objIndexPtr->getIndexValue());
+								
+		
+				if((strcmp(ConvertToUpper(str), ConvertToUpper(IndexID)) == 0))
 				{
 					//printf("Index Already Exists tmpIndexcount:%d!\n",tmpIndexcount);
 					CIndex* objIndexPtr;
@@ -354,4 +360,43 @@ bool CheckIfDataTypeExists(char* dtValue, int NodeID)
 	if (dt== NULL)
 	return false;
 	else return true;
+}
+
+bool CheckIfSubIndexExists(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID)
+{
+		CNode objNode;		
+		CNodeCollection *objNodeCollection;
+		CIndexCollection *objIndexCollection;
+		CIndex objIndex;
+		CIndex* objIdx;
+		ocfmRetCode ErrStruct;
+		objIndex.setNodeID(objNode.getNodeId());
+		objNodeCollection= CNodeCollection::getNodeColObjectPointer();
+		objNode = objNodeCollection->getNode(NodeType, NodeID);
+
+		objIndexCollection = objNode.getIndexCollection();
+		objIdx =objIndexCollection->getIndexbyIndexValue(IndexID);
+		//cout << "NumberofSubIndexes:" << objSubIndex->getNumberofSubIndexes()<< endl;
+				if(objIdx->getNumberofSubIndexes() == 0)
+				{
+					return false;
+				}
+				else if(objIdx->getNumberofSubIndexes() > 0)
+				{
+					//Check for existance of the SubIndex
+					for(int tmpSubIndexcount = 0; tmpSubIndexcount < objIdx->getNumberofSubIndexes(); tmpSubIndexcount++)
+					{
+						CSubIndex* objSubIndexPtr;
+						objSubIndexPtr = objIdx->getSubIndex(tmpSubIndexcount);						
+						//printf("SubIndexValue:%s-%s\n", objSubIndexPtr->getIndexValue(), SubIndexID);
+						if((strcmp(ConvertToUpper((char*) objSubIndexPtr->getIndexValue()), ConvertToUpper(SubIndexID)) == 0))
+						{
+							return true;
+						}
+						else if(tmpSubIndexcount == (objIdx->getNumberofSubIndexes() - 1))
+						{
+							return false;
+						}
+					}
+				}	
 }

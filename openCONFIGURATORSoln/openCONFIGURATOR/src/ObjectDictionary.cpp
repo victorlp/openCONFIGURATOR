@@ -75,10 +75,11 @@ int LastObjDictIndexParsed=0;
 CObjectDictionary::CObjectDictionary(void)
 	{	
 			objDictNode = new CNode();		
+			objDictNode->setNodeId(-100);
 			objDictNode->CreateIndexCollection();
 			objDictNode->CreateDataTypeCollection();
 			objDictNode->CreateApplicationProcess();
-			printf("\n Object collections Created");
+			//printf("\n Object collections Created");
 			m_s_attrIdx_SIdx = collectionObj.Count();
 		}
 
@@ -94,7 +95,7 @@ CObjectDictionary* CObjectDictionary::getObjDictPtr()
 		if(!instanceFlag)
 			{
 				objectDictionary = new CObjectDictionary();
-				printf("\n Object Created");
+				//printf("\n Object Created");
 				instanceFlag=true;
 			}
 		return objectDictionary;
@@ -138,7 +139,7 @@ void CObjectDictionary::ProcessObjectDictionary(xmlTextReaderPtr reader)
 
 					objDataTypeCollection = objDictNode->getDataTypeCollection();
 					objDataTypeCollection->addDataType(objDataType);
-					printf("\n Datatypes added");
+					//printf("\n Datatypes added");
 
 				}
 			
@@ -147,9 +148,12 @@ void CObjectDictionary::ProcessObjectDictionary(xmlTextReaderPtr reader)
 					CIndexCollection* objIndexCollection;
 					CIndex objIndex;		
 											
-						
+							//Set the NodeID
+						objIndex.setNodeID(-100);
+			
 					if (xmlTextReaderHasAttributes(reader)==1)
-						{						
+						{	
+											
 							while(xmlTextReaderMoveToNextAttribute(reader))
 								{
 									value = xmlTextReaderConstValue(reader);
@@ -157,7 +161,10 @@ void CObjectDictionary::ProcessObjectDictionary(xmlTextReaderPtr reader)
 									bool hasPDO;
 									if(strcmp(ConvertToUpper((char*)name), "DATATYPE")==0)		
 									{			
-										objIndex.setDataTypeValue((char*)value);
+										//objIndex.setDataTypeValue((char*)value);
+										DataType *dt;
+										dt = objDictNode->getDataTypeCollection()->getDataType((char*)value);
+										objIndex.setDataTypeST(*dt);
 									}
 									else if(strcmp(ConvertToUpper((char*)name), "RANGE")==0)								
 										createSameattrObject((char*)value, INDEX,(char*) objIndex.getIndexValue());
@@ -175,7 +182,7 @@ void CObjectDictionary::ProcessObjectDictionary(xmlTextReaderPtr reader)
 						//Add Index object to the IndexCollection
 						objIndexCollection->addIndex(objIndex);				
 						LastObjDictIndexParsed = objIndexCollection->getNumberofIndexes()-1;
-						printf("\n index %s Indexes added",objIndex.getIndexValue());
+						//printf("\n index %s Indexes added",objIndex.getIndexValue());
 				}
 		else	if(strcmp(((char*)name),"SubObject")==0 )
 				{
@@ -185,7 +192,9 @@ void CObjectDictionary::ProcessObjectDictionary(xmlTextReaderPtr reader)
 					CIndex* objIndexPtr;								
 					objIndexCollection =objDictNode->getIndexCollection();
 					objIndexPtr =objIndexCollection->getIndex(LastObjDictIndexParsed);
-					
+						//Set the NodeID
+						objSubIndex.setNodeID(-100);
+			
 					if (xmlTextReaderHasAttributes(reader) ==1)
 						{
 							
@@ -195,7 +204,10 @@ void CObjectDictionary::ProcessObjectDictionary(xmlTextReaderPtr reader)
 									name = xmlTextReaderConstName(reader);	
 									if(strcmp(ConvertToUpper((char*)name), "DATATYPE")==0)		
 									{			
-										objSubIndex.setDataTypeValue((char*)value);
+										/*objSubIndex.setDataTypeValue((char*)value);*/
+										DataType *dt;
+										dt = objDictNode->getDataTypeCollection()->getDataType((char*)value);
+										objSubIndex.setDataTypeST(*dt);
 									}
 									else if(strcmp(ConvertToUpper((char*)name), "RANGE")==0)								
 									{
@@ -212,7 +224,7 @@ void CObjectDictionary::ProcessObjectDictionary(xmlTextReaderPtr reader)
 				
 					
 							objIndexPtr->addSubIndex(objSubIndex);
-								printf("\n  subIndexes added");
+								//printf("\n  subIndexes added");
 						//if (same)
 						//	{
 						//		//printf("\n Same ********* Attr Index Name: %s",objIndexPtr->getName());

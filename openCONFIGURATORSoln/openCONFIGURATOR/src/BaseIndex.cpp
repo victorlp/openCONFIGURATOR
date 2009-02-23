@@ -272,6 +272,23 @@ void CBaseIndex::setDataType(char* dataTypeName)
 		/*m_dataType.DataTypeValue =dt.DataTypeValue;
 		m_dataType.Name =dt.Name ;*/
 	}
+	/**************************************************************************************************
+	* Function Name: setDataType
+    * Description: sets the DataType of the Index Object
+/****************************************************************************************************/
+void CBaseIndex::setDataType(char* dataTypeName, int NodeID)
+	{	
+		DataType* dt;
+		CNodeCollection* objNodeCol;
+		objNodeCol= CNodeCollection::getNodeColObjectPointer();
+		CNode objNode = objNodeCol->getNode(NodeID);
+		CDataTypeCollection* dtcol;
+		dtcol=objNode.getDataTypeCollection();
+		dt = dtcol->getDataType(dataTypeName);	
+		m_dataType= *dt;
+		/*m_dataType.DataTypeValue =dt.DataTypeValue;
+		m_dataType.Name =dt.Name ;*/
+	}
 /**************************************************************************************************
 	* Function Name: getNodeID
     * Description: Returns the NodeID of the Node of the Index Object
@@ -314,13 +331,21 @@ char* CBaseIndex::getDataTypeValue()
 	{return m_dataTypeValue;}
 
 /**************************************************************************************************
-	* Function Name: setDefaultValue
+	* Function Name: setDataTypeValue
     * Description: sets the datatype value  of the Index Object
 /****************************************************************************************************/
 void CBaseIndex::setDataTypeValue(char* value)
 	{	
 		m_dataTypeValue = new char[strlen(value)];
 		strcpy((char*)m_dataTypeValue,value);
+	}
+	/**************************************************************************************************
+	* Function Name: setDefaultValue
+    * Description: sets the datatype value  of the Index Object
+/****************************************************************************************************/
+void CBaseIndex::setDataTypeST(DataType dt)
+	{	
+		m_dataType = dt;
 	}
 #pragma endregion Properties
 

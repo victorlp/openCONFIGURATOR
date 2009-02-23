@@ -152,7 +152,7 @@ CNode CNodeCollection::getNode(ENodeType nodeType,int NodeID)
 				}
 				
 			}
-		return objNode;				
+		return NULL;				
 	}
 CNode CNodeCollection::getNode(int NodeID)
 	{
@@ -190,6 +190,10 @@ CNode CNodeCollection::getMNNode()
 CNode CNodeCollection::getNodebyCollectionIndex(int ColIndex)
 {
 	return collectionObj[ColIndex];
+}
+CNode* CNodeCollection::getNodebyColIndex(int ColIndex)
+{
+	return &collectionObj[ColIndex];
 }
 int CNodeCollection::getCNNodesCount() 
 {

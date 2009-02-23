@@ -129,7 +129,7 @@ char* subString(char* str, int startpos, int len)
 {
 		char* substr;
 	
-		substr = (char*)malloc(len+1);	
+		substr = new char[len + 1];
 		strncpy(substr,(const char*)(str+startpos),len);
 		substr[len]='\0';
 		return substr;

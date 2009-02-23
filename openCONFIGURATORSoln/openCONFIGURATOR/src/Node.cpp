@@ -206,6 +206,21 @@ void CNode::CreateDataTypeCollection()
   //*(ProcessImageCollection + i) = processImage;	
   ProcessImageCollection[i] = processImage;
  }
+ void CNode::addMNPDOvar(MNPdoVariable var, EPDOType pdoType)
+ {
+		if(pdoType == PDO_RPDO)
+		{
+			int i = MNPDOOUTVarCollection.Add();
+			//*(ProcessImageCollection + i) = processImage;	
+			MNPDOOUTVarCollection[i] = var;
+		}
+		else if(pdoType == PDO_TPDO)
+		{
+			int i = MNPDOINVarCollection.Add();
+			//*(ProcessImageCollection + i) = processImage;	
+			MNPDOINVarCollection[i] = var;
+		}
+ }
 void CNode::CreateApplicationProcess()
 {
 	CApplicationProcess* objAPPProcess;
@@ -277,6 +292,12 @@ ProcessImage* CNode::getPIbyParaIndex(int paraIndex)
 			return pi;			
 		}			
 	return pi;
+}
+void CNode::DeleteCollectionsForPI()
+{
+	MNPDOINVarCollection.Clear();
+	MNPDOOUTVarCollection.Clear();
+	ProcessImageCollection.Clear();
 }
 #pragma endregion Properties
 

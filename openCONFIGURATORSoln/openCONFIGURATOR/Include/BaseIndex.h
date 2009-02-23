@@ -121,6 +121,7 @@ class DllExport CBaseIndex
 
 		DataType getDataType();
 		void setDataType(char* dataTypeValue);
+		void setDataType(char* dataTypeName, int NodeID);
 
 		const char* getPDOMapping();
 		void setPDOMapping(char* pdoMappingValue);
@@ -142,6 +143,10 @@ class DllExport CBaseIndex
 		
 		char* getDataTypeValue();
 		void setDataTypeValue(char* value);
+
+
+	
+		void setDataTypeST(DataType  dt);
 
 
 		

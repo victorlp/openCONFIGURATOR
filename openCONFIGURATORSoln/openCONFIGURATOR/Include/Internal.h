@@ -110,7 +110,7 @@ bool CheckIfNotPDO(char* Index);
 void ProcessUniqueIDRefs();
 char* subString(char* str, int startpos, int len);
 char* reverse(char* str);
-void ProcessPDONodes(int NodeID);
+ocfmRetCode ProcessPDONodes();
 bool CheckIfManufactureSpecificObject(char* Index);
 bool IsAscii(char c);
 int lenOfCNBuffer(char* Buffer);
@@ -135,4 +135,5 @@ bool CheckIfHex(char* value);
 void WriteXAPElements(ProcessImage piCol[], xmlTextWriterPtr& writer,int VarCount, EPIDirectionType piType);
 void StartXAPxml(xmlTextWriterPtr& writer,  xmlDocPtr& doc);
 void EndWrtitingXAP( xmlTextWriterPtr& writer, char* fileName, xmlDocPtr& doc);
+bool CheckIfSubIndexExists(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID);
 #endif // declarations_h
