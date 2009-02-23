@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="openCONFIGURATOR"
 	ProjectGUID="{0141C9C5-E267-4AD0-9E6C-1E80ECF5E438}"
 	RootNamespace="openCONFIGURATOR"
@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../\XMLParser"
+				AdditionalIncludeDirectories="..\libxml2\include;..\libxml2\iconv\include"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -58,6 +58,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="libxml2.lib"
+				AdditionalLibraryDirectories="..\libxml2\lib"
 				GenerateDebugInformation="true"
 				TargetMachine="1"
 			/>
@@ -110,6 +112,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
+				AdditionalIncludeDirectories="..\libxml2\include;..\libxml2\iconv\include"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				WarningLevel="3"
@@ -126,6 +129,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="libxml2.lib"
+				AdditionalLibraryDirectories="..\libxml2\lib"
 				GenerateDebugInformation="true"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
@@ -157,7 +162,6 @@
 	<References>
 		<ProjectReference
 			ReferencedProjectIdentifier="{189CB09C-9C74-431B-BF87-FAE01596BD83}"
-			RelativePathToProject=".\XMLParser\XMLParser.vcproj"
 		/>
 	</References>
 	<Files>
