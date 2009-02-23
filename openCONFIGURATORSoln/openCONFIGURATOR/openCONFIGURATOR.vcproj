@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="openconfigurator"
+	Name="openConfigurator"
 	ProjectGUID="{0141C9C5-E267-4AD0-9E6C-1E80ECF5E438}"
 	RootNamespace="openCONFIGURATOR"
 	TargetFrameworkVersion="196613"
@@ -251,10 +251,6 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
-			<File
-				RelativePath=".\Include\Application.h"
-				>
-			</File>
 			<File
 				RelativePath=".\Include\ApplicationProcess.h"
 				>

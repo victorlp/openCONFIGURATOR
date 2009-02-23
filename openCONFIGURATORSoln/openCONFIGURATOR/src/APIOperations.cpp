@@ -443,7 +443,6 @@ ocfmRetCode AddSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* Sub
 		int SubIndexPos;
 		int IndexPos;
 		ocfmRetCode ErrStruct;
-		CSubIndex *objDictSIndex;
 		
 		try
 		{
@@ -896,7 +895,7 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 							
 								if (objSubIndex->getActualValue()!=NULL)
 								{
-										char actvalue[20];
+//										char actvalue[20];
 									//	actvalue = (char*)malloc(20);
 								
 								// Add the reset value for that Index,SubIndex
@@ -1202,7 +1201,7 @@ ocfmRetCode GenerateCDC(char* fileName)
 				/*	if(CheckIfNotPDO((char*)objIndex->getIndexValue()))
 						{	*/					
 							//printf("Index%s",objIndex->getIndexValue());						
-							Buffer1 = (char*)malloc(200);
+							Buffer1 = (char*)malloc(5000);
 							len = strlen(Buffer1);
 							
 							GetIndexData(objIndex,Buffer1);
@@ -1251,7 +1250,7 @@ ocfmRetCode GenerateCDC(char* fileName)
 									throw ex;						
 								}
 								//printf("\nInside 1F81");
-								Buffer1 = (char*)malloc(100);
+								Buffer1 = (char*)malloc(500);
 								len = strlen(Buffer1);
 								strcpy(Buffer1, "//// NodeId Reassignment\n");
 								strcat(Buffer1, "1F81");
@@ -1326,6 +1325,7 @@ ocfmRetCode GenerateCDC(char* fileName)
 //
 //
 //	}
+
 void  ProcessCDT(CComplexDataType* objCDT,CApplicationProcess* objAppProc, CNode* objNode, Parameter* para, EPDOType pdoType)
 {
 
@@ -1337,6 +1337,7 @@ void  ProcessCDT(CComplexDataType* objCDT,CApplicationProcess* objAppProc, CNode
 			objex.ocfm_Excpetion(OCFM_ERR_STRUCT_DATATYPE_NOT_FOUND);
 			throw objex;		
 		}
+
 
 		for(int i= 0 ; i<objCDT->varCollection.Count(); i++)
 		{
@@ -1351,8 +1352,8 @@ void  ProcessCDT(CComplexDataType* objCDT,CApplicationProcess* objAppProc, CNode
 				/*objCDT->previousCDT_UId = (char*)malloc(strlen(vd.StructUniqueId)+1);
 				strcpy(objCDT->previousCDT_UId, vd.StructUniqueId);*/
 				lastVarIndex = i;
-				//printf("\n previousCDT_UId : %s",objCDT->previousCDT_UId);
-				//printf("\n DataRefID : %s",vd.nam_id_dt_attr->getDtUniqueRefId());
+				printf("\n previousCDT_UId : %s",objCDT->previousCDT_UId);
+				printf("\n DataRefID : %s",vd.nam_id_dt_attr->getDtUniqueRefId());
 				ProcessCDT(objCDT, objAppProc, objNode, para, pdoType);
 			}
 		if(!CDTCompleted)
@@ -1370,12 +1371,13 @@ void  ProcessCDT(CComplexDataType* objCDT,CApplicationProcess* objAppProc, CNode
 				if(vd.size != NULL)			
 				{
 				/*	pi.DataSize = (char*)malloc(5);*/
-					strcpy(pi.DataSize, vd.size);
+					//strcpy(pi.DataInfo.DataSize, vd.size);
+					pi.DataInfo.DataSize = atoi(vd.size);
 				}
 			else
 			{
 			/*		pi.DataSize = (char*)malloc(5);*/
-					strcpy(pi.DataSize,"000x");
+					//strcpy(pi.DataSize,"000x");
 			}
 				if(vd.nam_id_dt_attr->getName()!=NULL)
 				{
@@ -1387,12 +1389,15 @@ void  ProcessCDT(CComplexDataType* objCDT,CApplicationProcess* objAppProc, CNode
 					
 				if(vd.nam_id_dt_attr->getDataType()!=NULL)
 				{
-					pi.DataType = (char*)malloc(strlen(vd.nam_id_dt_attr->getDataType()) +1);
-					strcpy(pi.DataType,(const char*)vd.nam_id_dt_attr->getDataType());
+					pi.DataInfo._dt_Name = (char*)malloc(strlen(vd.nam_id_dt_attr->getDataType()) +1);
+					strcpy(pi.DataInfo._dt_Name ,(const char*)vd.nam_id_dt_attr->getDataType());
 				}
 		
 			pi.BitOffset = NULL;
 			pi.ByteOffset = NULL;
+			
+			/* Set the IEC DT*/
+			pi.DataInfo._dt_enum = getIECDT(vd.nam_id_dt_attr->getDataType());
 			objNode->addProcessImage(pi);
 		}
 		
@@ -1404,29 +1409,32 @@ void  ProcessCDT(CComplexDataType* objCDT,CApplicationProcess* objAppProc, CNode
 			vd = objCDT->
 			objCDT
 		}*/
-		objCDT = objAppProc->getCDTbyUniqueID(objCDT->previousCDT_UId);
+		if(objCDT->previousCDT_UId !=NULL)
+		{
+			objCDT = objAppProc->getCDTbyUniqueID(objCDT->previousCDT_UId);
 		
 			for(int i=(lastVarIndex + 1) ; i<objCDT->varCollection.Count(); i++)
 			{
-			if(!CDTCompleted)
-			{
-				varDeclaration vd;
-				//printf("\n i : %d",i);
-				vd = objCDT->varCollection[i];
-				//printf("\nVar Count: %d",objCDT->varCollection.Count());
-				if(vd.nam_id_dt_attr->getDtUniqueRefId() != NULL)
+				if(!CDTCompleted)
 				{
-					/*objCDT->previousCDT_UId = (char*)malloc(strlen(vd.StructUniqueId)+1);
-					strcpy(objCDT->previousCDT_UId, vd.StructUniqueId);	*/	
-					objCDT = objAppProc->getCDTbyUniqueID(vd.nam_id_dt_attr->getDtUniqueRefId());
-					objAppProc->updatePreviousCDT_UId(vd.StructUniqueId, objCDT->Index);
-					//printf("\n previousCDT_UId : %s",objCDT->previousCDT_UId);
-					//printf("\n DataRefID : %s",vd.nam_id_dt_attr->getDtUniqueRefId());
-			
-					lastVarIndex = i;
-					ProcessCDT(objCDT, objAppProc, objNode, para, pdoType);
+					varDeclaration vd;
+					//printf("\n i : %d",i);
+					vd = objCDT->varCollection[i];
+					//printf("\nVar Count: %d",objCDT->varCollection.Count());
+					if(vd.nam_id_dt_attr->getDtUniqueRefId() != NULL)
+					{
+						/*objCDT->previousCDT_UId = (char*)malloc(strlen(vd.StructUniqueId)+1);
+						strcpy(objCDT->previousCDT_UId, vd.StructUniqueId);	*/	
+						objCDT = objAppProc->getCDTbyUniqueID(vd.nam_id_dt_attr->getDtUniqueRefId());
+						objAppProc->updatePreviousCDT_UId(vd.StructUniqueId, objCDT->Index);
+						//printf("\n previousCDT_UId : %s",objCDT->previousCDT_UId);
+						//printf("\n DataRefID : %s",vd.nam_id_dt_attr->getDtUniqueRefId());
 				
-				}						
+						lastVarIndex = i;
+						ProcessCDT(objCDT, objAppProc, objNode, para, pdoType);
+					
+					}						
+				}
 			}
 		}
 		
@@ -1599,10 +1607,11 @@ void ProcessPDONodes(int NodeID)
 											dt = objSIndex->getDataType();
 											/* Data Size in hex of the Process Image variable*/
 										/*	objProcessImage.DataSize = (char*)malloc(strlen(dt.DataSize+1));*/
-											strcpy(objProcessImage.DataSize, dt.DataSize);
+											//strcpy(objProcessImage.DataSize, dt.DataSize);
+											objProcessImage.DataInfo.DataSize = atoi(dt.DataSize);
 											/* Datatype in hex of the Process Image variable*/
-											objProcessImage.DataType = (char*)malloc(strlen(dt.Name+1));
-											strcpy(objProcessImage.DataType, dt.Name);
+											objProcessImage.DataInfo._dt_Name = (char*)malloc(strlen(dt.Name+1));
+											strcpy(objProcessImage.DataInfo ._dt_Name, dt.Name);
 											
 											objNode->addProcessImage(objProcessImage);
 										}
@@ -1880,7 +1889,7 @@ void WriteXAPElements(ProcessImage piCol[], xmlTextWriterPtr& writer,int VarCoun
 				/* Add an attribute with name "DataType" and value to channel */
 				 //printf("\n%s",pi.DataType);
     rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "dataType",
-                                     BAD_CAST pi.DataType );
+                                     BAD_CAST pi.DataInfo._dt_Name );
     if (rc < 0)
     {
         //printf("testXmlwriterDoc: Error at xmlTextWriterWriteAttribute\n");
@@ -1889,8 +1898,11 @@ void WriteXAPElements(ProcessImage piCol[], xmlTextWriterPtr& writer,int VarCoun
     
     ///* Add an attribute with name "dataSize" and value to channel */
     //printf("\n%s",pi.DataSize);
+    char * size = new char[20];
+    size = itoa(pi.DataInfo.DataSize,size,10);
+    
     rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "dataSize",
-                                     BAD_CAST pi.DataSize );
+                                     BAD_CAST size );
     if (rc < 0)
     {
         //printf("testXmlwriterDoc: Error at xmlTextWriterWriteAttribute\n");
@@ -1900,8 +1912,12 @@ void WriteXAPElements(ProcessImage piCol[], xmlTextWriterPtr& writer,int VarCoun
    
      ///* Add an attribute with name "dataSize" and value to channel */
     //printf("\n%s",pi.ByteOffset);
+  		char* byteOffset = new char[6];
+				byteOffset = itoa(pi.ByteOffset, byteOffset, 16);
+				byteOffset = ConvertToHexformat(byteOffset, 2, 1);
+			
     rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "PIOffset",
-                                     BAD_CAST pi.ByteOffset );
+                                     BAD_CAST byteOffset );
     if (rc < 0)
     {
         //printf("testXmlwriterDoc: Error at xmlTextWriterWriteAttribute\n");
@@ -1909,8 +1925,14 @@ void WriteXAPElements(ProcessImage piCol[], xmlTextWriterPtr& writer,int VarCoun
     }
     
     if(pi.BitOffset !=NULL)
-    rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "BitOffset",
-                                     BAD_CAST pi.BitOffset );
+    {
+						char* bitoffset = new char[4];
+						bitoffset = itoa(pi.BitOffset, bitoffset, 16);
+						bitoffset = ConvertToHexformat(bitoffset, 2, 1);
+			
+					rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "BitOffset",
+                                     BAD_CAST bitoffset );
+    }
     if (rc < 0)
     {
         //printf("testXmlwriterDoc: Error at xmlTextWriterWriteAttribute\n");
@@ -3243,3 +3265,85 @@ ocfmRetCode SaveProject(char* ProjectPath)
 	}
 	
 }
+/**************************************************************************************************
+	* Function Name: GenerateMNOBD
+   * Description: 
+/****************************************************************************************************/
+//ocfmRetCode GenerateMNOBD()
+//	{
+//		CNode objNode;		
+//		CNode *objMNNode;
+//		CNodeCollection *objNodeCollection = NULL;
+//		ocfmException ex;
+//		int prevSubIndex = 0 ;
+//		try
+//		{		
+//			objNodeCollection = CNodeCollection::getNodeColObjectPointer();	
+//			if(objNodeCollection != NULL)
+//			{
+//				objMNNode  = objNodeCollection->getNodePtr(MN, 240);
+//				if(objMNNode == NULL)
+//				{
+//					ex.ocfm_Excpetion(OCFM_ERR_MN_NODE_DOESNT_EXIST);
+//					throw ex
+//				}
+//				for(int i =0; i<objNodeCollection->getNumberOfNodes(); i++)
+//				{
+//					objNode = objNodeCollection->getNode(i);
+//					if(objNode.getNodeType() == CN)
+//					{
+//						if(objNode.ProcessImageCollection.Count!=0)
+//						{
+//							for(int i=0; i<objNode.ProcessImageCollection.Count() ; i++)
+//							{
+//								ProcessImage pi;
+//								pi = objNode.ProcessImageCollection[i];
+//								CIndex objIndex;
+//								CSubIndex objSubIndex;
+//								char MNIndex[4];								
+//								char Idx[2];
+//								Idx = itoa((NodeID-1), Idx, 16);
+//								Idx = padLeft(Idx, '0', 2);
+//								if(pi.DirectionType == INPUT)
+//								{									
+//									MNIndex = "1A";	
+//								
+//								}
+//								else if(pi.DirectionType ==OUTPUT)
+//								{
+//									MNIndex = "16";
+//								}
+//									MNIndex =strcat(MNIndex, Index);
+//									/* Set the MN's PDO Index*/
+//									objIndex.setIndexValue(MNIndex);
+//									
+//									/* Set the MN's PDO subIndex*/
+//									prevSubIndex =  prevSubIndex + 1;
+//									Idx = itoa(prevSubIndex, Idx, 16);
+//									Idx = padLeft(Idx, '0', 2);
+//									
+//									objSubIndex.setIndexValue(Idx);
+//									
+//									/* Set the datatype having datasize = 0008 which is 001B*/																									
+//									objSubIndex.setDataType("001B");				
+//									
+//									/* Calculate the actual value of 
+//						
+//							}
+//						}
+//					}
+//					
+//				}
+//			}
+//		}
+//		catch(ocfmException& ex)
+//		{
+//			
+//		}
+//	}
+//	
+//	void AddToMNPdo(ProcessImage pi, NodeID, CNode* objMNNode)
+//	{
+//		 CIndex objIndex;
+//		
+//	}

@@ -68,28 +68,66 @@
 //  REVISION HISTORY:
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
-
-#include <libxml/xmlreader.h>
-#include <libxml/xmlwriter.h>
-#include <libxml/encoding.h>
+//
+//#include <libxml/xmlreader.h>
+//#include <libxml/xmlwriter.h>
+//#include <libxml/encoding.h>
 	typedef enum EPIDirectionType
 	{
 		INPUT = 0,
 		OUTPUT
 	}EPIDirectionType;
+	typedef enum EDataType
+	{
+		UNSIGNED8 = 0,
+		INTEGER8,
+		UNSIGNED16,
+		INTEGER16,
+		UNSIGNED32,
+		INTEGER32
+	}e_DataType;
 	
+	typedef enum IEC_Datatype
+	{
+		BITSTRING = 0,
+		BOOL,
+		BYTE,
+		_CHAR,
+		DWORD,
+		LWORD,
+		SINT,
+		INT,
+		DINT,
+		LINT,
+		USINT,
+		UINT,
+		UDINT,
+		ULINT,
+		REAL,
+		LREAL,
+		STRING,
+		WSTRING
+	};
+	typedef struct PIDataInfo
+	{
+		IEC_Datatype _dt_enum;
+		int										DataSize;
+		char*								_dt_Name;
+	};
 typedef struct ProcessImage
 {
 		char*					Name;
 		char					Direction[3];
-		char*					DataType;
-		char					DataSize[5];
-		char*					ByteOffset;
+	/*	char*					DataType;
+		char					DataSize[5];*/
+		PIDataInfo DataInfo;
+		int								ByteOffset;
 		char*					Value;
 		char*					subindex;
 		char*					Index;
-		char*					BitOffset;
+		int							BitOffset;
 		int							ParametrIndex;
+		char*					ValueFromPDO;
 		void Initialize()
 		{
 			ParametrIndex = 0;
@@ -97,16 +135,43 @@ typedef struct ProcessImage
 		EPIDirectionType			DirectionType;
 }ProcessImage;
 
-static int InVars = -1;
-static int OutVars = -1;
-static ProcessImage PIInCol[4000];
-static ProcessImage PIOutCol[4000];
+struct StAddressTable
+{
+	char Address[5];
+	e_DataType dt;
+	EPIDirectionType Direction;
+	
+};
+struct stOffsets
+{
+	int prevOffset;
+	int currOffset;
+};
+extern int InVars;
+extern int OutVars;
+extern ProcessImage PIInCol[4000];
+extern ProcessImage PIOutCol[4000];
+
+static StAddressTable AddressTable[12] = {
+																												{"A000", UNSIGNED8,		INPUT},
+																												{"A001", INTEGER8,			INPUT},
+																												{"A010", UNSIGNED16, INPUT},
+																												{"A011", INTEGER16,		INPUT},
+																												{"A020", UNSIGNED32, INPUT},
+																												{"A021", INTEGER32,		INPUT},
+																												{"A030", UNSIGNED8,		OUTPUT},
+																												{"A031", INTEGER8,			OUTPUT},
+																												{"A040", UNSIGNED16, OUTPUT},
+																												{"A041", INTEGER16,		OUTPUT},
+																												{"A050", UNSIGNED32, OUTPUT},
+																												{"A051", INTEGER32,			OUTPUT},
+																												
+																												};			
+
 
 void GroupInOutPIVariables();
 void CalculateOffsets(int VarCount,  EPIDirectionType type);
-void WriteXAPElements(ProcessImage piCol[], xmlTextWriterPtr& writer,int VarCount, EPIDirectionType piType);
-void StartXAPxml(xmlTextWriterPtr& writer,  xmlDocPtr& doc);
-void EndWrtitingXAP( xmlTextWriterPtr& writer, char* fileName, xmlDocPtr& doc);
+IEC_Datatype getIECDT(char* dtStr);
 
 
 #endif // processImage_h

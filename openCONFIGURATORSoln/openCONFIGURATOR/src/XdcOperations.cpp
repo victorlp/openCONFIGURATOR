@@ -487,14 +487,14 @@ static void getVarDeclaration(xmlTextReaderPtr reader, CComplexDataType* objCDT)
 			}
 			if(CheckStartElement(xmlTextReaderNodeType(reader),(char*)name, "varDeclaration"))
 			{
-						//printf("\nELEMENT----- Name = %s ",name);
+						printf("\nELEMENT----- Name = %s ",name);
 						if (value==NULL)
 						{
 							//printf("Value = NULL \n");  
 						}
 						else
 						{
-							//printf("Value= %s",value);
+							printf("Value= %s",value);
 						}
 					if (xmlTextReaderHasAttributes(reader)==1)
 						{						
@@ -502,14 +502,14 @@ static void getVarDeclaration(xmlTextReaderPtr reader, CComplexDataType* objCDT)
 								{
 
 										setVarDecAttributes(reader,stvardecl);		
-										//printf("\n***Attribute  *********\n");
+										printf("\n***Attribute  *********\n");
 										value = xmlTextReaderConstValue(reader);
 										name =xmlTextReaderConstName(reader);
-										/*printf("\ndepth : %d NodeType= %d Name= %s ,value= %s\n", 
+										printf("\ndepth : %d NodeType= %d Name= %s ,value= %s\n", 
 										xmlTextReaderDepth(reader),
 										xmlTextReaderNodeType(reader),
 										name,value);																												
-										*/
+										
 								}
 							}
 						}

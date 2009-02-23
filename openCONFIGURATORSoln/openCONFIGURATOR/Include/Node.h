@@ -91,7 +91,8 @@ class DllExport CNode
 		ENodeType		m_NodeType;
 		int								m_NodeIndex;
 		bool							m_HasPdoObjects;
-		char*						m_NodeName;/*
+		char*						m_NodeName;
+		/*
 	//*/	/*typedef TCollection<ProcessImage> PICollection;*/
 	public:
 		/*typedef _PICollection PICollection;*/

@@ -71,6 +71,7 @@
 #include <string>
 #include "Exports.h"
 #include "Index.h"
+#include "ProcessImage.h"
 #include <libxml/xmlwriter.h>
 #include <libxml/xmlreader.h>
 static const int g_simple_arr_size = 19;
@@ -131,5 +132,7 @@ int getCNDataLen(char* Buffer);
 bool CheckIfDataTypeExists(char* dtVal, int NodeID);
 bool CheckIfMappingPDO(char* Index);
 bool CheckIfHex(char* value);
-
+void WriteXAPElements(ProcessImage piCol[], xmlTextWriterPtr& writer,int VarCount, EPIDirectionType piType);
+void StartXAPxml(xmlTextWriterPtr& writer,  xmlDocPtr& doc);
+void EndWrtitingXAP( xmlTextWriterPtr& writer, char* fileName, xmlDocPtr& doc);
 #endif // declarations_h

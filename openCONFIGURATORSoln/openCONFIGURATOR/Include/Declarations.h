@@ -211,6 +211,12 @@ typedef struct Parameter
 			
 }Parameter;
 
+typedef struct MNPdoVariables
+{
+	char* Index;
+	char* SubIndex;
+	char* Offset;
+};
 typedef enum
 {
 	NAME	= 0,	// Name of the Attribute

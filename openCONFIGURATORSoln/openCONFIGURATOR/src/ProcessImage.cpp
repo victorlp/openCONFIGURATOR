@@ -77,10 +77,14 @@
 #include <errno.h>
 #include <string.h>
 
+int InVars =0;
+int OutVars = 0;
+extern ProcessImage PIInCol[4000] = {};
+extern ProcessImage PIOutCol[4000]= {};
 
 void CalculateOffsets(int VarCount,  EPIDirectionType type)
 {
-	int arrOfOffsets[6][2] = {{-1, -1}, {-1, -1},{-1, -1},{-1,-1},{-1, -1}, {-1, -1}};			/* Contain last offsets of Int8,Uint8,Int16, UInt16, Int32,UInt32*/	
+	int arrOfOffsets[6][2] = {{-1, -1}, {-1, -1},{-1, -1},{-1,-1},{-1, -1}, {-1, -1}};			/* Contain last offsets of size 1Bytes, 2 bytes, 4 bytes and 8 bytes*/	
 	for(int i=0; i<VarCount; i++)
 	{
 
@@ -89,7 +93,6 @@ void CalculateOffsets(int VarCount,  EPIDirectionType type)
 		pi = &PIInCol[i];
 		else if(type == OUTPUT)
 		pi = &PIOutCol[i];	
-		int dataTypeSize;
 		int Offset;
 		int BitOffset ;
 		char* PIByteOffset = new char[7];
@@ -98,7 +101,7 @@ void CalculateOffsets(int VarCount,  EPIDirectionType type)
 		/*if(strcmp(pi.DataType == "USINT"))*/
 	
 		
-		if(strcmp(pi->DataType,"BITSTRING")==0)
+		if(pi->DataInfo._dt_enum ==BITSTRING)
 		{
 			if(arrOfOffsets[1][1] == 7)
 			{
@@ -115,18 +118,14 @@ void CalculateOffsets(int VarCount,  EPIDirectionType type)
 				BitOffset = arrOfOffsets[1][1] + 1;				
 			}		
 			arrOfOffsets[1][1] = BitOffset;
-			PIBitOffset = itoa(BitOffset, PIBitOffset, 16);
-			pi->BitOffset = (char*)malloc(2);
-			strcpy(pi->BitOffset, ConvertToHexformat(PIBitOffset, 2, 1));
+			pi->BitOffset =  BitOffset;
 			//printf("\nName: %s", pi->Name);
 			//printf("\nBit Offset: %s", pi->BitOffset);
 		}
 			
-			else	Offset = arrOfOffsets[1][0] + atoi(pi->DataSize)/8;
-			PIByteOffset = itoa(Offset, PIByteOffset, 16);
-			pi->ByteOffset = (char*)malloc(6);
-			strcpy(pi->ByteOffset, ConvertToHexformat(PIByteOffset, 4, 1));
-			//printf("\nName: %s", pi->Name);
+			else	Offset = arrOfOffsets[1][0] + (pi->DataInfo.DataSize)/8;
+			pi->ByteOffset = Offset;
+						//printf("\nName: %s", pi->Name);
 			//printf("\nByte Offset: %s", pi->ByteOffset);
 			arrOfOffsets[1][0] = Offset;		
 	}
@@ -148,6 +147,7 @@ void GroupInOutPIVariables()
 {
 
 	int count =  TotalPIVarsCount();
+
 	//PIInCol = (ProcessImage*)malloc(1*sizeof(ProcessImage));
 	//PIOutCol = (ProcessImage*)malloc(1*sizeof(ProcessImage));
 	
@@ -164,16 +164,242 @@ void GroupInOutPIVariables()
 			
 			if(objNode.ProcessImageCollection[i].DirectionType == INPUT)
 			{
-				InVars++;
 				PIInCol[InVars]  = objNode.ProcessImageCollection[i];
+				OutVars++;
 				//PIInCol = (ProcessImage*)realloc(PIInCol,(size + 1)*sizeof(ProcessImage));			
 			}
 			else if(objNode.ProcessImageCollection[i].DirectionType == OUTPUT)
-			{
-				OutVars++;
+			{			
 				PIOutCol[OutVars]  = objNode.ProcessImageCollection[i];
+					OutVars++;
 				//PIOutCol = (PIOutCol *)realloc(PIOutCol,(size + 1)*sizeof(ProcessImage));
 			}
 		}
 }
+}
+//void ComputeCompactPI(int VarCount,  EPIDirectionType type)
+//{
+//	//int arrOfOffsets[4][2] = {{-1, -1}, {-1, -1},{-1, -1},{-1,-1}};			/* Contain prev and current offsets of size 1Bytes, 2 bytes, 4 bytes and 8 bytes*/	
+//	stOffsets size8Offet			= {0, 0};
+//	stOffsets size16Offset = {0, 0};
+//	stOffsets size32Offset = {0, 0};
+//	stOffsets size64Offset = {0, 0};
+//	for(int i=0; i<VarCount; i++)
+//	{
+//
+//		ProcessImage* pi;
+//		ProcessImage piPrev;
+//		int Offset;
+//		int BitOffset ;
+//		char* PIByteOffset = new char[7];
+//		char* PIBitOffset		= new char[5];
+//		
+//		
+//		if(type==INPUT)
+//		{
+//			pi = &PIInCol[i];
+//			piPrev = PIInCol[i-1];
+//		}
+//		else if(type == OUTPUT)
+//		{
+//			pi = &PIOutCol[i];	
+//			piPrev = PIOutCol[i-1];
+//		}
+//		
+//		int dataSize;
+//		dataSize =  pi->DataInfo.DataSize;
+//		
+//		switch(dataSize)
+//		{
+//			/* Bitstring*/
+//			case 1:
+//				
+//				if(piPrev.DataInfo._dt_enum  == BITSTRING)
+//				{
+//					if(piPrev.BitOffset == 7)
+//					{
+//						pi->BitOffset = 0;
+//						pi->ByteOffset = piPrev.ByteOffset + 1;
+//					}
+//					else
+//					{
+//						pi->BitOffset = piPrev.BitOffset + 1;
+//						pi->ByteOffset = piPrev.ByteOffset;
+//					}
+//				}
+//				else
+//				{
+//						size8Offet.prevOffset = size8Offet.currOffset ;
+//					 pi->ByteOffset = size8Offet.currOffset;											
+//				}
+//				
+//			/*Unsigned8, Int8*/
+//			case 8:
+//						size8Offet.prevOffset = size8Offet.currOffset ;
+//						pi->ByteOffset = size8Offet.currOffset ;
+//						size8Offet.currOffset =	size8Offet.currOffset + 1;
+//						
+//						/* Set other DataType Offsets*/
+//						/* if greater no change*/
+//						if(size16Offset.currOffset >= size8Offet.currOffset)
+//						else
+//						{
+//								size16Offet.prevOffset = size16Offet.currOffset ;
+//								size16Offset.currOffset = size16Offset.currOffset + 2;
+//						}
+//						
+//						/* if greater no change*/
+//						if(size32.currOffset >= size8.currOffset)
+//						else
+//						{
+//								size32.prevOffset = size32.currOffset ;
+//								size32.currOffset = size32.currOffset + 4;
+//						}
+//						
+//						/* if greater no change*/
+//						if(size64Offset.currOffset >= size8Offet.currOffset)
+//						else
+//						{
+//								size64Offset.prevOffset = size64Offset.currOffset ;
+//								size64Offset.currOffset = size64Offset.currOffset + 8;
+//						}
+//						
+//			/*Unsigned16, Int16*/
+//			case 16:
+//						size16Offet.prevOffset = size16Offet.currOffset ;
+//						pi->ByteOffset = size16Offet.currOffset ;
+//						size8Offet.currOffset =	size8Offet.currOffset + 2;
+//					
+//			
+//							/* Set other DataType Offsets*/
+//							
+//							/* if greater no change*/
+//						if(size8Offset.currOffset >= size16Offet.currOffset)
+//						else
+//						{
+//								if((size8Offet.currOffset >= size16Offset.prevOffset) || (size8Offet.currOffset <= size16Offset.currOffset)
+//								{
+//									size8Offet.prevOffset = size8Offet.currOffset ;
+//									size8Offset.currOffset = size16Offset.currOffset;
+//								}
+//								else
+//								{
+//									size8Offet.prevOffset = size8Offet.currOffset;
+//									size8Offet.currOffset = size8Offet.currOffset + 1;
+//								}
+//						}
+//						
+//						/* if greater no change*/
+//						if(size32Offset.currOffset >= size16Offet.currOffset)
+//						else
+//						{
+//								size32Offset.prevOffset = size32Offset.currOffset ;
+//								size32Offset.currOffset = size32Offset.currOffset + 4;
+//						}
+//						
+//						/* if greater no change*/
+//						if(size64.currOffset >= size16.currOffset)
+//						else
+//						{
+//								size64Offset.prevOffset = size64Offset.currOffset ;
+//								size64Offset.currOffset = size64Offset.currOffset + 8;
+//						}						
+//					
+//			/*Unsigned32, Int32*/
+//			case 32:
+//						size32Offet.prevOffset = size32Offet.currOffset ;
+//						pi->ByteOffset = size32Offet.currOffset ;
+//						size32Offset.currOffset = size32Offset.currOffset + 4;
+//			
+//							/* Set other DataType Offsets*/
+//								/* if greater no change*/
+//						if(size8Offset.currOffset >= size32Offet.currOffset)
+//						else
+//						{
+//								if((size8Offet.currOffset >= size32Offset.prevOffset) || (size8Offet.currOffset <= size32Offset.currOffset)
+//								{
+//									size8Offet.prevOffset = size8Offet.currOffset ;
+//									size8Offset.currOffset = size32Offset.currOffset;
+//								}
+//								else
+//								{
+//									size8Offet.prevOffset = size8Offet.currOffset;
+//									size8Offet.currOffset = size8Offet.currOffset + 1;
+//								}
+//						}
+//						
+//							/* if greater no change*/
+//						if(size16Offset.currOffset >= size32Offet.currOffset)
+//						else
+//						{
+//								if((size16Offet.currOffset >= size32Offset.prevOffset) || (size16Offet.currOffset <= size32Offset.currOffset)
+//								{
+//									size16Offet.prevOffset = size16Offet.currOffset ;
+//									size16Offset.currOffset = size16Offset.currOffset;
+//								}
+//								else
+//								{
+//									size16Offet.prevOffset = size16Offet.currOffset;
+//									size16Offet.currOffset = size16Offet.currOffset + 2;
+//								}
+//						}
+//						/* if greater no change*/
+//						if(size64Offset.currOffset >= size8Offet.currOffset)
+//						else
+//						{
+//								size64Offset.prevOffset = size64Offset.currOffset ;
+//								size64Offset.currOffset = size64Offset.currOffset + 8;
+//						}
+//			/*Unsigned64, Int64*/
+//			case 64:
+//						size64Offet.prevOffset = size64Offet.currOffset ;
+//						pi->ByteOffset = size64Offet.currOffset ;
+//			
+//			break;
+//		}
+//	
+//		}
+//	}
+IEC_Datatype getIECDT(char* dtStr)
+{
+
+	if(dtStr!=NULL)
+	{
+		if(strcmp(dtStr, "BITSTRING")==0)
+		return BITSTRING;
+		else if(strcmp(dtStr, "BOOL")==0)
+		return BOOL;
+		else if(strcmp(dtStr, "_CHAR")==0)
+		return _CHAR;
+		else if(strcmp(dtStr, "BYTE")==0)
+		return BYTE;
+		else if(strcmp(dtStr, "DWORD")==0)
+		return DWORD;
+		else if(strcmp(dtStr, "LWORD")==0)
+		return LWORD;
+		else if(strcmp(dtStr, "SINT")==0)
+		return SINT;
+		else if(strcmp(dtStr, "INT")==0)
+		return INT;
+		else if(strcmp(dtStr, "DINT")==0)
+		return DINT;
+		else if(strcmp(dtStr, "LINT")==0)
+		return LINT;
+		else if(strcmp(dtStr, "USINT")==0)
+		return USINT;
+		else if(strcmp(dtStr, "UINT")==0)
+		return UINT;
+		else if(strcmp(dtStr, "UDINT")==0)
+		return UDINT;
+		else if(strcmp(dtStr, "ULINT")==0)
+		return ULINT;
+		else if(strcmp(dtStr, "REAL")==0)
+		return REAL;
+		else if(strcmp(dtStr, "LREAL")==0)
+		return LREAL;
+		else if(strcmp(dtStr, "STRING")==0)
+		return STRING;
+		else if(strcmp(dtStr, "WSTRING")==0)
+		return WSTRING;
+	}
 }
