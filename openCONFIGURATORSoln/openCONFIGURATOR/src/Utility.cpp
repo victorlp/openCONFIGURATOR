@@ -71,6 +71,7 @@
 #include "../Include/Internal.h"
 #include <iostream>
 #include <stdlib.h>
+#include <time.h>
 using namespace std;
 char* ConvertToUpper(char* str)
 	{
@@ -304,3 +305,58 @@ bool CheckIfHex(char* value)
 //		}
 //		return str;
 //}
+int getConfigDate()
+{
+  // to have the total number of days Since 1984
+  int days = 0;
+  // to have the total number of years Since 1984  
+  int y_Since = 0;
+  // to have the current Year
+  int current_Year = 0;
+  time_t rawtime;
+  struct tm * timeinfo;
+
+  time ( &rawtime );
+  timeinfo = localtime ( &rawtime );
+  printf ( "Current local time and date: %s", asctime (timeinfo) );
+
+  cout << "\ntm_yday:" << timeinfo->tm_yday << endl;
+  cout << "\ntm_year Since 1900:" << timeinfo->tm_year << endl;
+  y_Since = ((timeinfo->tm_year)- 84);
+  cout << "\ntm_year Since 1984:" << y_Since << endl;
+  current_Year = ((timeinfo->tm_year) + 1900);
+  cout << "\nCurrent Year:" << current_Year << endl;
+  
+  // Loops thru all the years except the curent year
+  for(int count = 0; count < y_Since; count++)
+  {
+  	int tmp_year = 0;
+  	int tmp_days = 0;
+  	tmp_year = (1984 + count);
+  	//cout << "\nYear:" << tmp_year << endl;
+  	if (tmp_year%4 == 0 && !(tmp_year%100 == 0 && tmp_year%400 != 0))
+  		tmp_days = 366;
+  	else
+  		tmp_days = 365;
+
+  	days += tmp_days;
+  }
+  // To calculate number of days since Jan 1 of current year
+  days += timeinfo->tm_yday;
+  cout << "days:" << days << endl;
+  return days;
+}
+int getConfigTime()
+{
+  time_t rawtime;
+  struct tm * timeinfo;
+  int ms = 0;
+
+  time ( &rawtime );
+  timeinfo = localtime ( &rawtime );
+  
+  ms += (timeinfo->tm_hour)*3600000;
+  ms += (timeinfo->tm_min)*60000;
+  ms += (timeinfo->tm_sec)*1000;
+  return ms;
+}

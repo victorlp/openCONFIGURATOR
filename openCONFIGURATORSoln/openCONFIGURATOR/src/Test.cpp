@@ -110,9 +110,15 @@ int main(int argc, char **argv)
 								cout<<"Enter the Node Type(MN=0/CN=1)"<<endl;								
 								cin>>NodeType;
 								if (NodeType ==0 )
-								CreateNode(NodeID,MN, "TestName_MN");								
+								{
+									//cout<<"Node Type is MN"<<endl;
+									CreateNode(NodeID,MN, "TestName_MN");
+								}
 								else if (NodeType==1)
-								CreateNode(NodeID,CN, "TestName_CN");
+								{
+									//cout<<"Node Type is CN"<<endl;
+									CreateNode(NodeID,CN, "TestName_CN");
+								}
 								cout <<"Node Created"<<endl;
 								cout <<"Do you want to Parse the file(y/n)?"<<endl;
 								char c;
@@ -722,16 +728,15 @@ int main(int argc, char **argv)
 								{
 									CIndex* objIndex;
 									objIndex = objIndexCol->getIndex(i);
-									printf("\n**************************");
-									printf("\n Index value :%s", objIndex->getIndexValue());
+									//printf("\n**************************");
+									//printf("\n Index value :%s", objIndex->getIndexValue());
 									for(int y = 0; y<objIndex->getNumberofSubIndexes(); y++)
 									{
 										CSubIndex* objSubIndex;
 										DataType dt;
 										objSubIndex = objIndex->getSubIndex(y);
 										dt = objSubIndex->getDataType();
-										printf("\n SubIndex: %s \n DataType = %s \n Actual Value = %s",objSubIndex->getIndexValue(),dt.DataSize,
-																																																																									objSubIndex->getActualValue());
+										//printf("\n SubIndex: %s \n DataType = %s \n Actual Value = %s",objSubIndex->getIndexValue(),dt.DataSize,																																																																									objSubIndex->getActualValue());
 									}
 								}
 

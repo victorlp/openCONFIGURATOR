@@ -696,8 +696,10 @@ void processNode(xmlTextReaderPtr reader,ENodeType NodeType,int NodeIndex)
 								}
 						}
 						if(hasPDO)
-						objNode->setFlagForPdoObjects(hasPDO);
-						objIndexCollection = objNode->getIndexCollection();
+						{
+							objNode->setFlagForPdoObjects(hasPDO);
+						}
+					objIndexCollection = objNode->getIndexCollection();
 						
 						//Add Index object to the IndexCollection
 						objIndexCollection->addIndex(objIndex);				

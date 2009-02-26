@@ -252,7 +252,10 @@ CIndexCollection* CNode::getPDOIndexCollection(EPDOType PDOType)
 				CIndex* objIndex;
 				objIndex = m_IndexCollection->getIndex(count);
 				if(objIndex->getPDOType() ==  PDO_TPDO || objIndex->getPDOType() ==  PDO_RPDO)
+				{
 					PDOCollection->addIndex(*objIndex);					
+					printf("\nIndex:%s", objIndex->getIndexValue());
+				}
 			}
 			//printf("\nGetPDOCollection ends");
 		return PDOCollection;
@@ -295,8 +298,11 @@ ProcessImage* CNode::getPIbyParaIndex(int paraIndex)
 }
 void CNode::DeleteCollectionsForPI()
 {
+	if(MNPDOINVarCollection.Count()!=0)
 	MNPDOINVarCollection.Clear();
+	if(MNPDOOUTVarCollection.Count()!=0)	
 	MNPDOOUTVarCollection.Clear();
+	if(ProcessImageCollection.Count()!=0)
 	ProcessImageCollection.Clear();
 }
 #pragma endregion Properties

@@ -322,11 +322,21 @@ CSubIndex* CObjectDictionary::getObjectDictSubIndex(char* Idx, char* SIdx)
 	objIndex = objIndexCol->getIndexbyIndexValue(Idx);
 	
 	if(objIndex == NULL)
-	return objSIdx;
+	{
+		objIndex = getObjectDictIndex(Idx);
+		if(objIndex!= NULL)
+		{
+			Idx =  (char*)objIndex->getIndexValue();
+		}
+		else
+		return objSIdx;
+	}
+
 	
 	objSIdx = objIndex->getSubIndexbyIndexValue(SIdx);
 	if(objSIdx!=NULL)
 	return objSIdx;
+ 
 	else
 	{
 		for(int i=0; i<collectionObj.Count(); i++)

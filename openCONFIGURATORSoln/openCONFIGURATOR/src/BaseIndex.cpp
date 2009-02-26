@@ -268,6 +268,7 @@ void CBaseIndex::setDataType(char* dataTypeName)
 		CDataTypeCollection* dtcol;
 		dtcol=objNode.getDataTypeCollection();
 		dt = dtcol->getDataType(dataTypeName);	
+		
 		m_dataType= *dt;
 		/*m_dataType.DataTypeValue =dt.DataTypeValue;
 		m_dataType.Name =dt.Name ;*/

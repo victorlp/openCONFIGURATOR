@@ -142,5 +142,8 @@ ocfmRetCode processProjectXML(xmlTextReaderPtr reader);
 bool IfVersionNumberMatches(xmlTextReaderPtr reader);
 bool setProjectSettings_Auto(xmlTextReaderPtr reader);
 bool setProjectSettings_Communication(xmlTextReaderPtr reader);
+int getConfigDate();
+int getConfigTime();
+bool getandCreateNode(xmlTextReaderPtr reader);
 
 #endif // declarations_h
