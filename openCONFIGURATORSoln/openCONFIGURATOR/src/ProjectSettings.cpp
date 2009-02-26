@@ -1,5 +1,3 @@
-#ifndef error_h
-#define error_h
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //
 //  $Header: $
@@ -68,65 +66,67 @@
 //  REVISION HISTORY:
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
-#include "Exports.h"
-typedef enum
+#include "../Include/ProjectSettings.h"
+#include <iostream>
+using namespace std;
+
+CPjtSettings::CPjtSettings(void)
+	{		
+		m_saveMode = DISCARD_AS;
+		m_generateMode = NO_AG;
+		m_IP_openPOWERLINK = NULL;
+	}
+
+CPjtSettings::~CPjtSettings(void)
+	{		
+		instanceFlag = false;
+		#if defined DEBUG
+			cout << "\n\n\n\nPjtSettings Object Deleted!\n" << endl;	
+		#endif
+	}
+
+bool CPjtSettings::instanceFlag=false;
+CPjtSettings* CPjtSettings::objPjtSettings = NULL;
+CPjtSettings* CPjtSettings::getPjtSettingsPtr()
 {
-					OCFM_ERR_SUCCESS					= 0,
-					OCFM_ERR_FILE_NOT_PRESENT, /*1*/
-					OCFM_ERR_FILE_CANNOT_OPEN,		/*2*/	
-					OCFM_ERR_INVALID_NODEID, /*3*/
-					OCFM_ERR_INVALID_NODEPOS,/*4*/
-					OCFM_ERR_INVALID_NODETYPE,/*5*/
-					OCFM_ERR_INVALID_INDEXID,/*6*/
-					OCFM_ERR_INVALID_INDEXPOS,/*7*/
-					OCFM_ERR_INVALID_SUBINDEXID,/*8*/
-					OCFM_ERR_INVALID_SUBINDEXPOS,/*9*/
-					OCFM_ERR_INVALID_ATTRIBUTETYPE,/*10*/
-					OCFM_ERR_NO_NODES_FOUND,/*11*/
-					OCFM_ERR_NO_INDEX_FOUND,/*12*/
-					OCFM_ERR_NO_SUBINDEXS_FOUND,/*13*/
-					OCFM_ERR_NODEID_NOT_FOUND,/*14*/
-					OCFM_ERR_INDEXID_NOT_FOUND,/*15*/
-					OCFM_ERR_SUBINDEXID_NOT_FOUND,/*16*/
-					OCFM_ERR_NODE_ALREADY_EXISTS,/*17*/
-					OCFM_ERR_INDEX_ALREADY_EXISTS,/*18*/
-					OCFM_ERR_SUBINDEX_ALREADY_EXISTS,	/*19*/				
-					OCFM_ERR_INVALID_VALUE,
-					OCFM_ERR_INVALID_NAME,
-					OCFM_ERR_XML_FILE_CORRUPTED,
-					OCFM_ERR_CANNOT_OPEN_FILE,
-					OCFM_ERR_PARSE_XML,
-					OCFM_ERR_MODULE_INDEX_NOT_FOUND,
-					OCFM_ERR_MODULE_SUBINDEX_NOT_FOUND,
-					OCFM_ERR_UNIQUE_ID_REF_NOT_FOUND,
-					OCFM_ERR_STRUCT_DATATYPE_NOT_FOUND,
-					OCFM_ERR_NO_CN_NODES_FOUND,
-					OCFM_ERR_DATATYPE_NOT_FOUND,
-					OCFM_ERR_VALUE_NOT_WITHIN_RANGE,
-					OCFM_ERR_MN_NODE_DOESNT_EXIST,
-					OCFM_ERR_CREATE_XML_WRITER_FAILED,
-					OCFM_ERR_XML_WRITER_START_ELT_FAILED,
-					OCFM_ERR_XML_WRITER_END_ELT_FAILED,
-					OCFM_ERR_XML_START_DOC_FAILED,
-					OCFM_ERR_XML_END_DOC_FAILED,
-					OCFM_ERR_CANNOT_OPEN_PROJECT_VER_MISMATCH,
-					OCFM_ERR_INVALID_PJTXML,
-					OCFM_ERR_UNKNOWN					
-	
-}EConfiuguratorErrors;
+	if(!instanceFlag)
+	{
+		objPjtSettings = new CPjtSettings();
+		instanceFlag=true;
+	}
+	return objPjtSettings;	
+}
 
-DllExport typedef  struct ocfmRetCode
+EAutoSave CPjtSettings::getSaveAttr()
 {
-				EConfiuguratorErrors				code;/* Error code from EConfiuguratorErrors*/
-				char*		errorString; /* String Describes the error */
-				
-}ocfmRetCode;
+	return m_saveMode;
+}
 
-typedef struct ocfmRetValError
+void CPjtSettings::setSaveAttr(EAutoSave AutoSaveMode)
 {
-	ocfmRetCode errCode;
-	int returnValue;
-}ocfmRetValError;
+	m_saveMode = AutoSaveMode;
+}
 
-#endif // Error_h
+EAutoGenerate CPjtSettings::getGenerateAttr()
+{
+	return m_generateMode;
+}
 
+void CPjtSettings::setGenerateAttr(EAutoGenerate AutoGenerateMode)
+{
+	m_generateMode = AutoGenerateMode;
+}
+
+void CPjtSettings::setPOWERLINK_IP(char* IPAddr)
+{
+	m_IP_openPOWERLINK = new char[strlen(IPAddr) + 1];
+	strcpy((char*)m_IP_openPOWERLINK, IPAddr);
+}
+
+const char* CPjtSettings::getPOWERLINK_IP()
+{
+	if(m_IP_openPOWERLINK != NULL)
+		return m_IP_openPOWERLINK;
+	else
+		return NULL;
+}

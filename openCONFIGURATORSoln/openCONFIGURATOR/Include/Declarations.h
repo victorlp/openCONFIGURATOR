@@ -233,6 +233,18 @@ typedef enum
 	HIGHLIMIT
 }EAttributeType;
 
+typedef enum 
+{
+	NO_AG = 0,
+	YES_AG = 1
+}EAutoGenerate;
+
+typedef enum 
+{
+	YES_AS = 0,
+	PROMPT_AS,
+	DISCARD_AS
+}EAutoSave;
 
 /****************************************************************************************/
 /* Function Declarations
@@ -246,7 +258,7 @@ DllExport ocfmRetCode GenerateXAP(char* fileName);
 DllExport ocfmRetCode GenerateCDC(char* fileName);
 //void GenerateMNOBD();
 
-DllExport ocfmRetCode CreateNode(int NodeID, ENodeType NodeType);
+DllExport ocfmRetCode CreateNode(int NodeID, ENodeType NodeType, char* NodeName);
 DllExport ocfmRetCode parseFile(char* filename, int NodeID, ENodeType  NodeType);
 DllExport ocfmRetCode DeleteNode(int NodeID, ENodeType NodeType);
 DllExport ocfmRetCode DeleteNodeObjDict(int NodeID, ENodeType NodeType);
@@ -285,7 +297,8 @@ DllExport ocfmRetCode GetSubIndexAttributesbyPositions(int NodePos, int IndexPos
 DllExport void LoadObjectDictionary(char* fileName);
 
 DllExport ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType);
-DllExport ocfmRetCode SaveProject(char* ProjectPath);
+DllExport ocfmRetCode SaveProject(char* ProjectPath, char* ProjectName);
+DllExport ocfmRetCode OpenProject(char* projectXmlFileName);
 //DllExport ocfmRetCode GetSubIndexCount(char* IndexID, int* IndexCount);
 DllExport ocfmRetCode GenerateMNOBD();
 

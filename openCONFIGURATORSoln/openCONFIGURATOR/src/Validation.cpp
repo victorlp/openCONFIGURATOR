@@ -400,3 +400,36 @@ bool CheckIfSubIndexExists(int NodeID, ENodeType NodeType, char* IndexID, char* 
 					}
 				}	
 }
+
+bool IfVersionNumberMatches(xmlTextReaderPtr reader)
+{
+	const xmlChar* name,*value;
+	//Retrieve the name and Value of an attribute
+	value = xmlTextReaderConstValue(reader);
+	name = xmlTextReaderConstName(reader);
+	if(value == NULL || name == NULL)
+		return false;
+	#if defined DEBUG
+		cout << "\nName:" << name << endl;	
+		cout << "\nValue:" << value << endl;
+	#endif
+	// Check for Version Tool-Project Version
+	if(strcmp(ConvertToUpper((char*)name), "VERSION") == 0)
+	{
+		if(strcmp(ConvertToUpper((char*)value), TOOL_VERSION) == 0)
+		{
+			#if defined DEBUG
+				cout << "\nVersion number matched" << endl;
+			#endif
+			return true;
+		}
+		else
+		{
+			#if defined DEBUG
+				cout << "\nVersion number MisMatch" << endl;
+			#endif
+			return false;
+			
+		}
+	}
+}

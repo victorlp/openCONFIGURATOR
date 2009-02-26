@@ -71,9 +71,11 @@
 #include <string>
 #include "Exports.h"
 #include "Index.h"
+#include "ProjectSettings.h"
 #include "ProcessImage.h"
 #include <libxml/xmlwriter.h>
 #include <libxml/xmlreader.h>
+#define TOOL_VERSION "1.0.0"
 static const int g_simple_arr_size = 19;
 static const char *g_Simple[][2] = {
 																										{"BOOL" ,    "1"},
@@ -136,4 +138,9 @@ void WriteXAPElements(ProcessImage piCol[], xmlTextWriterPtr& writer,int VarCoun
 void StartXAPxml(xmlTextWriterPtr& writer,  xmlDocPtr& doc);
 void EndWrtitingXAP( xmlTextWriterPtr& writer, char* fileName, xmlDocPtr& doc);
 bool CheckIfSubIndexExists(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID);
+ocfmRetCode processProjectXML(xmlTextReaderPtr reader);
+bool IfVersionNumberMatches(xmlTextReaderPtr reader);
+bool setProjectSettings_Auto(xmlTextReaderPtr reader);
+bool setProjectSettings_Communication(xmlTextReaderPtr reader);
+
 #endif // declarations_h

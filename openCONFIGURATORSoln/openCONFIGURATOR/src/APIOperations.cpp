@@ -81,7 +81,12 @@
 #include <libxml/xmlwriter.h>
 #include <libxml/encoding.h>
 
-
+#if defined(_WIN32) && defined(_MSC_VER)
+	#include <direct.h>
+#else
+	#include <sys/stat.h>
+#endif
+#define MAXPATHLEN 500
 
 #define MY_ENCODING "ISO-8859-1"
 
@@ -260,7 +265,7 @@ static void AddSubIndexAttributes(char* SubIndexID, CSubIndex* objSubIndex, CSub
 	* Function Name: CreateNode
     * Description:
 /****************************************************************************************************/
-ocfmRetCode CreateNode(int NodeID, ENodeType NodeType)
+ocfmRetCode CreateNode(int NodeID, ENodeType NodeType, char* NodeName)
 {
 	ocfmRetCode ErrStruct;
 	CNode objNode;
@@ -298,6 +303,7 @@ ocfmRetCode CreateNode(int NodeID, ENodeType NodeType)
 		}
 		objNode.setNodeId(NodeID);
 		objNode.setNodeType(NodeType);
+		objNode.setNodeName(NodeName);
 		
 		objNode.CreateIndexCollection();
 		objNode.CreateDataTypeCollection();
@@ -3427,11 +3433,14 @@ ocfmRetCode DeleteNodeObjDict(
 	* Return value: ocfmRetCode
 /****************************************************************************************************/
 
-ocfmRetCode SaveProject(char* ProjectPath)
+ocfmRetCode SaveProject(char* ProjectPath, char* ProjectName)
 {
 	CNode objNode;		
 	CNodeCollection *objNodeCollection = NULL;
 	ocfmRetCode ErrStruct;
+	
+	char path[MAXPATHLEN];
+	
 	try
 	{		
 		objNodeCollection = CNodeCollection::getNodeColObjectPointer();	
@@ -3441,7 +3450,7 @@ ocfmRetCode SaveProject(char* ProjectPath)
 			objException->ocfm_Excpetion(OCFM_ERR_NO_NODES_FOUND);
 			throw objException;
 		}
-		//cout<< "getNumberOfNodes: \n" <<objNodeCollection->getNumberOfNodes()<<endl;
+		
 		if( objNodeCollection->getNumberOfNodes() > 0)
 		{
 			for(int count = 0; count < objNodeCollection->getNumberOfNodes(); count++)
@@ -3450,9 +3459,23 @@ ocfmRetCode SaveProject(char* ProjectPath)
 				
 				char *fileName;	
 				fileName = new char[80];
-				// Saves the nodes with their nodeId as the name
-				sprintf(fileName, "%s/%d.xdc", ProjectPath, objNode.getNodeId());
-				
+												
+				#if defined(_WIN32) && defined(_MSC_VER)
+				{
+					sprintf(path, "%s\%s", ProjectPath, ProjectName);				
+					mkdir(path);
+					// Saves the nodes with their nodeId as the name
+					sprintf(fileName, "%s\%d.xdc", path, objNode.getNodeId());
+				}
+				#else
+				{
+					sprintf(path, "%s/%s", ProjectPath, ProjectName);				
+					mkdir(path, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+					// Saves the nodes with their nodeId as the name
+					sprintf(fileName, "%s/%d.xdc", path, objNode.getNodeId());
+				}
+				#endif
+										
 				//cout << "\fileName:" << fileName << endl;
 				//cout << "\ngetNodeId-getNodeType:" << objNode.getNodeId() << objNode.getNodeType() << endl;
 				SaveNode(fileName, objNode.getNodeId(), objNode.getNodeType());				
@@ -4567,3 +4590,292 @@ int ComputeINOffset(int NodeID, int dataSize, EPDOType pdoType)
 			case INTEGER64:
 		}
 	}*/
+
+/**************************************************************************************************
+* Function Name: OpenProject
+* Description: Saves all the Nodes into the Project location
+* Return value: ocfmRetCode
+/****************************************************************************************************/
+
+ocfmRetCode OpenProject(char* projectXmlFileName)
+{
+	xmlTextReaderPtr reader;
+    int ret;
+	
+    reader = xmlReaderForFile(projectXmlFileName, NULL, 0);
+    try
+    {
+		if (reader != NULL)
+		{
+			ret = xmlTextReaderRead(reader);
+			while (ret == 1)
+			{		
+				processProjectXML(reader);
+				ret = xmlTextReaderRead(reader);
+			}
+			if(ret!=0)
+			{
+				ocfmException objException;
+				/*objException->ocfm_Excpetion(o, true);*/
+				#if defined DEBUG 
+					cout << "\nOCFM_ERR_PARSE_XML\n" << endl;
+				#endif
+				objException.ocfm_Excpetion(OCFM_ERR_PARSE_XML);
+				throw objException;
+			}
+		}
+		else 
+		{
+			#if defined DEBUG 
+				cout << "\nOCFM_ERR_CANNOT_OPEN_FILE\n" << endl;
+			#endif
+			ocfmException objException;
+			objException.ocfm_Excpetion(OCFM_ERR_CANNOT_OPEN_FILE);
+			throw objException;
+		}
+	}								
+	
+	catch(ocfmException& ex)
+	{
+		return ex._ocfmRetCode;
+	}
+	ocfmRetCode ErrStruct;		 
+	ErrStruct.code = OCFM_ERR_SUCCESS;
+	return ErrStruct;
+}
+
+
+/**************************************************************************************************
+	* Function Name: processProjectXML
+    * Description: Process the Node value,Name and its attributes
+/****************************************************************************************************/
+ocfmRetCode processProjectXML(xmlTextReaderPtr reader)
+{
+	const xmlChar *name, *value;
+
+	CNodeCollection *objNodeCollection;
+	CNode *objNode;
+	CPjtSettings* stPjtSettings;
+	stPjtSettings = CPjtSettings::getPjtSettingsPtr();
+	
+	name = xmlTextReaderConstName(reader);
+	if (name == NULL)
+	{
+		#if defined DEBUG
+			cout << "\nGot NULL for Name\n" << endl;	
+		#endif
+	}
+    value = xmlTextReaderConstValue(reader);
+	try
+	{ 
+		if( xmlTextReaderNodeType(reader)==1)
+		{
+			// Check for openCONFIGURATOR Tag
+			if(strcmp(((char*)name),"openCONFIGURATOR")==0)
+			{
+				#if defined DEBUG
+					cout << "openCONFIGURATOR Tag present\n" << endl;	
+				#endif
+				if (xmlTextReaderHasAttributes(reader) == 1)
+				{
+					while(xmlTextReaderMoveToNextAttribute(reader))
+					{
+						// Call Check Version number Fn
+						if(IfVersionNumberMatches(reader) == false)
+						{
+							#if defined DEBUG
+								cout << "openCONFIGURATOR Tag present\n" << endl;	
+							#endif
+							ocfmException objException;
+							objException.ocfm_Excpetion(OCFM_ERR_CANNOT_OPEN_PROJECT_VER_MISMATCH);
+							throw objException;
+						}
+					}
+				}
+			}
+			else if (strcmp(((char*)name),"profile")==0)
+			{
+				#if defined DEBUG
+					cout << "profile Tag present\n" << endl;	
+				#endif
+				if (xmlTextReaderHasAttributes(reader) == 1)
+				{	
+					#if defined DEBUG
+						cout << "Cannot open project: Invalid Project XML\n" << endl;	
+					#endif
+					ocfmException objException;
+					objException.ocfm_Excpetion(OCFM_ERR_INVALID_PJTXML);
+					throw objException;								
+				}
+			}
+			else if (strcmp(((char*)name),"Auto")==0)
+			{
+				#if defined DEBUG
+					cout << "Auto Tag present\n" << endl;	
+				#endif
+				if (xmlTextReaderHasAttributes(reader) == 1)
+				{	
+					if(setProjectSettings_Auto(reader) == false)
+					{
+						#if defined DEBUG
+							cout << "Cannot open project: Invalid Project XML\n" << endl;	
+						#endif
+						ocfmException objException;
+						objException.ocfm_Excpetion(OCFM_ERR_INVALID_PJTXML);
+						throw objException;		
+					}
+				}
+				else
+				{
+					#if defined DEBUG
+						cout << "Cannot open project: Invalid Project XML\n" << endl;	
+					#endif
+					ocfmException objException;
+					objException.ocfm_Excpetion(OCFM_ERR_INVALID_PJTXML);
+					throw objException;
+				}
+			}
+			else if (strcmp(((char*)name),"Communication")==0)
+			{
+				#if defined DEBUG
+					cout << "Communication Tag present\n" << endl;	
+				#endif
+				if (xmlTextReaderHasAttributes(reader) == 1)
+				{	
+					if(setProjectSettings_Communication(reader) == false)
+					{
+						#if defined DEBUG
+							cout << "Cannot open project: Invalid Project XML\n" << endl;	
+						#endif
+						ocfmException objException;
+						objException.ocfm_Excpetion(OCFM_ERR_INVALID_PJTXML);
+						throw objException;		
+					}
+				}
+				else
+				{
+					#if defined DEBUG
+						cout << "Cannot open project: Invalid Project XML\n" << endl;	
+					#endif
+					ocfmException objException;
+					objException.ocfm_Excpetion(OCFM_ERR_INVALID_PJTXML);
+					throw objException;
+				}
+			}
+		}
+			
+	}	
+	catch(ocfmException* ex)
+	{		
+		 return ex->_ocfmRetCode;
+	}	
+	#if defined DEBUG
+		cout << "\nstPjtSettings.getGenerateAttr():" << stPjtSettings->getGenerateAttr() << endl;
+		cout << "\nstPjtSettings.getSaveAttr():" << stPjtSettings->getSaveAttr() << endl;
+		if(stPjtSettings->getPOWERLINK_IP() != NULL)
+			cout << "\nstPjtSettings.getPOWERLINK_IP():" << stPjtSettings->getPOWERLINK_IP() << endl;
+	#endif
+}
+
+bool setProjectSettings_Auto(xmlTextReaderPtr reader)
+{
+	const xmlChar* name,*value;
+	CPjtSettings* stPjtSettings;
+	stPjtSettings = CPjtSettings::getPjtSettingsPtr();	
+	
+	while(xmlTextReaderMoveToNextAttribute(reader))
+	{	
+		//Retrieve the name and Value of an attribute	
+		value = xmlTextReaderConstValue(reader);
+		name = xmlTextReaderConstName(reader);	
+
+		if(value == NULL || name == NULL)
+			return false;		
+		#if defined DEBUG
+			cout << "\nName:" << name << endl;	
+			cout << "\nValue:" << value << endl;
+		#endif
+		if (strcmp(((char*)name),"Generate") == 0)
+		{
+			if(strcmp(((char*)value),"YES") == 0)
+				stPjtSettings->setGenerateAttr(YES_AG);
+			else if(strcmp(((char*)value),"NO") == 0)
+				stPjtSettings->setGenerateAttr(NO_AG);
+			else
+			{
+				#if defined DEBUG
+					cout << "\nsetProjectSettings_Auto returning false" << endl;
+				#endif
+				return false;
+			}
+		}
+		else if (strcmp(((char*)name),"Save") == 0)
+		{
+			if(strcmp(((char*)value),"YES") == 0)
+				stPjtSettings->setSaveAttr(YES_AS);
+			else if(strcmp(((char*)value),"PROMPT") == 0)
+				stPjtSettings->setSaveAttr(PROMPT_AS);
+			else if(strcmp(((char*)value),"DISCARD") == 0)
+				stPjtSettings->setSaveAttr(DISCARD_AS);
+			else
+			{
+				#if defined DEBUG
+					cout << "\nsetProjectSettings_Auto returning false" << endl;
+				#endif
+				return false;
+			}
+		}
+		else
+		{
+			#if defined DEBUG
+				cout << "\nsetProjectSettings_Auto returning false" << endl;
+			#endif
+			return false;
+		}
+	}
+	return true;
+}
+
+bool setProjectSettings_Communication(xmlTextReaderPtr reader)
+{
+	const xmlChar* name,*value;
+	CPjtSettings* stPjtSettings;
+	stPjtSettings = CPjtSettings::getPjtSettingsPtr();
+	
+	while(xmlTextReaderMoveToNextAttribute(reader))
+	{	
+		//Retrieve the name and Value of an attribute	
+		value = xmlTextReaderConstValue(reader);
+		name = xmlTextReaderConstName(reader);	
+
+		if(value == NULL || name == NULL)
+			return false;		
+		#if defined DEBUG
+			cout << "\nName:" << name << endl;	
+			cout << "\nValue:" << value << endl;
+		#endif
+		if (strcmp(((char*)name),"IP") == 0)
+		{
+			if((char*)value != NULL)		
+			{
+				stPjtSettings->setPOWERLINK_IP((char*)value);
+				cout << "\nstPjtSettings->getPOWERLINK_IP():" << stPjtSettings->getPOWERLINK_IP() << endl;
+			}
+			else
+			{
+				#if defined DEBUG
+					cout << "\nsetProjectSettings_Communication returning false" << endl;
+				#endif
+				return false;
+			}
+			
+		}
+		else
+		{
+			#if defined DEBUG
+				cout << "\nsetProjectSettings_Communication returning false" << endl;
+			#endif
+			return false;
+		}
+	}
+}

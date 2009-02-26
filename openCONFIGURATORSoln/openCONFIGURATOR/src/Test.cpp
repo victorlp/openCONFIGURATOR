@@ -89,6 +89,7 @@ int main(int argc, char **argv)
 			cout<<"26: GetIndexAttributesbyPositions"<<endl;
 			cout<<"27: SaveXDC"<<endl;
 			cout<<"28: AutoGenerateMN'S OBD"<<endl;
+			cout<<"29: OpenProject"<<endl;
 			
 			cout <<"Press 'E' for Exit"<<endl;
 								
@@ -109,9 +110,9 @@ int main(int argc, char **argv)
 								cout<<"Enter the Node Type(MN=0/CN=1)"<<endl;								
 								cin>>NodeType;
 								if (NodeType ==0 )
-								CreateNode(NodeID,MN);								
+								CreateNode(NodeID,MN, "TestName_MN");								
 								else if (NodeType==1)
-								CreateNode(NodeID,CN);
+								CreateNode(NodeID,CN, "TestName_CN");
 								cout <<"Node Created"<<endl;
 								cout <<"Do you want to Parse the file(y/n)?"<<endl;
 								char c;
@@ -700,41 +701,49 @@ int main(int argc, char **argv)
 							len = strlen("/home/selva/Desktop/MyPjt/");
 							char* PjtPath;
 							PjtPath = new char[len + 1];
-							strcpy(PjtPath, "/home/selva/Desktop/MyPjt/");
-							SaveProject(PjtPath);
+							strcpy(PjtPath, "/home/selva/Desktop");
+							SaveProject(PjtPath, "MyPjt");
 							break;
 				case 28:
-						retCode =  GenerateMNOBD();
-						if(retCode.code !=0)
 						{
-							printf("\n%s",retCode.errorString);
+							retCode =  GenerateMNOBD();
+							if(retCode.code !=0)
+							{
+								printf("\n%s",retCode.errorString);
+								break;
+							}
+								CNodeCollection * objNodecol;
+								objNodecol =  CNodeCollection::getNodeColObjectPointer();
+								CNode objNode;							
+								CIndexCollection *objIndexCol;
+								objNode = objNodecol->getMNNode();
+								objIndexCol = objNode.getIndexCollection();
+								for(int i = 0; i< objIndexCol->getNumberofIndexes(); i++)
+								{
+									CIndex* objIndex;
+									objIndex = objIndexCol->getIndex(i);
+									printf("\n**************************");
+									printf("\n Index value :%s", objIndex->getIndexValue());
+									for(int y = 0; y<objIndex->getNumberofSubIndexes(); y++)
+									{
+										CSubIndex* objSubIndex;
+										DataType dt;
+										objSubIndex = objIndex->getSubIndex(y);
+										dt = objSubIndex->getDataType();
+										printf("\n SubIndex: %s \n DataType = %s \n Actual Value = %s",objSubIndex->getIndexValue(),dt.DataSize,
+																																																																									objSubIndex->getActualValue());
+									}
+								}
+
 							break;
 						}
-							CNodeCollection * objNodecol;
-							objNodecol =  CNodeCollection::getNodeColObjectPointer();
-							CNode objNode;							
-							CIndexCollection *objIndexCol;
-							objNode = objNodecol->getMNNode();
-							objIndexCol = objNode.getIndexCollection();
-							for(int i = 0; i< objIndexCol->getNumberofIndexes(); i++)
-							{
-								CIndex* objIndex;
-								objIndex = objIndexCol->getIndex(i);
-								printf("\n**************************");
-								printf("\n Index value :%s", objIndex->getIndexValue());
-								for(int y = 0; y<objIndex->getNumberofSubIndexes(); y++)
-								{
-									CSubIndex* objSubIndex;
-									DataType dt;
-									objSubIndex = objIndex->getSubIndex(y);
-									dt = objSubIndex->getDataType();
-									printf("\n SubIndex: %s \n DataType = %s \n Actual Value = %s",objSubIndex->getIndexValue(),dt.DataSize,
-																																																																								objSubIndex->getActualValue());
-								}
-							}
-
-						break;
-			
+						
+				case 29:
+						{
+							OpenProject("/home/selva/Desktop/testPjt.oct");
+							int test_name = 1;
+							break;	
+						}
 		}
 	
 	};

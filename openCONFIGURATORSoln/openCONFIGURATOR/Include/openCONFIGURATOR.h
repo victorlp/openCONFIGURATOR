@@ -73,6 +73,7 @@
 //#include "StackOperations.h"
 #include "ObjectDictionary.h"
 #include "Declarations.h"
+#include "ProjectSettings.h"
 
 
 #endif // openCONFIGURATOR_h

@@ -213,7 +213,11 @@ ocfmException::~ocfmException(void)
 					break;
 			case OCFM_ERR_XML_END_DOC_FAILED:
 					strcpy(_ocfmRetCode.errorString, "Error at xmlTextWriterEndDocument");
-					break;					
+					break;		
+			case OCFM_ERR_CANNOT_OPEN_PROJECT_VER_MISMATCH:
+					strcpy(_ocfmRetCode.errorString, "Cannot open project: Tool-Project version mismatch");
+			case OCFM_ERR_INVALID_PJTXML:
+				strcpy(_ocfmRetCode.errorString, "Cannot open project: Invalid Project XML");					
 			default:
 						break;			
 		}

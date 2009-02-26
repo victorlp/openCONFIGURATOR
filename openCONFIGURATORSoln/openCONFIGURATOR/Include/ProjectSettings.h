@@ -1,16 +1,16 @@
-#ifndef error_h
-#define error_h
+#ifndef ProjectSettings_h
+#define ProjectSettings_h
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //
 //  $Header: $
 //
-// NAME:  ClassNAME
+// NAME:  CIndex
 //
 // BASE  CLASSES: none
 //  
 // PURPOSE:  purpose description
 //
-// AUTHOR:  
+// AUTHOR:  MonicaB
 //
 //  COPYRIGHT NOTICE:
 //
@@ -68,65 +68,27 @@
 //  REVISION HISTORY:
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
-#include "Exports.h"
-typedef enum
-{
-					OCFM_ERR_SUCCESS					= 0,
-					OCFM_ERR_FILE_NOT_PRESENT, /*1*/
-					OCFM_ERR_FILE_CANNOT_OPEN,		/*2*/	
-					OCFM_ERR_INVALID_NODEID, /*3*/
-					OCFM_ERR_INVALID_NODEPOS,/*4*/
-					OCFM_ERR_INVALID_NODETYPE,/*5*/
-					OCFM_ERR_INVALID_INDEXID,/*6*/
-					OCFM_ERR_INVALID_INDEXPOS,/*7*/
-					OCFM_ERR_INVALID_SUBINDEXID,/*8*/
-					OCFM_ERR_INVALID_SUBINDEXPOS,/*9*/
-					OCFM_ERR_INVALID_ATTRIBUTETYPE,/*10*/
-					OCFM_ERR_NO_NODES_FOUND,/*11*/
-					OCFM_ERR_NO_INDEX_FOUND,/*12*/
-					OCFM_ERR_NO_SUBINDEXS_FOUND,/*13*/
-					OCFM_ERR_NODEID_NOT_FOUND,/*14*/
-					OCFM_ERR_INDEXID_NOT_FOUND,/*15*/
-					OCFM_ERR_SUBINDEXID_NOT_FOUND,/*16*/
-					OCFM_ERR_NODE_ALREADY_EXISTS,/*17*/
-					OCFM_ERR_INDEX_ALREADY_EXISTS,/*18*/
-					OCFM_ERR_SUBINDEX_ALREADY_EXISTS,	/*19*/				
-					OCFM_ERR_INVALID_VALUE,
-					OCFM_ERR_INVALID_NAME,
-					OCFM_ERR_XML_FILE_CORRUPTED,
-					OCFM_ERR_CANNOT_OPEN_FILE,
-					OCFM_ERR_PARSE_XML,
-					OCFM_ERR_MODULE_INDEX_NOT_FOUND,
-					OCFM_ERR_MODULE_SUBINDEX_NOT_FOUND,
-					OCFM_ERR_UNIQUE_ID_REF_NOT_FOUND,
-					OCFM_ERR_STRUCT_DATATYPE_NOT_FOUND,
-					OCFM_ERR_NO_CN_NODES_FOUND,
-					OCFM_ERR_DATATYPE_NOT_FOUND,
-					OCFM_ERR_VALUE_NOT_WITHIN_RANGE,
-					OCFM_ERR_MN_NODE_DOESNT_EXIST,
-					OCFM_ERR_CREATE_XML_WRITER_FAILED,
-					OCFM_ERR_XML_WRITER_START_ELT_FAILED,
-					OCFM_ERR_XML_WRITER_END_ELT_FAILED,
-					OCFM_ERR_XML_START_DOC_FAILED,
-					OCFM_ERR_XML_END_DOC_FAILED,
-					OCFM_ERR_CANNOT_OPEN_PROJECT_VER_MISMATCH,
-					OCFM_ERR_INVALID_PJTXML,
-					OCFM_ERR_UNKNOWN					
-	
-}EConfiuguratorErrors;
+#pragma once
+#include "Declarations.h"
 
-DllExport typedef  struct ocfmRetCode
-{
-				EConfiuguratorErrors				code;/* Error code from EConfiuguratorErrors*/
-				char*		errorString; /* String Describes the error */
-				
-}ocfmRetCode;
-
-typedef struct ocfmRetValError
-{
-	ocfmRetCode errCode;
-	int returnValue;
-}ocfmRetValError;
-
-#endif // Error_h
-
+class DllExport CPjtSettings
+	{
+	public:
+		CPjtSettings(void);
+		~CPjtSettings(void);		
+	private:		
+		static bool instanceFlag;
+		static CPjtSettings *objPjtSettings;
+		EAutoGenerate m_generateMode;
+		EAutoSave m_saveMode;
+		char* m_IP_openPOWERLINK;
+	public :
+		static CPjtSettings* getPjtSettingsPtr();
+		EAutoSave getSaveAttr();
+		void setSaveAttr(EAutoSave);
+		EAutoGenerate getGenerateAttr();
+		void setGenerateAttr(EAutoGenerate);
+		void setPOWERLINK_IP(char*);
+		const char* getPOWERLINK_IP();
+	};
+#endif // ProjectSettings_h
