@@ -138,12 +138,13 @@ void WriteXAPElements(ProcessImage piCol[], xmlTextWriterPtr& writer,int VarCoun
 void StartXAPxml(xmlTextWriterPtr& writer,  xmlDocPtr& doc);
 void EndWrtitingXAP( xmlTextWriterPtr& writer, char* fileName, xmlDocPtr& doc);
 bool CheckIfSubIndexExists(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID);
-ocfmRetCode processProjectXML(xmlTextReaderPtr reader);
+ocfmRetCode processProjectXML(xmlTextReaderPtr reader, char* PjtPath);
 bool IfVersionNumberMatches(xmlTextReaderPtr reader);
 bool setProjectSettings_Auto(xmlTextReaderPtr reader);
 bool setProjectSettings_Communication(xmlTextReaderPtr reader);
 int getConfigDate();
 int getConfigTime();
-bool getandCreateNode(xmlTextReaderPtr reader);
+bool getandCreateNode(xmlTextReaderPtr reader, char* PjtPath);
+bool saveProjectXML(char* ProjectPath, char* ProjectName);
 
 #endif // declarations_h

@@ -109,7 +109,7 @@ void CPjtSettings::setSaveAttr(EAutoSave AutoSaveMode)
 
 EAutoGenerate CPjtSettings::getGenerateAttr()
 {
-	return m_generateMode;
+		return m_generateMode;
 }
 
 void CPjtSettings::setGenerateAttr(EAutoGenerate AutoGenerateMode)

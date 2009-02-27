@@ -283,7 +283,7 @@ DllExport ocfmRetCode GetNodeCount(int MNID, int* Out_NodeCount);
 DllExport ocfmRetCode GetIndexCount(int NodeID, ENodeType NodeType, int* Out_IndexCount);
 DllExport ocfmRetCode GetSubIndexCount(int NodeID, ENodeType NodeType, char* IndexID, int* Out_SubIndexCount);
 
-DllExport ocfmRetCode GetNodeIDbyNodePos(int NodePos, ENodeType* NodeType, int* Out_NodeID);
+DllExport ocfmRetCode GetNodeAttributesbyNodePos(int NodePos, int* Out_NodeID, char* Out_NodeName);
 DllExport ocfmRetCode GetIndexIDbyIndexPos(int NodeID, ENodeType NodeType, int IndexPos, char* Out_IndexID);
 DllExport ocfmRetCode GetSubIndexIDbySubIndexPos(int NodeID, ENodeType NodeType, char* IndexID, int SubIndexPos, char* Out_SubIndexID);
 
@@ -298,7 +298,7 @@ DllExport void LoadObjectDictionary(char* fileName);
 
 DllExport ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType);
 DllExport ocfmRetCode SaveProject(char* ProjectPath, char* ProjectName);
-DllExport ocfmRetCode OpenProject(char* projectXmlFileName);
+DllExport ocfmRetCode OpenProject(char* PjtPath, char* projectXmlFileName);
 //DllExport ocfmRetCode GetSubIndexCount(char* IndexID, int* IndexCount);
 DllExport ocfmRetCode GenerateMNOBD();
 

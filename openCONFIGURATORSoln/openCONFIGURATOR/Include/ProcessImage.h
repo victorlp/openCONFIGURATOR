@@ -130,6 +130,9 @@ struct ProcessImage
 		int							BitOffset;
 		int							ParametrIndex;
 		char*					ValueFromPDO;
+		char*					ModuleName;
+		int							CNNodeID;
+		char*					VarName;
 		void Initialize()
 		{
 			ParametrIndex = 0;
@@ -178,5 +181,6 @@ PIDataInfo* getIECDT(char* dtStr);
 int ComputeINOffset(int NodeID, int dataSize, EPDOType pdoType);
 int ComputeOUTOffset(int NodeID, int dataSize, EPDOType pdoType);
 void SetPIOffsets(ProcessImage* pi,int& StartingByteOffset, int pos, int& StartBitOffset);
+void GenerateXAPHeaderFile(char* fileName, ProcessImage PI_IN[], ProcessImage PI_OUT[], int InVar, int OutVar);
 
 #endif // processImage_h

@@ -551,24 +551,16 @@ static void getVarDeclaration(xmlTextReaderPtr reader, CComplexDataType* objCDT)
 /****************************************************************************************************/
 
 ocfmRetCode ImportXML(char* fileName, int NodeID, ENodeType NodeType)
-	{
-
-		
-		/*ocfmRetCode ocfmError;
-		ocfmError.code = OCFM_ERR_SUCCESS;
-
-		ocfmRetCode ErrStruct;*/			
+	{	
+		cout << "\n1" << endl;
 		ocfmRetCode ErrStruct;
 		try
 		{
-			//printf("Inside Importxml");
-			/*ErrStruct = */
+			cout << "\n2" << endl;
 			ErrStruct = parseFile(fileName, NodeID, NodeType);
 			if(ErrStruct.code!= 0)
 				return ErrStruct;
-
-				
-				//printf("Parsing Done");
+			cout << "\n3" << endl;
 			 xmlCleanupParser();
 			/*
 			* this is to debug memory for regression tests
@@ -769,42 +761,40 @@ ocfmRetCode parseFile(char* filename, int NodeIndex, ENodeType  NodeType)
     xmlTextReaderPtr reader;
     int ret;
 
-		
     reader = xmlReaderForFile(filename, NULL, 0);
     try
     {
-					if (reader != NULL)
-					{
-					 ret = xmlTextReaderRead(reader);
-      while (ret == 1)
-						{		
-								processNode(reader,NodeType,NodeIndex );
-								ret = xmlTextReaderRead(reader);
-						}
-						if(ret!=0)
-						{
-							ocfmException objException;
-							/*objException->ocfm_Excpetion(o, true);*/
-							objException.ocfm_Excpetion(OCFM_ERR_PARSE_XML);
-							throw objException;
-						}
-					}
-					else 
-					{
-						ocfmException objException;
-						objException.ocfm_Excpetion(OCFM_ERR_CANNOT_OPEN_FILE);
-						throw objException;
-					}
-			}								
-		
-				catch(ocfmException& ex)
-				{
-					DeleteNodeObjDict(NodeIndex, NodeType);
-					return ex._ocfmRetCode;
-				}
-		ocfmRetCode ErrStruct;		 
-		ErrStruct.code = OCFM_ERR_SUCCESS;
-		return ErrStruct;
+		if (reader != NULL)
+		{
+			ret = xmlTextReaderRead(reader);
+			while (ret == 1)
+			{		
+				processNode(reader,NodeType, NodeIndex);
+				ret = xmlTextReaderRead(reader);
+			}
+			if(ret!=0)
+			{
+				ocfmException objException;
+				/*objException->ocfm_Excpetion(o, true);*/
+				objException.ocfm_Excpetion(OCFM_ERR_PARSE_XML);
+				throw objException;
+			}
+		}
+		else 
+		{
+			ocfmException objException;
+			objException.ocfm_Excpetion(OCFM_ERR_CANNOT_OPEN_FILE);
+			throw objException;
+		}
+	}									
+	catch(ocfmException& ex)
+	{
+		DeleteNodeObjDict(NodeIndex, NodeType);
+		return ex._ocfmRetCode;
+	}
+	ocfmRetCode ErrStruct;		 
+	ErrStruct.code = OCFM_ERR_SUCCESS;
+	return ErrStruct;
 }
  
 /**************************************************************************************************

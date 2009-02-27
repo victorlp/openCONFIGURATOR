@@ -606,12 +606,15 @@ int main(int argc, char **argv)
 							ENodeType tmp_NodeType;
 							//ENodeType tmp_NodeType;
 							int tmp_NodeID;
+							char* tmp_NodeName;
+							tmp_NodeName = new char[50];
 							ocfmRetCode ErrStruct;
-							ErrStruct = GetNodeIDbyNodePos(NodePos, &tmp_NodeType, &tmp_NodeID);
+							ErrStruct = GetNodeAttributesbyNodePos(NodePos, &tmp_NodeID, tmp_NodeName);
 							if(ErrStruct.code == 0)
 							{
 								cout << "tmp_NodeType:" << tmp_NodeType << endl;
 								cout << "tmp_NodeID:" << tmp_NodeID << endl;
+								cout << "tmp_NodeName:" << tmp_NodeName << endl;
 							}
 							else
 								cout << "\n\nErrCode:" << ErrStruct.code << endl;
@@ -745,7 +748,7 @@ int main(int argc, char **argv)
 						
 				case 29:
 						{
-							OpenProject("/home/selva/Desktop/testPjt.oct");
+							OpenProject("/home/selva/Desktop/MyPjt", "MyPjt.oct");
 							int test_name = 1;
 							break;	
 						}

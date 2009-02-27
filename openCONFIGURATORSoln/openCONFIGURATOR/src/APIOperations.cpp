@@ -86,7 +86,6 @@
 #else
 	#include <sys/stat.h>
 #endif
-#define MAXPATHLEN 500
 
 
 #define MY_ENCODING "ISO-8859-1"
@@ -3070,10 +3069,10 @@ void LoadObjectDictionary(char* fileName)
 	* Return value: ocfmRetCode
 /****************************************************************************************************/
 
-ocfmRetCode GetNodeIDbyNodePos(
-	int NodePos, 
-	ENodeType* NodeType, 
-	int* Out_NodeID)
+ocfmRetCode GetNodeAttributesbyNodePos(
+	int NodePos,
+	int* Out_NodeID,
+	char* Out_NodeName)
 {
 	//cout<< "Inside GetNodeIDbyNodeCount" << endl;
 	ocfmRetCode ErrStruct;
@@ -3113,8 +3112,11 @@ ocfmRetCode GetNodeIDbyNodePos(
 		//	objException->ocfm_Excpetion(OCFM_ERR_INVALID_NODETYPE);
 		//	throw objException;
 		//}
-			*NodeType = objNode.getNodeType();
-			*Out_NodeID = objNode.getNodeId();
+		*Out_NodeID = objNode.getNodeId();
+		if(objNode.getNodeName() != NULL)
+			strcpy(Out_NodeName, objNode.getNodeName());
+		else
+			Out_NodeName = NULL;
 				
 		ErrStruct.code = OCFM_ERR_SUCCESS;
 		return ErrStruct;
@@ -3492,13 +3494,28 @@ ocfmRetCode DeleteNodeObjDict(
 ocfmRetCode SaveProject(char* ProjectPath, char* ProjectName)
 {
 	CNode objNode;		
-	CNodeCollection *objNodeCollection = NULL;
+	CNodeCollection *objNodeCollection = NULL;	
 	ocfmRetCode ErrStruct;
 	
-	char path[MAXPATHLEN];
+	char* path;
+	path = new char[(strlen(ProjectPath) + strlen(ProjectName) + 5)];
 	
 	try
-	{		
+	{	
+		#if defined(_WIN32) && defined(_MSC_VER)
+		{
+			sprintf(path, "%s\%s", ProjectPath, ProjectName);				
+			mkdir(path);
+		}
+		#else
+		{
+			sprintf(path, "%s/%s", ProjectPath, ProjectName);				
+			mkdir(path, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+		}
+		#endif
+		
+		saveProjectXML(ProjectPath, ProjectName);
+		
 		objNodeCollection = CNodeCollection::getNodeColObjectPointer();	
 		if(objNodeCollection == NULL)
 		{
@@ -3513,20 +3530,22 @@ ocfmRetCode SaveProject(char* ProjectPath, char* ProjectName)
 			{				
 				objNode = objNodeCollection->getNodebyCollectionIndex(count);
 				
-				char *fileName;	
-				fileName = new char[80];
+				//char *fileName;	
+				//fileName = new char[80];
+				char* fileName;
+				fileName = new char[(strlen(path) + 4 + 5)];
 												
 				#if defined(_WIN32) && defined(_MSC_VER)
 				{
-					sprintf(path, "%s\%s", ProjectPath, ProjectName);				
-					mkdir(path);
+					//sprintf(path, "%s\%s", ProjectPath, ProjectName);				
+					//mkdir(path);
 					// Saves the nodes with their nodeId as the name
 					sprintf(fileName, "%s\%d.xdc", path, objNode.getNodeId());
 				}
 				#else
 				{
-					sprintf(path, "%s/%s", ProjectPath, ProjectName);				
-					mkdir(path, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+					//sprintf(path, "%s/%s", ProjectPath, ProjectName);				
+					//mkdir(path, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
 					// Saves the nodes with their nodeId as the name
 					sprintf(fileName, "%s/%d.xdc", path, objNode.getNodeId());
 				}
@@ -3534,7 +3553,8 @@ ocfmRetCode SaveProject(char* ProjectPath, char* ProjectName)
 										
 				//cout << "\fileName:" << fileName << endl;
 				//cout << "\ngetNodeId-getNodeType:" << objNode.getNodeId() << objNode.getNodeType() << endl;
-				SaveNode(fileName, objNode.getNodeId(), objNode.getNodeType());				
+				SaveNode(fileName, objNode.getNodeId(), objNode.getNodeType());	
+				delete [] fileName;			
 			}
 			ErrStruct.code = OCFM_ERR_SUCCESS;
 			return ErrStruct;
@@ -3544,13 +3564,13 @@ ocfmRetCode SaveProject(char* ProjectPath, char* ProjectName)
 			ocfmException* objException = new ocfmException;
 			objException->ocfm_Excpetion(OCFM_ERR_NO_NODES_FOUND);
 			throw objException;			
-		}
+		}	
 	}
 	catch(ocfmException* ex)
 	{
 		return ex->_ocfmRetCode;
 	}
-	
+	delete [] path;
 }
 void GetMNPDOSubIndex(MNPdoVariable var, int& prevSubIndex, CIndex* objIdx,char* MNIndex)
 {
@@ -4696,12 +4716,30 @@ int ComputeINOffset(int NodeID, int dataSize, EPDOType pdoType)
 * Return value: ocfmRetCode
 /****************************************************************************************************/
 
-ocfmRetCode OpenProject(char* projectXmlFileName)
+ocfmRetCode OpenProject(char* PjtPath, char* projectXmlFileName)
 {
+	CNodeCollection *objNodeCollection;
+	objNodeCollection = CNodeCollection::getNodeColObjectPointer();
+	delete objNodeCollection;
 	xmlTextReaderPtr reader;
-    int ret;
+    	int ret;
+	char *fileName;	
 	
-    reader = xmlReaderForFile(projectXmlFileName, NULL, 0);
+	#if defined DEBUG
+	cout << "\nStrLen for FileName:" << (strlen(PjtPath) + strlen(projectXmlFileName) + 1) << endl;
+	#endif
+	
+	fileName = new char[(strlen(PjtPath) + strlen(projectXmlFileName) + 5)];
+	#if defined(_WIN32) && defined(_MSC_VER)
+	{		
+		sprintf(fileName, "%s\%s", PjtPath, projectXmlFileName);	
+	}
+	#else
+	{
+		sprintf(fileName, "%s/%s", PjtPath, projectXmlFileName);
+	}
+	#endif			
+    reader = xmlReaderForFile(fileName, NULL, 0);
     try
     {
 		if (reader != NULL)
@@ -4709,7 +4747,7 @@ ocfmRetCode OpenProject(char* projectXmlFileName)
 			ret = xmlTextReaderRead(reader);
 			while (ret == 1)
 			{		
-				processProjectXML(reader);
+				processProjectXML(reader, PjtPath);
 				ret = xmlTextReaderRead(reader);
 			}
 			if(ret!=0)
@@ -4748,15 +4786,13 @@ ocfmRetCode OpenProject(char* projectXmlFileName)
 	* Function Name: processProjectXML
     * Description: Process the Node value,Name and its attributes
 /****************************************************************************************************/
-ocfmRetCode processProjectXML(xmlTextReaderPtr reader)
+ocfmRetCode processProjectXML(xmlTextReaderPtr reader, char* PjtPath)
 {
 	const xmlChar *name, *value;
-
 	CNodeCollection *objNodeCollection;
 	CNode *objNode;
 	CPjtSettings* stPjtSettings;
 	stPjtSettings = CPjtSettings::getPjtSettingsPtr();
-	
 	name = xmlTextReaderConstName(reader);
 	if (name == NULL)
 	{
@@ -4861,6 +4897,51 @@ ocfmRetCode processProjectXML(xmlTextReaderPtr reader)
 					throw objException;
 				}
 			}
+			else if (strcmp(((char*)name),"NodeCollection")==0)
+			{
+				#if defined DEBUG
+					cout << "NodeCollection Tag present\n" << endl;	
+				#endif
+				if (xmlTextReaderHasAttributes(reader) == 1)
+				{
+					#if defined DEBUG
+						cout << "Cannot open project: Invalid Project XML\n" << endl;	
+					#endif
+					ocfmException objException;
+					objException.ocfm_Excpetion(OCFM_ERR_INVALID_PJTXML);
+					throw objException;	
+				}
+			}
+			else if (strcmp(((char*)name),"Node") == 0)
+			{
+				if (xmlTextReaderHasAttributes(reader) == 1)
+				{
+					if(getandCreateNode(reader, PjtPath) == false)
+					{
+						#if defined DEBUG
+							cout << "Cannot open project: Invalid Project XML\n" << endl;	
+						#endif
+						ocfmException objException;
+						objException.ocfm_Excpetion(OCFM_ERR_INVALID_PJTXML);
+						throw objException;	
+					}
+					else
+					{
+						ocfmRetCode ErrStruct;
+						ErrStruct.code = OCFM_ERR_SUCCESS;
+						return ErrStruct;
+					}
+				}
+				else
+				{
+					#if defined DEBUG
+						cout << "Cannot open project: Invalid Project XML\n" << endl;	
+					#endif
+					ocfmException objException;
+					objException.ocfm_Excpetion(OCFM_ERR_INVALID_PJTXML);
+					throw objException;	
+				}
+			}
 		}
 			
 	}	
@@ -4874,13 +4955,20 @@ ocfmRetCode processProjectXML(xmlTextReaderPtr reader)
 		if(stPjtSettings->getPOWERLINK_IP() != NULL)
 			cout << "\nstPjtSettings.getPOWERLINK_IP():" << stPjtSettings->getPOWERLINK_IP() << endl;
 	#endif
+	ocfmRetCode ErrStruct;
+	ErrStruct.code = OCFM_ERR_SUCCESS;
+	return ErrStruct;
 }
 
+/**************************************************************************************************
+	* Function Name: setProjectSettings_Auto
+    * Description: Gets the Auto info from the Pjt xml and stores in the object
+/****************************************************************************************************/
 bool setProjectSettings_Auto(xmlTextReaderPtr reader)
 {
 	const xmlChar* name,*value;
 	CPjtSettings* stPjtSettings;
-	stPjtSettings = CPjtSettings::getPjtSettingsPtr();	
+	stPjtSettings = CPjtSettings::getPjtSettingsPtr();
 	
 	while(xmlTextReaderMoveToNextAttribute(reader))
 	{	
@@ -4935,6 +5023,10 @@ bool setProjectSettings_Auto(xmlTextReaderPtr reader)
 	return true;
 }
 
+/**************************************************************************************************
+	* Function Name: setProjectSettings_Communication
+    * Description: Gets the communication info from the Pjt xml and stores in the object
+/****************************************************************************************************/
 bool setProjectSettings_Communication(xmlTextReaderPtr reader)
 {
 	const xmlChar* name,*value;
@@ -4984,35 +5076,407 @@ bool setProjectSettings_Communication(xmlTextReaderPtr reader)
 	* Function Name: getandCreateNode
     * Description: Gets the Node properties from the Pjt xml and Creates the Nodes
 /****************************************************************************************************/
-bool getandCreateNode(xmlTextReaderPtr reader)
+bool getandCreateNode(xmlTextReaderPtr reader, char* PjtPath)
 {
 	const xmlChar* name,*value;
 	int ret;
+	ocfmRetCode ErrStruct;
+	
+	char* nodeName;
+	int nodeID;
+	ENodeType nodeType;
+	char* xdcPath;
+	char* fileName;
+	
 	CPjtSettings* stPjtSettings;
 	stPjtSettings = CPjtSettings::getPjtSettingsPtr();
 	
-	value = xmlTextReaderConstValue(reader);
-	name = xmlTextReaderConstName(reader);
-	
-	cout << "\ngetandCreateNode - name:" << name << endl;
+	while(xmlTextReaderMoveToNextAttribute(reader))
+	{	
+		//Retrieve the name and Value of an attribute	
+		value = xmlTextReaderConstValue(reader);
+		name = xmlTextReaderConstName(reader);	
 
-	if( xmlTextReaderNodeType(reader)==1)
-	{
-		// Check for openCONFIGURATOR Tag
-		if(strcmp(((char*)name),"NodeCollection")==0)
-		{
-			#if defined DEBUG
-				cout << "Node Tag present\n" << endl;	
-			#endif
-			return true;
-		}
-		else
-		{
-			#if defined DEBUG
-				cout << "Node Not Tag present!\n" << endl;	
-			#endif
+		if(value == NULL || name == NULL)
 			return false;
+			
+		if (strcmp(((char*)name),"name") == 0)
+		{
+			if((char*)value != NULL)		
+			{
+				nodeName = new char[strlen((char*)value) + 1];
+				strcpy((char*)nodeName, (char*)value);
+				cout << "\nnodeName:" << nodeName << endl;
+				//stPjtSettings->setPOWERLINK_IP((char*)value);
+				//cout << "\nstPjtSettings->getPOWERLINK_IP():" << stPjtSettings->getPOWERLINK_IP() << endl;
+			}
+			else
+			{
+				#if defined DEBUG
+					cout << "\ngetandCreateNode returning false" << endl;
+				#endif
+				return false;
+			}
+			
+		}
+		else if (strcmp(((char*)name),"NodeId") == 0)
+		{
+			if((char*)value != NULL)		
+			{
+				nodeID = atoi((char*)value);
+				cout << "\nnodeID:" << nodeID << endl;
+				//stPjtSettings->setPOWERLINK_IP((char*)value);
+				//cout << "\nstPjtSettings->getPOWERLINK_IP():" << stPjtSettings->getPOWERLINK_IP() << endl;
+			}
+			else
+			{
+				#if defined DEBUG
+					cout << "\ngetandCreateNode returning false" << endl;
+				#endif
+				return false;
+			}
+			
+		}
+		else if (strcmp(((char*)name),"NodeType") == 0)
+		{
+			if(strcmp(((char*)value), "MN") == 0)		
+			{
+				nodeType = MN;
+				#if defined DEBUG
+				cout << "\nnodeType:" << nodeType << endl;				
+				#endif
+			}
+			else if(strcmp(((char*)value), "CN") == 0)		
+			{
+				nodeType = CN;
+				#if defined DEBUG
+				cout << "\nnodeType:" << nodeType << endl;
+				#endif
+				//stPjtSettings->setPOWERLINK_IP((char*)value);
+				//cout << "\nstPjtSettings->getPOWERLINK_IP():" << stPjtSettings->getPOWERLINK_IP() << endl;
+			}
+			else
+			{
+				#if defined DEBUG
+					cout << "\ngetandCreateNode returning false" << endl;
+				#endif
+				return false;
+			}
+			
+		}
+		else if (strcmp(((char*)name),"xdc") == 0)
+		{
+			if((char*)value != NULL)		
+			{
+				xdcPath = new char[strlen((char*)value) + 1];
+				strcpy((char*)xdcPath, (char*)value);
+				#if defined DEBUG
+				cout << "\nxdcPath:" << xdcPath << endl;
+				#endif
+				//stPjtSettings->setPOWERLINK_IP((char*)value);
+				//cout << "\nstPjtSettings->getPOWERLINK_IP():" << stPjtSettings->getPOWERLINK_IP() << endl;
+			}
+			else
+			{
+				#if defined DEBUG
+					cout << "\ngetandCreateNode returning false" << endl;
+				#endif
+				xdcPath = NULL;
+				//return false;
+			}			
 		}
 	}
+	#if defined DEBUG
+		cout << "\n\n\nCan Create Node\n\n"  << endl;
+		cout << "\nCreateNode:" << nodeID << nodeType << nodeName << endl;
+	#endif
+	if(nodeType == 1)
+	{
+		ErrStruct = CreateNode(nodeID, CN, nodeName);
+	}
+	else if(nodeType == 0)
+	{
+		ErrStruct = CreateNode(nodeID, MN, nodeName);
+	}
+	
+	if(ErrStruct.code != OCFM_ERR_SUCCESS)
+		return false;
+	
+	#if defined DEBUG
+	cout << "\nCreateNode - ErrStruct.code:" << ErrStruct.code << endl;
+	#endif
+	
+	fileName = new char[(strlen(PjtPath) + strlen(xdcPath) + 5)];
+	sprintf(fileName, "%s/%s", PjtPath, xdcPath);
+	if(nodeType == 1)
+		ErrStruct = parseFile(fileName, nodeID, CN);
+	else if(nodeType == 0)
+		ErrStruct = parseFile(fileName, nodeID, MN);
+
 	return true;
+}
+/**************************************************************************************************
+* Function Name: saveProjectXML
+* Description: Saves the project details into the Project location
+* Return value: bool[True/False]
+/****************************************************************************************************/
+bool saveProjectXML(char* ProjectPath, char* ProjectName)
+{
+	
+CPjtSettings* stPjtSettings;
+stPjtSettings = CPjtSettings::getPjtSettingsPtr();
+
+xmlTextWriterPtr writer;
+xmlDocPtr doc;
+int rc;
+
+char* fileName;
+fileName = new char[(strlen(ProjectPath) + strlen(ProjectName) + strlen(ProjectName) + 5)];
+
+#if defined(_WIN32) && defined(_MSC_VER)
+{
+	sprintf(fileName, "%s\%s\%s.oct", ProjectPath, ProjectName, ProjectName);
+}
+#else
+{
+	sprintf(fileName, "%s/%s/%s.oct", ProjectPath, ProjectName, ProjectName);
+}
+#endif
+
+/* Create a new XmlWriter for DOM, with no compression. */
+writer = xmlNewTextWriterDoc(&doc, 0);
+if (writer == NULL) 
+{
+	printf("testXmlwriterDoc: Error creating the xml writer\n");
+	//return;
+	ocfmException* objException = new ocfmException;
+	objException->ocfm_Excpetion(OCFM_ERR_CREATE_XML_WRITER_FAILED);
+	throw objException;
+}
+/* Start the document with the xml default for the version,
+* encoding ISO 8859-1 and the default for the standalone
+* declaration. */
+rc = xmlTextWriterStartDocument(writer, NULL, MY_ENCODING, NULL);
+if (rc < 0) 
+{
+	printf("testXmlwriterDoc: Error at xmlTextWriterStartDocument\n");
+	ocfmException* objException = new ocfmException;
+	objException->ocfm_Excpetion(OCFM_ERR_XML_START_DOC_FAILED);
+	throw objException;
+}	
+rc = xmlTextWriterWriteComment(writer,BAD_CAST "This file was autogenerated by openCONFIGURATOR");
+xmlTextWriterSetIndent(writer, 1);
+// Start openCONFIGURATOR Tag		
+rc = xmlTextWriterStartElement(writer, BAD_CAST "openCONFIGURATOR");
+if (rc < 0) 
+{
+	printf("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
+	ocfmException* objException = new ocfmException;
+	objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
+	throw objException;
+}
+	rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "Version", BAD_CAST TOOL_VERSION);
+	
+xmlTextWriterSetIndent(writer, 1);
+// Start profile Tag
+rc = xmlTextWriterStartElement(writer, BAD_CAST "profile");
+if (rc < 0) 
+{
+	printf("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
+	ocfmException* objException = new ocfmException;
+	objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
+	throw objException;
+}
+
+	xmlTextWriterSetIndent(writer, 1);
+	// Start Auto Tag		
+	rc = xmlTextWriterStartElement(writer, BAD_CAST "Auto");
+	if (rc < 0) 
+	{
+		printf("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
+		ocfmException* objException = new ocfmException;
+		objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
+		throw objException;
+	}
+
+	cout << "\n\n\nstPjtSettings->getGenerateAttr():" << stPjtSettings->getGenerateAttr() << endl;
+	if(stPjtSettings->getGenerateAttr() == 0)
+		rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "Generate", BAD_CAST "NO");
+	else if(stPjtSettings->getGenerateAttr() == 1)
+		rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "Generate", BAD_CAST "YES");
+	
+	cout << "\n\n\nstPjtSettings->getSaveAttr():" << stPjtSettings->getSaveAttr() << endl;
+	if(stPjtSettings->getSaveAttr() == 0)
+		rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "Save", BAD_CAST "YES");
+	else if(stPjtSettings->getSaveAttr() == 1)
+		rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "Save", BAD_CAST "PROMPT");
+	else if(stPjtSettings->getSaveAttr() == 2)
+		rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "Save", BAD_CAST "DISCARD");
+
+	// End Auto Tag
+	rc = xmlTextWriterEndElement(writer);
+	if (rc < 0)
+	{
+		printf("testXmlwriterDoc: Error at xmlTextWriterEndElement\n");
+		ocfmException* objException = new ocfmException;
+		objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
+		throw objException;
+	}
+	
+	xmlTextWriterSetIndent(writer, 1);
+	// Start Communication Tag		
+	rc = xmlTextWriterStartElement(writer, BAD_CAST "Communication");
+	if (rc < 0) 
+	{
+		printf("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
+		ocfmException* objException = new ocfmException;
+		objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
+		throw objException;
+	}
+		rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "IP", BAD_CAST stPjtSettings->getPOWERLINK_IP());
+		
+	// End Communication Tag
+	rc = xmlTextWriterEndElement(writer);
+	if (rc < 0)
+	{
+		printf("testXmlwriterDoc: Error at xmlTextWriterEndElement\n");
+		ocfmException* objException = new ocfmException;
+		objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
+		throw objException;
+	}
+
+// End profile Tag
+rc = xmlTextWriterEndElement(writer);
+if (rc < 0)
+{
+	printf("testXmlwriterDoc: Error at xmlTextWriterEndElement\n");
+	ocfmException* objException = new ocfmException;
+	objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
+	throw objException;
+}
+
+xmlTextWriterSetIndent(writer, 1);
+// Start NodeCollection Tag
+rc = xmlTextWriterStartElement(writer, BAD_CAST "NodeCollection");
+if (rc < 0) 
+{
+	printf("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
+	ocfmException* objException = new ocfmException;
+	objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
+	throw objException;
+}
+
+		CNode objNode;		
+		CNodeCollection *objNodeCollection;
+		CIndexCollection *objIndexCollection;
+		CIndex objIndex;
+		CIndex* objIndexPtr;
+		Parameter* para;
+		CApplicationProcess* objAppProc;
+		int IndexPos = 0;
+		
+		objIndex.setNodeID(objNode.getNodeId());
+		objNodeCollection = CNodeCollection::getNodeColObjectPointer();
+		//objNode = objNodeCollection->getNode(NodeType, NodeID);
+
+		//objIndexCollection = objNode.getIndexCollection();
+		cout << "\nobjNodeCollection.getNumberOfNodes():" << objNodeCollection->getNumberOfNodes() << endl;
+		
+
+
+	for(int nodeCount = 0; nodeCount < objNodeCollection->getNumberOfNodes(); nodeCount++)
+	{
+		CNode* objNode;
+
+		objNode = objNodeCollection->getNodebyColIndex(nodeCount);
+		xmlTextWriterSetIndent(writer, 1);
+		// Start Node Tag		
+		rc = xmlTextWriterStartElement(writer, BAD_CAST "Node");
+
+		if (rc < 0) 
+		{
+			printf("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
+			ocfmException* objException = new ocfmException;
+			objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
+			throw objException;
+		}
+
+		char* tmp_NodeName;
+		tmp_NodeName = new char[(strlen(objNode->getNodeName()) + 2)];
+		strcpy(tmp_NodeName, (char*) objNode->getNodeName());
+		rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "name", BAD_CAST tmp_NodeName);
+		
+		char* tmp_NodeID;
+		tmp_NodeID = new char[20];
+		
+		itoa(objNode->getNodeId(), tmp_NodeID, 0);
+
+		rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "NodeId", BAD_CAST tmp_NodeID);
+		
+		ENodeType tmp_NodeType;
+		tmp_NodeType = objNode->getNodeType();
+		
+		if(tmp_NodeType == 0)
+			rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "NodeType", BAD_CAST "MN");
+		if(tmp_NodeType == 1)
+			rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "NodeType", BAD_CAST "CN");
+
+		char* tmp_XdcName;
+		tmp_XdcName = new char[20];
+		
+		sprintf(tmp_XdcName, "%s.xdc", tmp_NodeID);		
+		rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "xdc", BAD_CAST tmp_XdcName);
+
+		// End Node Tag
+		rc = xmlTextWriterEndElement(writer);
+		if (rc < 0)
+		{
+			printf("testXmlwriterDoc: Error at xmlTextWriterEndElement\n");
+			ocfmException* objException = new ocfmException;
+			objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
+			throw objException;
+		}
+		delete [] tmp_NodeName;
+		delete [] tmp_NodeID;
+		delete [] tmp_XdcName;
+	}
+
+// End NodeCollection Tag
+rc = xmlTextWriterEndElement(writer);
+if (rc < 0)
+{
+	printf("testXmlwriterDoc: Error at xmlTextWriterEndElement\n");
+	ocfmException* objException = new ocfmException;
+	objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
+	throw objException;
+}
+
+// End openCONFIGURATOR Tag
+rc = xmlTextWriterEndElement(writer);
+if (rc < 0)
+{
+	printf("testXmlwriterDoc: Error at xmlTextWriterEndElement\n");
+	ocfmException* objException = new ocfmException;
+	objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
+	throw objException;
+}
+
+rc = xmlTextWriterEndDocument(writer);
+if (rc < 0) 
+{
+	printf("testXmlwriterDoc: Error at xmlTextWriterEndDocument\n");
+	ocfmException* objException = new ocfmException;
+	objException->ocfm_Excpetion(OCFM_ERR_XML_END_DOC_FAILED);
+	throw objException;
+}
+cout << "\n5" << endl;
+xmlFreeTextWriter(writer);
+
+xmlSaveFileEnc(fileName, doc, MY_ENCODING);
+
+xmlFreeDoc(doc);	
+
+cout << "\nsaveProjectXML:\n" << fileName <<endl;
+delete [] fileName;
+return true;
 }
