@@ -73,6 +73,8 @@
 #include "Index.h"
 #include "ProjectSettings.h"
 #include "ProcessImage.h"
+//#include "Node.h"
+#include "IndexCollection.h"
 #include <libxml/xmlwriter.h>
 #include <libxml/xmlreader.h>
 #define TOOL_VERSION "1.0.0"
@@ -146,5 +148,8 @@ int getConfigDate();
 int getConfigTime();
 bool getandCreateNode(xmlTextReaderPtr reader, char* PjtPath);
 bool saveProjectXML(char* ProjectPath, char* ProjectName);
-
+void SetSIdxValue(char* Idx, char* SIdx,
+																	 char* value, CIndexCollection * objIdxCol,
+																		int NodeId, ENodeType NodeType, bool setDefaultValue);
+ocfmRetCode AddOtherRequiredCNIndexes(int NodeId);
 #endif // declarations_h

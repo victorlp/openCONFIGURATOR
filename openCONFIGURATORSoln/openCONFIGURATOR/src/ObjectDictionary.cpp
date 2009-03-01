@@ -405,3 +405,22 @@ int CObjectDictionary::ifObjectDictSubIndexExists(char* Idx, char* SIdx)
 	else
 		return 0;
 }
+//char* setIndexName(char* ObjectIndex, char* ObjectName)
+//{
+//	char* Name = new char[100];
+//	if(strlen(ObjectIndex) == 2)
+//	Name = strchr(ObjectName, 'X');
+//	int pos = strlen(Name);
+//	int i = 0;
+//	while(i < strlen(ObjectIndex))	
+//	{
+//		if(Name[0] == 'X')
+//		{
+//			Name = ObjectIndex;
+//		}
+//		Name++;
+//		ObjectIndex;		
+//	}
+//	ObjectName = subString(ObjectName, 0, strlen(ObjectName)-pos);
+//	strcat(ObjectName, Name);	
+//}

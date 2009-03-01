@@ -246,6 +246,8 @@ typedef enum
 	DISCARD_AS
 }EAutoSave;
 
+extern int ConfigDate;
+extern int ConfigTime;
 /****************************************************************************************/
 /* Function Declarations
 /*****************************************************************************************/
@@ -301,5 +303,6 @@ DllExport ocfmRetCode SaveProject(char* ProjectPath, char* ProjectName);
 DllExport ocfmRetCode OpenProject(char* PjtPath, char* projectXmlFileName);
 //DllExport ocfmRetCode GetSubIndexCount(char* IndexID, int* IndexCount);
 DllExport ocfmRetCode GenerateMNOBD();
+
 
 #endif // declarations_h

@@ -502,3 +502,185 @@ PIDataInfo* getIECDT(char* dtStr)
 	}
 	return di;
 }
+
+void GenerateXAPHeaderFile(char* fileName, ProcessImage PI_IN[], ProcessImage PI_OUT[], int InVar, int OutVar)
+{
+
+	try
+	{
+		char Buffer[10000];
+		char* strCNID = new char[7];
+		int ModuleNo = 0;
+		char* ModName =  new char[50];
+		char* strModuleNo = new char[16];
+		char* varNo = new char[10];
+						
+		char* strFileName  = new char[strlen(fileName) + 2];
+		strcpy(strFileName, fileName);
+		strcat(strFileName, ".h");
+		/*strFileName = strchr(strFileName, ".");
+		strFileName = subString(strFileName, 0 , strlen(fileName)- 4);
+	*/	
+		//strcpy(strFileName, fileName);
+		FILE* fileptr = new FILE();
+		
+		if (( fileptr = fopen(strFileName,"w+")) == NULL)
+			{
+				ocfmException ex;
+				ex.ocfm_Excpetion(OCFM_ERR_CANNOT_OPEN_FILE);
+				throw ex;						
+			}
+			
+			if(InVar!=0 )
+			{
+				strcpy(Buffer, "typedef struct { \n");	
+				ModuleNo = 0;
+				for(int i = 0; i<InVar ; i++)
+				{					
+					int NodeId;
+					char* str = new char[4];				
+					strModuleNo = itoa(ModuleNo, strModuleNo, 10);
+					
+					NodeId = PI_IN[i].CNNodeID;
+					/*strcat(Buffer, "struct");				
+					strcat(Buffer, " CN");*/
+					strCNID = itoa(PI_IN[i].CNNodeID, strCNID, 10); 
+					/*strcat(Buffer,strCNID);*/
+							/* Add Module No*/
+								
+					if(i != 0)
+					{
+						if(strcmp(PI_IN[i].ModuleName, ModName) !=0)
+						{
+							ModuleNo = ModuleNo  + 1;
+						}
+					}
+					//char* ModName =  new char[strlen(PI_IN[i].ModuleName) + 1];
+					strcpy(ModName, PI_IN[i].ModuleName);
+					
+			
+					printf("\n Module Name: %s",ModName);
+					strcat(Buffer,"unsigned");
+					strcat(Buffer," ");
+					char* varName = new char[100];
+					strcpy(varName, "CN");
+					strCNID = itoa(PI_IN[i].CNNodeID, strCNID, 10); 
+					strcat(varName, strCNID);
+					strcat(varName, "_");
+					
+					/* Add Mod NO*/
+					strcat(varName, "M");
+					strcat(varName, strModuleNo);
+					strcat(varName, "_");
+					
+					strcat(varName, ModName);
+					strcat(varName, "_");
+					strcat(varName, PI_IN[i].VarName);
+					if(strcmp(subString(PI_IN[i].VarName,0, 8), "Reserved")== 0)
+					{
+						varNo =  itoa(i, varNo, 10);
+						strcat(varName, "_");
+						strcat(varName, varNo);
+					}
+					 
+					strcat(Buffer, varName);
+					//strcat(Buffer, PI_IN[i].VarName);
+					strcat(Buffer, ":");
+					str = itoa(PI_IN[i].DataInfo.DataSize, str, 10); 
+					strcat(Buffer, str);
+					strcat(Buffer, ";");
+					
+					strcat(Buffer, "\n");
+					//i++;
+					printf("\nI:%d",i);					
+										
+			}
+			strcat(Buffer, "}");
+			strcat(Buffer, " PI_IN;");	
+		}
+			int len  =  strlen(Buffer);
+			if((fwrite(Buffer, sizeof(char),len,fileptr))!=NULL)
+			{
+				//fclose(fileptr);
+				//printf("Buffer1 written");
+			
+			}
+			
+				if(OutVar!=0 )
+			{
+				strcpy(Buffer, "\ntypedef struct { \n");	
+				ModuleNo = 0;
+				for(int i = 0; i<OutVar ; i++)
+				{					
+						int NodeId;
+					char* str = new char[4];
+					NodeId = PI_OUT[i].CNNodeID;
+					strModuleNo = itoa(ModuleNo, strModuleNo, 10);
+			
+					/*strcat(Buffer, "struct");				
+					strcat(Buffer, " CN");
+					
+				*/	strCNID = itoa(PI_OUT[i].CNNodeID, strCNID, 10); 
+				//strcat(Buffer,strCNID);
+					if(i != 0)
+					{
+						if(strcmp(PI_OUT[i].ModuleName, ModName) !=0)
+						{
+							ModuleNo = ModuleNo  + 1;
+						}
+					}
+					//char* ModName =  new char[strlen(PI_OUT[i].ModuleName) + 1];
+					strcpy(ModName, PI_OUT[i].ModuleName);
+					printf("\n Module Name: %s",ModName);
+					strcat(Buffer,"unsigned");
+					strcat(Buffer," ");
+					char* varName = new char[100];
+					strcpy(varName, "CN");
+					strCNID = itoa(PI_OUT[i].CNNodeID, strCNID, 10); 
+					strcat(varName, strCNID);
+					strcat(varName, "_");
+					
+						/* Add Mod NO*/
+					strcat(varName, "M");
+					strcat(varName, strModuleNo);
+					strcat(varName, "_");
+					
+					strcat(varName, ModName);
+					strcat(varName, "_");
+					strcat(varName, PI_OUT[i].VarName);
+					
+						if(strcmp(subString(PI_OUT[i].VarName,0, 8), "Reserved")== 0)
+					{
+						varNo =  itoa(i, varNo, 10);
+						strcat(varName, "_");
+						strcat(varName, varNo);
+					}
+					
+					strcat(Buffer, varName);
+					//strcat(Buffer, PI_IN[i].VarName);
+					strcat(Buffer, ":");
+					str = itoa(PI_OUT[i].DataInfo.DataSize, str, 10); 
+					strcat(Buffer, str);
+						strcat(Buffer, ";");
+						
+					strcat(Buffer, "\n");
+					//i++;
+							printf("\nI:%d",i);
+								
+			}
+				strcat(Buffer, "}");
+			strcat(Buffer, " PI_OUT;");	
+	
+		}
+			len  =  strlen(Buffer);
+			if((fwrite(Buffer, sizeof(char),len,fileptr))!=NULL)
+			{
+				fclose(fileptr);
+				//printf("Buffer1 written");
+			
+			}
+		
+	}
+		catch(ocfmException& ex)
+		{}
+}

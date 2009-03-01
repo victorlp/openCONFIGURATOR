@@ -263,7 +263,8 @@ bool CheckIfMappingPDO(char* Index)
 bool CheckAllowedCNIndexes(char* IndexValue)
 {
 	if((CheckIfNotPDO((char*)IndexValue)==false)  || CheckIfManufactureSpecificObject((char*)IndexValue) ||
-					strcmp(IndexValue,"1F98")==0)
+					strcmp(IndexValue,"1F98")==0 
+					|| 	strcmp(IndexValue,"1020")==0 )
 	return true;
 	else return false;							
 }

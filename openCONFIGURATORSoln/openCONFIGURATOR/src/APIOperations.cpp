@@ -72,6 +72,7 @@
 #include "../Include/Exception.h"
 #include "../Include/ObjectDictionary.h"
 #include "../Include/ProcessImage.h"
+#include "../Include/Declarations.h"
 #include <iostream>
 #include <fstream>
 #include <stdio.h>
@@ -109,6 +110,8 @@ static stOffsets size64OUTOffset;
 int no8Offsets, no16Offsets, no32Offsets, no64Offsets = 0;
 char C_DLL_ISOCHR_MAX_PAYL[5] = "1490";
 char C_DLL_MIN_ASYNC_MTU[4] = "300";
+int ConfigDate;
+int ConfigTime;
 
 /**************************************************************************************************
 	* Function Name: AddIndexAttributes
@@ -1089,6 +1092,8 @@ char* GenerateCNOBD(CNodeCollection* objNodeCol)
 						{
 							//cout << "Problem" <<endl;
 						}
+						
+							AddOtherRequiredCNIndexes(objNode.getNodeId());
 							objIndexCollection = objNode.getIndexCollection();
 							char* comment= (char*)malloc(30);
 							itoa(CNCount+1,c,10);
@@ -1126,7 +1131,7 @@ char* GenerateCNOBD(CNodeCollection* objNodeCol)
 							}
 							
 							
-							objIndex = getMNIndexValues("1020");
+							objIndex = getMNIndexValues("1");
 							if(objIndex!=NULL)
 							{
 								GetIndexData(objIndex,Buffer4);
@@ -1447,12 +1452,13 @@ ocfmRetCode GenerateCDC(char* fileName)
 
 void  ProcessCDT(CComplexDataType* objCDT,CApplicationProcess* objAppProc,
 																 CNode* objNode, Parameter* para, EPDOType pdoType,
-																 int startingOffset)
+																 int startingOffset, char* ModuleName)
 {
 
 	int StartByteOffset = startingOffset ;
 	ocfmException objex;
 	int StartBitOffset =  -1;
+	
 		
 	{
 		if(objCDT ==NULL)
@@ -1476,7 +1482,7 @@ void  ProcessCDT(CComplexDataType* objCDT,CApplicationProcess* objAppProc,
 				lastVarIndex = i;
 			/*	printf("\n previousCDT_UId : %s",objCDT->previousCDT_UId);
 				printf("\n DataRefID : %s",vd.nam_id_dt_attr->getDtUniqueRefId());
-		*/		ProcessCDT(objCDT, objAppProc, objNode, para, pdoType,StartByteOffset );
+		*/		ProcessCDT(objCDT, objAppProc, objNode, para, pdoType,StartByteOffset, ModuleName );
 			}
 		if(!CDTCompleted)
 		{	
@@ -1505,11 +1511,21 @@ void  ProcessCDT(CComplexDataType* objCDT,CApplicationProcess* objAppProc,
 			}
 				if(vd.nam_id_dt_attr->getName()!=NULL)
 				{
-					pi.Name = (char*)malloc(strlen(vd.nam_id_dt_attr->getName()) +4);
+					pi.Name = (char*)malloc(strlen(vd.nam_id_dt_attr->getName()) + strlen(ModuleName) + 6);
 					strcpy(pi.Name,getPIName(objNode->getNodeId()));
+					strcat(pi.Name, ModuleName);
+					strcat(pi.Name, ".");
 					strcat(pi.Name,vd.nam_id_dt_attr->getName());
+					
+					pi.ModuleName = (char*)malloc(strlen(ModuleName) + 1);
+					strcpy(pi.ModuleName, ModuleName);		
+					
+					pi.VarName = (char*)malloc(strlen(vd.nam_id_dt_attr->getName()) + 1);
+					strcpy(pi.VarName, vd.nam_id_dt_attr->getName());		
 					//printf("\n PI Name: %s",pi.Name);
 				}
+				
+				pi.CNNodeID = objNode->getNodeId();
 					
 				if(vd.nam_id_dt_attr->getDataType()!=NULL)
 				{
@@ -1558,7 +1574,7 @@ void  ProcessCDT(CComplexDataType* objCDT,CApplicationProcess* objAppProc,
 						//printf("\n DataRefID : %s",vd.nam_id_dt_attr->getDtUniqueRefId());
 				
 						lastVarIndex = i;
-						ProcessCDT(objCDT, objAppProc, objNode, para, pdoType, StartByteOffset);
+						ProcessCDT(objCDT, objAppProc, objNode, para, pdoType, StartByteOffset, ModuleName);
 					
 					}						
 				}
@@ -1570,7 +1586,7 @@ void  ProcessCDT(CComplexDataType* objCDT,CApplicationProcess* objAppProc,
 	//printf("exiting");
 }
 
-void DecodeUniqiueIDRef(char* uniquedIdref, CNode* objNode, EPDOType pdoType, int startingOffset)
+void DecodeUniqiueIDRef(char* uniquedIdref, CNode* objNode, EPDOType pdoType, int startingOffset,char* ModuleName)
 {
 	ocfmException objex;
 	Parameter* para;
@@ -1612,7 +1628,7 @@ void DecodeUniqiueIDRef(char* uniquedIdref, CNode* objNode, EPDOType pdoType, in
 							objex.ocfm_Excpetion(OCFM_ERR_STRUCT_DATATYPE_NOT_FOUND);
 							throw objex;
 						}
-						ProcessCDT(objCDT, objAppProc, objNode, para, pdoType, startingOffset); 
+						ProcessCDT(objCDT, objAppProc, objNode, para, pdoType, startingOffset, ModuleName); 
 						lastVarIndex = -1;
 						CDTCompleted = false;
 				}
@@ -1843,7 +1859,7 @@ ocfmRetCode ProcessPDONodes()
 													//printf("\n NodeID %d",objNode->getNodeId());
 														if(objSIndex->getUniqueIDRef()!=NULL)
 														{
-															DecodeUniqiueIDRef(objSIndex->getUniqueIDRef(), objNode, objIndex->getPDOType(), Offset);
+															DecodeUniqiueIDRef(objSIndex->getUniqueIDRef(), objNode, objIndex->getPDOType(), Offset,(char*) objModuleIndex->getName());
 															
 														}
 														else
@@ -2318,6 +2334,10 @@ ocfmRetCode GenerateXAP(char* fileName)
 			WriteXAPElements(PIOutCol, writer, OutVars, OUTPUT);
 
 			EndWrtitingXAP(writer, fileName, doc);
+			
+			/*Generate Header file */			
+			
+			GenerateXAPHeaderFile (fileName, PIInCol, PIOutCol, InVars, OutVars);
 			return objException._ocfmRetCode;
 		}
 		catch(ocfmException& ex)
@@ -3619,7 +3639,9 @@ void GetMNPDOSubIndex(MNPdoVariable var, int& prevSubIndex, CIndex* objIdx,char*
 			objSubIndex->setActualValue(actValue);
 		/*	return *objSubIndex;*/
 }
-void SetSIdxValue(char* Idx, char* SIdx, char* value, CIndexCollection * objIdxCol, int NodeId, bool setDefaultValue)
+void SetSIdxValue(char* Idx, char* SIdx,
+																	 char* value, CIndexCollection * objIdxCol,
+																		int NodeId, ENodeType NodeType, bool setDefaultValue)
 {
 		CIndex *objIndex;
 		CSubIndex* objSIdx;
@@ -3629,7 +3651,7 @@ void SetSIdxValue(char* Idx, char* SIdx, char* value, CIndexCollection * objIdxC
 						cout << "sidx idx" << Idx << SIdx << endl;;
 						
 					#endif
-		if(CheckIfSubIndexExists(NodeId, MN, Idx, SIdx))
+		if(CheckIfSubIndexExists(NodeId, NodeType, Idx, SIdx))
 		{			
 			#if defined DEBUG	
 						cout << "subindex fetched" << endl;;
@@ -3647,7 +3669,7 @@ void SetSIdxValue(char* Idx, char* SIdx, char* value, CIndexCollection * objIdxC
 						cout << "call addindex" << endl;
 						
 					#endif
-			retCode = AddSubIndex(NodeId, MN, Idx, SIdx);
+			retCode = AddSubIndex(NodeId, NodeType, Idx, SIdx);
 				#if defined DEBUG	
 						cout << "retcode" << retCode.code<<endl;
 						cout<< "Index sidx added"<< Idx << SIdx;
@@ -3692,7 +3714,7 @@ void AddForEachSIdx(char* Idx,CIndexCollection * objIdxCol, int MNNodeID,char* V
 			IndexNo = itoa(objNodeCol->getCNNodesCount(), IndexNo, 16);
 			IndexNo = padLeft(IndexNo, '0', 2);
 			
-			SetSIdxValue(Idx, SIdx, IndexNo , objIdxCol, MNNodeID,false);
+			SetSIdxValue(Idx, SIdx, IndexNo , objIdxCol, MNNodeID, MN, false);
 		}
 				
 		for(int i = 0; i< objNodeCol->getNumberOfNodes(); i++)
@@ -3716,17 +3738,17 @@ void AddForEachSIdx(char* Idx,CIndexCollection * objIdxCol, int MNNodeID,char* V
 					
 					if(objCNIndex->getActualValue() != NULL)
 					{
-						SetSIdxValue(Idx,SIdx,(char*)objCNIndex->getActualValue(), objIdxCol, MNNodeID, false);
+						SetSIdxValue(Idx,SIdx,(char*)objCNIndex->getActualValue(), objIdxCol, MNNodeID, MN, false);
 					}
 					else
 					{
-						SetSIdxValue(Idx,SIdx,(char*)objCNIndex->getActualValue(), objIdxCol, MNNodeID, true);
+						SetSIdxValue(Idx,SIdx,(char*)objCNIndex->getActualValue(), objIdxCol, MNNodeID, MN, true);
 					}
 										
 				}
 				else
 				{
-					SetSIdxValue(Idx,SIdx,Value, objIdxCol, MNNodeID,setDefaultValue);
+					SetSIdxValue(Idx,SIdx,Value, objIdxCol, MNNodeID, MN, setDefaultValue);
 				}
 			/*	if(CheckIfSubIndexExists(MNNodeID, MN, Idx, SIdx))
 				{						
@@ -3811,21 +3833,21 @@ ocfmRetCode AddOtherMNIndexes(CNode *objNode)
 						
 						/* Set subindex value 40 or 0000028 */
 						strcpy(Sidx, "00");
-						SetSIdxValue(MNIndex, Sidx, "3", objIdxCol, objNode->getNodeId(), false);
+						SetSIdxValue(MNIndex, Sidx, "3", objIdxCol, objNode->getNodeId(), MN, false);
 								#if defined DEBUG	
 						cout<< "1c02 subidex added"<<endl;
 					#endif
 						
 						strcpy(Sidx, "01");
-						SetSIdxValue(MNIndex, Sidx, "40", objIdxCol, objNode->getNodeId(), false);
+						SetSIdxValue(MNIndex, Sidx, "40", objIdxCol, objNode->getNodeId(), MN,  false);
 								#if defined DEBUG	
 						cout<< "1c02 subidex 01 added"<<endl;
 					#endif
 						strcpy(Sidx, "02");
-						SetSIdxValue(MNIndex, Sidx, "40", objIdxCol, objNode->getNodeId(), false);
+						SetSIdxValue(MNIndex, Sidx, "40", objIdxCol, objNode->getNodeId(), MN, false);
 						
 						strcpy(Sidx, "03");
-						SetSIdxValue(MNIndex, Sidx, "40", objIdxCol, objNode->getNodeId(), false);
+						SetSIdxValue(MNIndex, Sidx, "40", objIdxCol, objNode->getNodeId(), MN, false);
 
 					}
 					
@@ -3846,12 +3868,14 @@ ocfmRetCode AddOtherMNIndexes(CNode *objNode)
 					if(retCode.code == OCFM_ERR_SUCCESS)
 					{				
 						objIndex = objIdxCol->getIndexbyIndexValue(MNIndex);
-						char* hexVal = new char[8];
-						hexVal = itoa(getConfigDate(),hexVal, 16);
-						hexVal = padLeft(hexVal, '0' , 8);
-						AddForEachSIdx(MNIndex, objIdxCol, objNode->getNodeId(), hexVal, false);		
+						char* Val = new char[8];
+						ConfigDate = getConfigDate();
+						Val = itoa(ConfigDate,Val, 10);
+						//hexVal = padLeft(hexVal, '0' , 8);
+						AddForEachSIdx(MNIndex, objIdxCol, objNode->getNodeId(), Val, false);		
 											
-					
+										//AddForEachSIdx(MNIndex, objIdxCol, objNode->getNodeId(), hexVal, false);		
+	
 					}
 					
 							#if defined DEBUG	
@@ -3863,12 +3887,14 @@ ocfmRetCode AddOtherMNIndexes(CNode *objNode)
 					if(retCode.code == OCFM_ERR_SUCCESS)
 					{				
 						objIndex = objIdxCol->getIndexbyIndexValue(MNIndex);		
-						char* hexVal = new char[8];
-						hexVal = itoa(getConfigTime(),hexVal, 16);
-						hexVal = padLeft(hexVal, '0' , 8);
+						char* Val = new char[8];
+						ConfigTime = getConfigTime();
+						Val = itoa(ConfigTime,Val, 10);
+						//Val = padLeft(hexVal, '0' , 8);
 
-						AddForEachSIdx(MNIndex, objIdxCol, objNode->getNodeId(), hexVal, false);														
+						AddForEachSIdx(MNIndex, objIdxCol, objNode->getNodeId(), Val, false);														
 					
+					//AddForEachSIdx(MNIndex, objIdxCol, objNode->getNodeId(), getConfigTime(), false);		
 					}
 					
 					
@@ -3895,7 +3921,7 @@ ocfmRetCode AddOtherMNIndexes(CNode *objNode)
 						SetSIdxValue(MNIndex, Sidx, "", objIdxCol, objNode->getNodeId(),true);
 				*/	
 						strcpy(Sidx, "02");
-						SetSIdxValue(MNIndex, Sidx, "", objIdxCol, objNode->getNodeId(), true);
+						SetSIdxValue(MNIndex, Sidx, "", objIdxCol, objNode->getNodeId(), MN, true);
 				
 					/*		strcpy(Sidx, "03");
 						SetSIdxValue(MNIndex, Sidx, "", objIdxCol, objNode->getNodeId(), true);
@@ -3926,14 +3952,14 @@ ocfmRetCode AddOtherMNIndexes(CNode *objNode)
 					if(retCode.code == OCFM_ERR_SUCCESS)
 					{				
 						strcpy(Sidx, "00");
-						SetSIdxValue(MNIndex, Sidx, "", objIdxCol, objNode->getNodeId(),true);
+						SetSIdxValue(MNIndex, Sidx, "", objIdxCol, objNode->getNodeId(), MN, true);
 						
 						//$:To do By M as subindex 01 shud be equal to 02, need to find the reason 
 						strcpy(Sidx, "01");
-						SetSIdxValue(MNIndex, Sidx, "100000", objIdxCol, objNode->getNodeId(),false);
+						SetSIdxValue(MNIndex, Sidx, "100000", objIdxCol, objNode->getNodeId(), MN, false);
 					
 						strcpy(Sidx, "02");
-						SetSIdxValue(MNIndex, Sidx, "", objIdxCol, objNode->getNodeId(), true);
+						SetSIdxValue(MNIndex, Sidx, "", objIdxCol, objNode->getNodeId(), MN, true);
 						
 					/*	strcpy(Sidx, "03");
 						SetSIdxValue(MNIndex, Sidx, "", objIdxCol, objNode->getNodeId(), true);
@@ -4000,7 +4026,7 @@ ocfmRetCode AddOtherMNIndexes(CNode *objNode)
 					{				
 					
 						strcpy(Sidx, "05");
-						SetSIdxValue(MNIndex, Sidx, C_DLL_ISOCHR_MAX_PAYL, objIdxCol, objNode->getNodeId(), false);
+						SetSIdxValue(MNIndex, Sidx, C_DLL_ISOCHR_MAX_PAYL, objIdxCol, objNode->getNodeId(), MN, false);
 						
 						/*strcpy(Sidx, "00");
 						SetSIdxValue(MNIndex, Sidx, "", objIdxCol, objNode->getNodeId(),true);

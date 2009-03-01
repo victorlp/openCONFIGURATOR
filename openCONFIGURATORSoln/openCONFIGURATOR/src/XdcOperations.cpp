@@ -69,7 +69,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "../Include/openCONFIGURATOR.h"
-//#include "../Include/Internal.h"
+#include "../Include/Declarations.h"
 #include "../Include/Exception.h"
 #include <iostream>
 #include <fstream>
@@ -566,6 +566,11 @@ ocfmRetCode ImportXML(char* fileName, int NodeID, ENodeType NodeType)
 			* this is to debug memory for regression tests
 			*/
 			xmlMemoryDump();
+		
+			/* Add other required index*/		
+			if(NodeType == CN)
+			AddOtherRequiredCNIndexes(NodeID);
+			
 			ErrStruct.code = OCFM_ERR_SUCCESS;
 			return ErrStruct;
 		}
@@ -1742,3 +1747,58 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 	ErrStruct.code = OCFM_ERR_SUCCESS;
 	return ErrStruct;	
 }
+ocfmRetCode AddOtherRequiredCNIndexes(int NodeId)
+{
+			ocfmRetCode retCode;
+			char* MNIndex = new char[4];		
+			char* Sidx =  new char[2];
+			CIndex* objIndex;
+			CSubIndex* objSIdx;
+			CIndexCollection* objIdxCol;
+			CNodeCollection* objNodeCol;
+			CNode* objNode;
+			try
+			{
+				objNodeCol =  CNodeCollection::getNodeColObjectPointer();
+				objNode =  objNodeCol->getNodePtr(CN, NodeId);
+				objIdxCol = objNode->getIndexCollection();
+					
+				/* Add 1006*/
+					strcpy(MNIndex, "1020");
+							#if defined DEBUG	
+						cout << "string copied" << endl;
+					
+					#endif
+					retCode = AddIndex(objNode->getNodeId(), CN, MNIndex);
+						#if defined DEBUG	
+						cout << "retcode" << retCode.code<<endl;
+						cout<< "1020 added"<<endl;
+					#endif
+					if((retCode.code != 0) && (retCode.code != OCFM_ERR_INDEX_ALREADY_EXISTS ))
+					return retCode;
+					
+					char* Val = new char[16];
+					Val = itoa(ConfigDate,Val, 10);
+				
+					/* Set 5ms value*/
+						/* Set subindex value 40 or 0000028 */
+								
+						strcpy(Sidx, "01");
+						SetSIdxValue(MNIndex, Sidx, Val, objIdxCol, objNode->getNodeId(), CN,  false);
+							
+						Val = itoa(ConfigTime,Val, 10);
+				
+						strcpy(Sidx, "02");
+						SetSIdxValue(MNIndex, Sidx, Val, objIdxCol, objNode->getNodeId(), CN, false);
+						
+					
+				}
+				catch(ocfmException& ex)
+				{
+					return ex._ocfmRetCode;
+				}
+				
+				
+	}
+					
+					
