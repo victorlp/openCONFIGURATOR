@@ -1095,7 +1095,7 @@ char* GenerateCNOBD(CNodeCollection* objNodeCol)
 						
 							AddOtherRequiredCNIndexes(objNode.getNodeId());
 							objIndexCollection = objNode.getIndexCollection();
-							char* comment= (char*)malloc(30);
+							char* comment= (char*)malloc(50);
 							itoa(CNCount+1,c,10);
 							CNCount++;
 							
@@ -1108,6 +1108,8 @@ char* GenerateCNOBD(CNodeCollection* objNodeCol)
 								printf("\nComments for CN-%d",count);
 								fclose(fileptr);
 							}
+							
+							delete[] comment;
 							//comment = strcat(comment,(char*)count);
 							/*strcpy(Buffer2, comment);*/
 							int NumberOfIndexes;
@@ -1121,22 +1123,32 @@ char* GenerateCNOBD(CNodeCollection* objNodeCol)
 							Buffer4 = (char*)malloc(2000);	
 							objIndex = getMNIndexValues("1006");
 							Buffer2 = (char*)malloc(2000);		
+							#if defined DEBUG	
+						cout << "before strcpy" << endl;
+					
+					#endif		
 							strcpy(Buffer2, "");
 							strcpy(Buffer4, "");
-									
+								#if defined DEBUG	
+						cout << "before writing 1006" << endl;
+					
+					#endif		
 							if(objIndex!=NULL)
 							{
 								GetIndexData(objIndex,Buffer4);
 								strcpy(Buffer2, Buffer4);
 							}
 							
-							
-							objIndex = getMNIndexValues("1");
+									#if defined DEBUG	
+						cout << "after writing 1006" << endl;
+					
+					#endif		
+						/*	objIndex = getMNIndexValues("1");
 							if(objIndex!=NULL)
 							{
 								GetIndexData(objIndex,Buffer4);
 								strcat(Buffer2, Buffer4);
-							}
+							}*/
 							
 							/*************WRITE Other Required CN Indexes in CDC *******************************/
 								for(int i=0; i<NumberOfIndexes; i++)
@@ -1150,7 +1162,10 @@ char* GenerateCNOBD(CNodeCollection* objNodeCol)
 								*/
 								if(CheckAllowedCNIndexes((char*)IndexValue))
 								{
-																								
+													#if defined DEBUG	
+						cout << "IndexValue:" << IndexValue <<endl;
+					
+					#endif																
 											GetIndexData(objIndex, Buffer4);
 											strcat(Buffer2, Buffer4);
 										
@@ -1407,7 +1422,12 @@ ocfmRetCode GenerateCDC(char* fileName)
 			
 			//printf("\nText cdc generated");
 			// Convert CDC txt file to Binary
-			ConvertCdcToBinary(fileName,(char*) tempFileName);
+			//ConvertCdcToBinary(fileName,(char*) tempFileName);
+			#if defined(_WIN32) && defined(_MSC_VER)
+			system("convert.bat");
+			#else
+			system("convert.sh");
+			#endif
 			retCode.code =  OCFM_ERR_SUCCESS ;
 			return retCode;
 		}
@@ -1452,7 +1472,7 @@ ocfmRetCode GenerateCDC(char* fileName)
 
 void  ProcessCDT(CComplexDataType* objCDT,CApplicationProcess* objAppProc,
 																 CNode* objNode, Parameter* para, EPDOType pdoType,
-																 int startingOffset, char* ModuleName)
+																 int startingOffset, char* ModuleName, char* ModuleIndex)
 {
 
 	int StartByteOffset = startingOffset ;
@@ -1482,7 +1502,7 @@ void  ProcessCDT(CComplexDataType* objCDT,CApplicationProcess* objAppProc,
 				lastVarIndex = i;
 			/*	printf("\n previousCDT_UId : %s",objCDT->previousCDT_UId);
 				printf("\n DataRefID : %s",vd.nam_id_dt_attr->getDtUniqueRefId());
-		*/		ProcessCDT(objCDT, objAppProc, objNode, para, pdoType,StartByteOffset, ModuleName );
+		*/		ProcessCDT(objCDT, objAppProc, objNode, para, pdoType,StartByteOffset, ModuleName, ModuleIndex );
 			}
 		if(!CDTCompleted)
 		{	
@@ -1519,6 +1539,9 @@ void  ProcessCDT(CComplexDataType* objCDT,CApplicationProcess* objAppProc,
 					
 					pi.ModuleName = (char*)malloc(strlen(ModuleName) + 1);
 					strcpy(pi.ModuleName, ModuleName);		
+					
+						pi.ModuleIndex = (char*)malloc(strlen(ModuleIndex) + 1);
+					strcpy(pi.ModuleIndex, ModuleIndex);	
 					
 					pi.VarName = (char*)malloc(strlen(vd.nam_id_dt_attr->getName()) + 1);
 					strcpy(pi.VarName, vd.nam_id_dt_attr->getName());		
@@ -1574,7 +1597,7 @@ void  ProcessCDT(CComplexDataType* objCDT,CApplicationProcess* objAppProc,
 						//printf("\n DataRefID : %s",vd.nam_id_dt_attr->getDtUniqueRefId());
 				
 						lastVarIndex = i;
-						ProcessCDT(objCDT, objAppProc, objNode, para, pdoType, StartByteOffset, ModuleName);
+						ProcessCDT(objCDT, objAppProc, objNode, para, pdoType, StartByteOffset, ModuleName,ModuleIndex);
 					
 					}						
 				}
@@ -1586,7 +1609,7 @@ void  ProcessCDT(CComplexDataType* objCDT,CApplicationProcess* objAppProc,
 	//printf("exiting");
 }
 
-void DecodeUniqiueIDRef(char* uniquedIdref, CNode* objNode, EPDOType pdoType, int startingOffset,char* ModuleName)
+void DecodeUniqiueIDRef(char* uniquedIdref, CNode* objNode, EPDOType pdoType, int startingOffset,char* ModuleName, char* ModuleIndex)
 {
 	ocfmException objex;
 	Parameter* para;
@@ -1628,7 +1651,7 @@ void DecodeUniqiueIDRef(char* uniquedIdref, CNode* objNode, EPDOType pdoType, in
 							objex.ocfm_Excpetion(OCFM_ERR_STRUCT_DATATYPE_NOT_FOUND);
 							throw objex;
 						}
-						ProcessCDT(objCDT, objAppProc, objNode, para, pdoType, startingOffset, ModuleName); 
+						ProcessCDT(objCDT, objAppProc, objNode, para, pdoType, startingOffset, ModuleName, ModuleIndex); 
 						lastVarIndex = -1;
 						CDTCompleted = false;
 				}
@@ -1859,7 +1882,7 @@ ocfmRetCode ProcessPDONodes()
 													//printf("\n NodeID %d",objNode->getNodeId());
 														if(objSIndex->getUniqueIDRef()!=NULL)
 														{
-															DecodeUniqiueIDRef(objSIndex->getUniqueIDRef(), objNode, objIndex->getPDOType(), Offset,(char*) objModuleIndex->getName());
+															DecodeUniqiueIDRef(objSIndex->getUniqueIDRef(), objNode, objIndex->getPDOType(), Offset,(char*) objModuleIndex->getName(), (char*)objModuleIndex->getIndexValue());
 															
 														}
 														else
@@ -3524,7 +3547,8 @@ ocfmRetCode SaveProject(char* ProjectPath, char* ProjectName)
 	{	
 		#if defined(_WIN32) && defined(_MSC_VER)
 		{
-			sprintf(path, "%s\%s", ProjectPath, ProjectName);				
+			sprintf(path, "%s\\%s", ProjectPath, ProjectName);
+			cout << "\npath:" << path <<endl;
 			mkdir(path);
 		}
 		#else
@@ -3560,7 +3584,8 @@ ocfmRetCode SaveProject(char* ProjectPath, char* ProjectName)
 					//sprintf(path, "%s\%s", ProjectPath, ProjectName);				
 					//mkdir(path);
 					// Saves the nodes with their nodeId as the name
-					sprintf(fileName, "%s\%d.xdc", path, objNode.getNodeId());
+					sprintf(fileName, "%s\\%d.xdc", path, objNode.getNodeId());
+					cout << "\nSave Pjt fileName:" << fileName << endl;
 				}
 				#else
 				{
@@ -3785,7 +3810,7 @@ void AddForEachSIdx(char* Idx,CIndexCollection * objIdxCol, int MNNodeID,char* V
 		
 	}
 }
-ocfmRetCode AddOtherMNIndexes(CNode *objNode)
+ocfmRetCode AddOtherMNIndexes(CNode *objNode, char* tmp_CycleTime)
 {
 			ocfmRetCode retCode;
 			char* MNIndex = new char[4];		
@@ -3810,8 +3835,9 @@ ocfmRetCode AddOtherMNIndexes(CNode *objNode)
 						cout<< "1006 added"<<endl;
 					#endif
 					
-					/* Set 5ms value*/
-					SetIndexAttributes(240, MN, MNIndex, "5000","NMT_CycleLen_U32");
+					/* Set 5ms value*/	
+					//cout << "\ntmp_CycleTime:" << tmp_CycleTime <<endl;
+					SetIndexAttributes(240, MN, MNIndex, tmp_CycleTime,"NMT_CycleLen_U32");
 					
 						/* Add 1020*/
 					strcpy(MNIndex, "1020");
@@ -4092,13 +4118,53 @@ ocfmRetCode GenerateMNOBD()
 					#endif
 				if(retCode.code != OCFM_ERR_SUCCESS)
 				return retCode;
+				char* tmp_CycleTime;
+				tmp_CycleTime = new char[20];
+				
+				CNode objNode;		
+				CNodeCollection *objNodeCollection;
+				CIndexCollection *objIndexCollection;
+				CIndex objIndex;
+				
+				objNodeCollection = CNodeCollection::getNodeColObjectPointer();
+				objNode = objNodeCollection->getNode(MN, 240);
+				objIndexCollection = objNode.getIndexCollection();
+				//Check for existance of the Index
+				for(int tmpIndexcount = 0; tmpIndexcount < objIndexCollection->getNumberofIndexes(); tmpIndexcount++)
+				{
+					CIndex* objIndexPtr;
+					objIndexPtr =objIndexCollection->getIndex(tmpIndexcount);						
+					//printf("IndexValue:%s-%s\n", objIndexPtr->getIndexValue(), IndexID);
+					char *str = new char[50];
+						strcpy(str, (char*)objIndexPtr->getIndexValue());
+									
+			
+					if((strcmp(ConvertToUpper(str), "1006") == 0))
+					{
+						//printf("Index Already Exists tmpIndexcount:%d!\n",tmpIndexcount);
+						CIndex* objIndexPtr;
+						objIndexPtr = objIndexCollection->getIndex(tmpIndexcount);
+						//cout<< "objIndex.getName():" << objIndexPtr->getName() << endl;
+						if(objIndexPtr->getActualValue() == NULL)
+						{
+							cout<< "objIndex.getActualValue():NULL" << endl;
+							strcpy(tmp_CycleTime, "50000");
+						}
+						else
+						{
+							cout<< "objIndex.getActualValue():" << objIndexPtr->getActualValue() << endl;
+							strcpy(tmp_CycleTime, (char*)objIndexPtr->getActualValue());
+						}
+					}
+				}
+				
 				/* Delete the MN's old object dictionary*/
 				DeleteNodeObjDict(240, MN);		
 						#if defined DEBUG	
 						cout<< "MN Node Object dictionary deleted"<<endl;
 					#endif
 				/* Add other Indexes than PDO*/
-					AddOtherMNIndexes(objMNNode);
+					AddOtherMNIndexes(objMNNode, tmp_CycleTime);
 					#if defined DEBUG	
 						cout<< "Index added"<<endl;
 					#endif
@@ -4758,7 +4824,8 @@ ocfmRetCode OpenProject(char* PjtPath, char* projectXmlFileName)
 	fileName = new char[(strlen(PjtPath) + strlen(projectXmlFileName) + 5)];
 	#if defined(_WIN32) && defined(_MSC_VER)
 	{		
-		sprintf(fileName, "%s\%s", PjtPath, projectXmlFileName);	
+		sprintf(fileName, "%s\\%s", PjtPath, projectXmlFileName);	
+		cout << "\nSave Pjt fileName:" << fileName << endl;
 	}
 	#else
 	{
@@ -5257,11 +5324,12 @@ xmlDocPtr doc;
 int rc;
 
 char* fileName;
-fileName = new char[(strlen(ProjectPath) + strlen(ProjectName) + strlen(ProjectName) + 5)];
+fileName = new char[(strlen(ProjectPath) + strlen(ProjectName) + strlen(ProjectName) + 10)];
 
 #if defined(_WIN32) && defined(_MSC_VER)
 {
-	sprintf(fileName, "%s\%s\%s.oct", ProjectPath, ProjectName, ProjectName);
+	sprintf(fileName, "%s\\%s\\%s.oct", ProjectPath, ProjectName, ProjectName);
+	cout << "fileName:" << fileName << endl;
 }
 #else
 {
@@ -5342,7 +5410,7 @@ if (rc < 0)
 	// End Auto Tag
 	rc = xmlTextWriterEndElement(writer);
 	if (rc < 0)
-	{
+	{		
 		printf("testXmlwriterDoc: Error at xmlTextWriterEndElement\n");
 		ocfmException* objException = new ocfmException;
 		objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
@@ -5495,14 +5563,14 @@ if (rc < 0)
 	objException->ocfm_Excpetion(OCFM_ERR_XML_END_DOC_FAILED);
 	throw objException;
 }
-cout << "\n5" << endl;
+
 xmlFreeTextWriter(writer);
 
 xmlSaveFileEnc(fileName, doc, MY_ENCODING);
 
 xmlFreeDoc(doc);	
 
-cout << "\nsaveProjectXML:\n" << fileName <<endl;
+//cout << "\nsaveProjectXML:\n" << fileName <<endl;
 delete [] fileName;
 return true;
 }

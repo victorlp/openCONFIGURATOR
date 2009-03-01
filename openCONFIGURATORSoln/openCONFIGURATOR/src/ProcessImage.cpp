@@ -79,6 +79,7 @@
 
 int InVars =0;
 int OutVars = 0;
+ModuleCol modCol[2000]; 
 //extern ProcessImage PIInCol[4000] = {};
 //extern ProcessImage PIOutCol[4000]= {};
 
@@ -502,15 +503,29 @@ PIDataInfo* getIECDT(char* dtStr)
 	}
 	return di;
 }
-
+bool CheckIfModuleExists(char* ModuleName, int & ModuleNo, int NoOfModules, ModuleCol modCol[])
+{
+	for(int i=0; i<= NoOfModules; i++)
+	{
+		if(strcmp(ModuleName, modCol[i].ModuleName) ==0)
+		{
+			ModuleNo = modCol[i].ModuleNo ;
+			return true;
+		}
+			
+	}
+	return false;
+}
 void GenerateXAPHeaderFile(char* fileName, ProcessImage PI_IN[], ProcessImage PI_OUT[], int InVar, int OutVar)
 {
 
 	try
 	{
 		char Buffer[10000];
+			
 		char* strCNID = new char[7];
 		int ModuleNo = 0;
+		int LastModuleNo = 0;
 		char* ModName =  new char[50];
 		char* strModuleNo = new char[16];
 		char* varNo = new char[10];
@@ -518,9 +533,8 @@ void GenerateXAPHeaderFile(char* fileName, ProcessImage PI_IN[], ProcessImage PI
 		char* strFileName  = new char[strlen(fileName) + 2];
 		strcpy(strFileName, fileName);
 		strcat(strFileName, ".h");
-		/*strFileName = strchr(strFileName, ".");
-		strFileName = subString(strFileName, 0 , strlen(fileName)- 4);
-	*/	
+		
+  ModuleCol	modCol[1000];
 		//strcpy(strFileName, fileName);
 		FILE* fileptr = new FILE();
 		
@@ -539,7 +553,7 @@ void GenerateXAPHeaderFile(char* fileName, ProcessImage PI_IN[], ProcessImage PI
 				{					
 					int NodeId;
 					char* str = new char[4];				
-					strModuleNo = itoa(ModuleNo, strModuleNo, 10);
+					
 					
 					NodeId = PI_IN[i].CNNodeID;
 					/*strcat(Buffer, "struct");				
@@ -547,19 +561,37 @@ void GenerateXAPHeaderFile(char* fileName, ProcessImage PI_IN[], ProcessImage PI
 					strCNID = itoa(PI_IN[i].CNNodeID, strCNID, 10); 
 					/*strcat(Buffer,strCNID);*/
 							/* Add Module No*/
-								
-					if(i != 0)
-					{
-						if(strcmp(PI_IN[i].ModuleName, ModName) !=0)
+					
+					/*if(i != 0)
+					{*/
+					/*	if(strcmp(PI_IN[i].ModuleName, ModName) !=0)
 						{
-							ModuleNo = ModuleNo  + 1;
-						}
+							
+							if(CheckIfModuleExists(PI_IN[i].ModuleName, ModuleNo, LastModuleNo, modCol))
+							{
+								strModuleNo = itoa(ModuleNo, strModuleNo, 10);
+							}
+							else
+							{
+								LastModuleNo = LastModuleNo  + 1;	
+								strcpy(modCol[LastModuleNo].ModuleName, PI_IN[i].ModuleName);
+								modCol[LastModuleNo].ModuleNo = LastModuleNo; 	
+								strModuleNo = itoa(LastModuleNo, strModuleNo, 10);					
+								}
+							}
 					}
+					else
+					{
+							strcpy(modCol[LastModuleNo].ModuleName, PI_IN[i].ModuleName);
+							modCol[LastModuleNo].ModuleNo = LastModuleNo; 
+							strModuleNo = itoa(ModuleNo, strModuleNo, 10);
+					}*/
 					//char* ModName =  new char[strlen(PI_IN[i].ModuleName) + 1];
+					strcpy(strModuleNo, subString( PI_IN[i].ModuleIndex,2, 2));
 					strcpy(ModName, PI_IN[i].ModuleName);
 					
 			
-					printf("\n Module Name: %s",ModName);
+					//printf("\n Module Name: %s",ModName);
 					strcat(Buffer,"unsigned");
 					strcat(Buffer," ");
 					char* varName = new char[100];
@@ -610,28 +642,40 @@ void GenerateXAPHeaderFile(char* fileName, ProcessImage PI_IN[], ProcessImage PI
 			{
 				strcpy(Buffer, "\ntypedef struct { \n");	
 				ModuleNo = 0;
+				//LastModuleNo = 0;
 				for(int i = 0; i<OutVar ; i++)
 				{					
 						int NodeId;
 					char* str = new char[4];
 					NodeId = PI_OUT[i].CNNodeID;
-					strModuleNo = itoa(ModuleNo, strModuleNo, 10);
-			
+					
+					strcpy(ModName, "");
 					/*strcat(Buffer, "struct");				
 					strcat(Buffer, " CN");
 					
 				*/	strCNID = itoa(PI_OUT[i].CNNodeID, strCNID, 10); 
 				//strcat(Buffer,strCNID);
-					if(i != 0)
-					{
-						if(strcmp(PI_OUT[i].ModuleName, ModName) !=0)
-						{
-							ModuleNo = ModuleNo  + 1;
-						}
-					}
+				/*		if(strcmp(PI_OUT[i].ModuleName, ModName) !=0)
+						{							
+								if(CheckIfModuleExists(PI_OUT[i].ModuleName, ModuleNo, LastModuleNo, modCol))
+								{
+									strModuleNo = itoa(ModuleNo, strModuleNo, 10);
+								}
+								else
+								{
+									LastModuleNo = LastModuleNo  + 1;	
+									strcpy(modCol[ModuleNo].ModuleName, PI_OUT[i].ModuleName);
+									modCol[ModuleNo].ModuleNo = LastModuleNo; 	
+									strModuleNo = itoa(LastModuleNo, strModuleNo, 10);					
+								}
+							}
+							else							
+							strModuleNo = itoa(LastModuleNo, strModuleNo, 10);
+			*/	
 					//char* ModName =  new char[strlen(PI_OUT[i].ModuleName) + 1];
+					strcpy(strModuleNo, subString( PI_OUT[i].ModuleIndex,2, 2));
 					strcpy(ModName, PI_OUT[i].ModuleName);
-					printf("\n Module Name: %s",ModName);
+					//printf("\n Module Name: %s",ModName);
 					strcat(Buffer,"unsigned");
 					strcat(Buffer," ");
 					char* varName = new char[100];
@@ -679,8 +723,10 @@ void GenerateXAPHeaderFile(char* fileName, ProcessImage PI_IN[], ProcessImage PI
 				//printf("Buffer1 written");
 			
 			}
+		}
 		
-	}
+
 		catch(ocfmException& ex)
-		{}
+		{
+		}
 }

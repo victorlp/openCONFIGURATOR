@@ -78,6 +78,8 @@
 #include <libxml/xmlwriter.h>
 #include <libxml/xmlreader.h>
 #define TOOL_VERSION "1.0.0"
+extern int ConfigDate;
+extern int ConfigTime;
 static const int g_simple_arr_size = 19;
 static const char *g_Simple[][2] = {
 																										{"BOOL" ,    "1"},

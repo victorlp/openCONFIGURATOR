@@ -133,6 +133,7 @@ struct ProcessImage
 		char*					ModuleName;
 		int							CNNodeID;
 		char*					VarName;
+		char*					ModuleIndex;
 		void Initialize()
 		{
 			ParametrIndex = 0;
@@ -172,7 +173,11 @@ static StAddressTable AddressTable[12] = {
 																												{"A051", INTEGER32,			OUTPUT},
 																												
 																												};			
-
+struct ModuleCol
+{
+	int ModuleNo;
+	char ModuleName[50];
+};
 
 //void GroupInOutPIVariables();
 void GroupInOutPIVariables(ProcessImage PIInCol[], ProcessImage PIOutCol[]);
