@@ -73,7 +73,7 @@
 #include "Index.h"
 #include "ProjectSettings.h"
 #include "ProcessImage.h"
-//#include "Node.h"
+#include "Node.h"
 #include "IndexCollection.h"
 #include <libxml/xmlwriter.h>
 #include <libxml/xmlreader.h>
@@ -147,11 +147,12 @@ bool IfVersionNumberMatches(xmlTextReaderPtr reader);
 bool setProjectSettings_Auto(xmlTextReaderPtr reader);
 bool setProjectSettings_Communication(xmlTextReaderPtr reader);
 int getConfigDate();
-int getConfigTime();
+int getConfigTime_Sec();
 bool getandCreateNode(xmlTextReaderPtr reader, char* PjtPath);
 bool saveProjectXML(char* ProjectPath, char* ProjectName);
 void SetSIdxValue(char* Idx, char* SIdx,
 																	 char* value, CIndexCollection * objIdxCol,
 																		int NodeId, ENodeType NodeType, bool setDefaultValue);
 ocfmRetCode AddOtherRequiredCNIndexes(int NodeId);
+void CreateMNPDOVar(int Offset, int dataSize,IEC_Datatype dtenum, EPDOType pdoType, CNode *objNode);
 #endif // declarations_h

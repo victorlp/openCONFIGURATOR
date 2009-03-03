@@ -195,6 +195,7 @@ struct varDeclaration
 			nam_id_dt_attr->dataTypeUniqueIDRef = NULL;
 			nam_id_dt_attr->m_Name = NULL;
 			nam_id_dt_attr->UniqueId = NULL;
+			strcpy(size, "");
 	
 		}
 	

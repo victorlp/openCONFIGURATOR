@@ -16,6 +16,9 @@ CBaseIndex::CBaseIndex(void)
 		m_accessType    =  NULL;
 		m_LowLimit	    =  NULL;
 		m_UniqueIDRef	  =  NULL;
+		m_dataTypeValue = NULL;
+		m_dataType.DataTypeValue = NULL;
+		m_dataType.DataSize = NULL;
 
 	}
 
@@ -329,7 +332,12 @@ void CBaseIndex::setUniqueIDRef(char* UniqueID)
 /****************************************************************************************************/
 
 char* CBaseIndex::getDataTypeValue()
-	{return m_dataTypeValue;}
+	{
+		if(m_dataTypeValue != NULL)
+			return m_dataTypeValue;
+		else
+			return NULL;
+	}
 
 /**************************************************************************************************
 	* Function Name: setDataTypeValue

@@ -347,7 +347,7 @@ int getConfigDate()
   cout << "days:" << days << endl;
   return days;
 }
-int getConfigTime()
+int getConfigTime_Sec()
 {
   time_t rawtime;
   struct tm * timeinfo;
@@ -356,8 +356,8 @@ int getConfigTime()
   time ( &rawtime );
   timeinfo = localtime ( &rawtime );
   
-  ms += (timeinfo->tm_hour)*3600000;
-  ms += (timeinfo->tm_min)*60000;
-  ms += (timeinfo->tm_sec)*1000;
+  ms += (timeinfo->tm_hour)*3600;
+  ms += (timeinfo->tm_min)*60;
+  ms += (timeinfo->tm_sec);
   return ms;
 }

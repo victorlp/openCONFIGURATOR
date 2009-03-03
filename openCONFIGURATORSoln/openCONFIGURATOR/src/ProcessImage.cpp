@@ -388,7 +388,7 @@ void GroupInOutPIVariables(ProcessImage PIInCol[], ProcessImage PIOutCol[])
 //	
 //		}
 //	}
-PIDataInfo* getIECDT(char* dtStr)
+PIDataInfo* getIECDT(char* dtStr, int dataSize)
 {
 	PIDataInfo *di = new PIDataInfo;
 	di->_dt_Name = new char[strlen(dtStr)+1];
@@ -398,105 +398,105 @@ PIDataInfo* getIECDT(char* dtStr)
 	{
 		if(strcmp(dtStr, "BITSTRING")==0)
 		{
-			di->DataSize = 1;
+			di->DataSize = dataSize;
 			di->_dt_enum = BITSTRING;
 		}
 		else if(strcmp(dtStr, "BOOL")==0)
 		{
-			di->DataSize = 1;
+			di->DataSize = dataSize;
 			di->_dt_enum = BOOL;
 		}
 		else if(strcmp(dtStr, "_CHAR")==0)
 		{
-			di->DataSize = 1;
+			di->DataSize = dataSize;
 			di->_dt_enum = _CHAR;
 		}
 		else if(strcmp(dtStr, "WORD")==0)
 		{
-			di->DataSize = 8;	
+			di->DataSize = dataSize;	
 			di->_dt_enum = BYTE;
 		}		
 		else if(strcmp(dtStr, "DWORD")==0)
 			{
-			di->DataSize = 32;
+			di->DataSize = dataSize;
 			di->_dt_enum = DWORD;
 		}
 	
 		else if(strcmp(dtStr, "LWORD")==0)
 			{
-			di->DataSize = 64;
+			di->DataSize = dataSize;
 			di->_dt_enum = LWORD;
 		}
 		
 		else if(strcmp(dtStr, "SINT")==0)
 			{
-			di->DataSize = 8;
+			di->DataSize = dataSize;
 			di->_dt_enum = SINT;
 		}
 	
 		else if(strcmp(dtStr, "INT")==0)
 		{
-			di->DataSize = 16;
+			di->DataSize = dataSize;
 			di->_dt_enum = INT;
 		}
 	
 		else if(strcmp(dtStr, "DINT")==0)
 		{
-			di->DataSize = 32;
+			di->DataSize = dataSize;
 			di->_dt_enum = DINT;
 		}
 		
 		else if(strcmp(dtStr, "LINT")==0)
 		{
-			di->DataSize = 64;
+			di->DataSize = dataSize;
 			di->_dt_enum = LINT;
 		}
 		
 		else if(strcmp(dtStr, "USINT")==0)
 		{
-			di->DataSize = 8;
+			di->DataSize = dataSize;
 			di->_dt_enum = USINT;
 		}
 		
 		else if(strcmp(dtStr, "UINT")==0)
 		{
-			di->DataSize = 16;
+			di->DataSize = dataSize;
 			di->_dt_enum = UINT;
 		}
 	
 		else if(strcmp(dtStr, "UDINT")==0)
 		{
-			di->DataSize = 32;
+			di->DataSize = dataSize;
 			di->_dt_enum = UDINT;
 		}
 	
 		else if(strcmp(dtStr, "ULINT")==0)
 		{
-			di->DataSize = 64;
+			di->DataSize = dataSize;
 			di->_dt_enum = ULINT;
 		}
 		
 		else if(strcmp(dtStr, "REAL")==0)
 		{
-			di->DataSize = 16;
+			di->DataSize = dataSize;
 			di->_dt_enum = REAL;
 		}
 	
 		else if(strcmp(dtStr, "LREAL")==0)
 		{
-			di->DataSize = 64;
+			di->DataSize = dataSize;
 			di->_dt_enum = LREAL;
 		}
 	
 		else if(strcmp(dtStr, "STRING")==0)
 		{
-			di->DataSize = 1;
+			di->DataSize = dataSize;
 			di->_dt_enum = STRING;
 		}
 		
 		else if(strcmp(dtStr, "WSTRING")==0)
 		{
-			di->DataSize = 1;
+			di->DataSize = dataSize;
 			di->_dt_enum = WSTRING;
 		}
 	
@@ -624,7 +624,7 @@ void GenerateXAPHeaderFile(char* fileName, ProcessImage PI_IN[], ProcessImage PI
 					
 					strcat(Buffer, "\n");
 					//i++;
-					printf("\nI:%d",i);					
+					//printf("\nI:%d",i);					
 										
 			}
 			strcat(Buffer, "}");
@@ -709,7 +709,7 @@ void GenerateXAPHeaderFile(char* fileName, ProcessImage PI_IN[], ProcessImage PI
 						
 					strcat(Buffer, "\n");
 					//i++;
-							printf("\nI:%d",i);
+							//printf("\nI:%d",i);
 								
 			}
 				strcat(Buffer, "}");

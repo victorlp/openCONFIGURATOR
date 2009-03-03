@@ -182,9 +182,9 @@ struct ModuleCol
 //void GroupInOutPIVariables();
 void GroupInOutPIVariables(ProcessImage PIInCol[], ProcessImage PIOutCol[]);
 void CalculateOffsets(int VarCount,  EPIDirectionType type);
-PIDataInfo* getIECDT(char* dtStr);
-int ComputeINOffset(int NodeID, int dataSize, EPDOType pdoType);
-int ComputeOUTOffset(int NodeID, int dataSize, EPDOType pdoType);
+PIDataInfo* getIECDT(char* dtStr, int dataSize);
+int ComputeINOffset(int dataSize, EPDOType pdoType);
+int ComputeOUTOffset(int dataSize, EPDOType pdoType);
 void SetPIOffsets(ProcessImage* pi,int& StartingByteOffset, int pos, int& StartBitOffset);
 void GenerateXAPHeaderFile(char* fileName, ProcessImage PI_IN[], ProcessImage PI_OUT[], int InVar, int OutVar);
 

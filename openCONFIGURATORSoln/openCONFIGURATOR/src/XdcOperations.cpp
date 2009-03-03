@@ -234,24 +234,19 @@ void setDataTypeAttributes(xmlTextReaderPtr reader ,DataType* objDataType)
 			//printf("objDataType->DataTypeValue:%s\n",objDataType->DataTypeValue);
 			//Read the Equivalent name of a datatype
 			ret = xmlTextReaderRead(reader);
-			
-			if(ret!=1)
+			while(xmlTextReaderNodeType(reader) != XML_READER_TYPE_ELEMENT)
 			{
-			
-						ocfmException objException;						
-						objException.ocfm_Excpetion(OCFM_ERR_XML_FILE_CORRUPTED);
-						throw objException;
+				if(ret!=1)
+				{
 				
+							ocfmException objException;						
+							objException.ocfm_Excpetion(OCFM_ERR_XML_FILE_CORRUPTED);
+							throw objException;
+					
+				}
+				ret = xmlTextReaderRead(reader);			
 			}
-			ret = xmlTextReaderRead(reader);
-			if(ret!=1)
-			{
-			
-						ocfmException objException;						
-						objException.ocfm_Excpetion(OCFM_ERR_XML_FILE_CORRUPTED);
-						throw objException;
-				
-			}
+		
 			value = xmlTextReaderConstValue(reader);
 			name =xmlTextReaderConstName(reader);
 					
@@ -521,6 +516,7 @@ static void getVarDeclaration(xmlTextReaderPtr reader, CComplexDataType* objCDT)
 			if(CheckifSimpleDT((char*)name, size))
 			{
 					stvardecl.nam_id_dt_attr->setDataType((char*)name);
+					if(strcmp(stvardecl.size,"")==0)
 					strcpy(stvardecl.size, size);
 			}		
 			if(CheckStartElement(xmlTextReaderNodeType(reader),(char*)name, "dataTypeIDRef"))
