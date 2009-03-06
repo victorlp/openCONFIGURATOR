@@ -69,8 +69,6 @@
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
 #include "NodeCollection.h"
-#include "Socket.h"
-//#include "StackOperations.h"
 #include "ObjectDictionary.h"
 #include "Declarations.h"
 #include "ProjectSettings.h"

@@ -176,10 +176,10 @@ ocfmException::~ocfmException(void)
 					strcpy(_ocfmRetCode.errorString,"Cannot parse XML");
 					break;
 			case OCFM_ERR_MODULE_INDEX_NOT_FOUND:
-					strcpy(_ocfmRetCode.errorString,"Module Index Not Found");
+					strcpy(_ocfmRetCode.errorString,"PDO Mapped Module Index Not Found");
 					break;						
 			case OCFM_ERR_MODULE_SUBINDEX_NOT_FOUND:
-					strcpy(_ocfmRetCode.errorString,"Module SubIndex Not Found");
+					strcpy(_ocfmRetCode.errorString,"PDO Mapped Module SubIndex Not Found");
 					break;						
 			case OCFM_ERR_UNIQUE_ID_REF_NOT_FOUND:
 						strcpy(_ocfmRetCode.errorString, "Unique ID reference not found");

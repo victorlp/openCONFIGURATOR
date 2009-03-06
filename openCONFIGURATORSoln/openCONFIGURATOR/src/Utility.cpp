@@ -361,3 +361,32 @@ int getConfigTime_Sec()
   ms += (timeinfo->tm_sec);
   return ms;
 }
+CHAR toupper (CHAR ch)
+{
+	if (ch >= 97 && ch <= 122)
+	{
+		ch = ch - 32;
+	}
+	return ch;
+}
+CHAR tobin(CHAR ch)
+{
+	if(ch >= 65 && ch <= 70)
+	{
+		ch = ch - 55;
+	}
+	else if ( ch >=48 && ch <= 57)
+	{
+		ch = ch - 48;
+	}
+	return ch;
+}
+int reversedata(UINT8 *actemp1, UINT8 *actemp2, UINT32 size)
+{
+	UINT32 u32Ctr;
+	if (actemp1 == NULL || actemp2 == NULL)
+		return -1;
+	for (u32Ctr = 0; u32Ctr < size; u32Ctr++)
+		*(actemp1 + u32Ctr) = *(actemp2 + size - 1 - u32Ctr);
+	return 0;
+}

@@ -145,7 +145,7 @@ CNode CNodeCollection::getNode(ENodeType nodeType,int NodeID)
 		for(count=0; count<m_NodeCount ;count++)
 			{
 				
-				objNode = &(objNodeCollection->collectionObj[count]);
+				objNode = &(objNodeCollection->collectionObj[count]);				
 				if(objNode->getNodeType()==nodeType && objNode->getNodeId()==NodeID)
 				{
 					return objNode;

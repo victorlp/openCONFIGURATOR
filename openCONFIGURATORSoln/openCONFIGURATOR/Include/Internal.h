@@ -73,6 +73,7 @@
 #include "Index.h"
 #include "ProjectSettings.h"
 #include "ProcessImage.h"
+#include "Declarations.h"
 #include "Node.h"
 #include "IndexCollection.h"
 #include <libxml/xmlwriter.h>
@@ -124,7 +125,7 @@ char* padLeft(char* str, char padChar, int padLength);
 unsigned long hex2int(char *a);
 CIndex* getMNIndexValues(char* Index);
 bool CheckAllowedCNIndexes(char* IndexValue);
-void ConvertCdcToBinary(char* fileName,char* tempFile);
+int ConvertCdcToBinary(char* fileName,char* tempFile);
 char* getParameterAccess(char* access);
 bool CheckEndElement(int NodeType, char* element, char* comparewith);
 bool CheckStartElement(int NodeType, char* element, char* comparewith);
@@ -155,4 +156,8 @@ void SetSIdxValue(char* Idx, char* SIdx,
 																		int NodeId, ENodeType NodeType, bool setDefaultValue);
 ocfmRetCode AddOtherRequiredCNIndexes(int NodeId);
 void CreateMNPDOVar(int Offset, int dataSize,IEC_Datatype dtenum, EPDOType pdoType, CNode *objNode);
-#endif // declarations_h
+int getCNsTotalIndexSubIndex(int NodeID);
+CHAR toupper (CHAR ch);
+CHAR tobin(CHAR ch);
+int reversedata(UINT8 *actemp1, UINT8 *actemp2, UINT32 size);
+#endif // internal_h

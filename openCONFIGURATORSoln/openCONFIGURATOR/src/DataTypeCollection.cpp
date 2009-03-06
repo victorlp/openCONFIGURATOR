@@ -108,3 +108,16 @@ DataType* CDataTypeCollection::getDataType(char* DatatypeValue)
 			dt = NULL;			
 			return dt;
 	}
+DataType* CDataTypeCollection::getDataTypeByName(char* DataTypeName)
+	{
+		DataType* dt = NULL;
+		for(int i=0;i<this->getNumberOfDataTypes() ;i++)
+			{				
+				dt=this->getDataTypeElement(i);
+				if(strcmp(dt->getName(),DataTypeName)==0)
+					return dt;
+
+			}
+			dt = NULL;			
+			return dt;
+	}

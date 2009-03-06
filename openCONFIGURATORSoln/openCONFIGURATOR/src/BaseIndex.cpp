@@ -11,6 +11,7 @@ CBaseIndex::CBaseIndex(void)
 		m_Name          =  NULL;
 		m_HighLimit     =  NULL;		
 		m_dataType.Name =  NULL;
+		m_dataTypeValue = NULL;
 		m_DefaultValue  =  NULL;		
 		m_ActualValue   =  NULL;		
 		m_accessType    =  NULL;

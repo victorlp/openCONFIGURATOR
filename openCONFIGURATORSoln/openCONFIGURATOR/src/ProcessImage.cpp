@@ -730,3 +730,70 @@ void GenerateXAPHeaderFile(char* fileName, ProcessImage PI_IN[], ProcessImage PI
 		{
 		}
 }
+void SetSIdxDataType(DataType dt, char* Idx, char* SIdx)
+{
+		CNodeCollection* objNodeCollection;
+		CIndexCollection *objIndexCol;
+		CIndex *objIndex;
+		CSubIndex *objSIdx;
+		CNode objNode;
+		objNodeCollection = CNodeCollection::getNodeColObjectPointer();				
+				
+		objNode = objNodeCollection->getMNNode();
+		objIndexCol = objNode.getIndexCollection();
+		
+		objIndex = objIndexCol->getIndexbyIndexValue(Idx);
+		objSIdx = objIndex->getSubIndexbyIndexValue(SIdx);
+		
+		objSIdx->setDataTypeST(dt);
+		
+	
+}
+void AddPDOIndexsToMN(char* Index, char* SubIndex)
+{
+	ocfmRetCode retCode;
+	DataType dt;
+	printf("\n before Add Index : %s", Index);
+	retCode = AddIndex(240, MN, Index);	
+	
+	retCode = AddSubIndex(240, MN, Index, SubIndex);
+	if((strcmp(Index, "A000")==0) || (strcmp(Index, "A030")==0))
+	{
+		dt.setName("Unsigned8");
+		dt.DataTypeValue =  new char[10];
+		strcpy(dt.DataTypeValue, "0005");
+	}
+	else if((strcmp(Index, "A001")==0) || (strcmp(Index, "A031")==0))
+	{
+		dt.setName("Integer8");
+		dt.DataTypeValue =  new char[10];
+		strcpy(dt.DataTypeValue, "0002");
+	}
+	else if((strcmp(Index, "A010")==0) || (strcmp(Index, "A040")==0))
+	{
+		dt.setName("Unsigned16");
+		dt.DataTypeValue =  new char[10];
+		strcpy(dt.DataTypeValue, "0006");
+	}
+	else if((strcmp(Index, "A011")==0) || (strcmp(Index, "A041")==0))
+	{
+		dt.setName("Integer16");
+		dt.DataTypeValue =  new char[10];
+		strcpy(dt.DataTypeValue, "0003");
+	}
+	else if((strcmp(Index, "A020")==0) || (strcmp(Index, "A050")==0))
+	{
+		dt.setName("Unsigned32");
+		dt.DataTypeValue =  new char[10];
+		strcpy(dt.DataTypeValue, "0007");
+	}
+	else if((strcmp(Index, "A021")==0) || (strcmp(Index, "A051")==0))
+	{
+		dt.setName("Integer32");
+		dt.DataTypeValue =  new char[10];
+		strcpy(dt.DataTypeValue, "0004");
+	}
+
+	SetSIdxDataType(dt, Index, SubIndex);
+	
+ }

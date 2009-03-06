@@ -257,23 +257,23 @@ void setDataTypeAttributes(xmlTextReaderPtr reader ,DataType* objDataType)
 			strcpy(objDataType->Name, (char*)name);
 			//printf("\n outsideName:%s", objDataType->Name);
 			//printf("objDataType->DataTypeValue:%s, objDataType->Name:%s\n", objDataType->DataTypeValue, objDataType->Name);
-			objDataType->DataSize = new char[4];
-			if((strcmp(ConvertToUpper(objDataType->Name),"UNSIGNED8")==0) ||
-				(strcmp(ConvertToUpper(objDataType->Name),"BOOLEAN")==0 ) ||
-				(strcmp(ConvertToUpper(objDataType->Name),"INTEGER8")==0 ))
-					strcpy(objDataType->DataSize,"0001");
+			objDataType->DataSize = new char[9];
+			if((strcmp(objDataType->Name,"Unsigned8")==0) ||
+				(strcmp(objDataType->Name,"Boolean")==0 ) ||
+				(strcmp(objDataType->Name,"Integer8")==0 ))
+					strcpy(objDataType->DataSize,"00000001");
 
-			if((strcmp(ConvertToUpper(objDataType->Name),"UNSIGNED16")==0) ||
-				(strcmp(ConvertToUpper(objDataType->Name),"INTEGER16")==0 ))
-				strcpy(objDataType->DataSize,"0002");
+			if((strcmp(objDataType->Name,"Unsigned16")==0) ||
+				(strcmp(objDataType->Name,"Integer16")==0 ))
+				strcpy(objDataType->DataSize,"00000002");
 
-			if((strcmp(ConvertToUpper(objDataType->Name),"UNSIGNED32")==0) ||
-				(strcmp(ConvertToUpper(objDataType->Name),"INTEGER32")==0 ) ||
-				(strcmp(ConvertToUpper(objDataType->Name),"REAL32")==0 ))
-				strcpy(objDataType->DataSize,"0004");
+			if((strcmp(objDataType->Name,"Unsigned32")==0) ||
+				(strcmp(objDataType->Name,"Integer32")==0 ) ||
+				(strcmp(objDataType->Name,"Real32")==0 ))
+				strcpy(objDataType->DataSize,"00000004");
 				
-				if(strcmp(ConvertToUpper(objDataType->Name),"UNSIGNED64")==0)
-				strcpy(objDataType->DataSize,"0008");
+				if(strcmp(objDataType->Name,"Unsigned64")==0)
+				strcpy(objDataType->DataSize,"00000008");
 			
 				}
 				//printf("\noutside DataType");

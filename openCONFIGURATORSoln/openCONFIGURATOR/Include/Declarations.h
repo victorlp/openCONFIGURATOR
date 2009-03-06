@@ -81,7 +81,21 @@ Constants
 const int MN_NODEID=240;
 const int OFFSET_INTEGER_8 = 0;
 const int OFFSET_UNSIGNED_INTEGER_8 = 0;
+#define OFFSET_FIRST_INDEX_IN_MN_OBD	4
 
+#define OFFSET_NUM_ENTRIES_MN 0
+#define OFFSET_NUM_ENTRIES_CN 7
+
+#define OFFSET_INDEX	0
+#define OFFSET_SUBINDEX 2
+#define OFFSET_SIZE		3
+#define OFFSET_DATA		7
+
+#define OFFSET_FIRST_INDEX_IN_1F22 11
+typedef			 char	CHAR;
+typedef unsigned char	UINT8;
+typedef unsigned short	UINT16;
+typedef unsigned int	UINT32;
 /************************************************************************************************
 Enumerations
 ************************************************************************************************/
@@ -220,6 +234,7 @@ typedef struct MNPdoVariable
 	char*	 Value;
 	int			DataSize;
 	EPDOType pdoType;
+	
 }MNPdoVariable;
 typedef enum
 {
@@ -257,7 +272,7 @@ DllExport ocfmRetCode ReImportXML(char* fileName, int NodeID, ENodeType NodeType
 
 //DllExport ocfmRetCode ImportObjDictXML(char* fileName);
 DllExport ocfmRetCode GenerateXAP(char* fileName);
-DllExport ocfmRetCode GenerateCDC(char* fileName);
+DllExport ocfmRetCode GenerateCDC(char* CDCLocation);
 //void GenerateMNOBD();
 
 DllExport ocfmRetCode CreateNode(int NodeID, ENodeType NodeType, char* NodeName);
