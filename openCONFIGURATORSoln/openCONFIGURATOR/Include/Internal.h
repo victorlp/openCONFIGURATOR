@@ -79,6 +79,7 @@
 #include <libxml/xmlwriter.h>
 #include <libxml/xmlreader.h>
 #define TOOL_VERSION "1.0.0"
+#define ALLOC_BUFFER 5
 extern int ConfigDate;
 extern int ConfigTime;
 static const int g_simple_arr_size = 19;
@@ -148,7 +149,7 @@ bool IfVersionNumberMatches(xmlTextReaderPtr reader);
 bool setProjectSettings_Auto(xmlTextReaderPtr reader);
 bool setProjectSettings_Communication(xmlTextReaderPtr reader);
 int getConfigDate();
-int getConfigTime_Sec();
+int getConfigTime();
 bool getandCreateNode(xmlTextReaderPtr reader, char* PjtPath);
 bool saveProjectXML(char* ProjectPath, char* ProjectName);
 void SetSIdxValue(char* Idx, char* SIdx,

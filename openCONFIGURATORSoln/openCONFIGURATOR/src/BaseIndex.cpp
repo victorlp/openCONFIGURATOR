@@ -131,7 +131,7 @@ const char* CBaseIndex::getActualValue()
 /****************************************************************************************************/
 void CBaseIndex::setActualValue(char* Value)
 	{
-		m_ActualValue = new char[strlen(Value)];		
+		m_ActualValue = new char[strlen(Value) + ALLOC_BUFFER];		
 		strcpy((char*)m_ActualValue,Value);
 	}
 /**************************************************************************************************

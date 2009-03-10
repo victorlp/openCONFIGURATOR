@@ -67,14 +67,23 @@
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
 #include "../Include/ProjectSettings.h"
+#include "../Include/Internal.h"
 #include <iostream>
 using namespace std;
 
 CPjtSettings::CPjtSettings(void)
 	{		
+		#if defined DEBUG
+			cout << "\nPjtSettings Objects Initialized!\n" << endl;	
+		#endif
 		m_saveMode = DISCARD_AS;
 		m_generateMode = NO_AG;
 		m_IP_openPOWERLINK = NULL;
+		TestVar = 0;
+			#if defined DEBUG
+		//cout << "\n Returning m_saveMode:-" << m_saveMode <<endl;	
+	#endif
+		//getGenerateAttr();
 	}
 
 CPjtSettings::~CPjtSettings(void)
@@ -93,6 +102,9 @@ CPjtSettings* CPjtSettings::getPjtSettingsPtr()
 	{
 		objPjtSettings = new CPjtSettings();
 		instanceFlag=true;
+		#if defined DEBUG
+			cout << "\n\n\n\nNew PjtSettings Object Created!\n" << endl;	
+		#endif
 	}
 	return objPjtSettings;	
 }
@@ -109,7 +121,14 @@ void CPjtSettings::setSaveAttr(EAutoSave AutoSaveMode)
 
 EAutoGenerate CPjtSettings::getGenerateAttr()
 {
-		return m_generateMode;
+	m_generateMode = YES_AG;
+	m_saveMode = YES_AS;
+	#if defined DEBUG
+		cout << "\n Returning m_saveMode:-" << m_saveMode <<endl;	
+	#endif
+	cout << "\n$$$" << endl;
+	return m_generateMode;
+		
 }
 
 void CPjtSettings::setGenerateAttr(EAutoGenerate AutoGenerateMode)
@@ -119,7 +138,7 @@ void CPjtSettings::setGenerateAttr(EAutoGenerate AutoGenerateMode)
 
 void CPjtSettings::setPOWERLINK_IP(char* IPAddr)
 {
-	m_IP_openPOWERLINK = new char[strlen(IPAddr) + 1];
+	m_IP_openPOWERLINK = new char[strlen(IPAddr) + ALLOC_BUFFER];
 	strcpy((char*)m_IP_openPOWERLINK, IPAddr);
 }
 
@@ -129,4 +148,14 @@ const char* CPjtSettings::getPOWERLINK_IP()
 		return m_IP_openPOWERLINK;
 	else
 		return NULL;
+}
+
+void CPjtSettings::setTestVar(int temp)
+{
+	TestVar = temp;
+}
+
+int CPjtSettings::getTestVar()
+{
+	return TestVar;
 }

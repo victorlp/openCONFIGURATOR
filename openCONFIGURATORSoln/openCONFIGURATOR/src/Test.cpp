@@ -707,11 +707,14 @@ int main(int argc, char **argv)
 				case 27: 
 							//SaveNode("/home/selva/Desktop/myxdc.xdc", 1 , CN);
 							int len;
-							len = strlen("/home/selva/Desktop/MyPjt/");
+							len = strlen("C:\\Documents and Settings\\selva\\openCONFIGURATOR_Projects\\");
 							char* PjtPath;
-							PjtPath = new char[len + 1];
-							strcpy(PjtPath, "/home/selva/Desktop");
-							SaveProject(PjtPath, "MyPjt");
+							char* PjtName;
+							PjtName = new char[15];
+							PjtPath = new char[len + 1];							
+							strcpy(PjtPath, "C:\\Documents and Settings\\selva\\openCONFIGURATOR_Projects");
+							strcpy(PjtName, "MyPjt");
+							SaveProject(PjtPath, PjtName);
 							break;
 				case 28:
 						{

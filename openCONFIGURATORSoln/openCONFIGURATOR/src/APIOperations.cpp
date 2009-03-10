@@ -282,7 +282,7 @@ ocfmRetCode CreateNode(int NodeID, ENodeType NodeType, char* NodeName)
 		{
 			//cout << "loading od.xml"<< endl;
 			LoadObjectDictionary("od.xml");
-			//cout << "loaded xml" << endl;
+			cout << "loaded xml" << endl;
 		}
 		if(NodeType == CN)
 		{
@@ -1584,9 +1584,9 @@ ocfmRetCode GenerateCDC(char* CDCLocation)
 				
 			#if defined(_WIN32) && defined(_MSC_VER)
 			char* cmdBuffer;
-			printf("\nconvert.bat %s %s", tempFileName, tempOutputFileName);
+			printf("\nconvert.bat \"%s\" \"%s\"", tempFileName, tempOutputFileName);
 			cmdBuffer = new char[(2 * (strlen(CDCLocation) + 10 + 10)) + 25];		
-			sprintf(cmdBuffer, "convert.bat %s %s", tempFileName, tempOutputFileName);
+			sprintf(cmdBuffer, "convert.bat \"%s\" \"%s\"", tempFileName, tempOutputFileName);
 			printf("\n command Buffer %s",cmdBuffer);
 			//system("convert.bat tempFileName tempOutputFileName");
 			system(cmdBuffer);
@@ -3867,7 +3867,7 @@ ocfmRetCode SaveProject(char* ProjectPath, char* ProjectName)
 	ocfmRetCode ErrStruct;
 	
 	char* path;
-	path = new char[(strlen(ProjectPath) + strlen(ProjectName) + 3 + 5)];
+	path = new char[(strlen(ProjectPath) + strlen(ProjectName) + 3 + ALLOC_BUFFER)];
 	
 	try
 	{	
@@ -3876,7 +3876,8 @@ ocfmRetCode SaveProject(char* ProjectPath, char* ProjectName)
 		int intStat;
 
 		tmp_PjtName = new char[strlen(path) + strlen(ProjectName) + strlen(ProjectName) + 3 + 2];
-		sprintf(tmp_PjtName, "%s/%s/%s.oct", ProjectPath, ProjectName, ProjectName);
+		//sprintf(tmp_PjtName, "%s/%s/%s.oct", ProjectPath, ProjectName, ProjectName);
+		sprintf(tmp_PjtName, "%s/%s.oct", ProjectPath, ProjectName);
 		cout << "\n\ntmp_PjtName:" << tmp_PjtName << endl;
 
 		intStat = stat(tmp_PjtName,&fileInfo);
@@ -3892,7 +3893,7 @@ ocfmRetCode SaveProject(char* ProjectPath, char* ProjectName)
 			{
 				sprintf(path, "%s\\%s", ProjectPath, ProjectName);
 				cout << "\npath:" << path <<endl;
-				mkdir(path);	
+				//mkdir(path);	
 			}
 			#else
 			{
@@ -3901,27 +3902,31 @@ ocfmRetCode SaveProject(char* ProjectPath, char* ProjectName)
 			}
 			#endif
 		}	
-		saveProjectXML(ProjectPath, ProjectName);
-		
+		//saveProjectXML(ProjectPath, ProjectName);
+		cout << "Trace_1" <<endl;
 		objNodeCollection = CNodeCollection::getNodeColObjectPointer();	
+		cout << "Trace_2" <<endl;
 		if(objNodeCollection == NULL)
 		{
 			ocfmException* objException = new ocfmException;
 			objException->ocfm_Excpetion(OCFM_ERR_NO_NODES_FOUND);
 			throw objException;
 		}
-		
+		cout << "Trace_3" <<endl;
 		if( objNodeCollection->getNumberOfNodes() > 0)
 		{
+			cout << "Trace_4" <<endl;
 			for(int count = 0; count < objNodeCollection->getNumberOfNodes(); count++)
 			{				
+				cout << "Trace_4_1" <<endl;
 				objNode = objNodeCollection->getNodebyCollectionIndex(count);
-				
+				cout << "Trace_4_2" <<endl;
 				//char *fileName;	
 				//fileName = new char[80];
 				char* fileName;
+				cout << "Trace_4_3" <<endl;
 				fileName = new char[(strlen(path) + 4 + 5)];
-						
+						cout << "Trace_5" <<endl;
 				#if defined(_WIN32) && defined(_MSC_VER)
 				{
 					sprintf(path, "%s\\%s\\XDC", ProjectPath, ProjectName);				
@@ -3942,6 +3947,7 @@ ocfmRetCode SaveProject(char* ProjectPath, char* ProjectName)
 					sprintf(fileName, "%s\\%d.xdc", path, objNode.getNodeId());
 					cout << "\nSave Pjt fileName:" << fileName << endl;
 				}
+				cout << "Trace_6" <<endl;
 				#else
 				{
 					struct stat fileInfo;
@@ -3962,10 +3968,11 @@ ocfmRetCode SaveProject(char* ProjectPath, char* ProjectName)
 					sprintf(fileName, "%s/%d.xdc", path, objNode.getNodeId());
 				}
 				#endif
-										
+					cout << "Trace_7" <<endl;					
 				//cout << "\fileName:" << fileName << endl;
 				//cout << "\ngetNodeId-getNodeType:" << objNode.getNodeId() << objNode.getNodeType() << endl;
 				SaveNode(fileName, objNode.getNodeId(), objNode.getNodeType());	
+				cout << "Trace_8" <<endl;
 				delete [] fileName;			
 			}
 			ErrStruct.code = OCFM_ERR_SUCCESS;
@@ -4070,7 +4077,13 @@ void SetSIdxValue(char* Idx, char* SIdx,
 			if(setDefaultValue)
 			objSIdx->setActualValue((char*)objSIdx->getDefaultValue());
 			else
-			objSIdx->setActualValue(value);
+			{
+				#if defined DEBUG	
+						cout << "value" << value<<endl;	
+						cout << "subindex index"<< objSIdx->getIndexValue();
+					#endif
+				objSIdx->setActualValue(value);
+			}
 		}
 }
 
@@ -4080,8 +4093,8 @@ void AddForEachSIdx(char* Idx,CIndexCollection * objIdxCol, int MNNodeID,char* V
 		CNode objCNNode;
 		CIndex *objIndex;
 		CSubIndex* objSIdx;
-		char* SIdx =  new char[2];
-		char* IndexNo = new char[2];
+		char* SIdx =  new char[3];
+		char* IndexNo = new char[3];
 		ocfmRetCode retCode;
 		
 		retCode.code = OCFM_ERR_SUCCESS;
@@ -4140,7 +4153,9 @@ void AddForEachSIdx(char* Idx,CIndexCollection * objIdxCol, int MNNodeID,char* V
 				}
 				else
 				{
-				 cout << "Val" << Value <<endl;
+					cout << "\nVal:" << Value <<endl;
+					//strcat(Value, "000");
+					//cout << "\nVal Cated:" << Value <<endl;
 					SetSIdxValue(Idx,SIdx,Value, objIdxCol, MNNodeID, MN, setDefaultValue);
 				}
 		
@@ -4152,8 +4167,8 @@ void AddForEachSIdx(char* Idx,CIndexCollection * objIdxCol, int MNNodeID,char* V
 ocfmRetCode AddOtherMNIndexes(CNode *objNode, char* tmp_CycleTime)
 {
 			ocfmRetCode retCode;
-			char* MNIndex = new char[4];		
-			char* Sidx =  new char[2];
+			char* MNIndex = new char[5];		
+			char* Sidx =  new char[3];
 			CIndex* objIndex;
 			CSubIndex* objSIdx;
 			CIndexCollection* objIdxCol;
@@ -4235,7 +4250,7 @@ ocfmRetCode AddOtherMNIndexes(CNode *objNode, char* tmp_CycleTime)
 						objIndex = objIdxCol->getIndexbyIndexValue(MNIndex);
 						char* Val = new char[8];
 						ConfigDate = getConfigDate();
-						Val = itoa(ConfigDate,Val, 10);
+						Val = itoa(ConfigDate,Val, 10);						
 						//hexVal = padLeft(hexVal, '0' , 8);
 						AddForEachSIdx(MNIndex, objIdxCol, objNode->getNodeId(), Val, false);		
 											
@@ -4253,14 +4268,12 @@ ocfmRetCode AddOtherMNIndexes(CNode *objNode, char* tmp_CycleTime)
 					{				
 						objIndex = objIdxCol->getIndexbyIndexValue(MNIndex);		
 						char* Val = new char[50];
-						ConfigTime = getConfigTime_Sec();
-						ConfigTime = ConfigTime * 1000;
+						ConfigTime = getConfigTime();
+						cout << "\n\n\nConfigTime:" << ConfigTime << endl;																		
 						Val = itoa(ConfigTime,Val, 10);
 						//Val = padLeft(hexVal, '0' , 8);
 
-						AddForEachSIdx(MNIndex, objIdxCol, objNode->getNodeId(), Val, false);														
-					
-					//AddForEachSIdx(MNIndex, objIdxCol, objNode->getNodeId(), getConfigTime(), false);		
+						AddForEachSIdx(MNIndex, objIdxCol, objNode->getNodeId(), Val, false);										
 					}
 					
 					
@@ -4433,8 +4446,8 @@ ocfmRetCode GenerateMNOBD()
 		CNodeCollection *objNodeCollection = NULL;
 		CIndexCollection * objMNIndexCol;
 		CSubIndex * objSubIdex;
-		char* MNIndex = new char[4];								
-		char* Idx =  new char[2];
+		char* MNIndex = new char[5];								
+		char* Idx =  new char[3];
 		ocfmRetCode retCode;
 		
 		ocfmException ex;
@@ -5613,18 +5626,24 @@ bool getandCreateNode(xmlTextReaderPtr reader, char* PjtPath)
 bool saveProjectXML(char* ProjectPath, char* ProjectName)
 {
 	
-CPjtSettings* stPjtSettings;
-stPjtSettings = CPjtSettings::getPjtSettingsPtr();
+//CPjtSettings* stPjtSettings;
+//stPjtSettings = CPjtSettings::getPjtSettingsPtr();
+//stPjtSettings = new CPjtSettings();
+//cout << " \nPrjt settings Address:" << stPjtSettings;
 
 xmlTextWriterPtr writer;
 xmlDocPtr doc;
 int rc;
-
+cout << "\n\nInside Save Project XML:" << endl;
 char* fileName;
-fileName = new char[(strlen(ProjectPath) + strlen(ProjectName) + strlen(ProjectName) + 10)];
-
+//fileName = new char[(strlen(ProjectPath) + strlen(ProjectName) + strlen(ProjectName) + 10)];
+fileName = new char[(strlen(ProjectPath) + strlen(ProjectName) + strlen(ProjectName) + ALLOC_BUFFER)];
+//fileName = new char[100];
+//int len = strlen(ProjectPath);
+//cout << "length " << len;
 #if defined(_WIN32) && defined(_MSC_VER)
 {
+	cout << "\n*1" << endl;
 	sprintf(fileName, "%s\\%s\\%s.oct", ProjectPath, ProjectName, ProjectName);
 	cout << "fileName:" << fileName << endl;
 }
@@ -5690,19 +5709,37 @@ if (rc < 0)
 		throw objException;
 	}
 
-	cout << "\n\n\nstPjtSettings->getGenerateAttr():" << stPjtSettings->getGenerateAttr() << endl;
-	if(stPjtSettings->getGenerateAttr() == 0)
-		rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "Generate", BAD_CAST "NO");
-	else if(stPjtSettings->getGenerateAttr() == 1)
-		rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "Generate", BAD_CAST "YES");
+	//stPjtSettings->setTestVar(5);
+
+	//cout << "\nstPjtSettings->getTestVar():" << stPjtSettings->getTestVar() << endl;
+
+	//stPjtSettings->setGenerateAttr(YES_AG);
+	//if(stPjtSettings->getGenerateAttr()!= 0)
+	{
+		//cout << "\n\n\nstPjtSettings->getGenerateAttr():" << stPjtSettings->getGenerateAttr() << endl;
+		cout << "\n*2" << endl;
+		//if(stPjtSettings->getGenerateAttr() == 0)
+		{
+			cout << "\n*2_1" << endl;
+			rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "Generate", BAD_CAST "NO");
+			cout << "\n*2_2" << endl;
+		}
+		/*else if(stPjtSettings->getGenerateAttr() == 1)
+		{
+			cout << "\n*2_3" << endl;
+			rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "Generate", BAD_CAST "YES");
+			cout << "\n*2_4" << endl;
+		}*/
+	}
+	cout << "\n*3" << endl;
 	
-	cout << "\n\n\nstPjtSettings->getSaveAttr():" << stPjtSettings->getSaveAttr() << endl;
+	/*cout << "\n\n\nstPjtSettings->getSaveAttr():" << stPjtSettings->getSaveAttr() << endl;
 	if(stPjtSettings->getSaveAttr() == 0)
 		rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "Save", BAD_CAST "YES");
 	else if(stPjtSettings->getSaveAttr() == 1)
 		rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "Save", BAD_CAST "PROMPT");
 	else if(stPjtSettings->getSaveAttr() == 2)
-		rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "Save", BAD_CAST "DISCARD");
+		rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "Save", BAD_CAST "DISCARD");*/
 
 	cout << "\n1" << endl;
 	// End Auto Tag
@@ -5727,7 +5764,7 @@ if (rc < 0)
 		throw objException;
 	}
 	cout << "\n3" << endl;
-		rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "IP", BAD_CAST stPjtSettings->getPOWERLINK_IP());
+		//rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "IP", BAD_CAST stPjtSettings->getPOWERLINK_IP());
 		
 	// End Communication Tag
 	rc = xmlTextWriterEndElement(writer);
@@ -5761,16 +5798,19 @@ if (rc < 0)
 }
 cout << "\n5" << endl;
 		CNode objNode;		
-		CNodeCollection *objNodeCollection;
-		CIndexCollection *objIndexCollection;
+		CNodeCollection *objNodeCollection = NULL;
+		CIndexCollection *objIndexCollection = NULL;
 		CIndex objIndex;
-		CIndex* objIndexPtr;
-		Parameter* para;
-		CApplicationProcess* objAppProc;
+		CIndex* objIndexPtr =  NULL;
+		cout << "\n5_0" << endl;
+		Parameter* para = NULL;
+		CApplicationProcess* objAppProc = NULL;
 		int IndexPos = 0;
-		
+		cout << "\n5_1" << endl;
 		objIndex.setNodeID(objNode.getNodeId());
+		cout << "\n5_2" << endl;
 		objNodeCollection = CNodeCollection::getNodeColObjectPointer();
+		cout << "\n5_3" << endl;
 		//objNode = objNodeCollection->getNode(NodeType, NodeID);
 cout << "\n6" << endl;
 		//objIndexCollection = objNode.getIndexCollection();

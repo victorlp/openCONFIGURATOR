@@ -144,7 +144,7 @@ char* CNode::getNodeName()
 /****************************************************************************************************/
 void CNode::setNodeName(char* NodeName)
 	{	
-		m_NodeName = new char[strlen(NodeName)];
+		m_NodeName = new char[strlen(NodeName) + ALLOC_BUFFER];
 		strcpy((char*)m_NodeName, NodeName);
 	}
 	/**************************************************************************************************
