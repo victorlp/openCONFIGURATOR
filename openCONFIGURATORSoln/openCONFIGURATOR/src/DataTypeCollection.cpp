@@ -100,7 +100,7 @@ DataType* CDataTypeCollection::getDataType(char* DatatypeValue)
 		DataType* dt = NULL;
 		for(int i=0;i<this->getNumberOfDataTypes() ;i++)
 			{				
-				dt=this->getDataTypeElement(i);
+				dt=this->getDataTypeElement(i);			
 				if(strcmp(dt->DataTypeValue,DatatypeValue)==0)
 					return dt;
 
@@ -110,11 +110,11 @@ DataType* CDataTypeCollection::getDataType(char* DatatypeValue)
 	}
 DataType* CDataTypeCollection::getDataTypeByName(char* DataTypeName)
 	{
-		DataType* dt = NULL;
+		DataType* dt = NULL;	
 		for(int i=0;i<this->getNumberOfDataTypes() ;i++)
 			{				
-				dt=this->getDataTypeElement(i);
-				if(strcmp(dt->getName(),DataTypeName)==0)
+				dt=this->getDataTypeElement(i);				
+				if(strcmp(StringToUpper(dt->getName()),StringToUpper(DataTypeName))==0)
 					return dt;
 
 			}

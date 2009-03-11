@@ -161,4 +161,6 @@ int getCNsTotalIndexSubIndex(int NodeID);
 CHAR toupper (CHAR ch);
 CHAR tobin(CHAR ch);
 int reversedata(UINT8 *actemp1, UINT8 *actemp2, UINT32 size);
+char* StringToUpper(char* str);
+
 #endif // internal_h

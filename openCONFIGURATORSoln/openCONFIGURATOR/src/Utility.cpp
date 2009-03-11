@@ -94,6 +94,20 @@ char* ConvertToUpper(char* str)
 		//str1[t] = '\0';
 		//return str1;
 	}
+	char* StringToUpper(char* str)
+	{
+		int t;
+		int len = strlen(str);
+		char* strUpp = new char[len + ALLOC_BUFFER];
+
+		for(t=0; t < len ; ++t)
+		{
+			strUpp[t] = toupper(str[t]);
+		}
+		strUpp[t] = '\0';
+		return strUpp;
+	
+	}
 char* reverse(char* str)
 {
     char* left  = str;
