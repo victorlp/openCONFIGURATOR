@@ -4,13 +4,14 @@
 //
 //  $Header: $
 //
-// NAME:  ClassNAME
+// NAME:  Application Process
 //
 // BASE  CLASSES: none
 //  
-// PURPOSE:  purpose description
+// PURPOSE:  This class has the collection of all the objects within the Application Process tag 
+// xdd/xdc file.
 //
-// AUTHOR:  
+// AUTHOR:  Monica B
 //
 //  COPYRIGHT NOTICE:
 //

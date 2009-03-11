@@ -4,13 +4,13 @@
 //
 //  $Header: $
 //
-// NAME:  CIndex
+// NAME:  CBaseIndex
 //
 // BASE  CLASSES: none
 //  
-// PURPOSE:  purpose description
+// PURPOSE:  BaseClass for CIndex/CSubIndex
 //
-// AUTHOR:  MonicaB
+// AUTHOR:  Monica B
 //
 //  COPYRIGHT NOTICE:
 //

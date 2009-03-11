@@ -251,7 +251,7 @@ void setDataTypeAttributes(xmlTextReaderPtr reader ,DataType* objDataType)
 			name =xmlTextReaderConstName(reader);
 					
 			/*objDataType->setName((char*)name);*/
-			objDataType->Name = new char[strlen((char*)name) + 1];
+			objDataType->Name = new char[strlen((char*)name) + ALLOC_BUFFER];
 			//printf("\n Size:%d",sizeof(objDataType->Name));
 			//printf("\n Size of Name:%d", strlen((char*)name));
 			strcpy(objDataType->Name, (char*)name);
@@ -1774,7 +1774,7 @@ ocfmRetCode AddOtherRequiredCNIndexes(int NodeId)
 					return retCode;
 					
 					char* Val = new char[16];
-					Val = itoa(ConfigDate,Val, 10);
+					Val = IntToAscii(ConfigDate,Val, 10);
 				
 					/* Set 5ms value*/
 						/* Set subindex value 40 or 0000028 */
@@ -1782,7 +1782,7 @@ ocfmRetCode AddOtherRequiredCNIndexes(int NodeId)
 						strcpy(Sidx, "01");
 						SetSIdxValue(MNIndex, Sidx, Val, objIdxCol, objNode->getNodeId(), CN,  false);
 							
-						Val = itoa(ConfigTime,Val, 10);
+						Val = IntToAscii(ConfigTime,Val, 10);
 				
 						strcpy(Sidx, "02");
 						SetSIdxValue(MNIndex, Sidx, Val, objIdxCol, objNode->getNodeId(), CN, false);

@@ -529,6 +529,7 @@ void GenerateXAPHeaderFile(char* fileName, ProcessImage PI_IN[], ProcessImage PI
 		char* ModName =  new char[50];
 		char* strModuleNo = new char[16];
 		char* varNo = new char[10];
+		int totalsize = 0;
 						
 		char* strFileName  = new char[strlen(fileName) + 2];
 		strcpy(strFileName, fileName);
@@ -556,9 +557,14 @@ void GenerateXAPHeaderFile(char* fileName, ProcessImage PI_IN[], ProcessImage PI
 					
 					
 					NodeId = PI_IN[i].CNNodeID;
+				/*	if((i!=0) && (NodeId == PI_IN[i-1].CNNodeID))
+					totalsize = PI_IN[i].DataInfo.DataSize + totalsize;
+					else
+					totalsize = 0;*/
+			
 					/*strcat(Buffer, "struct");				
 					strcat(Buffer, " CN");*/
-					strCNID = itoa(PI_IN[i].CNNodeID, strCNID, 10); 
+					strCNID = IntToAscii(PI_IN[i].CNNodeID, strCNID, 10); 
 					/*strcat(Buffer,strCNID);*/
 							/* Add Module No*/
 					
@@ -569,14 +575,14 @@ void GenerateXAPHeaderFile(char* fileName, ProcessImage PI_IN[], ProcessImage PI
 							
 							if(CheckIfModuleExists(PI_IN[i].ModuleName, ModuleNo, LastModuleNo, modCol))
 							{
-								strModuleNo = itoa(ModuleNo, strModuleNo, 10);
+								strModuleNo = IntToAscii(ModuleNo, strModuleNo, 10);
 							}
 							else
 							{
 								LastModuleNo = LastModuleNo  + 1;	
 								strcpy(modCol[LastModuleNo].ModuleName, PI_IN[i].ModuleName);
 								modCol[LastModuleNo].ModuleNo = LastModuleNo; 	
-								strModuleNo = itoa(LastModuleNo, strModuleNo, 10);					
+								strModuleNo = IntToAscii(LastModuleNo, strModuleNo, 10);					
 								}
 							}
 					}
@@ -584,7 +590,7 @@ void GenerateXAPHeaderFile(char* fileName, ProcessImage PI_IN[], ProcessImage PI
 					{
 							strcpy(modCol[LastModuleNo].ModuleName, PI_IN[i].ModuleName);
 							modCol[LastModuleNo].ModuleNo = LastModuleNo; 
-							strModuleNo = itoa(ModuleNo, strModuleNo, 10);
+							strModuleNo = IntToAscii(ModuleNo, strModuleNo, 10);
 					}*/
 					//char* ModName =  new char[strlen(PI_IN[i].ModuleName) + 1];
 					strcpy(strModuleNo, subString( PI_IN[i].ModuleIndex,2, 2));
@@ -596,7 +602,7 @@ void GenerateXAPHeaderFile(char* fileName, ProcessImage PI_IN[], ProcessImage PI
 					strcat(Buffer," ");
 					char* varName = new char[100];
 					strcpy(varName, "CN");
-					strCNID = itoa(PI_IN[i].CNNodeID, strCNID, 10); 
+					strCNID = IntToAscii(PI_IN[i].CNNodeID, strCNID, 10); 
 					strcat(varName, strCNID);
 					strcat(varName, "_");
 					
@@ -608,9 +614,10 @@ void GenerateXAPHeaderFile(char* fileName, ProcessImage PI_IN[], ProcessImage PI
 					strcat(varName, ModName);
 					strcat(varName, "_");
 					strcat(varName, PI_IN[i].VarName);
+						
 					if(strcmp(subString(PI_IN[i].VarName,0, 8), "Reserved")== 0)
 					{
-						varNo =  itoa(i, varNo, 10);
+						varNo =  IntToAscii(i, varNo, 10);
 						strcat(varName, "_");
 						strcat(varName, varNo);
 					}
@@ -618,7 +625,7 @@ void GenerateXAPHeaderFile(char* fileName, ProcessImage PI_IN[], ProcessImage PI
 					strcat(Buffer, varName);
 					//strcat(Buffer, PI_IN[i].VarName);
 					strcat(Buffer, ":");
-					str = itoa(PI_IN[i].DataInfo.DataSize, str, 10); 
+					str = IntToAscii(PI_IN[i].DataInfo.DataSize, str, 10); 
 					strcat(Buffer, str);
 					strcat(Buffer, ";");
 					
@@ -653,24 +660,24 @@ void GenerateXAPHeaderFile(char* fileName, ProcessImage PI_IN[], ProcessImage PI
 					/*strcat(Buffer, "struct");				
 					strcat(Buffer, " CN");
 					
-				*/	strCNID = itoa(PI_OUT[i].CNNodeID, strCNID, 10); 
+				*/	strCNID = IntToAscii(PI_OUT[i].CNNodeID, strCNID, 10); 
 				//strcat(Buffer,strCNID);
 				/*		if(strcmp(PI_OUT[i].ModuleName, ModName) !=0)
 						{							
 								if(CheckIfModuleExists(PI_OUT[i].ModuleName, ModuleNo, LastModuleNo, modCol))
 								{
-									strModuleNo = itoa(ModuleNo, strModuleNo, 10);
+									strModuleNo = IntToAscii(ModuleNo, strModuleNo, 10);
 								}
 								else
 								{
 									LastModuleNo = LastModuleNo  + 1;	
 									strcpy(modCol[ModuleNo].ModuleName, PI_OUT[i].ModuleName);
 									modCol[ModuleNo].ModuleNo = LastModuleNo; 	
-									strModuleNo = itoa(LastModuleNo, strModuleNo, 10);					
+									strModuleNo = IntToAscii(LastModuleNo, strModuleNo, 10);					
 								}
 							}
 							else							
-							strModuleNo = itoa(LastModuleNo, strModuleNo, 10);
+							strModuleNo = IntToAscii(LastModuleNo, strModuleNo, 10);
 			*/	
 					//char* ModName =  new char[strlen(PI_OUT[i].ModuleName) + 1];
 					strcpy(strModuleNo, subString( PI_OUT[i].ModuleIndex,2, 2));
@@ -680,7 +687,7 @@ void GenerateXAPHeaderFile(char* fileName, ProcessImage PI_IN[], ProcessImage PI
 					strcat(Buffer," ");
 					char* varName = new char[100];
 					strcpy(varName, "CN");
-					strCNID = itoa(PI_OUT[i].CNNodeID, strCNID, 10); 
+					strCNID = IntToAscii(PI_OUT[i].CNNodeID, strCNID, 10); 
 					strcat(varName, strCNID);
 					strcat(varName, "_");
 					
@@ -695,7 +702,7 @@ void GenerateXAPHeaderFile(char* fileName, ProcessImage PI_IN[], ProcessImage PI
 					
 						if(strcmp(subString(PI_OUT[i].VarName,0, 8), "Reserved")== 0)
 					{
-						varNo =  itoa(i, varNo, 10);
+						varNo =  IntToAscii(i, varNo, 10);
 						strcat(varName, "_");
 						strcat(varName, varNo);
 					}
@@ -703,7 +710,7 @@ void GenerateXAPHeaderFile(char* fileName, ProcessImage PI_IN[], ProcessImage PI
 					strcat(Buffer, varName);
 					//strcat(Buffer, PI_IN[i].VarName);
 					strcat(Buffer, ":");
-					str = itoa(PI_OUT[i].DataInfo.DataSize, str, 10); 
+					str = IntToAscii(PI_OUT[i].DataInfo.DataSize, str, 10); 
 					strcat(Buffer, str);
 						strcat(Buffer, ";");
 						
@@ -730,7 +737,7 @@ void GenerateXAPHeaderFile(char* fileName, ProcessImage PI_IN[], ProcessImage PI
 		{
 		}
 }
-void SetSIdxDataType(DataType dt, char* Idx, char* SIdx)
+void SetSIdxDataType(DataType *dt, char* Idx, char* SIdx)
 {
 		CNodeCollection* objNodeCollection;
 		CIndexCollection *objIndexCol;
@@ -745,55 +752,101 @@ void SetSIdxDataType(DataType dt, char* Idx, char* SIdx)
 		objIndex = objIndexCol->getIndexbyIndexValue(Idx);
 		objSIdx = objIndex->getSubIndexbyIndexValue(SIdx);
 		
-		objSIdx->setDataTypeST(dt);
+			printf("\n datatype name%s", dt->getName());
+					printf("\n datatype value%s", dt->DataTypeValue);
+		objSIdx->setDataTypeST(*dt);
 		
 	
 }
 void AddPDOIndexsToMN(char* Index, char* SubIndex)
 {
 	ocfmRetCode retCode;
-	DataType dt;
-	printf("\n before Add Index : %s", Index);
-	retCode = AddIndex(240, MN, Index);	
+	DataType* dt;
+	CNodeCollection *objNodeCol;
+	CNode objMNNode;
+	CDataTypeCollection *objDTCol;
+	char* Name = new char[50];
 	
+	objNodeCol =  CNodeCollection::getNodeColObjectPointer();
+	objMNNode = objNodeCol->getNode(MN, 240);
+	objDTCol = objMNNode.getDataTypeCollection();
+	
+	printf("\n Index: %s",Index);
+	
+	retCode = AddIndex(240, MN, Index);	
+	//printf("\n after Add Index before subIndex : %s", Index);
 	retCode = AddSubIndex(240, MN, Index, SubIndex);
-	if((strcmp(Index, "A000")==0) || (strcmp(Index, "A030")==0))
-	{
-		dt.setName("Unsigned8");
-		dt.DataTypeValue =  new char[10];
-		strcpy(dt.DataTypeValue, "0005");
-	}
-	else if((strcmp(Index, "A001")==0) || (strcmp(Index, "A031")==0))
-	{
-		dt.setName("Integer8");
-		dt.DataTypeValue =  new char[10];
-		strcpy(dt.DataTypeValue, "0002");
-	}
-	else if((strcmp(Index, "A010")==0) || (strcmp(Index, "A040")==0))
-	{
-		dt.setName("Unsigned16");
-		dt.DataTypeValue =  new char[10];
-		strcpy(dt.DataTypeValue, "0006");
-	}
-	else if((strcmp(Index, "A011")==0) || (strcmp(Index, "A041")==0))
-	{
-		dt.setName("Integer16");
-		dt.DataTypeValue =  new char[10];
-		strcpy(dt.DataTypeValue, "0003");
-	}
-	else if((strcmp(Index, "A020")==0) || (strcmp(Index, "A050")==0))
-	{
-		dt.setName("Unsigned32");
-		dt.DataTypeValue =  new char[10];
-		strcpy(dt.DataTypeValue, "0007");
-	}
-	else if((strcmp(Index, "A021")==0) || (strcmp(Index, "A051")==0))
-	{
-		dt.setName("Integer32");
-		dt.DataTypeValue =  new char[10];
-		strcpy(dt.DataTypeValue, "0004");
-	}
+	
+	Name = getPIDataTypeName(Index);
+		
+	dt = objDTCol->getDataTypeByName(Name);
+	//dt->setName(Name);
+	
 
 	SetSIdxDataType(dt, Index, SubIndex);
 	
  }
+char* getPIAddress(PDODataType dt,  EPIDirectionType dirType)
+{
+	
+	for(int i = 0; i< NO_OF_PI_ENTERIES; i++)
+	{
+		if((AddressTable[i].dt == dt) && (AddressTable[i].Direction == dirType))
+		return AddressTable[i].Address;
+	}
+}
+char* getPIDataTypeName(char* Address)
+{
+	
+	for(int i = 0; i< NO_OF_PI_ENTERIES; i++)
+	{		
+		if(strcmp(AddressTable[i].Address,  Address) ==0)
+		{
+			switch(AddressTable[i].dt)
+			{
+				case UNSIGNED8 :
+				{
+					return "Unsigned8";
+					break;
+				}
+				case INTEGER8 :
+				{
+					return "Integer8";
+					break;
+				}
+				case UNSIGNED16 :
+				{
+					return "Unsigned16";
+					break;
+				}
+				case INTEGER16 :
+				{
+					return "Integer8";
+					break;
+				}
+				case UNSIGNED32 :
+				{
+					return "Unsigned32";
+					break;
+				}
+				case INTEGER32 :
+				{
+					return "Integer32";
+					break;
+				}
+				
+			}
+		}
+	}
+}
+
+bool CheckIfProcessImageIdx(char* Index)
+{
+	for(int i = 0; i< NO_OF_PI_ENTERIES; i++)
+	{		
+		if(strcmp(AddressTable[i].Address,  Index) ==0)
+		return true;
+	}
+	
+	return false;
+}

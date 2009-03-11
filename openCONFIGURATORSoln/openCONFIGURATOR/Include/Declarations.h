@@ -4,10 +4,8 @@
 //
 // $Header: $
 //
-// NAME:  ClassNAME
+// NAME:  
 //
-// BASE  CLASSES: none
-//  
 // PURPOSE:  purpose description
 //
 // AUTHOR:  

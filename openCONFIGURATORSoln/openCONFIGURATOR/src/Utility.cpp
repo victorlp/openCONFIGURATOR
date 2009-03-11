@@ -69,6 +69,7 @@
 
 #include "../Include/Declarations.h"
 #include "../Include/Internal.h"
+#include "../Include/ProcessImage.h"
 #include <iostream>
 #include <stdlib.h>
 #include <time.h>
@@ -159,7 +160,7 @@ char *utoa(unsigned value, char *digits, int base)
     return digits;
 }
 
-char *itoa(int value, char *digits, int base)
+char *IntToAscii(int value, char *digits, int base)
 {
     char *d;
     unsigned u; /* assume unsigned is big enough to hold all the
@@ -185,11 +186,11 @@ char *itoa(int value, char *digits, int base)
 
 
 /**************************************************************************************************
-* Function Name: itoa
-* Description: Perform C++ style "itoa"
+* Function Name: IntToAscii
+* Description: Perform C++ style "IntToAscii"
 /****************************************************************************************************/
 
-//char* itoa( int value, char* result, int base ) 
+//char* IntToAscii( int value, char* result, int base ) 
 //{
 //	// check that the base if valid
 //

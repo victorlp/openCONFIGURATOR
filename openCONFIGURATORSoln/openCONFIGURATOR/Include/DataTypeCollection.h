@@ -8,9 +8,10 @@
 //
 // BASE  CLASSES: none
 //  
-// PURPOSE:  purpose description
+// PURPOSE: This class will have the collection of datatypes within the DatatypeList tag of 
+// xdd/xdc file.
 //
-// AUTHOR:  
+// AUTHOR:  Monica B
 //
 //  COPYRIGHT NOTICE:
 //

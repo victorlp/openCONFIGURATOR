@@ -143,7 +143,7 @@ struct ProcessImage
 
 struct StAddressTable
 {
-	char Address[5];
+	char Address[10];
 	PDODataType dt;
 	EPIDirectionType Direction;
 	
@@ -157,20 +157,20 @@ extern int InVars;
 extern int OutVars;
 //extern ProcessImage PIInCol[4000];
 //extern ProcessImage PIOutCol[4000];
-
-static StAddressTable AddressTable[12] = {
-																												{"A000", UNSIGNED8,		INPUT},
-																												{"A001", INTEGER8,			INPUT},
-																												{"A010", UNSIGNED16, INPUT},
-																												{"A011", INTEGER16,		INPUT},
-																												{"A020", UNSIGNED32, INPUT},
-																												{"A021", INTEGER32,		INPUT},
-																												{"A030", UNSIGNED8,		OUTPUT},
-																												{"A031", INTEGER8,			OUTPUT},
-																												{"A040", UNSIGNED16, OUTPUT},
-																												{"A041", INTEGER16,		OUTPUT},
-																												{"A050", UNSIGNED32, OUTPUT},
-																												{"A051", INTEGER32,			OUTPUT},
+static const int NO_OF_PI_ENTERIES = 12;
+static StAddressTable AddressTable[NO_OF_PI_ENTERIES] = {
+																												{"A000", INTEGER8,		INPUT},
+																												{"A040", UNSIGNED8,			INPUT},
+																												{"A0C0", INTEGER16, INPUT},
+																												{"A100", UNSIGNED16,		INPUT},
+																												{"A1C0", INTEGER32, INPUT},
+																												{"A200", UNSIGNED32,		INPUT},
+																												{"A480", INTEGER8,		OUTPUT},
+																												{"A4C0", UNSIGNED8,			OUTPUT},
+																												{"A540", INTEGER16, OUTPUT},
+																												{"A580", UNSIGNED16,		OUTPUT},
+																												{"A640", INTEGER32, OUTPUT},
+																												{"A680", UNSIGNED32,			OUTPUT},
 																												
 																												};			
 struct ModuleCol
@@ -188,5 +188,7 @@ int ComputeOUTOffset(int dataSize, EPDOType pdoType);
 void SetPIOffsets(ProcessImage* pi,int& StartingByteOffset, int pos, int& StartBitOffset);
 void GenerateXAPHeaderFile(char* fileName, ProcessImage PI_IN[], ProcessImage PI_OUT[], int InVar, int OutVar);
 void AddPDOIndexsToMN(char* Index, char* SubIndex);
-
+char* getPIAddress(PDODataType dt,  EPIDirectionType dirType);
+char* getPIDataTypeName(char* Address);
+bool CheckIfProcessImageIdx(char* Index);
 #endif // processImage_h

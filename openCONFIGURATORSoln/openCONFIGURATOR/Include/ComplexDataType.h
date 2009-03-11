@@ -4,13 +4,13 @@
 //
 //  $Header: $
 //
-// NAME:  ClassNAME
+// NAME:  CComplexDataType
 //
 // BASE  CLASSES: none
 //  
-// PURPOSE:  purpose description
+// PURPOSE:  This class is to handle complex datatypes in xdd/xdc file
 //
-// AUTHOR:  
+// AUTHOR:  Monica B
 //
 //  COPYRIGHT NOTICE:
 //

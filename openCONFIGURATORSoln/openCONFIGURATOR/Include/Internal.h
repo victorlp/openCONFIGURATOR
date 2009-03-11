@@ -111,7 +111,7 @@ static const char *g_Simple[][2] = {
 
 //void LoadObjectDictionary(char* fileName);
 char* ConvertToUpper(char* str);
-char* itoa( int value, char* result, int base );
+char* IntToAscii( int value, char* result, int base );
 bool CheckIfNotPDO(char* Index);
 void CreateTree();
 bool CheckIfNotPDO(char* Index);
