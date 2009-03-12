@@ -752,8 +752,6 @@ void SetSIdxDataType(DataType *dt, char* Idx, char* SIdx)
 		objIndex = objIndexCol->getIndexbyIndexValue(Idx);
 		objSIdx = objIndex->getSubIndexbyIndexValue(SIdx);
 		
-			printf("\n datatype name%s", dt->getName());
-					printf("\n datatype value%s", dt->DataTypeValue);
 		objSIdx->setDataTypeST(*dt);
 		
 	

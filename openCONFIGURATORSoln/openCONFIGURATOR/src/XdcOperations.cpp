@@ -565,7 +565,10 @@ ocfmRetCode ImportXML(char* fileName, int NodeID, ENodeType NodeType)
 		
 			/* Add other required index*/		
 			if(NodeType == CN)
-			AddOtherRequiredCNIndexes(NodeID);
+			{
+				setFlagForRequiredIndexes(NodeID);
+				AddOtherRequiredCNIndexes(NodeID);
+			}
 			
 			ErrStruct.code = OCFM_ERR_SUCCESS;
 			return ErrStruct;
@@ -837,6 +840,12 @@ ocfmRetCode ReImportXML(char* fileName, int NodeID, ENodeType NodeType)
 			objDataTypeCollection->DeleteDataTypeCollection();
 			//cout<< "Number of DataType:" << objDataTypeCollection->getNumberOfDataTypes() << endl;
 			parseFile(fileName, NodeID, NodeType);
+			/* Add other required index*/		
+			if(NodeType == CN)
+			{
+				setFlagForRequiredIndexes(NodeID);
+				AddOtherRequiredCNIndexes(NodeID);
+			}
 			ErrStruct.code = OCFM_ERR_SUCCESS;
 			return ErrStruct;
 		}
@@ -1742,6 +1751,30 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 
 	ErrStruct.code = OCFM_ERR_SUCCESS;
 	return ErrStruct;	
+}
+void setFlagForRequiredIndexes(int NodeId)
+{
+		CIndex* objIndex;
+		CSubIndex* objSIdx;
+		CIndexCollection* objIdxCol;
+		CNodeCollection* objNodeCol;
+		CNode* objNode;
+		
+		objNodeCol =  CNodeCollection::getNodeColObjectPointer();
+		objNode =  objNodeCol->getNodePtr(CN, NodeId);
+		objIdxCol = objNode->getIndexCollection();
+		
+		int IndexCount = objIdxCol->getNumberofIndexes();
+		
+		for(int i=0 ;i <IndexCount; i++)
+		{
+			objIndex = objIdxCol->getIndex(i);
+			if(CheckAllowedCNIndexes((char*)objIndex->getIndexValue()))
+			{
+				objIndex->setFlagIfIncludedCdc(TRUE);
+			}
+		}
+					
 }
 ocfmRetCode AddOtherRequiredCNIndexes(int NodeId)
 {

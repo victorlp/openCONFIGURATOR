@@ -217,7 +217,9 @@ ocfmException::~ocfmException(void)
 			case OCFM_ERR_CANNOT_OPEN_PROJECT_VER_MISMATCH:
 					strcpy(_ocfmRetCode.errorString, "Cannot open project: Tool-Project version mismatch");
 			case OCFM_ERR_INVALID_PJTXML:
-				strcpy(_ocfmRetCode.errorString, "Cannot open project: Invalid Project XML");					
+				strcpy(_ocfmRetCode.errorString, "Cannot open project: Invalid Project XML");		
+			case OCFM_ERR_PROJECT_SETTINGS:
+						strcpy(_ocfmRetCode.errorString, "Project Settings are NULL");		
 			default:
 						break;			
 		}

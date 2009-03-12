@@ -78,8 +78,7 @@ CPjtSettings::CPjtSettings(void)
 		#endif
 		m_saveMode = DISCARD_AS;
 		m_generateMode = NO_AG;
-		m_IP_openPOWERLINK = NULL;
-		TestVar = 0;
+		m_IP_openPOWERLINK = NULL;	
 			#if defined DEBUG
 		//cout << "\n Returning m_saveMode:-" << m_saveMode <<endl;	
 	#endif
@@ -150,12 +149,3 @@ const char* CPjtSettings::getPOWERLINK_IP()
 		return NULL;
 }
 
-void CPjtSettings::setTestVar(int temp)
-{
-	TestVar = temp;
-}
-
-int CPjtSettings::getTestVar()
-{
-	return TestVar;
-}

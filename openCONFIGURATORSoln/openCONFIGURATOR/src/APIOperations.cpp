@@ -692,7 +692,9 @@ ocfmRetCode AddIndex(int NodeID, ENodeType NodeType, char* IndexID)
     * Description:
 	* Return value: ocfmRetCode
 /****************************************************************************************************/
-ocfmRetCode SetIndexAttributes(int NodeID, ENodeType NodeType, char* IndexID, char* IndexValue, char* IndexName)
+ocfmRetCode SetIndexAttributes(int NodeID, ENodeType NodeType,
+																														 char* IndexID, char* IndexValue,
+																														 char* IndexName, EFlag flagIfIncludedInCdc)
 {
 	int IndexPos;
 	ocfmRetCode ErrStruct;
@@ -726,6 +728,7 @@ ocfmRetCode SetIndexAttributes(int NodeID, ENodeType NodeType, char* IndexID, ch
 		//cout << "EditIndexValue:Index Actual Value:" << objIndexPtr->getActualValue() << IndexValue << endl;
 		/* Check if the value is valid*/
 		objIndexPtr->setName(IndexName);
+		objIndexPtr->setFlagIfIncludedCdc(flagIfIncludedInCdc);
 		if(objIndexPtr->IsIndexVaueValid(IndexValue))
 		{
 			//printf("\nIndex value%s",IndexValue);
@@ -1119,7 +1122,7 @@ char* GenerateCNOBD(CNodeCollection* objNodeCol)
 			//printf("\n\n\n CN-S Data Started**********************");
 		//Buffer2 = NULL;
 //		strcpy(Buffer3,"");
-		char* c = (char*)malloc(20);	
+		char* c = (char*)malloc(50);	
 		FILE* fileptr = new FILE();
 		CNode objNode;	
 		CNodeCollection* objNodeCollection;
@@ -1167,9 +1170,9 @@ char* GenerateCNOBD(CNodeCollection* objNodeCol)
 							char* Buffer4;
 									
 						/*************WRITE MN'S 1006,1020 Indexes Values *******************************/			
-							Buffer4 = (char*)malloc(2000);	
+							Buffer4 = (char*)malloc(10000);	
 							objIndex = getMNIndexValues("1006");
-							Buffer2 = (char*)malloc(4000);		
+							Buffer2 = (char*)malloc(20000);		
 						
 							strcpy(Buffer2, "");
 							strcpy(Buffer4, "");
@@ -1182,8 +1185,8 @@ char* GenerateCNOBD(CNodeCollection* objNodeCol)
 							strcpy(Buffer2, Buffer4);
 							if(objIndex!=NULL)
 							{
-								GetIndexData(objIndex,Buffer4);
-								strcat(Buffer2, Buffer4);
+								//GetIndexData(objIndex,Buffer4);
+								//strcat(Buffer2, Buffer4);
 								UpdateCNCycleTime(objIndexCollection,(char*) objIndex->getActualValue());
 							}
 							
@@ -1192,7 +1195,7 @@ char* GenerateCNOBD(CNodeCollection* objNodeCol)
 					
 					#endif		
 					
-							/*************WRITE Other Required CN Indexes in CDC *******************************/
+							/*************WRITE Required CN Indexes in CDC *******************************/
 								for(int i=0; i<NumberOfIndexes; i++)
 								{
 		
@@ -1200,16 +1203,11 @@ char* GenerateCNOBD(CNodeCollection* objNodeCol)
 									objIndex = objIndexCollection->getIndex(i);
 									const char* IndexValue = objIndex->getIndexValue();
 									
-									/*if((CheckIfNotPDO((char*)IndexValue)==false)  || CheckIfManufactureSpecificObject((char*)IndexValue))
-								*/
-								if(CheckAllowedCNIndexes((char*)IndexValue))
-								{
-													#if defined DEBUG	
-						cout << "IndexValue:" << IndexValue <<endl;
-					
-					#endif																
-											GetIndexData(objIndex, Buffer4);
-											strcat(Buffer2, Buffer4);
+								//if(CheckAllowedCNIndexes((char*)IndexValue) && (objIndex->getFlagIfIncludedCdc() == true))
+								if(objIndex->getFlagIfIncludedCdc())
+								{																						
+										GetIndexData(objIndex, Buffer4);
+										strcat(Buffer2, Buffer4);
 										
 									}									
 								}	
@@ -2802,7 +2800,13 @@ ocfmRetCode GetIndexAttributes(
 						strcpy(Out_AttributeValue, (char *) objIndexPtr->getHighLimit());
 					else
 						strcpy(Out_AttributeValue, "");
-					break;									
+					break;
+			/* Flag if it should be included in cdc*/
+			case 9:
+					if(objIndexPtr->getFlagIfIncludedCdc() == true)
+					strcpy(Out_AttributeValue, "1");
+					else
+					strcpy(Out_AttributeValue, "0");								
 			default:
 					//cout << "invalid Attribute Type" << endl;
 					//ErrStruct.code = OCFM_ERR_INVALID_ATTRIBUTETYPE;
@@ -2941,7 +2945,14 @@ ocfmRetCode GetIndexAttributesbyPositions(
 							strcpy(Out_AttributeValue, (char *) objIndexPtr->getHighLimit());
 						else
 							strcpy(Out_AttributeValue, "");
-						break;									
+						break;			
+				/* Flag if it should be included in cdc*/
+			case 9:
+					if(objIndexPtr->getFlagIfIncludedCdc() ==  TRUE)
+					strcpy(Out_AttributeValue, "1");
+					else
+					strcpy(Out_AttributeValue, "0");	
+											
 				default:
 						//cout << "invalid Attribute Type" << endl;
 						ErrStruct.code = OCFM_ERR_INVALID_ATTRIBUTETYPE;
@@ -4204,7 +4215,7 @@ ocfmRetCode AddOtherMNIndexes(CNode *objNode, char* tmp_CycleTime)
 					
 					/* Set 5ms value*/	
 					cout << "\ntmp_CycleTime:" << tmp_CycleTime <<endl;
-					SetIndexAttributes(240, MN, MNIndex, tmp_CycleTime,"NMT_CycleLen_U32");
+					SetIndexAttributes(240, MN, MNIndex, tmp_CycleTime,"NMT_CycleLen_U32", TRUE);
 					
 					printf("\ncycle time %s", tmp_CycleTime);
 					
@@ -4216,7 +4227,7 @@ ocfmRetCode AddOtherMNIndexes(CNode *objNode, char* tmp_CycleTime)
 					strcpy(MNIndex, "1300");
 					retCode = AddIndex(240, MN, MNIndex);
 					/* $:To do by M hard coded*/
-					SetIndexAttributes(240, MN, MNIndex, "5000","SDO_SequLayerTimeout_U32");
+					SetIndexAttributes(240, MN, MNIndex, "5000","SDO_SequLayerTimeout_U32", TRUE);
 					
 					
 					/* Add 1C02*/
@@ -6053,4 +6064,68 @@ void CreateMNPDOVar(int Offset, int dataSize,IEC_Datatype dtenum, EPDOType pdoTy
 		objNode->addMNPDOvar(objPDOvar,pdoType);
 		
 		
+}
+/**************************************************************************************************
+	* Function Name: GetProjectSettings
+ * Description: Gets the Project Settings of the tool
+/***************************************************************************************************/
+
+ocfmRetCode GetProjectSettings(EAutoGenerate autoGen, EAutoSave autoSave)
+{
+ 
+		ocfmRetCode retCode;
+		CPjtSettings* objPrjtSettings;
+		objPrjtSettings =  CPjtSettings::getPjtSettingsPtr();
+		
+		try
+		{
+			if(objPrjtSettings == NULL)
+			{
+				ocfmException* objException = new ocfmException;
+				objException->ocfm_Excpetion(OCFM_ERR_PROJECT_SETTINGS);
+				throw objException;
+			}
+			
+			autoGen = objPrjtSettings->getGenerateAttr();
+			autoSave = objPrjtSettings->getSaveAttr();
+			retCode.code =  OCFM_ERR_SUCCESS;
+			return retCode;
+		}
+		catch(ocfmException& ex)
+		{
+			return ex._ocfmRetCode;
+		}
+}
+
+
+/**************************************************************************************************
+	* Function Name: SetProjectSettings
+ * Description: Sets the Project Settings of the tool
+/***************************************************************************************************/
+
+ocfmRetCode SetProjectSettings(EAutoGenerate autoGen, EAutoSave autoSave)
+{
+ 
+		ocfmRetCode retCode;
+		CPjtSettings* objPrjtSettings;
+		objPrjtSettings =  CPjtSettings::getPjtSettingsPtr();
+		
+		try
+		{
+			if(objPrjtSettings == NULL)
+			{
+				ocfmException* objException = new ocfmException;
+				objException->ocfm_Excpetion(OCFM_ERR_PROJECT_SETTINGS);
+				throw objException;
+			}
+			
+			objPrjtSettings->setGenerateAttr(autoGen);
+			objPrjtSettings->setSaveAttr(autoSave);
+			retCode.code =  OCFM_ERR_SUCCESS;
+			return retCode;
+		}
+		catch(ocfmException& ex)
+		{
+			return ex._ocfmRetCode;
+		}
 }

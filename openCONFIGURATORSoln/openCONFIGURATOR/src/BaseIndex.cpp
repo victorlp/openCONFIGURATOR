@@ -20,6 +20,7 @@ CBaseIndex::CBaseIndex(void)
 		m_dataTypeValue = NULL;
 		m_dataType.DataTypeValue = NULL;
 		m_dataType.DataSize = NULL;
+		m_IsIncludedInCDC = FALSE;
 
 	}
 
@@ -395,4 +396,20 @@ bool CBaseIndex::IsIndexVaueValid(char* hexValue)
 		} 
 		return flag;
 	}
+	
+/**************************************************************************************************
+	* Function Name: setFlagIfIncludedCdc
+    * Description: sets the flag whether the Index should be included in cdc
+/****************************************************************************************************/
+void CBaseIndex::setFlagIfIncludedCdc(EFlag flag)
+	{
+		m_IsIncludedInCDC = flag;
+	}
+/**************************************************************************************************
+	* Function Name: getFlagIfIncludedCdc
+    * Description: Returns whether the Index should be included in cdc
+/****************************************************************************************************/
+
+EFlag CBaseIndex::getFlagIfIncludedCdc()
+	{return m_IsIncludedInCDC;}
 #pragma endregion MemberFunctions

@@ -94,6 +94,7 @@ class DllExport CBaseIndex
 		char*											m_UniqueIDRef;
 		int													m_ParameterIndex;
 		char*											m_dataTypeValue;					/* Only used for ObjectDictionary*/
+		EFlag											m_IsIncludedInCDC;
 
 
 
@@ -145,7 +146,9 @@ class DllExport CBaseIndex
 		void setDataTypeValue(char* value);
 
 
-	
+	 EFlag getFlagIfIncludedCdc();
+		void setFlagIfIncludedCdc(EFlag flag);
+		
 		void setDataTypeST(DataType  dt);
 
 

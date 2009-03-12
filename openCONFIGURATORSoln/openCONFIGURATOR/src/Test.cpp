@@ -405,11 +405,11 @@ int main(int argc, char **argv)
 							cin >> IndexName;
 							if (NodeType == 0)					
 						//	SetSubIndexAttributes(NodeID, MN, IndexID, SubIndexID,IndexValue, IndexName);
-							SetIndexAttributes(NodeID, MN, IndexID, IndexValue, IndexName);
+							SetIndexAttributes(NodeID, MN, IndexID, IndexValue, IndexName, TRUE);
 							//(int NodeID, ENodeType NodeType, char* IndexID, char* IndexValue, char* IndexName);
 							else if (NodeType == 1)
 							//SetSubIndexAttributes(NodeID, CN, IndexID, SubIndexID,IndexValue, IndexName);
-							SetIndexAttributes(NodeID, CN, IndexID, IndexValue, IndexName);
+							SetIndexAttributes(NodeID, CN, IndexID, IndexValue, IndexName, TRUE);
 							break;
 
 				case 20:

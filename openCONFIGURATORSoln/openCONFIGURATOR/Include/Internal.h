@@ -105,6 +105,7 @@ static const char *g_Simple[][2] = {
 																										{"WSTRING",  "1"}
 																										};
 
+
 /****************************************************************************************/
 /* Function Declarations
 /*****************************************************************************************/
@@ -162,5 +163,5 @@ CHAR toupper (CHAR ch);
 CHAR tobin(CHAR ch);
 int reversedata(UINT8 *actemp1, UINT8 *actemp2, UINT32 size);
 char* StringToUpper(char* str);
-
+void setFlagForRequiredIndexes(int NodeId);
 #endif // internal_h

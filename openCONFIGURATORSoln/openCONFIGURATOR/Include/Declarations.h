@@ -244,8 +244,15 @@ typedef enum
 	ACTUALVALUE,	// Actual value of the Attribute
 	PDOMAPPING,		// PDO Mapping of the Attribute
 	LOWLIMIT,
-	HIGHLIMIT
+	HIGHLIMIT,
+	FLAGIFINCDC
 }EAttributeType;
+
+typedef enum
+{
+	FALSE,
+	TRUE
+}EFlag;
 
 typedef enum 
 {
@@ -259,7 +266,11 @@ typedef enum
 	PROMPT_AS,
 	DISCARD_AS
 }EAutoSave;
-
+typedef enum
+{
+	AUTOGENERATE = 0,
+	AUTOSAVE
+}EProjectSettings;
 
 /****************************************************************************************/
 /* Function Declarations
@@ -282,7 +293,7 @@ DllExport ocfmRetCode DeleteIndex(int NodeID, ENodeType NodeType, char* IndexID)
 DllExport ocfmRetCode DeleteSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID);
 DllExport ocfmRetCode AddIndex(int NodeID, ENodeType NodeType, char* IndexID);
 DllExport ocfmRetCode AddSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID);
-DllExport ocfmRetCode SetIndexAttributes(int NodeID, ENodeType NodeType, char* IndexID, char* IndexValue, char* IndexName);
+DllExport ocfmRetCode SetIndexAttributes(int NodeID, ENodeType NodeType, char* IndexID, char* IndexValue, char* IndexName, EFlag flagIfInCdc);
 DllExport ocfmRetCode SetSubIndexAttributes(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID, char* IndexValue, char* IndexName);
 
 //$S Test API. Should be deleted in the release code
@@ -314,6 +325,9 @@ DllExport void LoadObjectDictionary(char* fileName);
 DllExport ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType);
 DllExport ocfmRetCode SaveProject(char* ProjectPath, char* ProjectName);
 DllExport ocfmRetCode OpenProject(char* PjtPath, char* projectXmlFileName);
+DllExport ocfmRetCode GetProjectSettings(EAutoGenerate autoGen, EAutoSave autoSave);
+DllExport ocfmRetCode SetProjectSettings(EAutoGenerate autoGen, EAutoSave autoSave);
+
 //DllExport ocfmRetCode GetSubIndexCount(char* IndexID, int* IndexCount);
 DllExport ocfmRetCode GenerateMNOBD();
 
