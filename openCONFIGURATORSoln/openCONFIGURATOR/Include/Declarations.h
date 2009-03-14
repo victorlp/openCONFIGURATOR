@@ -88,6 +88,9 @@ const int OFFSET_UNSIGNED_INTEGER_8 = 0;
 #define OFFSET_SUBINDEX 2
 #define OFFSET_SIZE		3
 #define OFFSET_DATA		7
+#define	INDEX_SIZE		4
+#define	SUBINDEX_SIZE	2
+#define NODE_ID			3
 
 #define OFFSET_FIRST_INDEX_IN_1F22 11
 typedef			 char	CHAR;
@@ -250,7 +253,7 @@ typedef enum
 
 typedef enum
 {
-	FALSE,
+	FALSE =0,
 	TRUE
 }EFlag;
 

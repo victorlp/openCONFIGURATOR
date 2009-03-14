@@ -79,7 +79,12 @@
 
 int InVars =0;
 int OutVars = 0;
-ModuleCol modCol[2000]; 
+#define HEADER_FILE_BUFFER 10000
+#define TOTAL_MODULES 10000
+
+ModuleCol modCol[TOTAL_MODULES]; 
+
+
 //extern ProcessImage PIInCol[4000] = {};
 //extern ProcessImage PIOutCol[4000]= {};
 
@@ -519,82 +524,100 @@ bool CheckIfModuleExists(char* ModuleName, int & ModuleNo, int NoOfModules, Modu
 void GenerateXAPHeaderFile(char* fileName, ProcessImage PI_IN[], ProcessImage PI_OUT[], int InVar, int OutVar)
 {
 
+		char* strFileName  = new char[strlen(fileName) + ALLOC_BUFFER];
+		strcpy(strFileName, fileName);
+		strcat(strFileName, ".h");
+		FILE* fileptr = new FILE();
 	try
 	{
-		char Buffer[10000];
+		/* write Input structure */
+		if (( fileptr = fopen(strFileName,"w+")) == NULL)
+		{
+					ocfmException ex;
+					ex.ocfm_Excpetion(OCFM_ERR_CANNOT_OPEN_FILE);
+					throw ex;						
+		}			
+		if(InVar !=0)
+		{			
+			WriteXAPHeaderContents(fileName, PI_IN, InVar, INPUT, fileptr);			
+		}
+	
+		fclose(fileptr);	
+	/* write Output structure */
+		if (( fileptr = fopen(strFileName,"a+")) == NULL)
+		{
+					ocfmException ex;
+					ex.ocfm_Excpetion(OCFM_ERR_CANNOT_OPEN_FILE);
+					throw ex;						
+		}
+		if(OutVar !=0)
+		{			
+			WriteXAPHeaderContents(fileName, PI_OUT, OutVar, OUTPUT, fileptr );
+		}		
+		fclose(fileptr);	
+	}
+	catch(ocfmException & ex)
+	{
+		
+	}
+}
+void WriteXAPHeaderContents(char* fileName, ProcessImage PI[], int NumberOfVars, EPIDirectionType dirType, FILE* fileptr)
+{
+	try
+	{
+		char Buffer[HEADER_FILE_BUFFER];
+		char Buffer1[100];
 			
-		char* strCNID = new char[7];
+		char* strCNID = new char[NODE_ID + ALLOC_BUFFER];
 		int ModuleNo = 0;
 		int LastModuleNo = 0;
 		char* ModName =  new char[50];
-		char* strModuleNo = new char[16];
+		char* strModuleNo = new char[20];
 		char* varNo = new char[10];
 		int totalsize = 0;
-						
-		char* strFileName  = new char[strlen(fileName) + 2];
-		strcpy(strFileName, fileName);
-		strcat(strFileName, ".h");
+		int DataSize  = 0;
+									
 		
-  ModuleCol	modCol[1000];
-		//strcpy(strFileName, fileName);
-		FILE* fileptr = new FILE();
 		
-		if (( fileptr = fopen(strFileName,"w+")) == NULL)
+  ModuleCol	modCol[TOTAL_MODULES];
+	
+			if(NumberOfVars!=0 )
 			{
-				ocfmException ex;
-				ex.ocfm_Excpetion(OCFM_ERR_CANNOT_OPEN_FILE);
-				throw ex;						
-			}
-			
-			if(InVar!=0 )
-			{
-				strcpy(Buffer, "typedef struct { \n");	
+				strcpy(Buffer, "\ntypedef struct { \n");	
 				ModuleNo = 0;
-				for(int i = 0; i<InVar ; i++)
+				for(int i = 0; i<NumberOfVars ; i++)
 				{					
 					int NodeId;
-					char* str = new char[4];				
 					
-					
-					NodeId = PI_IN[i].CNNodeID;
-				/*	if((i!=0) && (NodeId == PI_IN[i-1].CNNodeID))
-					totalsize = PI_IN[i].DataInfo.DataSize + totalsize;
-					else
-					totalsize = 0;*/
-			
-					/*strcat(Buffer, "struct");				
-					strcat(Buffer, " CN");*/
-					strCNID = IntToAscii(PI_IN[i].CNNodeID, strCNID, 10); 
-					/*strcat(Buffer,strCNID);*/
-							/* Add Module No*/
-					
-					/*if(i != 0)
-					{*/
-					/*	if(strcmp(PI_IN[i].ModuleName, ModName) !=0)
-						{
-							
-							if(CheckIfModuleExists(PI_IN[i].ModuleName, ModuleNo, LastModuleNo, modCol))
-							{
-								strModuleNo = IntToAscii(ModuleNo, strModuleNo, 10);
-							}
-							else
-							{
-								LastModuleNo = LastModuleNo  + 1;	
-								strcpy(modCol[LastModuleNo].ModuleName, PI_IN[i].ModuleName);
-								modCol[LastModuleNo].ModuleNo = LastModuleNo; 	
-								strModuleNo = IntToAscii(LastModuleNo, strModuleNo, 10);					
-								}
-							}
-					}
-					else
+					DataSize  = PI[i].DataInfo.DataSize;
+						/* Check if 8, 16, 32 bit aligned*/
+					if((DataSize % 32 == 0 ) || 
+								(DataSize % 16 == 0 ) ||
+								(DataSize % 8 == 0 ))
 					{
-							strcpy(modCol[LastModuleNo].ModuleName, PI_IN[i].ModuleName);
-							modCol[LastModuleNo].ModuleNo = LastModuleNo; 
-							strModuleNo = IntToAscii(ModuleNo, strModuleNo, 10);
-					}*/
-					//char* ModName =  new char[strlen(PI_IN[i].ModuleName) + 1];
-					strcpy(strModuleNo, subString( PI_IN[i].ModuleIndex,2, 2));
-					strcpy(ModName, PI_IN[i].ModuleName);
+						
+						if(totalsize % DataSize !=0)
+						{
+							int filledBits = DataSize - (totalsize % DataSize);
+							totalsize =  totalsize + filledBits;
+							strcat(Buffer,"unsigned");
+							strcat(Buffer," ");
+							strcat(Buffer,"HOLE_FILLED");
+							strcat(Buffer,":");
+							char* fbits  = new char[2 + ALLOC_BUFFER];
+							fbits =  IntToAscii(filledBits, fbits, 10);							
+							strcat(Buffer,fbits);
+							strcat(Buffer,"\n");
+							delete[] fbits;
+						}
+						
+					}
+					
+					NodeId = PI[i].CNNodeID;
+				
+					strCNID = IntToAscii(PI[i].CNNodeID, strCNID, 10); 
+					strcpy(strModuleNo, subString( PI[i].ModuleIndex,2, 2));
+					strcpy(ModName, PI[i].ModuleName);
 					
 			
 					//printf("\n Module Name: %s",ModName);
@@ -602,7 +625,7 @@ void GenerateXAPHeaderFile(char* fileName, ProcessImage PI_IN[], ProcessImage PI
 					strcat(Buffer," ");
 					char* varName = new char[100];
 					strcpy(varName, "CN");
-					strCNID = IntToAscii(PI_IN[i].CNNodeID, strCNID, 10); 
+					strCNID = IntToAscii(PI[i].CNNodeID, strCNID, 10); 
 					strcat(varName, strCNID);
 					strcat(varName, "_");
 					
@@ -613,126 +636,67 @@ void GenerateXAPHeaderFile(char* fileName, ProcessImage PI_IN[], ProcessImage PI
 					
 					strcat(varName, ModName);
 					strcat(varName, "_");
-					strcat(varName, PI_IN[i].VarName);
+					strcat(varName, PI[i].VarName);
 						
-					if(strcmp(subString(PI_IN[i].VarName,0, 8), "Reserved")== 0)
+					if(strcmp(subString(PI[i].VarName,0, 8), "Reserved")== 0)
 					{
 						varNo =  IntToAscii(i, varNo, 10);
 						strcat(varName, "_");
 						strcat(varName, varNo);
 					}
 					 
-					strcat(Buffer, varName);
-					//strcat(Buffer, PI_IN[i].VarName);
+					strcat(Buffer, varName);									
 					strcat(Buffer, ":");
-					str = IntToAscii(PI_IN[i].DataInfo.DataSize, str, 10); 
+					
+					char* str = new char[50];												
+					str = IntToAscii(DataSize, str, 10); 
+					totalsize = DataSize  + totalsize;
 					strcat(Buffer, str);
 					strcat(Buffer, ";");
 					
 					strcat(Buffer, "\n");
-					//i++;
-					//printf("\nI:%d",i);					
+					delete[] varName;				
+					delete[] ModName;
+					delete[] strModuleNo;
+					delete[] strCNID;	
 										
 			}
 			strcat(Buffer, "}");
-			strcat(Buffer, " PI_IN;");	
-		}
-			int len  =  strlen(Buffer);
-			if((fwrite(Buffer, sizeof(char),len,fileptr))!=NULL)
+			if(dirType == INPUT)
 			{
-				//fclose(fileptr);
-				//printf("Buffer1 written");
-			
+				strcpy(Buffer1, "\n# define COMPUTED_PI_IN_SIZE ");			
+				strcat(Buffer, " PI_IN;");	
 			}
 			
-				if(OutVar!=0 )
-			{
-				strcpy(Buffer, "\ntypedef struct { \n");	
-				ModuleNo = 0;
-				//LastModuleNo = 0;
-				for(int i = 0; i<OutVar ; i++)
-				{					
-						int NodeId;
-					char* str = new char[4];
-					NodeId = PI_OUT[i].CNNodeID;
-					
-					strcpy(ModName, "");
-					/*strcat(Buffer, "struct");				
-					strcat(Buffer, " CN");
-					
-				*/	strCNID = IntToAscii(PI_OUT[i].CNNodeID, strCNID, 10); 
-				//strcat(Buffer,strCNID);
-				/*		if(strcmp(PI_OUT[i].ModuleName, ModName) !=0)
-						{							
-								if(CheckIfModuleExists(PI_OUT[i].ModuleName, ModuleNo, LastModuleNo, modCol))
-								{
-									strModuleNo = IntToAscii(ModuleNo, strModuleNo, 10);
-								}
-								else
-								{
-									LastModuleNo = LastModuleNo  + 1;	
-									strcpy(modCol[ModuleNo].ModuleName, PI_OUT[i].ModuleName);
-									modCol[ModuleNo].ModuleNo = LastModuleNo; 	
-									strModuleNo = IntToAscii(LastModuleNo, strModuleNo, 10);					
-								}
-							}
-							else							
-							strModuleNo = IntToAscii(LastModuleNo, strModuleNo, 10);
-			*/	
-					//char* ModName =  new char[strlen(PI_OUT[i].ModuleName) + 1];
-					strcpy(strModuleNo, subString( PI_OUT[i].ModuleIndex,2, 2));
-					strcpy(ModName, PI_OUT[i].ModuleName);
-					//printf("\n Module Name: %s",ModName);
-					strcat(Buffer,"unsigned");
-					strcat(Buffer," ");
-					char* varName = new char[100];
-					strcpy(varName, "CN");
-					strCNID = IntToAscii(PI_OUT[i].CNNodeID, strCNID, 10); 
-					strcat(varName, strCNID);
-					strcat(varName, "_");
-					
-						/* Add Mod NO*/
-					strcat(varName, "M");
-					strcat(varName, strModuleNo);
-					strcat(varName, "_");
-					
-					strcat(varName, ModName);
-					strcat(varName, "_");
-					strcat(varName, PI_OUT[i].VarName);
-					
-						if(strcmp(subString(PI_OUT[i].VarName,0, 8), "Reserved")== 0)
-					{
-						varNo =  IntToAscii(i, varNo, 10);
-						strcat(varName, "_");
-						strcat(varName, varNo);
-					}
-					
-					strcat(Buffer, varName);
-					//strcat(Buffer, PI_IN[i].VarName);
-					strcat(Buffer, ":");
-					str = IntToAscii(PI_OUT[i].DataInfo.DataSize, str, 10); 
-					strcat(Buffer, str);
-						strcat(Buffer, ";");
-						
-					strcat(Buffer, "\n");
-					//i++;
-							//printf("\nI:%d",i);
-								
-			}
-				strcat(Buffer, "}");
-			strcat(Buffer, " PI_OUT;");	
-	
-		}
-			len  =  strlen(Buffer);
-			if((fwrite(Buffer, sizeof(char),len,fileptr))!=NULL)
-			{
-				fclose(fileptr);
-				//printf("Buffer1 written");
-			
+			else if(dirType == OUTPUT)
+			{				
+				
+				strcpy(Buffer1, "\n# define COMPUTED_PI_OUT_SIZE ");		
+				strcat(Buffer, " PI_OUT;");	
 			}
 		}
 		
-
+		
+			char* strsize = new char[4 +ALLOC_BUFFER];
+			strsize =  IntToAscii(totalsize, strsize, 10);
+			strcat(Buffer1, strsize);
+			int len =  strlen(Buffer1);
+			printf("\n Length of Buffer1 %d", len);
+			printf(" Buffer1 :%s", Buffer1);
+			if((fwrite(Buffer1, sizeof(char),len,fileptr))==NULL)
+			{					
+				printf("\n Not written");
+			}
+			
+			len  =  strlen(Buffer);
+			if((fwrite(Buffer, sizeof(char),len,fileptr))==NULL)
+			{					
+			
+			}
+			delete[] Buffer;
+			delete[] Buffer1;
+		}
+	
 		catch(ocfmException& ex)
 		{
 		}

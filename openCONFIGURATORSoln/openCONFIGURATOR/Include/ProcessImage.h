@@ -73,6 +73,8 @@
 //#include <libxml/xmlwriter.h>
 //#include <libxml/encoding.h>
 #include "Declarations.h"
+#include <iostream>
+#include <fstream>
 	typedef enum EPIDirectionType
 	{
 		INPUT = 0,
@@ -119,7 +121,7 @@
 struct ProcessImage
 {
 		char*					Name;
-		char					Direction[3];
+		char					Direction[5];
 	/*	char*					DataType;
 		char					DataSize[5];*/
 		PIDataInfo DataInfo;
@@ -191,4 +193,5 @@ void AddPDOIndexsToMN(char* Index, char* SubIndex);
 char* getPIAddress(PDODataType dt,  EPIDirectionType dirType);
 char* getPIDataTypeName(char* Address);
 bool CheckIfProcessImageIdx(char* Index);
+void WriteXAPHeaderContents(char* fileName, ProcessImage PI[], int NumberOfVars, EPIDirectionType dirType, FILE* fileptr);
 #endif // processImage_h

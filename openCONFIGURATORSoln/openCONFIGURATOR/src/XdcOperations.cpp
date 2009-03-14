@@ -77,7 +77,7 @@
 #include <libxml/xmlreader.h>
 #include <errno.h>
 #include <string.h>
-#define MY_ENCODING "ISO-8859-1"
+#define MY_ENCODING "UTF-8"
 int LastIndexParsed=0;
 
 void setIndexAttributes(xmlTextReaderPtr reader, CIndex* objIndex, bool& hasPDO)
@@ -183,8 +183,10 @@ void setSubIndexAttributes(xmlTextReaderPtr reader, CSubIndex* objSubIndex)
 		else if(strcmp(ConvertToUpper((char*)name), "OBJECTTYPE")==0)					
 		objSubIndex->setObjectType((char*)value);
 
-		else if(strcmp(ConvertToUpper((char*)name), "LOWLIMIT")==0)					
-		objSubIndex->setLowLimit((char*)value);
+		else if(strcmp(ConvertToUpper((char*)name), "LOWLIMIT")==0)
+		{
+			objSubIndex->setLowLimit((char*)value);	
+		}
 
 		else if(strcmp(ConvertToUpper((char*)name), "HIGHLIMIT")==0)					
 		objSubIndex->setHighLimit((char*)value);
@@ -620,7 +622,7 @@ void processNode(xmlTextReaderPtr reader,ENodeType NodeType,int NodeIndex)
 					objNode = objNodeCollection->getNodePtr(NodeType,NodeIndex);							
 					objDataTypeCollection = objNode->getDataTypeCollection();
 					objDataTypeCollection->addDataType(objDataType);
-			
+					printf("\n Datatypes parsed");
 
 				}
 			else if(strcmp(((char*)name),"parameter")==0)
@@ -1274,6 +1276,7 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 							}
 							rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "name", BAD_CAST vd.nam_id_dt_attr->getName());
 							rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "uniqueID", BAD_CAST vd.nam_id_dt_attr->UniqueId);
+							rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "size", BAD_CAST vd.size);
 							
 							//$STODO:
 							//rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "size", BAD_CAST vd.size);
@@ -1592,7 +1595,13 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 			if(objIndexPtr->getName() != NULL)
 				rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "name", BAD_CAST objIndexPtr->getName());
 			if(objIndexPtr->getObjectType() != NULL)
-				rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "objectType", BAD_CAST objIndexPtr->getObjectType());
+			{
+				char *str_EObjectType = new char[10];
+				str_EObjectType = IntToAscii(objIndexPtr->getEObjectType(), str_EObjectType, 10);
+				rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "objectType", BAD_CAST str_EObjectType);
+				delete [] str_EObjectType;
+				//rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "objectType", BAD_CAST objIndexPtr->getObjectType());
+			}
 			DataType tmpDataType;
 			tmpDataType = objIndexPtr->getDataType();		
 			if(tmpDataType.DataTypeValue != NULL)// TODO:$S
@@ -1609,6 +1618,18 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 			if((objIndexPtr->getActualValue() != NULL))
 			if(strlen(objIndexPtr->getActualValue()) != 0)
 				rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "actualValue", BAD_CAST objIndexPtr->getActualValue());
+			if(objIndexPtr->getLowLimit() != NULL)
+			if(strlen(objIndexPtr->getLowLimit()) != 0)
+			{
+				cout << "\nWhen saving objIndexPtr->getLowLimit():" << objIndexPtr->getLowLimit() << endl;
+				rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "lowLimit", BAD_CAST objIndexPtr->getLowLimit());
+			}
+			if(objIndexPtr->getHighLimit() != NULL)
+			if(strlen(objIndexPtr->getHighLimit()) != 0)
+			{
+				cout << "\nWhen saving objIndexPtr->getHighLimit():" << objIndexPtr->getHighLimit() << endl;
+				rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "highLimit", BAD_CAST objIndexPtr->getHighLimit());
+			}
 			if((objIndexPtr->getPDOMapping() != NULL))
 			if(strlen(objIndexPtr->getPDOMapping()) != 0)
 				rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "PDOmapping", BAD_CAST objIndexPtr->getPDOMapping());
@@ -1643,7 +1664,13 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 						if(objSubIndexPtr->getName() != NULL)
 							rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "name", BAD_CAST objSubIndexPtr->getName());
 						if(objSubIndexPtr->getObjectType() != NULL)
-							rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "objectType", BAD_CAST objSubIndexPtr->getObjectType());
+						{
+							char *str_EObjectType = new char[10];
+							str_EObjectType = IntToAscii(objSubIndexPtr->getEObjectType(), str_EObjectType, 10);
+							rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "objectType", BAD_CAST str_EObjectType);
+							delete [] str_EObjectType;
+						}
+							//rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "objectType", BAD_CAST objSubIndexPtr->getEObjectType());
 						DataType tmpDataType;
 						tmpDataType = objSubIndexPtr->getDataType();		
 						if(tmpDataType.DataTypeValue != NULL)
@@ -1655,6 +1682,19 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 							rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "defaultValue", BAD_CAST objSubIndexPtr->getDefaultValue());
 						if(objSubIndexPtr->getActualValue() != NULL)
 							rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "actualValue", BAD_CAST objSubIndexPtr->getActualValue());
+						if(objSubIndexPtr->getLowLimit() != NULL)
+						if(strlen(objSubIndexPtr->getLowLimit()) != 0)
+						{
+							//cout << "\nWhen saving SI objIndexPtr->getLowLimit():" << objSubIndexPtr->getLowLimit() << endl;
+							rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "lowLimit", BAD_CAST objSubIndexPtr->getLowLimit());
+						}
+						if(objSubIndexPtr->getHighLimit() != NULL)
+						if(strlen(objSubIndexPtr->getHighLimit()) != 0)
+						{
+							//cout << "\nWhen saving SI objIndexPtr->getHighLimit():" << objSubIndexPtr->getHighLimit() << endl;
+							rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "highLimit", BAD_CAST objSubIndexPtr->getHighLimit());
+						}
+						if((objIndexPtr->getPDOMapping() != NULL))
 						if(objSubIndexPtr->getPDOMapping() != NULL)
 							rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "PDOmapping", BAD_CAST objSubIndexPtr->getPDOMapping());
 						if(objSubIndexPtr->getUniqueIDRef() != NULL)

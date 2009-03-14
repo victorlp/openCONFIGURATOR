@@ -124,8 +124,7 @@ EAutoGenerate CPjtSettings::getGenerateAttr()
 	m_saveMode = YES_AS;
 	#if defined DEBUG
 		cout << "\n Returning m_saveMode:-" << m_saveMode <<endl;	
-	#endif
-	cout << "\n$$$" << endl;
+	#endif	
 	return m_generateMode;
 		
 }

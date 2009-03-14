@@ -904,9 +904,6 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 							{	
 										char actvalue[20];
 										actvalue[0]  = '\0';
-										//actvalue = new char[50];							
-										//actvalue = strchr((char*)objSubIndex->getActualValue(),'x');
-										/*strcpy(actvalue, strchr((char*)objSubIndex->getActualValue(),'x'));*/
 										if(CheckIfHex((char*)objIndex->getActualValue()))
 										//if(actvalue!=NULL)
 										{
@@ -1190,11 +1187,7 @@ char* GenerateCNOBD(CNodeCollection* objNodeCol)
 								UpdateCNCycleTime(objIndexCollection,(char*) objIndex->getActualValue());
 							}
 							
-									#if defined DEBUG	
-						cout << "after writing 1006" << endl;
-					
-					#endif		
-					
+						
 							/*************WRITE Required CN Indexes in CDC *******************************/
 								for(int i=0; i<NumberOfIndexes; i++)
 								{
@@ -1204,7 +1197,7 @@ char* GenerateCNOBD(CNodeCollection* objNodeCol)
 									const char* IndexValue = objIndex->getIndexValue();
 									
 								//if(CheckAllowedCNIndexes((char*)IndexValue) && (objIndex->getFlagIfIncludedCdc() == true))
-								if(objIndex->getFlagIfIncludedCdc())
+								if(objIndex->getFlagIfIncludedCdc() == TRUE)
 								{																						
 										GetIndexData(objIndex, Buffer4);
 										strcat(Buffer2, Buffer4);
@@ -1415,9 +1408,10 @@ ocfmRetCode GenerateCDC(char* CDCLocation)
 			
 			if(stPjtSettings->getGenerateAttr() == YES_AG);
 			{	
+				cout << "\n\n\n\n Generating MN OBD\n\n\n\n" << endl;
 				GenerateMNOBD();
 			}
-		
+			//GenerateMNOBD();
 
 			FILE* fileptr = new FILE();
 			if (( fileptr = fopen(tempFileName,"w+")) == NULL)
@@ -1486,7 +1480,8 @@ ocfmRetCode GenerateCDC(char* CDCLocation)
 			
 
 			//Get all the MN's Default Data in Buffer1
-			for(int i=0;i < objIndexCollection->getNumberofIndexes ();i++)
+			int NumberOfIndexes = objIndexCollection->getNumberofIndexes();
+			for(int i=0;i < NumberOfIndexes; i++)
 				{
 					CIndex* objIndex;
 					objIndex = objIndexCollection->getIndex(i);
@@ -1699,6 +1694,7 @@ void  ProcessCDT(CComplexDataType* objCDT,CApplicationProcess* objAppProc,
 				/*	pi.DataSize = (char*)malloc(5);*/
 					//strcpy(pi.DataInfo.DataSize, vd.size);
 					pi.DataInfo.DataSize = atoi(vd.size);
+					printf("\n Datasize %d", pi.DataInfo.DataSize);
 				}
 			else
 			{
@@ -1707,19 +1703,19 @@ void  ProcessCDT(CComplexDataType* objCDT,CApplicationProcess* objAppProc,
 			}
 				if(vd.nam_id_dt_attr->getName()!=NULL)
 				{
-					pi.Name = (char*)malloc(strlen(vd.nam_id_dt_attr->getName()) + strlen(ModuleName) + 6);
+					pi.Name = (char*)malloc(strlen(vd.nam_id_dt_attr->getName()) + strlen(ModuleName) + 6 + ALLOC_BUFFER);
 					strcpy(pi.Name,getPIName(objNode->getNodeId()));
 					strcat(pi.Name, ModuleName);
 					strcat(pi.Name, ".");
 					strcat(pi.Name,vd.nam_id_dt_attr->getName());
 					
-					pi.ModuleName = (char*)malloc(strlen(ModuleName) + 1);
+					pi.ModuleName = (char*)malloc(strlen(ModuleName) + ALLOC_BUFFER);
 					strcpy(pi.ModuleName, ModuleName);		
 					
-						pi.ModuleIndex = (char*)malloc(strlen(ModuleIndex) + 1);
+						pi.ModuleIndex = (char*)malloc(strlen(ModuleIndex) + ALLOC_BUFFER);
 					strcpy(pi.ModuleIndex, ModuleIndex);	
 					
-					pi.VarName = (char*)malloc(strlen(vd.nam_id_dt_attr->getName()) + 1);
+					pi.VarName = (char*)malloc(strlen(vd.nam_id_dt_attr->getName()) + ALLOC_BUFFER);
 					strcpy(pi.VarName, vd.nam_id_dt_attr->getName());		
 					//printf("\n PI Name: %s",pi.Name);
 				}
@@ -1728,7 +1724,7 @@ void  ProcessCDT(CComplexDataType* objCDT,CApplicationProcess* objAppProc,
 					
 				if(vd.nam_id_dt_attr->getDataType()!=NULL)
 				{
-					pi.DataInfo._dt_Name = (char*)malloc(strlen(vd.nam_id_dt_attr->getDataType()) +1);
+					pi.DataInfo._dt_Name = (char*)malloc(strlen(vd.nam_id_dt_attr->getDataType()) + ALLOC_BUFFER);
 					strcpy(pi.DataInfo._dt_Name ,(const char*)vd.nam_id_dt_attr->getDataType());
 				}
 		
@@ -1754,6 +1750,7 @@ void  ProcessCDT(CComplexDataType* objCDT,CApplicationProcess* objAppProc,
 				 datasize =  pi.DataInfo.DataSize;
 				 
 				}
+				printf("\n PI name %s", pi.Name);
 				if(pdoType == PDO_RPDO)
 				{
 					Offset =  ComputeOUTOffset(datasize, pdoType);
@@ -1981,14 +1978,12 @@ ocfmRetCode ProcessPDONodes()
 									cout<< "objSI->getIndexValue():"<<objSI->getIndexValue() << endl;
 										cout<< "objSI->getName():"<<objSI->getName() << endl;
 									
-															cout<< "objSI->getActualValue():"<<objSI->getActualValue() << endl;
+								
 
 								#endif
 												if (objSI->getActualValue()!=NULL)
 												{
-															#if defined DEBUG	
-									cout<< "objSI->getActualValue():"<<objSI->getActualValue() << endl;
-								#endif
+														
 														const char* value = objSI->getActualValue();
 														int len = strlen(value);
 														char* reverseValue = (char*)malloc(len);
@@ -1996,7 +1991,7 @@ ocfmRetCode ProcessPDONodes()
 												/*		reverseValue = reverse((char*)value);*/
 														
 														/* Get the Index*/
-														char* strModuleIndex = (char*)malloc(5);
+														char* strModuleIndex = (char*)malloc(INDEX_SIZE + ALLOC_BUFFER);
 														strModuleIndex = subString((char*)value, len-4,4);
 														strModuleIndex[5] ='\0';
 												/*		strModuleIndex = strncpy(strModuleIndex,reverseValue,4);
@@ -2005,7 +2000,7 @@ ocfmRetCode ProcessPDONodes()
 								#endif
 												
 												/* Get the SubIndex*/
-														char* strSubIndex = (char*)malloc(3);
+														char* strSubIndex = (char*)malloc(SUBINDEX_SIZE + ALLOC_BUFFER);
 														//strSubIndex = subString(reverseValue,2,2);
 														strSubIndex = subString((char*)value, len-6,2);
 														strSubIndex[3] ='\0';
@@ -2013,8 +2008,7 @@ ocfmRetCode ProcessPDONodes()
 														#if defined DEBUG	
 									cout<< "strSubIndex:"<<strSubIndex << endl;
 								#endif
-														char*	ds = new char[5];
-														ds =  subString((char*)value, 2, 4);
+													
 												
 														CIndex* objModuleIndex;
 														CSubIndex* objSIndex;
@@ -2040,15 +2034,15 @@ ocfmRetCode ProcessPDONodes()
 															if(objSIndex->getUniqueIDRef()!=NULL)
 															{
 																DecodeUniqiueIDRef(objSIndex->getUniqueIDRef(), objNode, objIndex->getPDOType(), (char*) objModuleIndex->getName(), (char*)objModuleIndex->getIndexValue());
-																printf("\n size8 prev offset: %d",size8INOffset.prevOffset);
-																printf("\n size8 curr offset: %d",size8INOffset.currOffset);
+																//printf("\n size8 prev offset: %d",size8INOffset.prevOffset);
+																//printf("\n size8 curr offset: %d",size8INOffset.currOffset);
 															}
  															else
 															{
 																ProcessImage objProcessImage;
 									
 																/* Name of the Process Image variable*/
-																objProcessImage.Name = (char*)malloc(strlen(objSIndex->getName())+1);
+																objProcessImage.Name = (char*)malloc(strlen(objSIndex->getName())+ ALLOC_BUFFER);
 																strcpy(objProcessImage.Name, objSIndex->getName());
 																/* Access of the Process Image variable*/
 																strcpy(objProcessImage.Direction, objSIndex->getAccessType());
@@ -2806,7 +2800,8 @@ ocfmRetCode GetIndexAttributes(
 					if(objIndexPtr->getFlagIfIncludedCdc() == true)
 					strcpy(Out_AttributeValue, "1");
 					else
-					strcpy(Out_AttributeValue, "0");								
+					strcpy(Out_AttributeValue, "0");			
+					break;					
 			default:
 					//cout << "invalid Attribute Type" << endl;
 					//ErrStruct.code = OCFM_ERR_INVALID_ATTRIBUTETYPE;
@@ -2952,7 +2947,7 @@ ocfmRetCode GetIndexAttributesbyPositions(
 					strcpy(Out_AttributeValue, "1");
 					else
 					strcpy(Out_AttributeValue, "0");	
-											
+					break;					
 				default:
 						//cout << "invalid Attribute Type" << endl;
 						ErrStruct.code = OCFM_ERR_INVALID_ATTRIBUTETYPE;
@@ -4779,7 +4774,7 @@ int ComputeOUTOffset(int dataSize, EPDOType pdoType)
 						}
 						
 						/* if greater no change*/
-						if(size64INOffset.currOffset >= size8OUTOffset.currOffset)
+						if(size64OUTOffset.currOffset >= size8OUTOffset.currOffset)
 						{}
 						else
 						{
@@ -4793,8 +4788,7 @@ int ComputeOUTOffset(int dataSize, EPDOType pdoType)
 						size16OUTOffset.prevOffset = size16OUTOffset.currOffset ;
 						Offset = size16OUTOffset.currOffset ;
 						size16OUTOffset.currOffset =	size16OUTOffset.currOffset + 2;
-					
-			
+				
 							/* Set other DataType Offsets*/
 							
 							/* if greater no change*/
@@ -4802,7 +4796,9 @@ int ComputeOUTOffset(int dataSize, EPDOType pdoType)
 						{}
 						else
 						{
-								if((size8OUTOffset.currOffset >= size16OUTOffset.prevOffset) && (size8OUTOffset.currOffset <= size16OUTOffset.currOffset))
+								size8OUTOffset.prevOffset = size8OUTOffset.currOffset ;
+									size8OUTOffset.currOffset = size16OUTOffset.currOffset;
+							/*	if((size8OUTOffset.currOffset >= size16OUTOffset.prevOffset) && (size8OUTOffset.currOffset <= size16OUTOffset.currOffset))
 								{
 									size8OUTOffset.prevOffset = size8OUTOffset.currOffset ;
 									size8OUTOffset.currOffset = size16OUTOffset.currOffset;
@@ -4813,7 +4809,7 @@ int ComputeOUTOffset(int dataSize, EPDOType pdoType)
 									newOffset = size8OUTOffset.currOffset;
 									checkIfOffsetUsed(newOffset, pdoType);				
 									size8OUTOffset.currOffset = newOffset;
-								}
+								}*/
 						}
 						
 						/* if greater no change*/
@@ -4839,6 +4835,8 @@ int ComputeOUTOffset(int dataSize, EPDOType pdoType)
 						size32OUTOffset.prevOffset = size32OUTOffset.currOffset ;
 						Offset = size32OUTOffset.currOffset ;
 						size32OUTOffset.currOffset = size32OUTOffset.currOffset + 4;
+					
+						
 			
 							/* Set other DataType Offsets*/
 								/* if greater no change*/
@@ -4846,24 +4844,26 @@ int ComputeOUTOffset(int dataSize, EPDOType pdoType)
 						{}
 						else
 						{
-								if((size8OUTOffset.currOffset >= size32OUTOffset.prevOffset) && (size8OUTOffset.currOffset <= size32OUTOffset.currOffset))
-								{
-									size8OUTOffset.prevOffset = size8OUTOffset.currOffset ;
-									size8OUTOffset.currOffset = size32OUTOffset.currOffset;
-								}
-								else
-								{
-									size8OUTOffset.prevOffset = size8OUTOffset.currOffset;
-										newOffset = size8OUTOffset.currOffset;
-									
-									checkIfOffsetUsed(newOffset, pdoType);
-									
-									/*while(checkIfOffsetUsed(Offset))
-									{
-										Offset = Offset + 1;
-									}*/
-									size8OUTOffset.currOffset = newOffset;
-								}
+								size8OUTOffset.prevOffset = size8OUTOffset.currOffset ;
+								size8OUTOffset.currOffset = size32OUTOffset.currOffset;
+								//if((size8OUTOffset.currOffset >= size32OUTOffset.prevOffset) && (size8OUTOffset.currOffset <= size32OUTOffset.currOffset))
+								//{
+								//	size8OUTOffset.prevOffset = size8OUTOffset.currOffset ;
+								//	size8OUTOffset.currOffset = size32OUTOffset.currOffset;
+								//}
+								//else
+								//{
+								//	size8OUTOffset.prevOffset = size8OUTOffset.currOffset;
+								//		newOffset = size8OUTOffset.currOffset;
+								//	
+								//	checkIfOffsetUsed(newOffset, pdoType);
+								//	
+								//	/*while(checkIfOffsetUsed(Offset))
+								//	{
+								//		Offset = Offset + 1;
+								//	}*/
+								//	size8OUTOffset.currOffset = newOffset;
+								//}
 						}
 						
 							/* if greater no change*/
@@ -4871,23 +4871,25 @@ int ComputeOUTOffset(int dataSize, EPDOType pdoType)
 						{}
 						else
 						{
-								if((size16OUTOffset.currOffset >= size32OUTOffset.prevOffset) && (size16OUTOffset.currOffset < size32OUTOffset.currOffset))
-								{
-									size16OUTOffset.prevOffset = size16OUTOffset.currOffset ;
-									size16OUTOffset.currOffset = size32OUTOffset.currOffset;
-								}
-								else
-								{
-									size16OUTOffset.prevOffset = size16OUTOffset.currOffset;
-									newOffset = size16OUTOffset.currOffset;
-										checkIfOffsetUsed(newOffset, pdoType);
-								/*	while(checkIfOffsetUsed(Offset))
-									{
-										Offset = Offset + 1;
-									}*/
-									size16OUTOffset.currOffset = newOffset;
-								
-								}
+								size16OUTOffset.prevOffset = size16OUTOffset.currOffset ;
+								size16OUTOffset.currOffset = size32OUTOffset.currOffset;
+								//if((size16OUTOffset.currOffset >= size32OUTOffset.prevOffset) && (size16OUTOffset.currOffset < size32OUTOffset.currOffset))
+								//{
+								//	size16OUTOffset.prevOffset = size16OUTOffset.currOffset ;
+								//	size16OUTOffset.currOffset = size32OUTOffset.currOffset;
+								//}
+								//else
+								//{
+								//	size16OUTOffset.prevOffset = size16OUTOffset.currOffset;
+								//	newOffset = size16OUTOffset.currOffset;
+								//		checkIfOffsetUsed(newOffset, pdoType);
+								///*	while(checkIfOffsetUsed(Offset))
+								//	{
+								//		Offset = Offset + 1;
+								//	}*/
+								//	size16OUTOffset.currOffset = newOffset;
+								//
+								//}
 						}
 						/* if greater no change*/
 						if(size64OUTOffset.currOffset >= size8OUTOffset.currOffset)
@@ -4924,7 +4926,8 @@ int ComputeINOffset(int dataSize, EPDOType pdoType)
 						size8INOffset.prevOffset = size8INOffset.currOffset ;
 						Offset = size8INOffset.currOffset ;
 						size8INOffset.currOffset =	size8INOffset.currOffset + 1;
-						
+						printf("\nsize32INOffset.prevOffset %d", size32INOffset.prevOffset);
+								printf("\nsize32INOffset.currOffset %d", size32INOffset.currOffset);
 						/* Set other DataType Offsets*/
 						/* if greater no change*/
 						if(size16INOffset.currOffset >= size8INOffset.currOffset)
@@ -4936,12 +4939,16 @@ int ComputeINOffset(int dataSize, EPDOType pdoType)
 						}
 						
 						/* if greater no change*/
-						if(size32OUTOffset.currOffset >= size8INOffset.currOffset)
+						if(size32INOffset.currOffset >= size8INOffset.currOffset)
 						{}
 						else
 						{
+						
+								
 								size32INOffset.prevOffset = size32INOffset.currOffset ;
 								size32INOffset.currOffset = size32INOffset.currOffset + 4;
+								printf("\nsize32INOffset.prevOffset %d", size32INOffset.prevOffset);
+								printf("\nsize32INOffset.currOffset %d", size32INOffset.currOffset);
 						}
 						
 						/* if greater no change*/
@@ -4968,18 +4975,20 @@ int ComputeINOffset(int dataSize, EPDOType pdoType)
 						{}
 						else
 						{
-								if((size8INOffset.currOffset >= size16INOffset.prevOffset) && (size8INOffset.currOffset <= size16INOffset.currOffset))
-								{
-									size8INOffset.prevOffset = size8INOffset.currOffset ;
-									size8INOffset.currOffset = size16INOffset.currOffset;
-								}
-								else
-								{
-									size8INOffset.prevOffset = size8INOffset.currOffset;
-									newOffset = size8INOffset.currOffset;
-									checkIfOffsetUsed(newOffset, pdoType);				
-									size8INOffset.currOffset = newOffset;
-								}
+							size8INOffset.prevOffset = size8INOffset.currOffset ;
+							size8INOffset.currOffset = size16INOffset.currOffset;
+								//if((size8INOffset.currOffset >= size16INOffset.prevOffset) && (size8INOffset.currOffset <= size16INOffset.currOffset))
+								//{
+								//	size8INOffset.prevOffset = size8INOffset.currOffset ;
+								//	size8INOffset.currOffset = size16INOffset.currOffset;
+								//}
+								//else
+								//{
+								//	size8INOffset.prevOffset = size8INOffset.currOffset;
+								//	/*newOffset = size8INOffset.currOffset;
+								//	checkIfOffsetUsed(newOffset, pdoType);				
+								//	size8INOffset.currOffset = newOffset;*/
+								//}
 						}
 						
 						/* if greater no change*/
@@ -5012,24 +5021,26 @@ int ComputeINOffset(int dataSize, EPDOType pdoType)
 						{}
 						else
 						{
-								if((size8INOffset.currOffset >= size32INOffset.prevOffset) && (size8INOffset.currOffset <= size32INOffset.currOffset))
-								{
 									size8INOffset.prevOffset = size8INOffset.currOffset ;
 									size8INOffset.currOffset = size32INOffset.currOffset;
-								}
-								else
-								{
-									size8INOffset.prevOffset = size8INOffset.currOffset;
-										newOffset = size8INOffset.currOffset;
-									
-									checkIfOffsetUsed(newOffset, pdoType);
-									
-									/*while(checkIfOffsetUsed(Offset))
-									{
-										Offset = Offset + 1;
-									}*/
-									size8INOffset.currOffset = newOffset;
-								}
+								//if((size8INOffset.currOffset >= size32INOffset.prevOffset) && (size8INOffset.currOffset <= size32INOffset.currOffset))
+								//{
+								//	size8INOffset.prevOffset = size8INOffset.currOffset ;
+								//	size8INOffset.currOffset = size32INOffset.currOffset;
+								//}
+								//else
+								//{
+								//	size8INOffset.prevOffset = size8INOffset.currOffset;
+								//		newOffset = size8INOffset.currOffset;
+								//	
+								//	checkIfOffsetUsed(newOffset, pdoType);
+								//	
+								//	/*while(checkIfOffsetUsed(Offset))
+								//	{
+								//		Offset = Offset + 1;
+								//	}*/
+								//	size8INOffset.currOffset = newOffset;
+								//}
 						}
 						
 							/* if greater no change*/
@@ -5037,23 +5048,25 @@ int ComputeINOffset(int dataSize, EPDOType pdoType)
 						{}
 						else
 						{
-								if((size16INOffset.currOffset >= size32INOffset.prevOffset) && (size16INOffset.currOffset < size32INOffset.currOffset))
-								{
-									size16INOffset.prevOffset = size16INOffset.currOffset ;
-									size16INOffset.currOffset = size32INOffset.currOffset;
-								}
-								else
-								{
-									size16INOffset.prevOffset = size16INOffset.currOffset;
-									newOffset = size16INOffset.currOffset;
-									checkIfOffsetUsed(newOffset, pdoType);
-								/*	while(checkIfOffsetUsed(Offset))
-									{
-										Offset = Offset + 1;
-									}*/
-									size16INOffset.currOffset = newOffset;
-								
-								}
+								size16INOffset.prevOffset = size16INOffset.currOffset ;
+								size16INOffset.currOffset = size32INOffset.currOffset;
+								//if((size16INOffset.currOffset >= size32INOffset.prevOffset) && (size16INOffset.currOffset < size32INOffset.currOffset))
+								//{
+								//	size16INOffset.prevOffset = size16INOffset.currOffset ;
+								//	size16INOffset.currOffset = size32INOffset.currOffset;
+								//}
+								//else
+								//{
+								//	size16INOffset.prevOffset = size16INOffset.currOffset;
+								//	newOffset = size16INOffset.currOffset;
+								//	checkIfOffsetUsed(newOffset, pdoType);
+								///*	while(checkIfOffsetUsed(Offset))
+								//	{
+								//		Offset = Offset + 1;
+								//	}*/
+								//	size16INOffset.currOffset = newOffset;
+								//
+								//}
 						}
 						/* if greater no change*/
 						if(size64INOffset.currOffset >= size8INOffset.currOffset)
@@ -6040,13 +6053,13 @@ void CreateMNPDOVar(int Offset, int dataSize,IEC_Datatype dtenum, EPDOType pdoTy
 		int SIdx;
 		int d = dataSize/8;
 		SIdx = (Offset)/d + 1;
-		objPDOvar.SubIndex = new char[2];
+		objPDOvar.SubIndex = new char[2 + ALLOC_BUFFER];
 		objPDOvar.SubIndex =  IntToAscii(SIdx, objPDOvar.SubIndex, 16);
 		objPDOvar.SubIndex = padLeft(objPDOvar.SubIndex, '0', 2);
 						
 		/* Assign the value*/
-		objPDOvar.Value = new char[10];
-		char* ds = new char[5];		
+		objPDOvar.Value = new char[10 + ALLOC_BUFFER];
+		char* ds = new char[5 + ALLOC_BUFFER];		
 		ds = IntToAscii(dataSize, ds, 16);
 		ds = padLeft(ds, '0', 4);
 		strcpy(objPDOvar.Value,"0x");

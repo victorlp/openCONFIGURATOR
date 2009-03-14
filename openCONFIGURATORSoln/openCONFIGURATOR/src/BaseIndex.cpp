@@ -69,7 +69,12 @@ void CBaseIndex::setIndexValue(char* Index)
 /****************************************************************************************************/
 
 const char* CBaseIndex::getLowLimit()
-	{return m_LowLimit;}
+	{
+		if(m_LowLimit != NULL)
+			return m_LowLimit;
+		else
+			return NULL;
+	}
 
 /**************************************************************************************************
 	* Function Name: setLowLimit
@@ -86,7 +91,12 @@ void CBaseIndex::setLowLimit(char* LowLimit)
 /****************************************************************************************************/
 
 const char* CBaseIndex::getHighLimit()
-	{return m_HighLimit;}
+	{
+		if(m_HighLimit != NULL)
+			return m_HighLimit;
+		else
+			return NULL;
+	}
 
 /**************************************************************************************************
 	* Function Name: setLowLimit
@@ -154,7 +164,7 @@ void CBaseIndex::setAccessType(char* accessType)
 	}	
 /**************************************************************************************************
 	* Function Name: getObjectType
-    * Description: Returns the Object Type of the Index Object
+    * Description: Returns the Object Type of the Index Object as const char*
 /****************************************************************************************************/
 
 	const char* CBaseIndex::getObjectType ()
@@ -181,7 +191,17 @@ void CBaseIndex::setAccessType(char* accessType)
 				break;
 			}
 	
-	;}
+	}
+	
+/**************************************************************************************************
+	* Function Name: getEObjectType
+    * Description: Returns the Object Type of the Index Object as Enum
+/****************************************************************************************************/
+	
+	EObjectType	CBaseIndex::getEObjectType()
+	{
+		return m_objectType;
+	}
 
 /**************************************************************************************************
 	* Function Name: setObjectType
@@ -218,14 +238,19 @@ const char* CBaseIndex::getPDOMapping ()
 		switch(m_pdoMapping)
 		{
 			case NO:
+				//cout << "\nNO" << endl;
 				return "NO";				
 			case DEFAULT:
+				//cout << "\nDEFAULT" << endl;
 				return "DEFAULT";				
 			case OPTIONAL:
+				//cout << "\nOPTIONAL" << endl;
 				return "OPTIONAL";
 			case RPDO:
+				//cout << "\nRPDO" << endl;
 				return "RPDO";
 			case TPDO:
+				//cout << "\nTPDO" << endl;
 				return "TPDO";
 			default:
 				return NULL;			
@@ -243,13 +268,17 @@ void CBaseIndex::setPDOMapping(char* pdoMapping)
 		strcpy(str, ConvertToUpper((char*)pdoMapping));	
 		//if(strcmp(ConvertToUpper((char*)pdoMapping), "DEFAULT")==0)
 		if(strcmp(ConvertToUpper(str), "DEFAULT")==0)
-		m_pdoMapping=DEFAULT;
+		m_pdoMapping = DEFAULT;
 		//else if(strcmp(ConvertToUpper((char*)pdoMapping), "NO")==0)
 		else if(strcmp(ConvertToUpper(str), "NO")==0)
 		m_pdoMapping = NO;	 
 		//else if(strcmp(ConvertToUpper((char*)pdoMapping), "OPTIONAL")==0)
 		else if(strcmp(ConvertToUpper(str), "OPTIONAL")==0)
 		m_pdoMapping = OPTIONAL;
+		else if(strcmp(ConvertToUpper(str), "RPDO")==0)
+		m_pdoMapping = RPDO;
+		else if(strcmp(ConvertToUpper(str), "TPDO")==0)
+		m_pdoMapping = TPDO;
 		delete [] str;
 	}
 /**************************************************************************************************

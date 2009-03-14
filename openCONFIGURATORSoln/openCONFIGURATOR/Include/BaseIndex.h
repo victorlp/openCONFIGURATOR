@@ -120,7 +120,7 @@ class DllExport CBaseIndex
 		const char* getHighLimit();
 		void setHighLimit(char* HighLimit);
 
-		DataType getDataType();
+		DataType getDataType();		
 		void setDataType(char* dataTypeValue);
 		void setDataType(char* dataTypeName, int NodeID);
 
@@ -128,6 +128,7 @@ class DllExport CBaseIndex
 		void setPDOMapping(char* pdoMappingValue);
 
 		const char* getObjectType();
+		EObjectType getEObjectType();
 		//void setObjectType(int objectTypeValue);
 		void setObjectType(char* objectType);
 
