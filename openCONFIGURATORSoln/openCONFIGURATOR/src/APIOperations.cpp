@@ -693,8 +693,8 @@ ocfmRetCode AddIndex(int NodeID, ENodeType NodeType, char* IndexID)
 	* Return value: ocfmRetCode
 /****************************************************************************************************/
 ocfmRetCode SetIndexAttributes(int NodeID, ENodeType NodeType,
-																														 char* IndexID, char* IndexValue,
-																														 char* IndexName, EFlag flagIfIncludedInCdc)
+ char* IndexID, char* IndexValue,
+ char* IndexName, EFlag flagIfIncludedInCdc)
 {
 	int IndexPos;
 	ocfmRetCode ErrStruct;
@@ -1485,9 +1485,8 @@ ocfmRetCode GenerateCDC(char* CDCLocation)
 				{
 					CIndex* objIndex;
 					objIndex = objIndexCollection->getIndex(i);
-				/*	if(CheckIfNotPDO((char*)objIndex->getIndexValue()))
-						{	*/					
-							//printf("Index%s",objIndex->getIndexValue());						
+					if(objIndex->getFlagIfIncludedCdc() == TRUE)
+					{
 							Buffer1 = (char*)malloc(CDC_BUFFER);
 							len = strlen(Buffer1);
 							
@@ -1497,16 +1496,10 @@ ocfmRetCode GenerateCDC(char* CDCLocation)
 							{
 								//printf("Buffer1 written");
 							
-							}
-							/*else
-							{
-								ocfmException ex;
-								ex.ocfm_Excpetion(OCFM_ERR_CANNOT_OPEN_FILE);
-								throw ex;		
-							}*/
+							}					
 							
 							delete[] Buffer1;
-					/*	}*/
+						}
 							
 				}
 				fclose(fileptr);
@@ -1714,6 +1707,8 @@ void  ProcessCDT(CComplexDataType* objCDT,CApplicationProcess* objAppProc,
 					
 						pi.ModuleIndex = (char*)malloc(strlen(ModuleIndex) + ALLOC_BUFFER);
 					strcpy(pi.ModuleIndex, ModuleIndex);	
+					
+					printf("PI.ModuleIndex %s",pi.ModuleIndex);
 					
 					pi.VarName = (char*)malloc(strlen(vd.nam_id_dt_attr->getName()) + ALLOC_BUFFER);
 					strcpy(pi.VarName, vd.nam_id_dt_attr->getName());		
@@ -4228,10 +4223,12 @@ ocfmRetCode AddOtherMNIndexes(CNode *objNode, char* tmp_CycleTime)
 					/* Add 1C02*/
 					strcpy(MNIndex, "1C02");
 					retCode = AddIndex(240, MN, MNIndex);
+				
 					if(retCode.code == OCFM_ERR_SUCCESS)
 					{				
 						objIndex = objIdxCol->getIndexbyIndexValue(MNIndex);
-						
+							/* $:set Flag to true*/
+						objIndex->setFlagIfIncludedCdc(TRUE);
 						/* Set subindex value 40 or 0000028 */
 						strcpy(Sidx, "00");
 						SetSIdxValue(MNIndex, Sidx, "3", objIdxCol, objNode->getNodeId(), MN, false);
@@ -4258,7 +4255,9 @@ ocfmRetCode AddOtherMNIndexes(CNode *objNode, char* tmp_CycleTime)
 					if(retCode.code == OCFM_ERR_SUCCESS)
 					{				
 						objIndex = objIdxCol->getIndexbyIndexValue(MNIndex);
-						
+								/* $:set Flag to true*/
+						objIndex->setFlagIfIncludedCdc(TRUE);
+			
 						AddForEachSIdx(MNIndex, objIdxCol, objNode->getNodeId(), "40",false);					
 					
 					}
@@ -4269,6 +4268,9 @@ ocfmRetCode AddOtherMNIndexes(CNode *objNode, char* tmp_CycleTime)
 					if(retCode.code == OCFM_ERR_SUCCESS)
 					{				
 						objIndex = objIdxCol->getIndexbyIndexValue(MNIndex);
+								/* $:set Flag to true*/
+						objIndex->setFlagIfIncludedCdc(TRUE);
+			
 						char* Val = new char[8];
 						ConfigDate = getConfigDate();
 						Val = IntToAscii(ConfigDate,Val, 10);
@@ -4288,6 +4290,9 @@ ocfmRetCode AddOtherMNIndexes(CNode *objNode, char* tmp_CycleTime)
 					if(retCode.code == OCFM_ERR_SUCCESS)
 					{				
 						objIndex = objIdxCol->getIndexbyIndexValue(MNIndex);		
+								/* $:set Flag to true*/
+						objIndex->setFlagIfIncludedCdc(TRUE);
+			
 						char* Val = new char[50];
 						ConfigTime = getConfigTime();
 						cout << "\n\n\nConfigTime:" << ConfigTime << endl;																		
@@ -4304,7 +4309,9 @@ ocfmRetCode AddOtherMNIndexes(CNode *objNode, char* tmp_CycleTime)
 					if(retCode.code == OCFM_ERR_SUCCESS)
 					{				
 						objIndex = objIdxCol->getIndexbyIndexValue(MNIndex);
-									
+								/* $:set Flag to true*/
+						objIndex->setFlagIfIncludedCdc(TRUE);
+						
 						AddForEachSIdx(MNIndex, objIdxCol, objNode->getNodeId(), "", true);			
 			
 					}
@@ -4314,6 +4321,9 @@ ocfmRetCode AddOtherMNIndexes(CNode *objNode, char* tmp_CycleTime)
 					retCode = AddIndex(240, MN, MNIndex);
 					if(retCode.code == OCFM_ERR_SUCCESS)
 					{
+						objIndex = objIdxCol->getIndexbyIndexValue(MNIndex);
+								/* $:set Flag to true*/
+						objIndex->setFlagIfIncludedCdc(TRUE);
 					/*	strcpy(Sidx, "00");
 						SetSIdxValue(MNIndex, Sidx, "", objIdxCol, objNode->getNodeId(),true);
 										
@@ -4351,6 +4361,9 @@ ocfmRetCode AddOtherMNIndexes(CNode *objNode, char* tmp_CycleTime)
 					retCode = AddIndex(240, MN, MNIndex);
 					if(retCode.code == OCFM_ERR_SUCCESS)
 					{				
+						objIndex = objIdxCol->getIndexbyIndexValue(MNIndex);
+								/* $:set Flag to true*/
+						objIndex->setFlagIfIncludedCdc(TRUE);
 						strcpy(Sidx, "00");
 						SetSIdxValue(MNIndex, Sidx, "", objIdxCol, objNode->getNodeId(), MN, true);
 						
@@ -4390,7 +4403,9 @@ ocfmRetCode AddOtherMNIndexes(CNode *objNode, char* tmp_CycleTime)
 					if(retCode.code == OCFM_ERR_SUCCESS)
 					{				
 						objIndex = objIdxCol->getIndexbyIndexValue(MNIndex);
-						
+								/* $:set Flag to true*/
+						objIndex->setFlagIfIncludedCdc(TRUE);
+			
 						AddForEachSIdx(MNIndex, objIdxCol, objNode->getNodeId(), "1490", false);			
 											
 					
@@ -4401,7 +4416,9 @@ ocfmRetCode AddOtherMNIndexes(CNode *objNode, char* tmp_CycleTime)
 					if(retCode.code == OCFM_ERR_SUCCESS)
 					{				
 						objIndex = objIdxCol->getIndexbyIndexValue(MNIndex);
-						
+								/* $:set Flag to true*/
+						objIndex->setFlagIfIncludedCdc(TRUE);
+			
 						AddForEachSIdx(MNIndex, objIdxCol, objNode->getNodeId(), "1490", false);			
 											
 					
@@ -4412,7 +4429,9 @@ ocfmRetCode AddOtherMNIndexes(CNode *objNode, char* tmp_CycleTime)
 					if(retCode.code == OCFM_ERR_SUCCESS)
 					{				
 						objIndex = objIdxCol->getIndexbyIndexValue(MNIndex);
-						
+								/* $:set Flag to true*/
+						objIndex->setFlagIfIncludedCdc(TRUE);
+			
 						AddForEachSIdx(MNIndex, objIdxCol, objNode->getNodeId(), "2000000",false);			
 											
 					
@@ -4425,6 +4444,10 @@ ocfmRetCode AddOtherMNIndexes(CNode *objNode, char* tmp_CycleTime)
 					if(retCode.code == OCFM_ERR_SUCCESS)
 					{				
 					
+							objIndex = objIdxCol->getIndexbyIndexValue(MNIndex);
+								/* $:set Flag to true*/
+						objIndex->setFlagIfIncludedCdc(TRUE);
+						
 						strcpy(Sidx, "05");
 						SetSIdxValue(MNIndex, Sidx, C_DLL_ISOCHR_MAX_PAYL, objIdxCol, objNode->getNodeId(), MN, false);
 						
