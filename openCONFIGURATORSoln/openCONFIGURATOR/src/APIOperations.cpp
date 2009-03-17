@@ -932,15 +932,15 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 								else
 								{
 								 
-									//actvalue =  IntToAscii(atoi(objIndex->getActualValue()),actvalue,16);
+									//actvalue =  _IntToAscii(atoi(objIndex->getActualValue()),actvalue,16);
 									///*printf("\n actval%s",actvalue);*/
 									////printf("Index:% s actvalue: %s padlength:%d",objIndex->getIndexValue(),objIndex->getActualValue(),padLength);
 									////strcat(Buffer,padLeft((char*)objIndex->getActualValue(),'0',padLength));								
 									//strcat(Buffer,padLeft(actvalue, '0', padLength));
-										strcpy(actvalue, IntToAscii(atoi(objIndex->getActualValue()),actvalue,16));
+										strcpy(actvalue, _IntToAscii(atoi(objIndex->getActualValue()),actvalue,16));
 										//printf("\n ACT Value%s",actvalue);
 									
-												//strcpy(actvalue, IntToAscii(atoi(objIndex->getActualValue()),actvalue,16));
+												//strcpy(actvalue, _IntToAscii(atoi(objIndex->getActualValue()),actvalue,16));
 										strcat(Buffer,padLeft(actvalue, '0', padLength));
 									
 								}
@@ -1026,7 +1026,7 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 											else
 											{				
 												//actvalue = new char[50];									
-												strcpy(actvalue, IntToAscii(atoi(objSubIndex->getActualValue()),actvalue,16));
+												strcpy(actvalue, _IntToAscii(atoi(objSubIndex->getActualValue()),actvalue,16));
 												//printf("\n ACT Value%s",actvalue);
 									
 												strcat(Buffer,padLeft(actvalue, '0', padLength));
@@ -1053,49 +1053,11 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 				}
 	}
 	
-		
-			
-/**************************************************************************************************
-	* Function Name: GenerateCNOBD
-   * Description: 
-/****************************************************************************************************/
-char* GenerateCNOBD(CNodeCollection* objNodeCol)
-	{
-		CNode objNode;
-		CIndexCollection* objIndexCollection;
-		char* Buffer2;
+	/**************************************************************************************************
+	* Function Name: UpdateCNCycleTime
+ * Description: Updates the cycle time(1006) of the CN
+/**************************************************************************************************/
 
-		Buffer2 =  new char;
-		for(int count=0; count<objNodeCol->getNumberOfNodes(); count++)
-			{
-				objNode = objNodeCol->getNode(CN,count+1);
-				objIndexCollection = objNode.getIndexCollection();
-				char* comment= new char;
-				char* c;
-				c= new char;
-				IntToAscii(count+1,c,10);
-				strcpy(comment,"\\\\Configuration Data for CN-");
-				comment = strcat(comment,c);
-				comment = strcat(comment,"\n");
-				//comment = strcat(comment,(char*)count);
-				/*strcpy(Buffer2, comment);*/
-				int NumberOfIndexes = objIndexCollection->getNumberofIndexes();
-				for(int i=0; i<NumberOfIndexes; i++)
-					{
-						CIndex* objIndex;
-						objIndex = objIndexCollection->getIndex(i);
-						const char* IndexValue = objIndex->getIndexValue();
-						if(strcmp(IndexValue,"1006")==0 ||strcmp(IndexValue,"2000")==0)
-							{
-								//strcpy(Buffer2,GetIndexData(objIndex));
-								GetIndexData(objIndex, Buffer2);
-								
-							}
-					}				
-						
-			}
-		return Buffer2;
-	}
 	void UpdateCNCycleTime(CIndexCollection  *objIdxCol,char* cycleTime)
 	{
 		CIndex* objIndex;
@@ -1143,7 +1105,7 @@ char* GenerateCNOBD(CNodeCollection* objNodeCol)
 							AddOtherRequiredCNIndexes(objNode.getNodeId());
 							objIndexCollection = objNode.getIndexCollection();
 							char* comment= (char*)malloc(50);
-							IntToAscii(CNCount+1,c,10);
+							_IntToAscii(CNCount+1,c,10);
 							CNCount++;
 							
 							strcpy(comment,"////Configuration Data for CN-");
@@ -1175,7 +1137,7 @@ char* GenerateCNOBD(CNodeCollection* objNodeCol)
 							strcpy(Buffer4, "");
 							
 							char* NoOfenteries = new char[10];
-							NoOfenteries = IntToAscii(getCNsTotalIndexSubIndex(objNode.getNodeId()), NoOfenteries, 16);
+							NoOfenteries = _IntToAscii(getCNsTotalIndexSubIndex(objNode.getNodeId()), NoOfenteries, 16);
 							NoOfenteries =  padLeft(NoOfenteries, '0', 8);
 							strcpy(Buffer4, NoOfenteries);
 							strcat(Buffer4, "\n");
@@ -1208,7 +1170,7 @@ char* GenerateCNOBD(CNodeCollection* objNodeCol)
 										
 							
 							//Convert CN NodeID to Hex
-							IntToAscii(objNode.getNodeId(),c,16);	
+							_IntToAscii(objNode.getNodeId(),c,16);	
 							char CNDataLength[50];
 							strcpy(CNDataLength, "1F22\t");
 							c = padLeft(c, '0', 2);
@@ -1221,7 +1183,7 @@ char* GenerateCNOBD(CNodeCollection* objNodeCol)
 							int len = getCNDataLen(Buffer2);
 
 							//Convert length to Hex
-							IntToAscii(len,c,16);
+							_IntToAscii(len,c,16);
 							//printf("c%s",c);
 							
 							c = padLeft(c, '0', 8);
@@ -1406,12 +1368,12 @@ ocfmRetCode GenerateCDC(char* CDCLocation)
 			CPjtSettings* stPjtSettings;
 			stPjtSettings = CPjtSettings::getPjtSettingsPtr();
 			
-			if(stPjtSettings->getGenerateAttr() == YES_AG);
+			if(stPjtSettings->getGenerateAttr() == YES_AG)
 			{	
 				cout << "\n\n\n\n Generating MN OBD\n\n\n\n" << endl;
 				GenerateMNOBD();
 			}
-			//GenerateMNOBD();
+		
 
 			FILE* fileptr = new FILE();
 			if (( fileptr = fopen(tempFileName,"w+")) == NULL)
@@ -1422,7 +1384,7 @@ ocfmRetCode GenerateCDC(char* CDCLocation)
 				}
 				Buffer1 = (char*)malloc(CDC_BUFFER);
 				char* NoOfenteries = new char[10];
-				NoOfenteries = IntToAscii(getMNsTotalIndexSubIndex(), NoOfenteries, 16);
+				NoOfenteries = _IntToAscii(getMNsTotalIndexSubIndex(), NoOfenteries, 16);
 				NoOfenteries =  padLeft(NoOfenteries, '0', 8);
 				strcpy(Buffer1, NoOfenteries);
 				strcat(Buffer1, "\n");
@@ -1450,7 +1412,7 @@ ocfmRetCode GenerateCDC(char* CDCLocation)
 								strcat(Buffer1, "\t");
 								int NodeID = objNode.getNodeId();		
 								char* hex = (char*)malloc(10);					
-								hex = IntToAscii(NodeID,hex,16);
+								hex = _IntToAscii(NodeID,hex,16);
 								hex = padLeft(hex,'0',2);
 								strcat(Buffer1, hex);								
 								strcat(Buffer1, "\t00000004\t00000007\n");						
@@ -1485,8 +1447,8 @@ ocfmRetCode GenerateCDC(char* CDCLocation)
 				{
 					CIndex* objIndex;
 					objIndex = objIndexCollection->getIndex(i);
-					if(objIndex->getFlagIfIncludedCdc() == TRUE)
-					{
+					/*if(objIndex->getFlagIfIncludedCdc() == TRUE)
+					{*/
 							Buffer1 = (char*)malloc(CDC_BUFFER);
 							len = strlen(Buffer1);
 							
@@ -1499,7 +1461,7 @@ ocfmRetCode GenerateCDC(char* CDCLocation)
 							}					
 							
 							delete[] Buffer1;
-						}
+						/*}*/
 							
 				}
 				fclose(fileptr);
@@ -1532,7 +1494,7 @@ ocfmRetCode GenerateCDC(char* CDCLocation)
 								strcat(Buffer1, "\t");
 								int NodeID = objNode.getNodeId();		
 								char* hex = (char*)malloc(10);					
-								hex = IntToAscii(NodeID,hex,16);
+								hex = _IntToAscii(NodeID,hex,16);
 								hex = padLeft(hex,'0',2);
 								strcat(Buffer1, hex);								
 								strcat(Buffer1, "\t00000004\t80000007\n");																						
@@ -2513,7 +2475,7 @@ void WriteXAPElements(ProcessImage piCol[], xmlTextWriterPtr& writer,int VarCoun
     ///* Add an attribute with name "dataSize" and value to channel */
     //printf("\n%s",pi.DataSize);
     char * size = new char[20];
-    size = IntToAscii(pi.DataInfo.DataSize,size,10);
+    size = _IntToAscii(pi.DataInfo.DataSize,size,10);
     
     rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "dataSize",
                                      BAD_CAST size );
@@ -2527,7 +2489,7 @@ void WriteXAPElements(ProcessImage piCol[], xmlTextWriterPtr& writer,int VarCoun
      ///* Add an attribute with name "dataSize" and value to channel */
     //printf("\n%s",pi.ByteOffset);
   		char* byteOffset = new char[6];
-				byteOffset = IntToAscii(pi.ByteOffset, byteOffset, 16);
+				byteOffset = _IntToAscii(pi.ByteOffset, byteOffset, 16);
 				byteOffset = ConvertToHexformat(byteOffset, 4, 1);
 			
     rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "PIOffset",
@@ -2541,7 +2503,7 @@ void WriteXAPElements(ProcessImage piCol[], xmlTextWriterPtr& writer,int VarCoun
     if(pi.BitOffset!=-1)
     {
 						char* bitoffset = new char[4];
-						bitoffset = IntToAscii(pi.BitOffset, bitoffset, 16);
+						bitoffset = _IntToAscii(pi.BitOffset, bitoffset, 16);
 						bitoffset = ConvertToHexformat(bitoffset, 2, 1);
 			
 					rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "BitOffset",
@@ -2678,7 +2640,6 @@ ocfmRetCode GenerateXAP(char* fileName)
 			EndWrtitingXAP(writer, fileName, doc);
 			
 			/*Generate Header file */			
-			
 			GenerateXAPHeaderFile (fileName, PIInCol, PIOutCol, InVars, OutVars);
 			return objException._ocfmRetCode;
 		}
@@ -2792,7 +2753,7 @@ ocfmRetCode GetIndexAttributes(
 					break;
 			/* Flag if it should be included in cdc*/
 			case 9:
-					if(objIndexPtr->getFlagIfIncludedCdc() == true)
+					if(objIndexPtr->getFlagIfIncludedCdc() == TRUE)
 					strcpy(Out_AttributeValue, "1");
 					else
 					strcpy(Out_AttributeValue, "0");			
@@ -3278,7 +3239,7 @@ char* getPIName(int NodeID)
 	char* id = new char[2];
 	str =(char*)malloc(5);
 	strcpy(str, "CN");
-	id =  IntToAscii(NodeID,id, 10);
+	id =  _IntToAscii(NodeID,id, 10);
 	strcat(str, id);
 	strcat(str, ".");
 	strcat(str,"\0");
@@ -3950,7 +3911,8 @@ ocfmRetCode SaveProject(char* ProjectPath, char* ProjectName)
 					intStat = stat(path,&fileInfo);
 					if(intStat == 0) 
 					{
-						#if define debug
+
+						#if defined DEBUG
 							cout << "Folder Already Exists\n" << endl;
 						#endif
 					}
@@ -4014,7 +3976,7 @@ void GetMNPDOSubIndex(MNPdoVariable var, int& prevSubIndex, CIndex* objIdx,char*
 			char* Idx =  new char[2];
 		/* Set the MN's PDO subIndex*/
 			prevSubIndex =  prevSubIndex + 1;
-			Idx = IntToAscii(prevSubIndex, Idx, 16);
+			Idx = _IntToAscii(prevSubIndex, Idx, 16);
 			Idx = padLeft(Idx, '0', 2);
 			
 				#if defined DEBUG	
@@ -4036,7 +3998,7 @@ void GetMNPDOSubIndex(MNPdoVariable var, int& prevSubIndex, CIndex* objIdx,char*
 			char* actValue = new char[20];
 			strcpy(actValue, subString(var.Value,0,6));
 			char* Offset = new char[5];
-			Offset = IntToAscii(prevSize, Offset, 16);
+			Offset = _IntToAscii(prevSize, Offset, 16);
 			Offset = padLeft(Offset, '0', 4);
 				strcat(actValue, Offset);
 				/* Add reserve byte*/
@@ -4109,7 +4071,6 @@ void AddForEachSIdx(char* Idx,CIndexCollection * objIdxCol, int MNNodeID,char* V
 		CNodeCollection* objNodeCol;
 		CNode objCNNode;
 		CIndex *objIndex;
-		CSubIndex* objSIdx;
 		char* SIdx =  new char[3];
 		char* IndexNo = new char[3];
 		ocfmRetCode retCode;
@@ -4132,7 +4093,7 @@ void AddForEachSIdx(char* Idx,CIndexCollection * objIdxCol, int MNNodeID,char* V
 	{
 			if(objNodeCol->getNumberOfNodes() !=0)
 			strcpy(SIdx, "00");
-			IndexNo = IntToAscii(objNodeCol->getCNNodesCount(), IndexNo, 16);
+			IndexNo = _IntToAscii(objNodeCol->getCNNodesCount(), IndexNo, 16);
 			IndexNo = padLeft(IndexNo, '0', 2);
 			
 			SetSIdxValue(Idx, SIdx, IndexNo , objIdxCol, MNNodeID, MN, false);
@@ -4143,7 +4104,7 @@ void AddForEachSIdx(char* Idx,CIndexCollection * objIdxCol, int MNNodeID,char* V
 			objCNNode = objNodeCol->getNodebyCollectionIndex(i);			
 			if(objCNNode.getNodeType() == CN)
 			{
-				SIdx = IntToAscii(objCNNode.getNodeId(), SIdx, 16);
+				SIdx = _IntToAscii(objCNNode.getNodeId(), SIdx, 16);
 				SIdx = padLeft(SIdx, '0', 2);	
 				
 				
@@ -4184,7 +4145,6 @@ ocfmRetCode AddOtherMNIndexes(CNode *objNode, char* tmp_CycleTime)
 			char* MNIndex = new char[5];		
 			char* Sidx =  new char[3];
 			CIndex* objIndex;
-			CSubIndex* objSIdx;
 			CIndexCollection* objIdxCol;
 			
 			try
@@ -4273,7 +4233,7 @@ ocfmRetCode AddOtherMNIndexes(CNode *objNode, char* tmp_CycleTime)
 			
 						char* Val = new char[8];
 						ConfigDate = getConfigDate();
-						Val = IntToAscii(ConfigDate,Val, 10);
+						Val = _IntToAscii(ConfigDate,Val, 10);
 						//hexVal = padLeft(hexVal, '0' , 8);
 						AddForEachSIdx(MNIndex, objIdxCol, objNode->getNodeId(), Val, false);		
 											
@@ -4296,7 +4256,7 @@ ocfmRetCode AddOtherMNIndexes(CNode *objNode, char* tmp_CycleTime)
 						char* Val = new char[50];
 						ConfigTime = getConfigTime();
 						cout << "\n\n\nConfigTime:" << ConfigTime << endl;																		
-						Val = IntToAscii(ConfigTime,Val, 10);
+						Val = _IntToAscii(ConfigTime,Val, 10);
 						//Val = padLeft(hexVal, '0' , 8);
 
 						AddForEachSIdx(MNIndex, objIdxCol, objNode->getNodeId(), Val, false);										
@@ -4590,7 +4550,7 @@ ocfmRetCode GenerateMNOBD()
 						/* Create PDO_TxCommParam_XXh_REC 1800 INdex*/
 						CIndex* objIndex;	
 						strcpy(MNIndex, "18");
-						Idx = IntToAscii((objNode.getNodeId()-1), Idx, 16);
+						Idx = _IntToAscii((objNode.getNodeId()-1), Idx, 16);
 						Idx = padLeft(Idx, '0', 2);
 						MNIndex =strcat(MNIndex, Idx);
 					
@@ -4604,13 +4564,13 @@ ocfmRetCode GenerateMNOBD()
 							throw ex;
 						}
 						
-						Idx = IntToAscii(objNode.getNodeId(), Idx, 10);
+						Idx = _IntToAscii(objNode.getNodeId(), Idx, 10);
 						char* Sidx =  new char[2];
 						strcpy(Sidx, "01");
 						SetSubIndexAttributes(240, MN, MNIndex, Sidx, Idx,"NodeID_U8");
 									
 						strcpy(MNIndex, "1A");
-						Idx = IntToAscii((objNode.getNodeId()-1), Idx, 16);
+						Idx = _IntToAscii((objNode.getNodeId()-1), Idx, 16);
 						Idx = padLeft(Idx, '0', 2);
 						MNIndex =strcat(MNIndex, Idx);
 						/* Set the MN's PDO Index*/
@@ -4632,7 +4592,7 @@ ocfmRetCode GenerateMNOBD()
 					
 						}
 						char* actval = new char[4];
-						actval = IntToAscii(objNode.MNPDOOUTVarCollection.Count(), actval, 16);
+						actval = _IntToAscii(objNode.MNPDOOUTVarCollection.Count(), actval, 16);
 						actval = ConvertToHexformat(actval, 2, true);	
 						objSubIdex = objIndex->getSubIndexbyIndexValue("00");
 						objSubIdex->setActualValue(actval);
@@ -4644,7 +4604,7 @@ ocfmRetCode GenerateMNOBD()
 												
 						/* Create PDO_TxCommParam_XXh_REC 1800 INdex*/
 						strcpy(MNIndex, "14");
-						Idx = IntToAscii((objNode.getNodeId()-1), Idx, 16);
+						Idx = _IntToAscii((objNode.getNodeId()-1), Idx, 16);
 						Idx = padLeft(Idx, '0', 2);
 						MNIndex =strcat(MNIndex, Idx);
 					
@@ -4658,14 +4618,14 @@ ocfmRetCode GenerateMNOBD()
 							throw ex;
 						}
 						
-						Idx = IntToAscii(objNode.getNodeId(), Idx, 10);
+						Idx = _IntToAscii(objNode.getNodeId(), Idx, 10);
 						char* Sidx =  new char[2];
 						strcpy(Sidx, "01");
 						SetSubIndexAttributes(240, MN, MNIndex, Sidx, Idx,"NodeID_U8");
 				
 						CIndex* objIndex;				
 						strcpy(MNIndex, "16");
-						Idx = IntToAscii((objNode.getNodeId()-1), Idx, 16);
+						Idx = _IntToAscii((objNode.getNodeId()-1), Idx, 16);
 						Idx = padLeft(Idx, '0', 2);
 						MNIndex =strcat(MNIndex, Idx);
 						/* Set the MN's PDO Index*/
@@ -4687,7 +4647,7 @@ ocfmRetCode GenerateMNOBD()
 							prevSize = prevSize + var.DataSize ;	
 						}
 						char* actval = new char[4];
-						actval = IntToAscii(objNode.MNPDOINVarCollection.Count(), actval, 16);
+						actval = _IntToAscii(objNode.MNPDOINVarCollection.Count(), actval, 16);
 						//actval = padLeft(actval, '0', 4);
 						actval = ConvertToHexformat(actval, 2, true);						
 						objSubIdex = objIndex->getSubIndexbyIndexValue("00");
@@ -4765,7 +4725,6 @@ int ComputeOUTOffset(int dataSize, EPDOType pdoType)
 {
 	//int arrOfOffsets[4][2] = {{-1, -1}, {-1, -1},{-1, -1},{-1,-1}};			/* Contain prev and current offsets of size 1Bytes, 2 bytes, 4 bytes and 8 bytes*/	
 	int Offset = 0;
-	int newOffset;
 							
 
 		switch(dataSize)
@@ -4938,7 +4897,6 @@ int ComputeINOffset(int dataSize, EPDOType pdoType)
 {
 	//int arrOfOffsets[4][2] = {{-1, -1}, {-1, -1},{-1, -1},{-1,-1}};			/* Contain prev and current offsets of size 1Bytes, 2 bytes, 4 bytes and 8 bytes*/	
 	int Offset = 0;
-	int newOffset;
 							
 
 		switch(dataSize)
@@ -5255,8 +5213,6 @@ ocfmRetCode OpenProject(char* PjtPath, char* projectXmlFileName)
 ocfmRetCode processProjectXML(xmlTextReaderPtr reader, char* PjtPath)
 {
 	const xmlChar *name, *value;
-	CNodeCollection *objNodeCollection;
-	CNode *objNode;
 	CPjtSettings* stPjtSettings;
 	stPjtSettings = CPjtSettings::getPjtSettingsPtr();
 	name = xmlTextReaderConstName(reader);
@@ -5545,7 +5501,6 @@ bool setProjectSettings_Communication(xmlTextReaderPtr reader)
 bool getandCreateNode(xmlTextReaderPtr reader, char* PjtPath)
 {
 	const xmlChar* name,*value;
-	int ret;
 	ocfmRetCode ErrStruct;
 	
 	char* nodeName;
@@ -5921,7 +5876,7 @@ cout << "\n6" << endl;
 		char* tmp_NodeID;
 		tmp_NodeID = new char[20];
 		
-		IntToAscii(objNode->getNodeId(), tmp_NodeID, 0);
+		_IntToAscii(objNode->getNodeId(), tmp_NodeID, 0);
 
 		rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "NodeId", BAD_CAST tmp_NodeID);
 		
@@ -6077,13 +6032,13 @@ void CreateMNPDOVar(int Offset, int dataSize,IEC_Datatype dtenum, EPDOType pdoTy
 		int d = dataSize/8;
 		SIdx = (Offset)/d + 1;
 		objPDOvar.SubIndex = new char[2 + ALLOC_BUFFER];
-		objPDOvar.SubIndex =  IntToAscii(SIdx, objPDOvar.SubIndex, 16);
+		objPDOvar.SubIndex =  _IntToAscii(SIdx, objPDOvar.SubIndex, 16);
 		objPDOvar.SubIndex = padLeft(objPDOvar.SubIndex, '0', 2);
 						
 		/* Assign the value*/
 		objPDOvar.Value = new char[10 + ALLOC_BUFFER];
 		char* ds = new char[5 + ALLOC_BUFFER];		
-		ds = IntToAscii(dataSize, ds, 16);
+		ds = _IntToAscii(dataSize, ds, 16);
 		ds = padLeft(ds, '0', 4);
 		strcpy(objPDOvar.Value,"0x");
 		strcat(objPDOvar.Value , ds);

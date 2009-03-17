@@ -302,7 +302,6 @@ CIndex* CObjectDictionary::getObjectDictIndex(char* Idx)
 			{
 				if(checkInTheRange(Idx, obj.start_Index, obj.end_Index))
 				{
-					char name[30];
 					objIndex = objIndexCol->getIndexbyIndexValue(obj.start_Index);
 				/*	name = strchr(objIndex->getName(), "X");
 					*/

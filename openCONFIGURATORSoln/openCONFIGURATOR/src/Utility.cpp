@@ -174,7 +174,7 @@ char *utoa(unsigned value, char *digits, int base)
     return digits;
 }
 
-char *IntToAscii(int value, char *digits, int base)
+char *_IntToAscii(int value, char *digits, int base)
 {
     char *d;
     unsigned u; /* assume unsigned is big enough to hold all the
@@ -200,11 +200,11 @@ char *IntToAscii(int value, char *digits, int base)
 
 
 /**************************************************************************************************
-* Function Name: IntToAscii
-* Description: Perform C++ style "IntToAscii"
+* Function Name: _IntToAscii
+* Description: Perform C++ style "_IntToAscii"
 /****************************************************************************************************/
 
-//char* IntToAscii( int value, char* result, int base ) 
+//char* _IntToAscii( int value, char* result, int base ) 
 //{
 //	// check that the base if valid
 //

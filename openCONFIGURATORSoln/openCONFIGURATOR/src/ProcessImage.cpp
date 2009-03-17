@@ -79,7 +79,7 @@
 
 int InVars =0;
 int OutVars = 0;
-#define HEADER_FILE_BUFFER 10000
+#define HEADER_FILE_BUFFER 500000
 #define TOTAL_MODULES 10000
 
 ModuleCol modCol[TOTAL_MODULES]; 
@@ -528,8 +528,7 @@ void GenerateXAPHeaderFile(char* fileName, ProcessImage PI_IN[], ProcessImage PI
 		strcpy(strFileName, fileName);
 		strcat(strFileName, ".h");
 		FILE* fileptr = new FILE();
-	try
-	{
+	
 		/* write Input structure */
 		if (( fileptr = fopen(strFileName,"w+")) == NULL)
 		{
@@ -539,55 +538,53 @@ void GenerateXAPHeaderFile(char* fileName, ProcessImage PI_IN[], ProcessImage PI
 		}			
 		if(InVar !=0)
 		{			
-			WriteXAPHeaderContents(fileName, PI_IN, InVar, INPUT, fileptr);			
+			WriteXAPHeaderContents(PI_IN, InVar, INPUT, fileptr);			
 		}
 	
-		fclose(fileptr);	
+		fclose(fileptr);
+		
+		FILE* fileptr1 = new FILE();
 	/* write Output structure */
-		if (( fileptr = fopen(strFileName,"a+")) == NULL)
+		if (( fileptr1 = fopen(strFileName,"a+")) == NULL)
 		{
 					ocfmException ex;
 					ex.ocfm_Excpetion(OCFM_ERR_CANNOT_OPEN_FILE);
 					throw ex;						
 		}
 		if(OutVar !=0)
-		{			
-			WriteXAPHeaderContents(fileName, PI_OUT, OutVar, OUTPUT, fileptr );
+		{	
+			WriteXAPHeaderContents(PI_OUT, OutVar, OUTPUT, fileptr1 );
 		}		
 		fclose(fileptr);	
-	}
-	catch(ocfmException & ex)
-	{
-		
-	}
 }
-void WriteXAPHeaderContents(char* fileName, ProcessImage PI[], int NumberOfVars, EPIDirectionType dirType, FILE* fileptr)
+void WriteXAPHeaderContents(ProcessImage PI[], int NumberOfVars, EPIDirectionType dirType, FILE* fileptr)
 {
-	try
-	{
-		char Buffer[HEADER_FILE_BUFFER];
-		char Buffer1[100];
+
+
+		char* Buffer = new char[HEADER_FILE_BUFFER];
+		char* Buffer1 = new char[200];
 			
-		char* strCNID = new char[NODE_ID + ALLOC_BUFFER];
+		
+		//char* strCNID = new char[NODE_ID + ALLOC_BUFFER];
 		int ModuleNo = 0;
 		int LastModuleNo = 0;
-		char* ModName =  new char[50];
-		char* strModuleNo = new char[20];
-		char* varNo = new char[10];
+		
 		int totalsize = 0;
 		int DataSize  = 0;
-									
+		int holeFilledIdNo;									
 		
 		
-  ModuleCol	modCol[TOTAL_MODULES];
-	
-			if(NumberOfVars!=0 )
+		if(NumberOfVars!=0 )
 			{
 				strcpy(Buffer, "\ntypedef struct { \n");	
 				ModuleNo = 0;
 				for(int i = 0; i<NumberOfVars ; i++)
 				{					
 					int NodeId;
+					char* strCNID = new char[50];
+					char* ModName =  new char[50];
+					char* strModuleNo = new char[20];
+					char* varNo = new char[10];
 					
 					DataSize  = PI[i].DataInfo.DataSize;
 						/* Check if 8, 16, 32 bit aligned*/
@@ -602,12 +599,13 @@ void WriteXAPHeaderContents(char* fileName, ProcessImage PI[], int NumberOfVars,
 							totalsize =  totalsize + filledBits;
 							strcat(Buffer,"unsigned");
 							strcat(Buffer," ");
-							strcat(Buffer,"HOLE_FILLED");
+							strcat(Buffer,"PADDING_VAR");														
 							strcat(Buffer,":");
 							char* fbits  = new char[2 + ALLOC_BUFFER];
-							fbits =  IntToAscii(filledBits, fbits, 10);							
+							fbits =  _IntToAscii(filledBits, fbits, 10);							
 							strcat(Buffer,fbits);
-							strcat(Buffer,"\n");
+							strcat(Buffer,";\n");
+							holeFilledIdNo =  holeFilledIdNo + 1;
 							delete[] fbits;
 						}
 						
@@ -615,7 +613,7 @@ void WriteXAPHeaderContents(char* fileName, ProcessImage PI[], int NumberOfVars,
 					
 					NodeId = PI[i].CNNodeID;
 				
-					strCNID = IntToAscii(PI[i].CNNodeID, strCNID, 10); 
+					strCNID = _IntToAscii(PI[i].CNNodeID, strCNID, 10); 
 					strcpy(strModuleNo, subString( PI[i].ModuleIndex,2, 2));
 					strcpy(ModName, PI[i].ModuleName);
 					
@@ -625,7 +623,7 @@ void WriteXAPHeaderContents(char* fileName, ProcessImage PI[], int NumberOfVars,
 					strcat(Buffer," ");
 					char* varName = new char[100];
 					strcpy(varName, "CN");
-					strCNID = IntToAscii(PI[i].CNNodeID, strCNID, 10); 
+					strCNID = _IntToAscii(PI[i].CNNodeID, strCNID, 10); 
 					strcat(varName, strCNID);
 					strcat(varName, "_");
 					
@@ -638,18 +636,18 @@ void WriteXAPHeaderContents(char* fileName, ProcessImage PI[], int NumberOfVars,
 					strcat(varName, "_");
 					strcat(varName, PI[i].VarName);
 						
-					if(strcmp(subString(PI[i].VarName,0, 8), "Reserved")== 0)
+			/*		if(strcmp(subString(PI[i].VarName,0, 8), "Reserved")== 0)
 					{
-						varNo =  IntToAscii(i, varNo, 10);
+						varNo =  _IntToAscii(i, varNo, 10);
 						strcat(varName, "_");
 						strcat(varName, varNo);
-					}
+					}*/
 					 
 					strcat(Buffer, varName);									
 					strcat(Buffer, ":");
 					
 					char* str = new char[50];												
-					str = IntToAscii(DataSize, str, 10); 
+					str = _IntToAscii(DataSize, str, 10); 
 					totalsize = DataSize  + totalsize;
 					strcat(Buffer, str);
 					strcat(Buffer, ";");
@@ -677,29 +675,37 @@ void WriteXAPHeaderContents(char* fileName, ProcessImage PI[], int NumberOfVars,
 		}
 		
 		
-			char* strsize = new char[4 +ALLOC_BUFFER];
-			strsize =  IntToAscii(totalsize, strsize, 10);
+			char* strsize = new char[50];
+			/* write the size in bytes*/
+			totalsize =  totalsize/8;	
+			strsize =  _IntToAscii(totalsize, strsize, 10);
 			strcat(Buffer1, strsize);
+			
 			int len =  strlen(Buffer1);
 			printf("\n Length of Buffer1 %d", len);
 			printf(" Buffer1 :%s", Buffer1);
 			if((fwrite(Buffer1, sizeof(char),len,fileptr))==NULL)
 			{					
-				printf("\n Not written");
+				ocfmException ex;
+				ex.ocfm_Excpetion(OCFM_ERR_FILE_CANNOT_OPEN);
+				throw ex;
 			}
-			
+		
 			len  =  strlen(Buffer);
 			if((fwrite(Buffer, sizeof(char),len,fileptr))==NULL)
 			{					
-			
+				ocfmException ex;
+				ex.ocfm_Excpetion(OCFM_ERR_FILE_CANNOT_OPEN);
+				throw ex;
+			}
+			else
+			{
+			printf("\n done");
 			}
 			delete[] Buffer;
 			delete[] Buffer1;
-		}
 	
-		catch(ocfmException& ex)
-		{
-		}
+	
 }
 void SetSIdxDataType(DataType *dt, char* Idx, char* SIdx)
 {
@@ -756,6 +762,7 @@ char* getPIAddress(PDODataType dt,  EPIDirectionType dirType)
 		if((AddressTable[i].dt == dt) && (AddressTable[i].Direction == dirType))
 		return AddressTable[i].Address;
 	}
+
 }
 char* getPIDataTypeName(char* Address)
 {

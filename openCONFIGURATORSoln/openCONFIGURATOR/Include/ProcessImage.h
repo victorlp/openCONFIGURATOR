@@ -193,5 +193,5 @@ void AddPDOIndexsToMN(char* Index, char* SubIndex);
 char* getPIAddress(PDODataType dt,  EPIDirectionType dirType);
 char* getPIDataTypeName(char* Address);
 bool CheckIfProcessImageIdx(char* Index);
-void WriteXAPHeaderContents(char* fileName, ProcessImage PI[], int NumberOfVars, EPIDirectionType dirType, FILE* fileptr);
+void WriteXAPHeaderContents(ProcessImage PI[], int NumberOfVars, EPIDirectionType dirType, FILE* fileptr);
 #endif // processImage_h

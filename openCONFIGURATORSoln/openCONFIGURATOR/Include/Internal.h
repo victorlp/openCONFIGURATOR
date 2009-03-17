@@ -112,7 +112,7 @@ static const char *g_Simple[][2] = {
 
 //void LoadObjectDictionary(char* fileName);
 char* ConvertToUpper(char* str);
-char* IntToAscii( int value, char* result, int base );
+char* _IntToAscii( int value, char* result, int base );
 bool CheckIfNotPDO(char* Index);
 void CreateTree();
 bool CheckIfNotPDO(char* Index);
@@ -164,4 +164,5 @@ CHAR tobin(CHAR ch);
 int reversedata(UINT8 *actemp1, UINT8 *actemp2, UINT32 size);
 char* StringToUpper(char* str);
 void setFlagForRequiredIndexes(int NodeId);
+void UpdateCNCycleTime(CIndexCollection  *objIdxCol,char* cycleTime);
 #endif // internal_h

@@ -369,7 +369,6 @@ bool CheckIfSubIndexExists(int NodeID, ENodeType NodeType, char* IndexID, char* 
 		CIndexCollection *objIndexCollection;
 		CIndex objIndex;
 		CIndex* objIdx;
-		ocfmRetCode ErrStruct;
 		objIndex.setNodeID(objNode.getNodeId());
 		objNodeCollection= CNodeCollection::getNodeColObjectPointer();
 		objNode = objNodeCollection->getNode(NodeType, NodeID);
@@ -399,6 +398,7 @@ bool CheckIfSubIndexExists(int NodeID, ENodeType NodeType, char* IndexID, char* 
 						}
 					}
 				}	
+			return false;
 }
 
 bool IfVersionNumberMatches(xmlTextReaderPtr reader)

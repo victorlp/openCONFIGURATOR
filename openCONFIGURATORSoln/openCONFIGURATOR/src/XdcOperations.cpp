@@ -1143,7 +1143,6 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 {	
 	int rc;
     xmlTextWriterPtr writer;
-    xmlChar *tmp;
     xmlDocPtr doc;
 	ocfmRetCode ErrStruct;
 
@@ -1154,7 +1153,6 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 		CIndexCollection *objIndexCollection;
 		CIndex objIndex;
 		CIndex* objIndexPtr;
-		Parameter* para;
 		CApplicationProcess* objAppProc;
 		int IndexPos = 0;
 		
@@ -1597,7 +1595,7 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 			if(objIndexPtr->getObjectType() != NULL)
 			{
 				char *str_EObjectType = new char[10];
-				str_EObjectType = IntToAscii(objIndexPtr->getEObjectType(), str_EObjectType, 10);
+				str_EObjectType = _IntToAscii(objIndexPtr->getEObjectType(), str_EObjectType, 10);
 				rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "objectType", BAD_CAST str_EObjectType);
 				delete [] str_EObjectType;
 				//rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "objectType", BAD_CAST objIndexPtr->getObjectType());
@@ -1666,7 +1664,7 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 						if(objSubIndexPtr->getObjectType() != NULL)
 						{
 							char *str_EObjectType = new char[10];
-							str_EObjectType = IntToAscii(objSubIndexPtr->getEObjectType(), str_EObjectType, 10);
+							str_EObjectType = _IntToAscii(objSubIndexPtr->getEObjectType(), str_EObjectType, 10);
 							rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "objectType", BAD_CAST str_EObjectType);
 							delete [] str_EObjectType;
 						}
@@ -1795,7 +1793,6 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 void setFlagForRequiredIndexes(int NodeId)
 {
 		CIndex* objIndex;
-		CSubIndex* objSIdx;
 		CIndexCollection* objIdxCol;
 		CNodeCollection* objNodeCol;
 		CNode* objNode;
@@ -1821,8 +1818,6 @@ ocfmRetCode AddOtherRequiredCNIndexes(int NodeId)
 			ocfmRetCode retCode;
 			char* MNIndex = new char[4];		
 			char* Sidx =  new char[2];
-			CIndex* objIndex;
-			CSubIndex* objSIdx;
 			CIndexCollection* objIdxCol;
 			CNodeCollection* objNodeCol;
 			CNode* objNode;
@@ -1847,7 +1842,7 @@ ocfmRetCode AddOtherRequiredCNIndexes(int NodeId)
 					return retCode;
 					
 					char* Val = new char[16];
-					Val = IntToAscii(ConfigDate,Val, 10);
+					Val = _IntToAscii(ConfigDate,Val, 10);
 				
 					/* Set 5ms value*/
 						/* Set subindex value 40 or 0000028 */
@@ -1855,7 +1850,7 @@ ocfmRetCode AddOtherRequiredCNIndexes(int NodeId)
 						strcpy(Sidx, "01");
 						SetSIdxValue(MNIndex, Sidx, Val, objIdxCol, objNode->getNodeId(), CN,  false);
 							
-						Val = IntToAscii(ConfigTime,Val, 10);
+						Val = _IntToAscii(ConfigTime,Val, 10);
 				
 						strcpy(Sidx, "02");
 						SetSIdxValue(MNIndex, Sidx, Val, objIdxCol, objNode->getNodeId(), CN, false);
