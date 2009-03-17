@@ -543,9 +543,8 @@ void GenerateXAPHeaderFile(char* fileName, ProcessImage PI_IN[], ProcessImage PI
 	
 		fclose(fileptr);
 		
-		FILE* fileptr1 = new FILE();
-	/* write Output structure */
-		if (( fileptr1 = fopen(strFileName,"a+")) == NULL)
+			/* write Output structure */
+		if (( fileptr = fopen(strFileName,"a+")) == NULL)
 		{
 					ocfmException ex;
 					ex.ocfm_Excpetion(OCFM_ERR_CANNOT_OPEN_FILE);
@@ -553,7 +552,7 @@ void GenerateXAPHeaderFile(char* fileName, ProcessImage PI_IN[], ProcessImage PI
 		}
 		if(OutVar !=0)
 		{	
-			WriteXAPHeaderContents(PI_OUT, OutVar, OUTPUT, fileptr1 );
+			WriteXAPHeaderContents(PI_OUT, OutVar, OUTPUT, fileptr );
 		}		
 		fclose(fileptr);	
 }
@@ -571,7 +570,7 @@ void WriteXAPHeaderContents(ProcessImage PI[], int NumberOfVars, EPIDirectionTyp
 		
 		int totalsize = 0;
 		int DataSize  = 0;
-		int holeFilledIdNo;									
+		int holeFilledIdNo = 1;									
 		
 		
 		if(NumberOfVars!=0 )
@@ -586,6 +585,7 @@ void WriteXAPHeaderContents(ProcessImage PI[], int NumberOfVars, EPIDirectionTyp
 					char* strModuleNo = new char[20];
 					char* varNo = new char[10];
 					
+					
 					DataSize  = PI[i].DataInfo.DataSize;
 						/* Check if 8, 16, 32 bit aligned*/
 					if((DataSize % 32 == 0 ) || 
@@ -595,11 +595,13 @@ void WriteXAPHeaderContents(ProcessImage PI[], int NumberOfVars, EPIDirectionTyp
 						
 						if(totalsize % DataSize !=0)
 						{
+							char holeid[20];
 							int filledBits = DataSize - (totalsize % DataSize);
 							totalsize =  totalsize + filledBits;
 							strcat(Buffer,"unsigned");
 							strcat(Buffer," ");
-							strcat(Buffer,"PADDING_VAR");														
+							strcat(Buffer,"PADDING_VAR_");		
+							strcat(Buffer,_IntToAscii(holeFilledIdNo, holeid, 10));												
 							strcat(Buffer,":");
 							char* fbits  = new char[2 + ALLOC_BUFFER];
 							fbits =  _IntToAscii(filledBits, fbits, 10);							
@@ -659,23 +661,43 @@ void WriteXAPHeaderContents(ProcessImage PI[], int NumberOfVars, EPIDirectionTyp
 					delete[] strCNID;	
 										
 			}
+			/* Check if the whole struct is 32 bit aligned*/
+			if(totalsize % 32 !=0)
+			{
+					char holeid[20];
+					int filledBits = 32 - (totalsize % 32);
+					totalsize =  totalsize + filledBits;
+					strcat(Buffer,"unsigned");
+					strcat(Buffer," ");
+					strcat(Buffer,"PADDING_VAR_");		
+					strcat(Buffer,_IntToAscii(holeFilledIdNo, holeid, 10));												
+					strcat(Buffer,":");
+					char* fbits  = new char[2 + ALLOC_BUFFER];
+					fbits =  _IntToAscii(filledBits, fbits, 10);							
+					strcat(Buffer,fbits);
+					strcat(Buffer,";\n");
+					holeFilledIdNo =  holeFilledIdNo + 1;
+					delete[] fbits;
+			}
 			strcat(Buffer, "}");
 			if(dirType == INPUT)
 			{
-				strcpy(Buffer1, "\n# define COMPUTED_PI_IN_SIZE ");			
+				strcpy(Buffer1, "# define COMPUTED_PI_IN_SIZE ");			
 				strcat(Buffer, " PI_IN;");	
 			}
 			
 			else if(dirType == OUTPUT)
 			{				
 				
-				strcpy(Buffer1, "\n# define COMPUTED_PI_OUT_SIZE ");		
+				strcpy(Buffer1, "\n\n# define COMPUTED_PI_OUT_SIZE ");		
 				strcat(Buffer, " PI_OUT;");	
 			}
 		}
 		
 		
 			char* strsize = new char[50];
+			printf("\n Totalsize %d",totalsize);
+			
 			/* write the size in bytes*/
 			totalsize =  totalsize/8;	
 			strsize =  _IntToAscii(totalsize, strsize, 10);
@@ -684,16 +706,25 @@ void WriteXAPHeaderContents(ProcessImage PI[], int NumberOfVars, EPIDirectionTyp
 			int len =  strlen(Buffer1);
 			printf("\n Length of Buffer1 %d", len);
 			printf(" Buffer1 :%s", Buffer1);
-			if((fwrite(Buffer1, sizeof(char),len,fileptr))==NULL)
-			{					
+			if((len != fwrite(Buffer1, sizeof(char),len,fileptr)))
+			{	
+				printf("\n xap.h buffer1 not  written");
 				ocfmException ex;
 				ex.ocfm_Excpetion(OCFM_ERR_FILE_CANNOT_OPEN);
 				throw ex;
 			}
+			else
+			{
+			printf("\n buffer1 written");
+			/////fclose(fileptr);
+			}
 		
 			len  =  strlen(Buffer);
-			if((fwrite(Buffer, sizeof(char),len,fileptr))==NULL)
-			{					
+			printf("\n\nlen of Buffer :%d", len);
+
+			if((len != fwrite(Buffer, sizeof(char),len,fileptr)))
+			{	
+				printf("\n xap.h buffer not written");
 				ocfmException ex;
 				ex.ocfm_Excpetion(OCFM_ERR_FILE_CANNOT_OPEN);
 				throw ex;
@@ -730,9 +761,12 @@ void AddPDOIndexsToMN(char* Index, char* SubIndex)
 {
 	ocfmRetCode retCode;
 	DataType* dt;
+	CIndex *objIndex;
 	CNodeCollection *objNodeCol;
+	CIndexCollection *objIdxCol;
 	CNode objMNNode;
 	CDataTypeCollection *objDTCol;
+	CSubIndex *objSIdx;
 	char* Name = new char[50];
 	
 	objNodeCol =  CNodeCollection::getNodeColObjectPointer();
@@ -742,8 +776,26 @@ void AddPDOIndexsToMN(char* Index, char* SubIndex)
 	printf("\n Index: %s",Index);
 	
 	retCode = AddIndex(240, MN, Index);	
+	
+	objIdxCol = objMNNode.getIndexCollection();
+	if(objIdxCol != NULL)
+	{
+		objIndex = objIdxCol->getIndexbyIndexValue(Index);
+		if(objIndex != NULL)
+		objIndex->setObjectType("ARRAY");
+	}
+	
 	//printf("\n after Add Index before subIndex : %s", Index);
 	retCode = AddSubIndex(240, MN, Index, SubIndex);
+	
+	if(objIndex != NULL)
+	{
+		objSIdx = objIndex->getSubIndexbyIndexValue(SubIndex);
+		if(objSIdx != NULL)
+		{
+			objSIdx->setObjectType("VAR");
+		}
+	}
 	
 	Name = getPIDataTypeName(Index);
 		
@@ -752,6 +804,8 @@ void AddPDOIndexsToMN(char* Index, char* SubIndex)
 	
 
 	SetSIdxDataType(dt, Index, SubIndex);
+	
+	UpdateNumberOfEnteriesSIdx(objIndex, MN);
 	
  }
 char* getPIAddress(PDODataType dt,  EPIDirectionType dirType)

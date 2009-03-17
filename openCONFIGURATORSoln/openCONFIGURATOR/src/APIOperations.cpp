@@ -423,8 +423,8 @@ ocfmRetCode DeleteSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* 
 		CNode objNode;		
 		CNodeCollection *objNodeCollection;
 		CIndexCollection *objIndexCollection;
-		CIndex objIndex;
-		CIndex* objSubIndex;
+		CIndex* objIndex;
+		CSubIndex* objSIDx;
 		int SubIndexPos;
 		int IndexPos;
 		ocfmRetCode ErrStruct;
@@ -442,16 +442,25 @@ ocfmRetCode DeleteSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* 
 					throw objException;
 			}
 
-			objIndex.setNodeID(objNode.getNodeId());
 			objNodeCollection= CNodeCollection::getNodeColObjectPointer();
 			objNode = objNodeCollection->getNode(NodeType, NodeID);
 
 
 			objIndexCollection = objNode.getIndexCollection();
-			objSubIndex =objIndexCollection->getIndex(IndexPos);
+			objIndex =objIndexCollection->getIndex(IndexPos);
+			objSIDx = objIndex->getSubIndex(SubIndexPos);
+			
 			
 			//cout << "NumberofSubIndexes:" << objIndex.getNumberofSubIndexes()<< endl;
-			objSubIndex->deleteSubIndex(SubIndexPos);
+			objIndex->deleteSubIndex(SubIndexPos);
+			
+				/* Update subindex "00"*/
+			if(objSIDx != NULL)
+			{
+				if(strcmp(objSIDx->getIndexValue(), "00")!=0)
+				UpdateNumberOfEnteriesSIdx(objIndex, NodeType);
+			}
+		
 			ErrStruct.code = OCFM_ERR_SUCCESS;
 			return ErrStruct;
 		}
@@ -462,7 +471,7 @@ ocfmRetCode DeleteSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* 
 	}
 /**************************************************************************************************
 	* Function Name: AddSubIndex
-    * Description:
+ * Description:
 	* Return value: ocfmRetCode
 /****************************************************************************************************/
 ocfmRetCode AddSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID)
@@ -536,6 +545,8 @@ ocfmRetCode AddSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* Sub
 				//	cout << "4\n" << endl;
 					AddSubIndexAttributes(SubIndexID, objSubIndex, objDictSIdx);
 					objIndexPtr->addSubIndex(*objSubIndex);
+							
+				
 				}
 				else if( (NodeType == MN) && CheckIfProcessImageIdx(IndexID))
 				{
@@ -551,7 +562,13 @@ ocfmRetCode AddSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* Sub
 						objException.ocfm_Excpetion(OCFM_ERR_INVALID_SUBINDEXID);
 						throw objException;
 				}
-				
+				/* Update subindex "00"*/
+					if(objSubIndex != NULL)
+					{
+						if(strcmp(objSubIndex->getIndexValue(), "00")!=0)
+						UpdateNumberOfEnteriesSIdx(objIndexPtr, NodeType);
+					}
+			
 				//AddSubIndexAttributes(SubIndexID, &objSubIndex);									
 				
 				//printf("Added SubIndex \n\n");
@@ -659,6 +676,14 @@ ocfmRetCode AddIndex(int NodeID, ENodeType NodeType, char* IndexID)
 					objIndexCollection->addIndex(*objIndex);
 				}
 				else if((NodeType == MN) && CheckIfProcessImageIdx(IndexID))
+				{	
+						objIndex = new CIndex();
+						objIndex->setNodeID(NodeID);
+						objIndex->setIndexValue(IndexID);
+						objIndexCollection->addIndex(*objIndex);
+					 
+				}
+				else if((NodeType == CN) && CheckIfManufactureSpecificObject(IndexID))
 				{	
 						objIndex = new CIndex();
 						objIndex->setNodeID(NodeID);
@@ -803,6 +828,194 @@ ocfmRetCode SetSubIndexAttributes(int NodeID, ENodeType NodeType, char* IndexID,
 				objSubIndexPtr->setActualValue(IndexValue);
 				ErrStruct.code = OCFM_ERR_SUCCESS;
 		/*	}*/
+			//else
+			//{
+			//	ocfmException objException;				
+			//	objException.ocfm_Excpetion(OCFM_ERR_VALUE_NOT_WITHIN_RANGE);
+			//	throw objException;
+			//	//ErrStruct.code =  OCFM_ERR_VALUE_NOT_WITHIN_RANGE;
+			//}
+			objSubIndexPtr->setName(IndexName);
+			//printf("SubIndexValue:%s-%s\n", objSubIndexPtr->getName(), SubIndexID);
+			/*ErrStruct.code = OCFM_ERR_SUCCESS;*/
+			return ErrStruct;
+		}
+		catch(ocfmException& ex)
+		{
+			return ex._ocfmRetCode;
+		}
+}
+/**************************************************************************************************
+	* Function Name: EditIndex with all attributes
+    * Description:
+	* Return value: ocfmRetCode
+/****************************************************************************************************/
+ocfmRetCode SetALLIndexAttributes(int NodeID, ENodeType NodeType, 
+																																		char* IndexID, char* ActualValue,
+																																		char* IndexName, char* Access, char* dataTypeValue,
+																																		char* pdoMappingVal, char* defaultValue, char* highLimit,
+																																		char* lowLimit, char* objType, EFlag flagIfIncludedInCdc)
+{
+	int IndexPos;
+	ocfmRetCode ErrStruct;
+	try 
+	{
+		ErrStruct = IfIndexExists(NodeID, NodeType, IndexID, &IndexPos);
+		if(ErrStruct.code == OCFM_ERR_SUCCESS)
+		{
+			//IndexPos = ErrStruct.returnValue;
+		}
+		else
+		{
+			//OCFM_ERR_INDEXID_NOT_FOUND
+			//return ErrStruct;
+			ocfmException objException;				
+			objException.ocfm_Excpetion(OCFM_ERR_INDEXID_NOT_FOUND);
+			throw objException;
+		}
+		CIndex* objIndexPtr;
+
+		CNode objNode;		
+		CNodeCollection *objNodeCollection;
+		CIndexCollection *objIndexCollection;
+		CIndex objIndex;
+		
+		objIndex.setNodeID(objNode.getNodeId());
+		objNodeCollection= CNodeCollection::getNodeColObjectPointer();
+		objNode = objNodeCollection->getNode(NodeType, NodeID);
+		objIndexCollection = objNode.getIndexCollection();
+		objIndexPtr =objIndexCollection->getIndex(IndexPos);			
+		//cout << "EditIndexValue:Index Actual Value:" << objIndexPtr->getActualValue() << IndexValue << endl;
+		/* Check if the value is valid*/
+		if(IndexName!= NULL)
+		objIndexPtr->setName(IndexName);
+		
+		if(Access != NULL)
+		objIndexPtr->setAccessType(Access);
+		
+		if(dataTypeValue != NULL)
+		objIndexPtr->setDataType(dataTypeValue);
+		
+		if(pdoMappingVal != NULL)
+		objIndexPtr->setPDOMapping(pdoMappingVal);
+		
+		if(defaultValue != NULL)
+		objIndexPtr->setDefaultValue(defaultValue);
+		
+		if(highLimit != NULL)
+		objIndexPtr->setHighLimit(highLimit);
+		
+		if(lowLimit != NULL)
+		objIndexPtr->setLowLimit(lowLimit);
+		
+		if(objType != NULL)
+		objIndexPtr->setObjectType(objType);
+		
+		
+		objIndexPtr->setFlagIfIncludedCdc(flagIfIncludedInCdc);
+		if(objIndexPtr->IsIndexVaueValid(ActualValue))
+		{
+			//printf("\nIndex value%s",IndexValue);
+			objIndexPtr->setActualValue(ActualValue);
+			
+		//printf("EditIndexValue:Index Actual Value:%s-%s\n", objIndexPtr->getActualValue(), IndexValue);
+			ErrStruct.code = OCFM_ERR_SUCCESS;
+		}
+		else
+		{
+				ocfmException objException;				
+				objException.ocfm_Excpetion(OCFM_ERR_VALUE_NOT_WITHIN_RANGE);
+				throw objException;
+				//ErrStruct.code = OCFM_ERR_VALUE_NOT_WITHIN_RANGE;
+		}
+		return ErrStruct;
+	}
+	catch(ocfmException& ex)
+	{
+		return ex._ocfmRetCode;
+	}
+}
+
+/**************************************************************************************************
+	* Function Name: EditSubIndex
+    * Description:
+	* Return value: ocfmRetCode
+/****************************************************************************************************/
+ocfmRetCode SetALLSubIndexAttributes(int NodeID, ENodeType NodeType, 
+																																					char* IndexID, char* SubIndexID,
+																																					char* ActualValue, char* IndexName,
+																																					char* Access, char* dataTypeValue,
+																																					char* pdoMappingVal, char* defaultValue, char* highLimit,
+																																					char* lowLimit, char* objType, EFlag flagIfIncludedInCdc)
+{
+		CNode objNode;		
+		CNodeCollection *objNodeCollection;
+		CIndexCollection *objIndexCollection;
+		CIndex objIndex;
+		CIndex* objSubIndex;
+		int IndexPos;
+		int SubIndexPos;
+		ocfmRetCode ErrStruct;
+		//CSubIndex* objSubIndex;
+		
+		try
+		{
+			ErrStruct = IfSubIndexExists(NodeID, NodeType, IndexID, SubIndexID, &SubIndexPos, &IndexPos);
+			if(ErrStruct.code == OCFM_ERR_SUCCESS)
+			{
+				//SubIndexPos = Tmp_ErrStruct.returnValue;
+			}
+			else
+			{
+				//OCFM_ERR_INVALID_SUBINDEXID
+				ocfmException objException;				
+				objException.ocfm_Excpetion(OCFM_ERR_INVALID_SUBINDEXID);
+				throw objException;
+//				return ErrStruct;
+			}
+			
+			CSubIndex* objSubIndexPtr;
+				
+			objIndex.setNodeID(objNode.getNodeId());
+			objNodeCollection= CNodeCollection::getNodeColObjectPointer();
+			objNode = objNodeCollection->getNode(NodeType, NodeID);
+
+			objIndexCollection = objNode.getIndexCollection();
+			objSubIndex =objIndexCollection->getIndex(IndexPos);
+			
+			objSubIndexPtr = objSubIndex->getSubIndex(SubIndexPos);						
+			//printf("SubIndexValue:%s-%s\n", objSubIndexPtr->getName(), SubIndexID);
+			
+			if(IndexName!= NULL)
+			objSubIndexPtr->setName(IndexName);
+		
+			if(Access != NULL)
+			objSubIndexPtr->setAccessType(Access);
+			
+			if(dataTypeValue != NULL)
+			objSubIndexPtr->setDataType(dataTypeValue);
+			
+			if(pdoMappingVal != NULL)
+			objSubIndexPtr->setPDOMapping(pdoMappingVal);
+			
+			if(defaultValue != NULL)
+			objSubIndexPtr->setDefaultValue(defaultValue);
+			
+			if(highLimit != NULL)
+			objSubIndexPtr->setHighLimit(highLimit);
+			
+			if(lowLimit != NULL)
+			objSubIndexPtr->setLowLimit(lowLimit);
+			
+			if(objType != NULL)
+			objSubIndexPtr->setObjectType(objType);
+			
+			if(objSubIndexPtr->IsIndexVaueValid(ActualValue))		
+			{
+					printf("\nIndex value%s",ActualValue);
+					objSubIndexPtr->setActualValue(ActualValue);
+					ErrStruct.code = OCFM_ERR_SUCCESS;
+			}
 			//else
 			//{
 			//	ocfmException objException;				
@@ -1263,7 +1476,7 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 		
 		objIdxCol =  objNode.getIndexCollection();
 		/* 1006 Index*/
-			NumberOfEntries =  NumberOfEntries + 1;
+			//NumberOfEntries =  NumberOfEntries + 1;
 		for(int i =0; i<objIdxCol->getNumberofIndexes(); i++)
 		{
 			
@@ -1367,11 +1580,14 @@ ocfmRetCode GenerateCDC(char* CDCLocation)
 			
 			CPjtSettings* stPjtSettings;
 			stPjtSettings = CPjtSettings::getPjtSettingsPtr();
-			
+			bool checkFlag = true;
 			if(stPjtSettings->getGenerateAttr() == YES_AG)
 			{	
 				cout << "\n\n\n\n Generating MN OBD\n\n\n\n" << endl;
-				GenerateMNOBD();
+				retCode = GenerateMNOBD();
+				if(retCode.code != OCFM_ERR_SUCCESS)
+				return retCode;
+				checkFlag = false;
 			}
 		
 
@@ -1447,8 +1663,8 @@ ocfmRetCode GenerateCDC(char* CDCLocation)
 				{
 					CIndex* objIndex;
 					objIndex = objIndexCollection->getIndex(i);
-					/*if(objIndex->getFlagIfIncludedCdc() == TRUE)
-					{*/
+					if((!checkFlag) || (checkFlag && (objIndex->getFlagIfIncludedCdc() == TRUE)))
+					{
 							Buffer1 = (char*)malloc(CDC_BUFFER);
 							len = strlen(Buffer1);
 							
@@ -1461,7 +1677,7 @@ ocfmRetCode GenerateCDC(char* CDCLocation)
 							}					
 							
 							delete[] Buffer1;
-						/*}*/
+						}
 							
 				}
 				fclose(fileptr);
@@ -1542,7 +1758,7 @@ ocfmRetCode GenerateCDC(char* CDCLocation)
 			char* cmdBuffer;
 			printf("\ntxt2cdc \"%s\" \"%s\"", tempFileName, tempOutputFileName);
 			cmdBuffer = new char[(2 * (strlen(CDCLocation) + 10 + 10)) + 25];		
-			sprintf(cmdBuffer, "txt2cdc.exe \"%s\" \"%s\"", tempFileName, tempOutputFileName);
+			sprintf(cmdBuffer, "txt2cdc \"%s\" \"%s\"", tempFileName, tempOutputFileName);
 			printf("\n command Buffer %s",cmdBuffer);
 			system(cmdBuffer);
 			delete [] cmdBuffer;
@@ -3921,7 +4137,7 @@ ocfmRetCode SaveProject(char* ProjectPath, char* ProjectName)
 						mkdir(path);
 					}
 					// Saves the nodes with their nodeId as the name
-					sprintf(fileName, "%s\\%d.xdc", path, objNode.getNodeId());
+					sprintf(fileName, "%s\\%d.octx", path, objNode.getNodeId());
 					cout << "\nSave Pjt fileName:" << fileName << endl;
 				}
 				cout << "Trace_6" <<endl;
@@ -3942,7 +4158,7 @@ ocfmRetCode SaveProject(char* ProjectPath, char* ProjectName)
 						mkdir(path, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
 					}
 					// Saves the nodes with their nodeId as the name
-					sprintf(fileName, "%s/%d.xdc", path, objNode.getNodeId());
+					sprintf(fileName, "%s/%d.octx", path, objNode.getNodeId());
 				}
 				#endif
 					cout << "Trace_7" <<endl;					
@@ -4459,7 +4675,6 @@ ocfmRetCode GenerateMNOBD()
 		int prevSize = 0;
 		try
 		{		
-			cout << "Inside GenerateMN's OBD" << endl;
 			objNodeCollection = CNodeCollection::getNodeColObjectPointer();	
 			objMNNode  = objNodeCollection->getNodePtr(MN, 240);
 			if(objMNNode == NULL)
@@ -5891,7 +6106,7 @@ cout << "\n6" << endl;
 		char* tmp_XdcName;
 		tmp_XdcName = new char[20];
 		
-		sprintf(tmp_XdcName, "XDC/%s.xdc", tmp_NodeID);		
+		sprintf(tmp_XdcName, "XDC/%s.octx", tmp_NodeID);		
 		rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "xdc", BAD_CAST tmp_XdcName);
 
 		// End Node Tag
@@ -6119,4 +6334,29 @@ ocfmRetCode SetProjectSettings(EAutoGenerate autoGen, EAutoSave autoSave)
 		{
 			return ex._ocfmRetCode;
 		}
+}
+/**************************************************************************************************
+	* Function Name: UpdateNumberOfEnteriesSIdx
+ * Description: Updtade subindex "00"/NumberofEnteries
+/***************************************************************************************************/
+
+void	UpdateNumberOfEnteriesSIdx(CIndex *objIndex, ENodeType NodeType)
+{
+	CSubIndex *objSIdx;
+	int totalSIdxs;
+	char str[10];
+	objSIdx = objIndex->getSubIndexbyIndexValue("00");
+	
+	/* subindexes excluding "00"*/
+	totalSIdxs = objIndex->getNumberofSubIndexes() - 1;
+	
+	printf("\n total indexss %d",totalSIdxs);
+	if(objSIdx ==NULL)	
+	{
+		AddSubIndex(objIndex->getNodeID(), NodeType, (char *)objIndex->getIndexValue(), "00");
+		objSIdx = objIndex->getSubIndexbyIndexValue("00");
+	}
+	
+	if(objSIdx!=NULL)
+	objSIdx->setActualValue(_IntToAscii(totalSIdxs, str, 16)); 
 }

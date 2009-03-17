@@ -163,9 +163,15 @@ void setIndexAttributes(xmlTextReaderPtr reader, CIndex* objIndex, bool& hasPDO)
 		}
 
 		else if(strcmp(ConvertToUpper((char*)name), "UNIQUEIDREF")==0)					
-		objIndex->setUniqueIDRef((char*)value);							
-	
-																	
+		objIndex->setUniqueIDRef((char*)value);		
+		
+		else if(strcmp(ConvertToUpper((char*)name), "CDCFLAG")==0)
+		{
+			if(strcmp(ConvertToUpper((char*)value), "FALSE") == 0)				
+				objIndex->setFlagIfIncludedCdc(FALSE);
+			else if(strcmp(ConvertToUpper((char*)value), "TRUE") == 0)
+				objIndex->setFlagIfIncludedCdc(TRUE);
+		}
 	}
 void setSubIndexAttributes(xmlTextReaderPtr reader, CSubIndex* objSubIndex)
 	{
@@ -1634,6 +1640,10 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 			if(objIndexPtr->getUniqueIDRef() != NULL)
 			if(strlen(objIndexPtr->getUniqueIDRef()) != 0)
 				rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "uniqueIDRef", BAD_CAST objIndexPtr->getUniqueIDRef());
+			if(objIndexPtr->getFlagIfIncludedCdc() == 0)
+				rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "CDCFlag", BAD_CAST "FALSE");
+			else if(objIndexPtr->getFlagIfIncludedCdc() == 1)
+				rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "CDCFlag", BAD_CAST "TRUE");
 				
 			xmlTextWriterSetIndent(writer, 1);
 								

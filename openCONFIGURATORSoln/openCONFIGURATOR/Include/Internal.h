@@ -165,4 +165,5 @@ int reversedata(UINT8 *actemp1, UINT8 *actemp2, UINT32 size);
 char* StringToUpper(char* str);
 void setFlagForRequiredIndexes(int NodeId);
 void UpdateCNCycleTime(CIndexCollection  *objIdxCol,char* cycleTime);
+void	UpdateNumberOfEnteriesSIdx(CIndex *objIndex, ENodeType NodeType);
 #endif // internal_h
