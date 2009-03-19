@@ -1449,25 +1449,28 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 			
 			CIndex *objIndex;
 			objIndex = objIdxCol->getIndex(i);
-		
+			printf("\n Index: %s, Flag: %d", objIndex->getIndexValue(), objIndex->getFlagIfIncludedCdc());
+			
 			if(objIndex->getFlagIfIncludedCdc() == TRUE)
 			{
-				if(objIndex->getNumberofSubIndexes() ==0)
+				if(objIndex->getNumberofSubIndexes() == 0)
 				NumberOfEntries =  NumberOfEntries + 1;
-				
-				
+				printf("\n Index: %s, Flag: %d", objIndex->getIndexValue(), objIndex->getFlagIfIncludedCdc());
+				printf("\n NumberOfEntries: %d",NumberOfEntries);
 				if(CheckIfMappingPDO((char*)objIndex->getIndexValue()))
 				NumberOfEntries =  NumberOfEntries + 1; /* add initalize 00 entry subindex */
 				for(int count = 0; count < objIndex->getNumberofSubIndexes(); count++)
 				{
 					if(objIndex->getSubIndex(count)->getActualValue() !=NULL)
 					NumberOfEntries =  NumberOfEntries + 1;
+					printf("\n NumberOfEntries: %d",NumberOfEntries);
 				}
 				
 			}			
 		}
 		/* Add + 1 for the number of enteries line*/
 		NumberOfEntries = NumberOfEntries + 1;		
+		printf("\n NumberOfEntries: %d",NumberOfEntries);
 		return NumberOfEntries ;
 	}
 		int getCNsTotalIndexSubIndex(int NodeID)
@@ -1610,7 +1613,7 @@ ocfmRetCode GenerateCDC(char* CDCLocation)
 				strcat(Buffer1, "\n");
 				len =  strlen(Buffer1);
 		
-					printf("writing buffer1");
+			
 				/* Write number of enteries */
 				if((fwrite(Buffer1, sizeof(char),len,fileptr))!=NULL)
 				{
@@ -1671,8 +1674,7 @@ ocfmRetCode GenerateCDC(char* CDCLocation)
 					if((!checkFlag) || (checkFlag && (objIndex->getFlagIfIncludedCdc() == TRUE)))
 					{
 							Buffer1 = (char*)malloc(CDC_BUFFER);
-							len = strlen(Buffer1);
-							printf("\n inside indexcol");
+							len = strlen(Buffer1);				
 							GetIndexData(objIndex,Buffer1);
 							len = strlen(Buffer1);
 							if((fwrite(Buffer1, sizeof(char),len,fileptr))!=NULL)
@@ -1762,9 +1764,9 @@ ocfmRetCode GenerateCDC(char* CDCLocation)
 			delete [] cmdBuffer;
 			#else
 			char* cmdBuffer;
-			printf("\ntxt2cdc \"%s\" \"%s\"", tempFileName, tempOutputFileName);
+			printf("\n./txt2cdc \"%s\" \"%s\"", tempFileName, tempOutputFileName);
 			cmdBuffer = new char[(2 * (strlen(CDCLocation) + 10 + 10)) + 25];		
-			sprintf(cmdBuffer, "txt2cdc \"%s\" \"%s\"", tempFileName, tempOutputFileName);
+			sprintf(cmdBuffer, "./txt2cdc \"%s\" \"%s\"", tempFileName, tempOutputFileName);
 			printf("\n command Buffer %s",cmdBuffer);
 			system(cmdBuffer);
 			delete [] cmdBuffer;
@@ -4228,7 +4230,8 @@ void GetMNPDOSubIndex(MNPdoVariable var, int& prevSubIndex, CIndex* objIdx,char*
 			objSubIndex->setActualValue(actValue);
 			delete[] actValue;
 			
-			AddPDOIndexsToMN(var.Index,var.SubIndex);
+			
+			AddPDOIndexsToMN(var.Index,var.SubIndex, var.pdoType);
 			
 		/*	return *objSubIndex;*/
 }
@@ -4665,6 +4668,7 @@ ocfmRetCode GenerateMNOBD()
 		CNodeCollection *objNodeCollection = NULL;
 		CIndexCollection * objMNIndexCol;
 		CSubIndex * objSubIdex;
+		CIndex* objIndex;			
 		char* MNIndex = new char[5];								
 		char* Idx =  new char[3];
 		ocfmRetCode retCode;
@@ -4768,9 +4772,11 @@ ocfmRetCode GenerateMNOBD()
 						MNIndex =strcat(MNIndex, Idx);
 					
 						retCode = AddIndex(240, MN, MNIndex);
-								#if defined DEBUG	
-						cout<< "Index added"<<endl;
-					#endif
+							/* set flag to true for 1800*/
+						objIndex = objMNIndexCol->getIndexbyIndexValue(MNIndex);
+						if(objIndex != NULL)
+						
+							
 						if(retCode.code != OCFM_ERR_SUCCESS)
 						{
 							ex.ocfm_Excpetion(retCode.code);
@@ -4788,6 +4794,10 @@ ocfmRetCode GenerateMNOBD()
 						MNIndex =strcat(MNIndex, Idx);
 						/* Set the MN's PDO Index*/
 						retCode = AddIndex(240, MN, MNIndex);
+						
+					
+						objIndex->setFlagIfIncludedCdc(TRUE);
+							
 						if(retCode.code != OCFM_ERR_SUCCESS)
 						{
 							ex.ocfm_Excpetion(retCode.code);
@@ -4824,9 +4834,13 @@ ocfmRetCode GenerateMNOBD()
 						Idx = _IntToAscii((objNode.getNodeId()-1), Idx, 16);
 						Idx = padLeft(Idx, '0', 2);
 						MNIndex =strcat(MNIndex, Idx);
-					
-					
+										
 						retCode = AddIndex(240, MN, MNIndex);
+						/* set flag to true for 1800*/
+						objIndex = objMNIndexCol->getIndexbyIndexValue(MNIndex);
+						if(objIndex != NULL)
+							objIndex->setFlagIfIncludedCdc(TRUE);
+						
 						prevSubIndex = 0;
 						prevSize = 0;
 						if(retCode.code != OCFM_ERR_SUCCESS)
@@ -4840,13 +4854,15 @@ ocfmRetCode GenerateMNOBD()
 						strcpy(Sidx, "01");
 						SetSubIndexAttributes(240, MN, MNIndex, Sidx, Idx,"NodeID_U8");
 				
-						CIndex* objIndex;				
+							
 						strcpy(MNIndex, "16");
 						Idx = _IntToAscii((objNode.getNodeId()-1), Idx, 16);
 						Idx = padLeft(Idx, '0', 2);
 						MNIndex =strcat(MNIndex, Idx);
 						/* Set the MN's PDO Index*/
 						retCode = AddIndex(240, MN, MNIndex);
+						
+						
 						if(retCode.code != OCFM_ERR_SUCCESS)
 						{
 							ex.ocfm_Excpetion(retCode.code);
@@ -6279,7 +6295,7 @@ void CreateMNPDOVar(int Offset, int dataSize,IEC_Datatype dtenum, EPDOType pdoTy
  * Description: Gets the Project Settings of the tool
 /***************************************************************************************************/
 
-ocfmRetCode GetProjectSettings(EAutoGenerate autoGen, EAutoSave autoSave)
+ocfmRetCode GetProjectSettings(EAutoGenerate* autoGen, EAutoSave* autoSave)
 {
  
 		ocfmRetCode retCode;
@@ -6295,8 +6311,8 @@ ocfmRetCode GetProjectSettings(EAutoGenerate autoGen, EAutoSave autoSave)
 				throw objException;
 			}
 			
-			autoGen = objPrjtSettings->getGenerateAttr();
-			autoSave = objPrjtSettings->getSaveAttr();
+			*autoGen = objPrjtSettings->getGenerateAttr();
+			*autoSave = objPrjtSettings->getSaveAttr();
 			retCode.code =  OCFM_ERR_SUCCESS;
 			return retCode;
 		}

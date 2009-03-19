@@ -328,20 +328,20 @@ DllExport void LoadObjectDictionary(char* fileName);
 DllExport ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType);
 DllExport ocfmRetCode SaveProject(char* ProjectPath, char* ProjectName);
 DllExport ocfmRetCode OpenProject(char* PjtPath, char* projectXmlFileName);
-DllExport ocfmRetCode GetProjectSettings(EAutoGenerate autoGen, EAutoSave autoSave);
+DllExport ocfmRetCode GetProjectSettings(EAutoGenerate* autoGen, EAutoSave* autoSave);
 DllExport ocfmRetCode SetProjectSettings(EAutoGenerate autoGen, EAutoSave autoSave);
 
 //DllExport ocfmRetCode GetSubIndexCount(char* IndexID, int* IndexCount);
 DllExport ocfmRetCode GenerateMNOBD();
 DllExport ocfmRetCode SetALLIndexAttributes(int NodeID, ENodeType NodeType, 
-																																		char* IndexID, char* ActualValue,
-																																		char* IndexName, char* Access, char* dataTypeName,
-																																		char* pdoMappingVal, char* defaultValue, char* highLimit,
-																																		char* lowLimit, char* objType, EFlag flagIfIncludedInCdc);
+char* IndexID, char* ActualValue,
+char* IndexName, char* Access, char* dataTypeValue,
+char* pdoMappingVal, char* defaultValue, char* highLimit,
+char* lowLimit, char* objType, EFlag flagIfIncludedInCdc);
 DllExport ocfmRetCode SetALLSubIndexAttributes(int NodeID, ENodeType NodeType, 
-																																		char* IndexID, char* SubIndexID, char* ActualValue,
-																																		char* IndexName, char* Access, char* dataTypeName,
-																																		char* pdoMappingVal, char* defaultValue, char* highLimit,
-																																		char* lowLimit, char* objType, EFlag flagIfIncludedInCdc);
+char* IndexID, char* SubIndexID, char* ActualValue,
+char* IndexName, char* Access, char* dataTypeValue,
+char* pdoMappingVal, char* defaultValue, char* highLimit,
+char* lowLimit, char* objType, EFlag flagIfIncludedInCdc);
 
 #endif // declarations_h

@@ -757,7 +757,7 @@ void SetSIdxDataType(DataType *dt, char* Idx, char* SIdx)
 		
 	
 }
-void AddPDOIndexsToMN(char* Index, char* SubIndex)
+void AddPDOIndexsToMN(char* Index, char* SubIndex, EPDOType pdoType)
 {
 	ocfmRetCode retCode;
 	DataType* dt;
@@ -768,6 +768,8 @@ void AddPDOIndexsToMN(char* Index, char* SubIndex)
 	CDataTypeCollection *objDTCol;
 	CSubIndex *objSIdx;
 	char* Name = new char[50];
+	char* pdoMap = new char[4 + ALLOC_BUFFER];
+	char* ObjectName = new char[14 + ALLOC_BUFFER];
 	
 	objNodeCol =  CNodeCollection::getNodeColObjectPointer();
 	objMNNode = objNodeCol->getNode(MN, 240);
@@ -775,13 +777,25 @@ void AddPDOIndexsToMN(char* Index, char* SubIndex)
 	
 	
 	retCode = AddIndex(240, MN, Index);	
-	
 	objIdxCol = objMNNode.getIndexCollection();
 	if(objIdxCol != NULL)
 	{
 		objIndex = objIdxCol->getIndexbyIndexValue(Index);
-		if(objIndex != NULL)
-		objIndex->setObjectType("ARRAY");
+		if(objIndex != NULL && (retCode.code != OCFM_ERR_INDEX_ALREADY_EXISTS) )
+		{
+			objIndex->setObjectType("ARRAY");
+			if(pdoType == PDO_RPDO)
+			{				
+				strcpy(ObjectName, "PI_OUTPUTS_A");
+				strcat(ObjectName, getPIName(Index));		
+			}
+			else if(pdoType == PDO_TPDO)
+			{							
+				strcpy(ObjectName, "PI_INPUTS_A");
+				strcat(ObjectName, getPIName(Index));	
+			}
+			objIndex->setName(ObjectName);
+		}
 	}
 	
 	//printf("\n after Add Index before subIndex : %s", Index);
@@ -793,6 +807,28 @@ void AddPDOIndexsToMN(char* Index, char* SubIndex)
 		if(objSIdx != NULL)
 		{
 			objSIdx->setObjectType("VAR");
+			
+			/* Its reversed because CN's RPDO is MN's TPDO*/
+			
+			if(pdoType == PDO_RPDO)
+			{				
+				strcpy(pdoMap, "TPDO");
+				strcpy(ObjectName, "PI_OUTPUTS_");
+				strcat(ObjectName, getPIName(Index));								
+				objSIdx->setAccessType("wo");
+				}
+			else if(pdoType == PDO_TPDO)
+			{				
+				strcpy(pdoMap, "RPDO");				
+				strcpy(ObjectName, "PI_INPUTS_");
+				strcat(ObjectName, getPIName(Index));	
+				
+				objSIdx->setAccessType("ro");
+			}
+				objSIdx->setName(ObjectName);
+				objSIdx->setPDOMapping(pdoMap);
+				delete[] pdoMap;
+				delete[] Name;
 		}
 	}
 	
@@ -861,7 +897,50 @@ char* getPIDataTypeName(char* Address)
 		}
 	}
 }
-
+char* getPIName(char* Address)
+{
+	
+	for(int i = 0; i< NO_OF_PI_ENTERIES; i++)
+	{		
+		if(strcmp(AddressTable[i].Address,  Address) ==0)
+		{
+			switch(AddressTable[i].dt)
+			{
+				case UNSIGNED8 :
+				{
+					return "U8";
+					break;
+				}
+				case INTEGER8 :
+				{
+					return "I8";
+					break;
+				}
+				case UNSIGNED16 :
+				{
+					return "U16";
+					break;
+				}
+				case INTEGER16 :
+				{
+					return "I16";
+					break;
+				}
+				case UNSIGNED32 :
+				{
+					return "U32";
+					break;
+				}
+				case INTEGER32 :
+				{
+					return "I32";
+					break;
+				}
+				
+			}
+		}
+	}
+}
 bool CheckIfProcessImageIdx(char* Index)
 {
 	for(int i = 0; i< NO_OF_PI_ENTERIES; i++)

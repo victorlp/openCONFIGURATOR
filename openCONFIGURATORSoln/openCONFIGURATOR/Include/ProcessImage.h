@@ -189,9 +189,10 @@ int ComputeINOffset(int dataSize, EPDOType pdoType);
 int ComputeOUTOffset(int dataSize, EPDOType pdoType);
 void SetPIOffsets(ProcessImage* pi,int& StartingByteOffset, int pos, int& StartBitOffset);
 void GenerateXAPHeaderFile(char* fileName, ProcessImage PI_IN[], ProcessImage PI_OUT[], int InVar, int OutVar);
-void AddPDOIndexsToMN(char* Index, char* SubIndex);
+void AddPDOIndexsToMN(char* Index, char* SubIndex, EPDOType pdoType);
 char* getPIAddress(PDODataType dt,  EPIDirectionType dirType);
 char* getPIDataTypeName(char* Address);
+char* getPIName(char* Address);
 bool CheckIfProcessImageIdx(char* Index);
 void WriteXAPHeaderContents(ProcessImage PI[], int NumberOfVars, EPIDirectionType dirType, FILE* fileptr);
 #endif // processImage_h
