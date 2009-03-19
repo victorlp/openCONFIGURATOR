@@ -335,12 +335,12 @@ DllExport ocfmRetCode SetProjectSettings(EAutoGenerate autoGen, EAutoSave autoSa
 DllExport ocfmRetCode GenerateMNOBD();
 DllExport ocfmRetCode SetALLIndexAttributes(int NodeID, ENodeType NodeType, 
 																																		char* IndexID, char* ActualValue,
-																																		char* IndexName, char* Access, char* dataTypeValue,
+																																		char* IndexName, char* Access, char* dataTypeName,
 																																		char* pdoMappingVal, char* defaultValue, char* highLimit,
 																																		char* lowLimit, char* objType, EFlag flagIfIncludedInCdc);
 DllExport ocfmRetCode SetALLSubIndexAttributes(int NodeID, ENodeType NodeType, 
 																																		char* IndexID, char* SubIndexID, char* ActualValue,
-																																		char* IndexName, char* Access, char* dataTypeValue,
+																																		char* IndexName, char* Access, char* dataTypeName,
 																																		char* pdoMappingVal, char* defaultValue, char* highLimit,
 																																		char* lowLimit, char* objType, EFlag flagIfIncludedInCdc);
 

@@ -852,7 +852,7 @@ ocfmRetCode SetSubIndexAttributes(int NodeID, ENodeType NodeType, char* IndexID,
 /****************************************************************************************************/
 ocfmRetCode SetALLIndexAttributes(int NodeID, ENodeType NodeType, 
 																																		char* IndexID, char* ActualValue,
-																																		char* IndexName, char* Access, char* dataTypeValue,
+																																		char* IndexName, char* Access, char* dataTypeName,
 																																		char* pdoMappingVal, char* defaultValue, char* highLimit,
 																																		char* lowLimit, char* objType, EFlag flagIfIncludedInCdc)
 {
@@ -893,8 +893,8 @@ ocfmRetCode SetALLIndexAttributes(int NodeID, ENodeType NodeType,
 		if(Access != NULL)
 		objIndexPtr->setAccessType(Access);
 		
-		if(dataTypeValue != NULL)
-		objIndexPtr->setDataType(dataTypeValue);
+		if(dataTypeName != NULL)
+		objIndexPtr->setDataType(dataTypeName);
 		
 		if(pdoMappingVal != NULL)
 		objIndexPtr->setPDOMapping(pdoMappingVal);
@@ -944,7 +944,7 @@ ocfmRetCode SetALLIndexAttributes(int NodeID, ENodeType NodeType,
 ocfmRetCode SetALLSubIndexAttributes(int NodeID, ENodeType NodeType, 
 																																					char* IndexID, char* SubIndexID,
 																																					char* ActualValue, char* IndexName,
-																																					char* Access, char* dataTypeValue,
+																																					char* Access, char* dataTypeName,
 																																					char* pdoMappingVal, char* defaultValue, char* highLimit,
 																																					char* lowLimit, char* objType, EFlag flagIfIncludedInCdc)
 {
@@ -992,8 +992,8 @@ ocfmRetCode SetALLSubIndexAttributes(int NodeID, ENodeType NodeType,
 			if(Access != NULL)
 			objSubIndexPtr->setAccessType(Access);
 			
-			if(dataTypeValue != NULL)
-			objSubIndexPtr->setDataType(dataTypeValue);
+			if(dataTypeName != NULL)
+			objSubIndexPtr->setDataType(dataTypeName);
 			
 			if(pdoMappingVal != NULL)
 			objSubIndexPtr->setPDOMapping(pdoMappingVal);
@@ -1331,7 +1331,7 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 								fclose(fileptr);
 							}
 							
-							delete[] comment;
+							free(comment);
 							//comment = strcat(comment,(char*)count);
 							/*strcpy(Buffer2, comment);*/
 							int NumberOfIndexes;
@@ -1346,6 +1346,14 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 							objIndex = getMNIndexValues("1006");
 							Buffer2 = (char*)malloc(20000);		
 						
+							if(objIndex!=NULL)
+							{
+								//GetIndexData(objIndex,Buffer4);
+								//strcat(Buffer2, Buffer4);
+								if((char*)objIndex->getActualValue() != NULL)
+								UpdateCNCycleTime(objIndexCollection,(char*) objIndex->getActualValue());
+							}
+							
 							strcpy(Buffer2, "");
 							strcpy(Buffer4, "");
 							
@@ -1355,12 +1363,7 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 							strcpy(Buffer4, NoOfenteries);
 							strcat(Buffer4, "\n");
 							strcpy(Buffer2, Buffer4);
-							if(objIndex!=NULL)
-							{
-								//GetIndexData(objIndex,Buffer4);
-								//strcat(Buffer2, Buffer4);
-								UpdateCNCycleTime(objIndexCollection,(char*) objIndex->getActualValue());
-							}
+						
 							
 						
 							/*************WRITE Required CN Indexes in CDC *******************************/
@@ -1421,8 +1424,8 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 								{
 									fclose(fileptr);																							
 								}
-					delete[] Buffer2;
-					delete[] Buffer3;
+					free(Buffer2);
+					free(Buffer3);
 					}
 			
 			}
@@ -1446,22 +1449,25 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 			
 			CIndex *objIndex;
 			objIndex = objIdxCol->getIndex(i);
-			if(objIndex->getNumberofSubIndexes() ==0)
-			NumberOfEntries =  NumberOfEntries + 1;
-			
-			
-		if(CheckIfMappingPDO((char*)objIndex->getIndexValue()))
-		NumberOfEntries =  NumberOfEntries + 1; /* add initalize 00 entry subindex */
-		for(int count = 0; count < objIndex->getNumberofSubIndexes(); count++)
-		{
-			if(objIndex->getSubIndex(count)->getActualValue() !=NULL)
-			NumberOfEntries =  NumberOfEntries + 1;
-		}
-			
-			
+		
+			if(objIndex->getFlagIfIncludedCdc() == TRUE)
+			{
+				if(objIndex->getNumberofSubIndexes() ==0)
+				NumberOfEntries =  NumberOfEntries + 1;
+				
+				
+				if(CheckIfMappingPDO((char*)objIndex->getIndexValue()))
+				NumberOfEntries =  NumberOfEntries + 1; /* add initalize 00 entry subindex */
+				for(int count = 0; count < objIndex->getNumberofSubIndexes(); count++)
+				{
+					if(objIndex->getSubIndex(count)->getActualValue() !=NULL)
+					NumberOfEntries =  NumberOfEntries + 1;
+				}
+				
+			}			
 		}
 		/* Add + 1 for the number of enteries line*/
-		NumberOfEntries = NumberOfEntries + 1;
+		NumberOfEntries = NumberOfEntries + 1;		
 		return NumberOfEntries ;
 	}
 		int getCNsTotalIndexSubIndex(int NodeID)
@@ -1475,44 +1481,41 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 		/* Number of 1F81 enteries is twice the number of CN's*/
 		
 		objIdxCol =  objNode.getIndexCollection();
-		/* 1006 Index*/
-			//NumberOfEntries =  NumberOfEntries + 1;
 		for(int i =0; i<objIdxCol->getNumberofIndexes(); i++)
 		{
 			
 			CIndex *objIndex;
 			objIndex = objIdxCol->getIndex(i);
 			
-			
-			
-			if(CheckAllowedCNIndexes((char*)objIndex->getIndexValue()))
+	
+			if( objIndex->getFlagIfIncludedCdc() == TRUE)
 			{
-				if(objIndex->getNumberofSubIndexes() ==0)
+				if(CheckAllowedCNIndexes((char*)objIndex->getIndexValue()))
 				{
-					if(objIndex->getActualValue() != NULL)
-					{	
-						NumberOfEntries =  NumberOfEntries + 1;
+					if(objIndex->getNumberofSubIndexes() ==0)
+					{
+						if(objIndex->getActualValue() != NULL)
+							NumberOfEntries =  NumberOfEntries + 1;
+					}
+						
+					else 
+				{
+						if(CheckIfMappingPDO((char*)objIndex->getIndexValue()))
+						{
+							NumberOfEntries =  NumberOfEntries + 1; /* add initalize 00 entry subindex */
+							
+						}
+						for(int count = 0; count < objIndex->getNumberofSubIndexes(); count++)
+						{
+						//	printf("\n SubIndex count%d",objIndex->getNumberofSubIndexes());
+							if(objIndex->getSubIndex(count)->getActualValue() !=NULL)
+							NumberOfEntries =  NumberOfEntries + 1;
+						}				
+					}
 					}
 					
 				}
-			else 
-			{
-				if(CheckIfMappingPDO((char*)objIndex->getIndexValue()))
-				{
-					NumberOfEntries =  NumberOfEntries + 1; /* add initalize 00 entry subindex */
-					printf("\n Index%s",objIndex->getIndexValue());
-				}
-				for(int count = 0; count < objIndex->getNumberofSubIndexes(); count++)
-				{
-				//	printf("\n SubIndex count%d",objIndex->getNumberofSubIndexes());
-					if(objIndex->getSubIndex(count)->getActualValue() !=NULL)
-					NumberOfEntries =  NumberOfEntries + 1;
-				}
-				printf("\n Number of enteries %d",NumberOfEntries);
 			}
-			}
-		
-		}
 
 		return NumberOfEntries ;
 	}
@@ -1581,6 +1584,7 @@ ocfmRetCode GenerateCDC(char* CDCLocation)
 			CPjtSettings* stPjtSettings;
 			stPjtSettings = CPjtSettings::getPjtSettingsPtr();
 			bool checkFlag = true;
+			printf("\n autogenerate %d",stPjtSettings->getGenerateAttr());
 			if(stPjtSettings->getGenerateAttr() == YES_AG)
 			{	
 				cout << "\n\n\n\n Generating MN OBD\n\n\n\n" << endl;
@@ -1606,12 +1610,13 @@ ocfmRetCode GenerateCDC(char* CDCLocation)
 				strcat(Buffer1, "\n");
 				len =  strlen(Buffer1);
 		
-				
+					printf("writing buffer1");
 				/* Write number of enteries */
 				if((fwrite(Buffer1, sizeof(char),len,fileptr))!=NULL)
 				{
-					delete[] Buffer1;
+					free(Buffer1);
 				}
+				
 				for(int i=0;i < objNodeCollection->getNumberOfNodes();i++)
 				{
 						CNode objNode;
@@ -1642,7 +1647,7 @@ ocfmRetCode GenerateCDC(char* CDCLocation)
 								
 								}
 							
-								delete[] Buffer1;
+								free(Buffer1);
 						}
 					}
 					/*	}*/
@@ -1667,7 +1672,7 @@ ocfmRetCode GenerateCDC(char* CDCLocation)
 					{
 							Buffer1 = (char*)malloc(CDC_BUFFER);
 							len = strlen(Buffer1);
-							
+							printf("\n inside indexcol");
 							GetIndexData(objIndex,Buffer1);
 							len = strlen(Buffer1);
 							if((fwrite(Buffer1, sizeof(char),len,fileptr))!=NULL)
@@ -1676,13 +1681,14 @@ ocfmRetCode GenerateCDC(char* CDCLocation)
 							
 							}					
 							
-							delete[] Buffer1;
+							free(Buffer1);
 						}
 							
 				}
 				fclose(fileptr);
 				
 			/*************************Write CN's Data in Buffer2***************************************************/
+			
 			WriteCNsData((char*)tempFileName);
 			int ret;
 			
@@ -1734,7 +1740,7 @@ ocfmRetCode GenerateCDC(char* CDCLocation)
 									ex.ocfm_Excpetion(OCFM_ERR_CANNOT_OPEN_FILE);
 									throw ex;		
 								}*/
-								delete[] Buffer1;
+								free(Buffer1);
 						}
 					}
 					/*	}*/
@@ -1864,8 +1870,7 @@ void  ProcessCDT(CComplexDataType* objCDT,CApplicationProcess* objAppProc,
 				{
 				/*	pi.DataSize = (char*)malloc(5);*/
 					//strcpy(pi.DataInfo.DataSize, vd.size);
-					pi.DataInfo.DataSize = atoi(vd.size);
-					printf("\n Datasize %d", pi.DataInfo.DataSize);
+					pi.DataInfo.DataSize = atoi(vd.size);					
 				}
 			else
 			{
@@ -1886,8 +1891,7 @@ void  ProcessCDT(CComplexDataType* objCDT,CApplicationProcess* objAppProc,
 						pi.ModuleIndex = (char*)malloc(strlen(ModuleIndex) + ALLOC_BUFFER);
 					strcpy(pi.ModuleIndex, ModuleIndex);	
 					
-					printf("PI.ModuleIndex %s",pi.ModuleIndex);
-					
+								
 					pi.VarName = (char*)malloc(strlen(vd.nam_id_dt_attr->getName()) + ALLOC_BUFFER);
 					strcpy(pi.VarName, vd.nam_id_dt_attr->getName());		
 					//printf("\n PI Name: %s",pi.Name);
@@ -1923,21 +1927,18 @@ void  ProcessCDT(CComplexDataType* objCDT,CApplicationProcess* objAppProc,
 				 datasize =  pi.DataInfo.DataSize;
 				 
 				}
-				printf("\n PI name %s", pi.Name);
+			
 				if(pdoType == PDO_RPDO)
 				{
-					Offset =  ComputeOUTOffset(datasize, pdoType);
-					printf("\n Offset for OUT var %d", Offset);
+					Offset =  ComputeOUTOffset(datasize, pdoType);			
 				}
 				else if(pdoType == PDO_TPDO)
 				{
-					Offset =  ComputeINOffset(datasize, pdoType);
-					printf("\n Offset for IN var %d", Offset);
+					Offset =  ComputeINOffset(datasize, pdoType);					
 				}
 			}
 			/* Set the Byte Offet*/
 			pi.ByteOffset = Offset;
-			printf("\npi name %s",pi.Name);
 			if(newBitStringVar)
 			{
 				CreateMNPDOVar(Offset, datasize, pi.DataInfo._dt_enum, pdoType, objNode);
@@ -4223,9 +4224,7 @@ void GetMNPDOSubIndex(MNPdoVariable var, int& prevSubIndex, CIndex* objIdx,char*
 			strcat(actValue,var.SubIndex);
 			strcat(actValue, var.Index);
 			
-			printf("\n act value %s", actValue);
-			printf("\n subindex value %s", objSubIndex->getIndexValue());
-			printf("\n Index value %s", objIdx->getIndexValue());
+			
 			objSubIndex->setActualValue(actValue);
 			delete[] actValue;
 			
@@ -4711,7 +4710,6 @@ ocfmRetCode GenerateMNOBD()
 					char *str = new char[50];
 						strcpy(str, (char*)objIndexPtr->getIndexValue());
 									
-					printf("\n Index:  %s",str);
 					if((strcmp(ConvertToUpper(str), "1006") == 0))
 					{
 						//printf("Index Already Exists tmpIndexcount:%d!\n",tmpIndexcount);
@@ -4720,12 +4718,12 @@ ocfmRetCode GenerateMNOBD()
 						//cout<< "objIndex.getName():" << objIndexPtr->getName() << endl;
 						if(objIndexPtr->getActualValue() == NULL)
 						{
-							cout<< "objIndex.getActualValue():NULL" << endl;
+							//cout<< "objIndex.getActualValue():NULL" << endl;
 							strcpy(tmp_CycleTime, "50000");
 						}
 						else
 						{
-							cout<< "objIndex.getActualValue():" << objIndexPtr->getActualValue() << endl;
+							//cout<< "objIndex.getActualValue():" << objIndexPtr->getActualValue() << endl;
 							strcpy(tmp_CycleTime, (char*)objIndexPtr->getActualValue());
 						}
 					}
@@ -4801,9 +4799,13 @@ ocfmRetCode GenerateMNOBD()
 						{
 							MNPdoVariable var;
 							var = objNode.MNPDOOUTVarCollection[i];	
-							objIndex = objMNIndexCol->getIndexbyIndexValue(MNIndex);				
-							GetMNPDOSubIndex(var, prevSubIndex, objIndex, MNIndex, prevSize);
-							prevSize = prevSize + var.DataSize;
+							objIndex = objMNIndexCol->getIndexbyIndexValue(MNIndex);
+							if(objIndex !=NULL)
+							{
+							 objIndex->setFlagIfIncludedCdc(TRUE);				
+								GetMNPDOSubIndex(var, prevSubIndex, objIndex, MNIndex, prevSize);
+								prevSize = prevSize + var.DataSize;
+							}
 					
 						}
 						char* actval = new char[4];
@@ -4858,6 +4860,7 @@ ocfmRetCode GenerateMNOBD()
 							MNPdoVariable var;
 							var = objNode.MNPDOINVarCollection[i];		
 							objIndex = objMNIndexCol->getIndexbyIndexValue(MNIndex);					
+							objIndex->setFlagIfIncludedCdc(TRUE);
 							GetMNPDOSubIndex(var, prevSubIndex, objIndex, MNIndex, prevSize);				
 							prevSize = prevSize + var.DataSize ;	
 						}
@@ -6325,6 +6328,7 @@ ocfmRetCode SetProjectSettings(EAutoGenerate autoGen, EAutoSave autoSave)
 				throw objException;
 			}
 			
+			printf("\n autogenerate %d",autoGen);
 			objPrjtSettings->setGenerateAttr(autoGen);
 			objPrjtSettings->setSaveAttr(autoSave);
 			retCode.code =  OCFM_ERR_SUCCESS;
@@ -6350,12 +6354,11 @@ void	UpdateNumberOfEnteriesSIdx(CIndex *objIndex, ENodeType NodeType)
 	/* subindexes excluding "00"*/
 	totalSIdxs = objIndex->getNumberofSubIndexes() - 1;
 	
-	printf("\n total indexss %d",totalSIdxs);
-	if(objSIdx ==NULL)	
+	/*if(objSIdx ==NULL)	
 	{
 		AddSubIndex(objIndex->getNodeID(), NodeType, (char *)objIndex->getIndexValue(), "00");
 		objSIdx = objIndex->getSubIndexbyIndexValue("00");
-	}
+	}*/
 	
 	if(objSIdx!=NULL)
 	objSIdx->setActualValue(_IntToAscii(totalSIdxs, str, 16)); 

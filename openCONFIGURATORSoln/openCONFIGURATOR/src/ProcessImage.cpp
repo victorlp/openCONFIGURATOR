@@ -773,7 +773,6 @@ void AddPDOIndexsToMN(char* Index, char* SubIndex)
 	objMNNode = objNodeCol->getNode(MN, 240);
 	objDTCol = objMNNode.getDataTypeCollection();
 	
-	printf("\n Index: %s",Index);
 	
 	retCode = AddIndex(240, MN, Index);	
 	
