@@ -103,20 +103,21 @@ static const char *g_Simple[][2] = {
 void setIndexAttributes(xmlTextReaderPtr reader, CIndex* objIndex, bool& hasPDO)
 	{
 		const xmlChar* name, *value;
+		// For holding temp data to print
+		char* Buffer;
+		
 		//Retrieve the name and Value of an attribute
 		value = xmlTextReaderConstValue(reader);
-		name = xmlTextReaderConstName(reader);		
-
+		name = xmlTextReaderConstName(reader);				
+		
 		if(strcmp(ConvertToUpper((char*)name), "INDEX")==0)
-			{	
-				// For holding temp data to print
-				char* Buffer;
-						
+			{			
 				// Setting the Index Value
 				objIndex->setIndexValue((char*)value);
 				
 				// For Testing. 
-				Buffer = (char *) malloc(sizeof(objIndex->getIndexValue()));
+				//Buffer = (char *) malloc(sizeof(objIndex->getIndexValue()));
+				Buffer = new char[sizeof(objIndex->getIndexValue())];
 				strcpy(Buffer, objIndex->getIndexValue());
 				//printf("\tName:%s, objIndex->getIndexValue:%s\n", name, Buffer);
 				
@@ -133,7 +134,7 @@ void setIndexAttributes(xmlTextReaderPtr reader, CIndex* objIndex, bool& hasPDO)
 						objIndex->setPDOType(PDO_TPDO);
 						hasPDO		= true;
 					}
-
+				delete [] Buffer;
 			}
 
 		else if( strcmp(ConvertToUpper((char*)name), "NAME") == 0 )
@@ -175,10 +176,11 @@ void setIndexAttributes(xmlTextReaderPtr reader, CIndex* objIndex, bool& hasPDO)
 			if(CheckIfDataTypeExists((char*)value, objIndex->getNodeID()))
 			objIndex->setDataType((char*)value);		
 			else
-			{
+			{				
 				ocfmException ex;
+				//delete [] Buffer;
 				ex.ocfm_Excpetion(OCFM_ERR_DATATYPE_NOT_FOUND);
-				throw ex;
+				//throw ex;
 			}					
 		}
 
@@ -191,7 +193,7 @@ void setIndexAttributes(xmlTextReaderPtr reader, CIndex* objIndex, bool& hasPDO)
 				objIndex->setFlagIfIncludedCdc(FALSE);
 			else if(strcmp(ConvertToUpper((char*)value), "TRUE") == 0)
 				objIndex->setFlagIfIncludedCdc(TRUE);
-		}
+		}		
 	}
 void setSubIndexAttributes(xmlTextReaderPtr reader, CSubIndex* objSubIndex)
 	{
@@ -904,74 +906,75 @@ void CreateTree()
 	}
 	
 
-void ConvertCdcToBinary(char* fileName)
-{
-	FILE *fin, *fout;
-	char* filePath;
-	int count=0;
-	int num=0;
-	char ch=0;
-	int iCtr;
-	int iLength;
-	unsigned char ca_cn1obd[10000];
-	unsigned char tempCn1Obd[10000];
+//void ConvertCdcToBinary(char* fileName)
+//{
+//	FILE *fin, *fout;
+//	char* filePath;
+//	int count=0;
+//	int num=0;
+//	char ch=0;
+//	int iCtr;
+//	int iLength;
+//	unsigned char ca_cn1obd[10000];
+//	unsigned char tempCn1Obd[10000];
 
-	fin = fopen(fileName, "r");
-	filePath = (char*)malloc(80);
-	filePath = strchr(fileName,'\\');
-	filePath = subString(fileName, 0, strlen(fileName) - strlen(filePath) +1);
-	strcat(filePath,"config_data.cdc");
-	//fout = fopen("config_data.cdc", "wb");
-	fout = fopen(filePath, "wb");
-	
-	
-		while(ch != EOF)
-		{
-			ch = fgetc(fin);
-			if(ch == '/') 
-		    {
-				while(fgetc(fin) != '\n');
-		    }
-			else if( ch != '\t' || ch != '\n' || ch != ' ')
-			{
-				// Convert to Upper case
-				ch = toupper(ch);
-				if((ch >= 65 && ch <= 70) || (ch >= 97 && ch <=102))
-				{
-					ca_cn1obd[num] = ch - 55;
-					num++;
-				}
-				else if (( ch >=48 && ch <= 57))
-				{
-					ca_cn1obd[num] = ch - 48;
-					num++;
-				}
-		}
-		//ca_cn1obd[num] = '\0';
-		// For testing purpose.
-		/*for ( count = 0; count<num ; count++)
-		{
-			printf("%x",ca_cn1obd[count]);
+//	fin = fopen(fileName, "r");
+//	filePath = new char[80];
+//	filePath = strchr(fileName,'\\');
+//	filePath = subString(fileName, 0, strlen(fileName) - strlen(filePath) +1);
+//	strcat(filePath,"config_data.cdc");
+//	//fout = fopen("config_data.cdc", "wb");
+//	fout = fopen(filePath, "wb");
+//	
+//	
+//		while(ch != EOF)
+//		{
+//			ch = fgetc(fin);
+//			if(ch == '/') 
+//		    {
+//				while(fgetc(fin) != '\n');
+//		    }
+//			else if( ch != '\t' || ch != '\n' || ch != ' ')
+//			{
+//				// Convert to Upper case
+//				ch = toupper(ch);
+//				if((ch >= 65 && ch <= 70) || (ch >= 97 && ch <=102))
+//				{
+//					ca_cn1obd[num] = ch - 55;
+//					num++;
+//				}
+//				else if (( ch >=48 && ch <= 57))
+//				{
+//					ca_cn1obd[num] = ch - 48;
+//					num++;
+//				}
+//		}
+//		//ca_cn1obd[num] = '\0';
+//		// For testing purpose.
+//		/*for ( count = 0; count<num ; count++)
+//		{
+//			printf("%x",ca_cn1obd[count]);
 
-		}*/
-		iLength = num;
-		//printf( "\niLength = %d\n",iLength);
-		//For Byte Packing
-		for (iCtr = 0 , count = 0; iCtr < iLength; iCtr++, count++ )
-		{
-			tempCn1Obd[count] = (unsigned char)( ( ca_cn1obd[ iCtr ] << 4 ) | ca_cn1obd[iCtr + 1 ] );
-			iCtr++;
-			//printf("0x%2x\t",tempCn1Obd[count]);
-		}
-		//printf("Size : %d\n", count);
-		count = count -1;
-		// Write to Binary file
-		fwrite(&tempCn1Obd,1,count,fout);
-	}
+//		}*/
+//		iLength = num;
+//		//printf( "\niLength = %d\n",iLength);
+//		//For Byte Packing
+//		for (iCtr = 0 , count = 0; iCtr < iLength; iCtr++, count++ )
+//		{
+//			tempCn1Obd[count] = (unsigned char)( ( ca_cn1obd[ iCtr ] << 4 ) | ca_cn1obd[iCtr + 1 ] );
+//			iCtr++;
+//			//printf("0x%2x\t",tempCn1Obd[count]);
+//		}
+//		//printf("Size : %d\n", count);
+//		count = count -1;
+//		// Write to Binary file
+//		fwrite(&tempCn1Obd,1,count,fout);
+//	}
 
-	fclose(fin);
-	fclose(fout);	
-}
+//	delete [] filePath;
+//	fclose(fin);
+//	fclose(fout);	
+//}
 void ProcessUniqueIDRefs(CNode* objNode)
  {
 	 
@@ -1202,9 +1205,9 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 		{
 			printf("testXmlwriterDoc: Error creating the xml writer\n");
 			//return;
-			ocfmException* objException = new ocfmException;
-			objException->ocfm_Excpetion(OCFM_ERR_CREATE_XML_WRITER_FAILED);
-			throw objException;
+			ocfmException objException;// = new ocfmException;
+			objException.ocfm_Excpetion(OCFM_ERR_CREATE_XML_WRITER_FAILED);
+			throw &objException;
 		}
 		/* Start the document with the xml default for the version,
 		* encoding ISO 8859-1 and the default for the standalone
@@ -1213,9 +1216,9 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 		if (rc < 0) 
 		{
 			printf("testXmlwriterDoc: Error at xmlTextWriterStartDocument\n");
-			ocfmException* objException = new ocfmException;
-			objException->ocfm_Excpetion(OCFM_ERR_XML_START_DOC_FAILED);
-			throw objException;
+			ocfmException objException;// = new ocfmException;
+			objException.ocfm_Excpetion(OCFM_ERR_XML_START_DOC_FAILED);
+			throw &objException;
 		}	
 		rc = xmlTextWriterWriteComment(writer,BAD_CAST "This file was autogenerated by openCONFIGURATOR");
 		
@@ -1224,9 +1227,9 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 		if (rc < 0) 
 		{
 			printf("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
-			ocfmException* objException = new ocfmException;
-			objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
-			throw objException;
+			ocfmException objException;// = new ocfmException;
+			objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
+			throw &objException;
 		}
 		
 		// Start ProfileBody Tag
@@ -1234,9 +1237,9 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 		if (rc < 0) 
 		{
 			printf("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
-			ocfmException* objException = new ocfmException;
-			objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
-			throw objException;
+			ocfmException objException;// = new ocfmException;
+			objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
+			throw &objException;
 		}
 		
 		// Start ApplicationProcess Tag	
@@ -1244,9 +1247,9 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 		if (rc < 0) 
 		{
 			printf("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
-			ocfmException* objException = new ocfmException;
-			objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
-			throw objException;
+			ocfmException objException;// = new ocfmException;
+			objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
+			throw &objException;
 		}
 			xmlTextWriterSetIndent(writer, 1);
 						
@@ -1255,9 +1258,9 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 			if (rc < 0) 
 			{
 				printf("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
-				ocfmException* objException = new ocfmException;
-				objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
-				throw objException;
+				ocfmException objException;// = new ocfmException;
+				objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
+				throw &objException;
 			}
 			
 				
@@ -1275,9 +1278,9 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 						if (rc < 0) 
 						{
 							printf("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
-							ocfmException* objException = new ocfmException;
-							objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
-							throw objException;
+							ocfmException objException;// = new ocfmException;
+							objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
+							throw &objException;
 						}
 						objCDT = objAppProc->getCDTbyCount(count);
 						//cout << "\nobjCDT.name_id_attr.getUniqueID():" << objCDT->name_id_attr->UniqueId << endl;
@@ -1295,9 +1298,9 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 							if (rc < 0) 
 							{
 								printf("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
-								ocfmException* objException = new ocfmException;
-								objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
-								throw objException;
+								ocfmException objException;// = new ocfmException;
+								objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
+								throw &objException;
 							}
 							rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "name", BAD_CAST vd.nam_id_dt_attr->getName());
 							rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "uniqueID", BAD_CAST vd.nam_id_dt_attr->UniqueId);
@@ -1315,18 +1318,18 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 									if (rc < 0) 
 									{
 										printf("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
-										ocfmException* objException = new ocfmException;
-										objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
-										throw objException;
+										ocfmException objException;// = new ocfmException;
+										objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
+										throw &objException;
 									}
 									// End varDeclaration Tag
 									rc = xmlTextWriterEndElement(writer);
 									if (rc < 0)
 									{
 										printf("testXmlwriterDoc: Error at xmlTextWriterEndElement\n");
-										ocfmException* objException = new ocfmException;
-										objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
-										throw objException;
+										ocfmException objException;// = new ocfmException;
+										objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
+										throw &objException;
 									}
 								}
 								else if(vd.nam_id_dt_attr->getDtUniqueRefId() != NULL)
@@ -1337,9 +1340,9 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 									if (rc < 0) 
 									{
 										printf("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
-										ocfmException* objException = new ocfmException;
-										objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
-										throw objException;
+										ocfmException objException;// = new ocfmException;
+										objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
+										throw &objException;
 									}
 									
 									rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "uniqueIDRef", BAD_CAST vd.nam_id_dt_attr->getDtUniqueRefId());
@@ -1349,9 +1352,9 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 									if (rc < 0)
 									{
 										printf("testXmlwriterDoc: Error at xmlTextWriterEndElement\n");
-										ocfmException* objException = new ocfmException;
-										objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
-										throw objException;
+										ocfmException objException;// = new ocfmException;
+										objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
+										throw &objException;
 									}
 								}
 							
@@ -1360,9 +1363,9 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 							if (rc < 0)
 							{
 								printf("testXmlwriterDoc: Error at xmlTextWriterEndElement\n");
-								ocfmException* objException = new ocfmException;
-								objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
-								throw objException;
+								ocfmException objException;// = new ocfmException;
+								objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
+								throw &objException;
 							}						
 						}
 						
@@ -1371,9 +1374,9 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 						if (rc < 0)
 						{
 							printf("testXmlwriterDoc: Error at xmlTextWriterEndElement\n");
-							ocfmException* objException = new ocfmException;
-							objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
-							throw objException;
+							ocfmException objException;// = new ocfmException;
+							objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
+							throw &objException;
 						}
 					}
 				}
@@ -1383,9 +1386,9 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 			if (rc < 0)
 			{
 				printf("testXmlwriterDoc: Error at xmlTextWriterEndElement\n");
-				ocfmException* objException = new ocfmException;
-				objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
-				throw objException;
+				ocfmException objException;// = new ocfmException;
+				objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
+				throw &objException;
 			}
 			
 			// Start parameterList Tag
@@ -1393,9 +1396,9 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 			if (rc < 0) 
 			{
 				printf("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
-				ocfmException* objException = new ocfmException;
-				objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
-				throw objException;
+				ocfmException objException;// = new ocfmException;
+				objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
+				throw &objException;
 			}			
 			
 			if(objNode.getApplicationProcess()!=NULL)
@@ -1412,9 +1415,9 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 					if (rc < 0) 
 					{
 						printf("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
-						ocfmException* objException = new ocfmException;
-						objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
-						throw objException;
+						ocfmException objException;// = new ocfmException;
+						objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
+						throw &objException;
 					}
 					//cout << "\nParam.name_id_dt_attr.getUniqueID():" << Param.name_id_dt_attr.getUniqueID() << endl;
 					rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "uniqueID", BAD_CAST Param.name_id_dt_attr.getUniqueID());
@@ -1427,9 +1430,9 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 						if (rc < 0) 
 						{
 							printf("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
-							ocfmException* objException = new ocfmException;
-							objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
-							throw objException;
+							ocfmException objException;// = new ocfmException;
+							objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
+							throw &objException;
 						}
 						//cout << "\nParam.name_id_dt_attr.getDtUniqueRefId():" << Param.name_id_dt_attr.getDtUniqueRefId() << endl;
 						rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "uniqueIDRef", BAD_CAST Param.name_id_dt_attr.getDtUniqueRefId());
@@ -1438,9 +1441,9 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 						if (rc < 0)
 						{
 							printf("testXmlwriterDoc: Error at xmlTextWriterEndElement\n");
-							ocfmException* objException = new ocfmException;
-							objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
-							throw objException;
+							ocfmException objException;// = new ocfmException;
+							objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
+							throw &objException;
 						}
 					
 					// End parameter Tag
@@ -1448,9 +1451,9 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 					if (rc < 0)
 					{
 						printf("testXmlwriterDoc: Error at xmlTextWriterEndElement\n");
-						ocfmException* objException = new ocfmException;
-						objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
-						throw objException;
+						ocfmException objException;// = new ocfmException;
+						objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
+						throw &objException;
 					}
 				}
 			}
@@ -1459,9 +1462,9 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 			if (rc < 0)
 			{
 				printf("testXmlwriterDoc: Error at xmlTextWriterEndElement\n");
-				ocfmException* objException = new ocfmException;
-				objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
-				throw objException;
+				ocfmException objException;// = new ocfmException;
+				objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
+				throw &objException;
 			}
 		
 		// End ApplicationProcess Tag
@@ -1469,9 +1472,9 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 		if (rc < 0)
 		{
 			printf("testXmlwriterDoc: Error at xmlTextWriterEndElement\n");
-			ocfmException* objException = new ocfmException;
-			objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
-			throw objException;
+			ocfmException objException;// = new ocfmException;
+			objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
+			throw &objException;
 		}
 
 		// End ProfileBody Tag
@@ -1479,9 +1482,9 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 		if (rc < 0)
 		{
 			printf("testXmlwriterDoc: Error at xmlTextWriterEndElement\n");
-			ocfmException* objException = new ocfmException;
-			objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
-			throw objException;
+			ocfmException objException;// = new ocfmException;
+			objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
+			throw &objException;
 		}
 		
 		// Start ProfileBody Tag
@@ -1489,9 +1492,9 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 		if (rc < 0) 
 		{
 			printf("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
-			ocfmException* objException = new ocfmException;
-			objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
-			throw objException;
+			ocfmException objException;// = new ocfmException;
+			objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
+			throw &objException;
 		}
 		
 		// Start ApplicationLayers Tag
@@ -1499,9 +1502,9 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 		if (rc < 0) 
 		{
 			printf("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
-			ocfmException* objException = new ocfmException;
-			objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
-			throw objException;
+			ocfmException objException;// = new ocfmException;
+			objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
+			throw &objException;
 		}
 		
 		// Start DataTypeList Tag
@@ -1509,9 +1512,9 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 		if (rc < 0) 
 		{
 			printf("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
-			ocfmException* objException = new ocfmException;
-			objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
-			throw objException;
+			ocfmException objException;// = new ocfmException;
+			objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
+			throw &objException;
 		}
 			
 		//objIndexPtr = objIndexCollection->getNumberOfDataTypes;
@@ -1532,9 +1535,9 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 			if (rc < 0) 
 			{
 				printf("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
-				ocfmException* objException = new ocfmException;
-				objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
-				throw objException;
+				ocfmException objException;// = new ocfmException;
+				objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
+				throw &objException;
 			}
 			
 			rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "dataType", BAD_CAST dt->DataTypeValue);			
@@ -1543,9 +1546,9 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 			if (rc < 0) 
 			{
 				printf("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
-				ocfmException* objException = new ocfmException;
-				objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
-				throw objException;
+				ocfmException objException;// = new ocfmException;
+				objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
+				throw &objException;
 			}
 			xmlTextWriterSetIndent(writer, 1);
 			// End DataType Tag
@@ -1553,9 +1556,9 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 			if (rc < 0)
 			{
 				printf("testXmlwriterDoc: Error at xmlTextWriterEndElement\n");
-				ocfmException* objException = new ocfmException;
-				objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
-				throw objException;				
+				ocfmException objException;// = new ocfmException;
+				objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
+				throw &objException;				
 			}
 			xmlTextWriterSetIndent(writer, 1);
 			// End defType Tag
@@ -1563,9 +1566,9 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 			if (rc < 0)
 			{
 				printf("testXmlwriterDoc: Error at xmlTextWriterEndElement\n");
-				ocfmException* objException = new ocfmException;
-				objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
-				throw objException;				
+				ocfmException objException;// = new ocfmException;
+				objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
+				throw &objException;				
 			}
 			
 		}	
@@ -1575,17 +1578,18 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 		if (rc < 0)
 		{
 			printf("testXmlwriterDoc: Error at xmlTextWriterEndElement\n");
-			ocfmException* objException = new ocfmException;
-			objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
-			throw objException;
+			ocfmException objException;// = new ocfmException;
+			objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
+			throw &objException;
 		}
 		
 		
 		if(objIndexCollection->getNumberofIndexes() == 0)
 		{
+			printf("SaveNode: No Indexes Found\n");
 			ocfmException objException;				
 			objException.ocfm_Excpetion(OCFM_ERR_NO_INDEX_FOUND);
-			throw objException;
+			throw &objException;
 		}
 		
 		// Start ObjectList Tag
@@ -1593,9 +1597,9 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 		if (rc < 0) 
 		{
 			printf("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
-			ocfmException* objException = new ocfmException;
-			objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
-			throw objException;
+			ocfmException objException;// = new ocfmException;
+			objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
+			throw &objException;
 		}
 						
 		for(IndexPos = 0; IndexPos < objIndexCollection->getNumberofIndexes(); IndexPos++)		
@@ -1605,9 +1609,9 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 			if (rc < 0) 
 			{
 				printf("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
-				ocfmException* objException = new ocfmException;
-				objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
-				throw objException;
+				ocfmException objException;// = new ocfmException;
+				objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
+				throw &objException;
 			}
 			
 			objIndexPtr = objIndexCollection->getIndex(IndexPos);
@@ -1680,9 +1684,9 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 						if (rc < 0) 
 						{
 							printf("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
-							ocfmException* objException = new ocfmException;
-							objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
-							throw objException;
+							ocfmException objException;// = new ocfmException;
+							objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
+							throw &objException;
 						}
 						
 						CSubIndex* objSubIndexPtr;
@@ -1733,9 +1737,9 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 						if (rc < 0)
 						{
 							printf("testXmlwriterDoc: Error at xmlTextWriterEndElement\n");
-							ocfmException* objException = new ocfmException;
-							objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
-							throw objException;				
+							ocfmException objException;// = new ocfmException;
+							objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
+							throw &objException;				
 						}
 						
 					}
@@ -1746,9 +1750,9 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 				if (rc < 0)
 				{
 					printf("testXmlwriterDoc: Error at xmlTextWriterEndElement\n");
-					ocfmException* objException = new ocfmException;
-					objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
-					throw objException;				
+					ocfmException objException;// = new ocfmException;
+					objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
+					throw &objException;				
 				}
 				
 			}
@@ -1759,9 +1763,9 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 		if (rc < 0)
 		{
 			printf("testXmlwriterDoc: Error at xmlTextWriterEndElement\n");
-			ocfmException* objException = new ocfmException;
-			objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
-			throw objException;
+			ocfmException objException;// = new ocfmException;
+			objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
+			throw &objException;
 		}
 		
 		xmlTextWriterSetIndent(writer, 1);
@@ -1770,9 +1774,9 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 		if (rc < 0)
 		{
 			printf("testXmlwriterDoc: Error at xmlTextWriterEndElement\n");
-			ocfmException* objException = new ocfmException;
-			objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
-			throw objException;
+			ocfmException objException;// = new ocfmException;
+			objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
+			throw &objException;
 		}
 		
 		xmlTextWriterSetIndent(writer, 1);
@@ -1781,9 +1785,9 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 		if (rc < 0)
 		{
 			printf("testXmlwriterDoc: Error at xmlTextWriterEndElement\n");
-			ocfmException* objException = new ocfmException;
-			objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
-			throw objException;
+			ocfmException objException;// = new ocfmException;
+			objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
+			throw &objException;
 		}
 		
 		xmlTextWriterSetIndent(writer, 1);
@@ -1792,9 +1796,9 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 		if (rc < 0)
 		{
 			printf("testXmlwriterDoc: Error at xmlTextWriterEndElement\n");
-			ocfmException* objException = new ocfmException;
-			objException->ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
-			throw objException;
+			ocfmException objException;// = new ocfmException;
+			objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
+			throw &objException;
 		}
 				
 		cout << "\nEnd Write Doc\n" <<endl;
@@ -1802,9 +1806,9 @@ ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 		if (rc < 0) 
 		{
 			printf("testXmlwriterDoc: Error at xmlTextWriterEndDocument\n");
-			ocfmException* objException = new ocfmException;
-			objException->ocfm_Excpetion(OCFM_ERR_XML_END_DOC_FAILED);
-			throw objException;
+			ocfmException objException;// = new ocfmException;
+			objException.ocfm_Excpetion(OCFM_ERR_XML_END_DOC_FAILED);
+			throw &objException;
 		}
 
 		xmlFreeTextWriter(writer);
@@ -1847,8 +1851,8 @@ void setFlagForRequiredIndexes(int NodeId)
 ocfmRetCode AddOtherRequiredCNIndexes(int NodeId)
 {
 			ocfmRetCode retCode;
-			char* MNIndex = new char[4];		
-			char* Sidx =  new char[2];
+			char* MNIndex = new char[INDEX_LEN];		
+			char* Sidx =  new char[SUBINDEX_LEN];
 			CIndexCollection* objIdxCol;
 			CNodeCollection* objNodeCol;
 			CNode* objNode;

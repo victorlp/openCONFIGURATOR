@@ -319,7 +319,7 @@ DllExport ocfmRetCode GetSubIndexIDbySubIndexPos(int NodeID, ENodeType NodeType,
 DllExport ocfmRetCode GetIndexIDbyPositions(int NodePos, int IndexPos, char* Out_IndexID);
 DllExport ocfmRetCode GetSubIndexIDbyPositions(int NodePos, int IndexPos, int SubIndexPos, char* Out_SubIndexID);
 
-DllExport ocfmRetCode GetSubIndexAttributesbyPositions(int 			NodePos, int 			IndexPos,	int				SubIndexPos,EAttributeType 	AttributeType, 	char* 			Out_AttributeValue);
+//DllExport ocfmRetCode GetSubIndexAttributesbyPositions(int 			NodePos, int 			IndexPos,	int				SubIndexPos,EAttributeType 	AttributeType, 	char* 			Out_AttributeValue);
 
 DllExport ocfmRetCode GetIndexAttributesbyPositions(int NodePos, int IndexPos, EAttributeType AttributeType, char* Out_AttributeValue);
 DllExport ocfmRetCode GetSubIndexAttributesbyPositions(int NodePos, int IndexPos, int SubIndexPos, EAttributeType AttributeType, char* Out_AttributeValue);

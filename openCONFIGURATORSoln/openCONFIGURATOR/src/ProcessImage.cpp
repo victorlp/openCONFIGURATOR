@@ -551,6 +551,7 @@ void GenerateXAPHeaderFile(char* fileName, ProcessImage PI_IN[], ProcessImage PI
 		{
 					ocfmException ex;
 					ex.ocfm_Excpetion(OCFM_ERR_CANNOT_OPEN_FILE);
+					delete [] strFileName;
 					throw ex;						
 		}			
 		if(InVar !=0)
@@ -565,13 +566,15 @@ void GenerateXAPHeaderFile(char* fileName, ProcessImage PI_IN[], ProcessImage PI
 		{
 					ocfmException ex;
 					ex.ocfm_Excpetion(OCFM_ERR_CANNOT_OPEN_FILE);
+					delete [] strFileName;
 					throw ex;						
 		}
 		if(OutVar !=0)
 		{	
 			WriteXAPHeaderContents(PI_OUT, OutVar, OUTPUT, fileptr );
 		}		
-		fclose(fileptr);	
+		fclose(fileptr);
+		delete [] strFileName;
 }
 void WriteXAPHeaderContents(ProcessImage PI[], int NumberOfVars, EPIDirectionType dirType, FILE* fileptr)
 {
@@ -728,6 +731,8 @@ void WriteXAPHeaderContents(ProcessImage PI[], int NumberOfVars, EPIDirectionTyp
 				printf("\n xap.h buffer1 not  written");
 				ocfmException ex;
 				ex.ocfm_Excpetion(OCFM_ERR_FILE_CANNOT_OPEN);
+				delete[] Buffer;
+				delete[] Buffer1;
 				throw ex;
 			}
 			else
@@ -849,6 +854,8 @@ void AddPDOIndexsToMN(char* Index, char* SubIndex, EPDOType pdoType)
 		}
 	}
 	
+	delete[] Name;
+		
 	Name = getPIDataTypeName(Index);
 		
 	dt = objDTCol->getDataTypeByName(Name);
@@ -858,6 +865,9 @@ void AddPDOIndexsToMN(char* Index, char* SubIndex, EPDOType pdoType)
 	SetSIdxDataType(dt, Index, SubIndex);
 	
 	UpdateNumberOfEnteriesSIdx(objIndex, MN);
+	
+	delete[] pdoMap;
+	delete[] ObjectName;
 	
  }
 char* getPIAddress(PDODataType dt,  EPIDirectionType dirType)
