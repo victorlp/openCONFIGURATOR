@@ -82,6 +82,23 @@ int OutVars = 0;
 #define HEADER_FILE_BUFFER 500000
 #define TOTAL_MODULES 10000
 
+static tADDRESSTABLE AddressTable[NO_OF_PI_ENTERIES] = {
+																												{"A000", INTEGER8,		INPUT},
+																												{"A040", UNSIGNED8,			INPUT},
+																												{"A0C0", INTEGER16, INPUT},
+																												{"A100", UNSIGNED16,		INPUT},
+																												{"A1C0", INTEGER32, INPUT},
+																												{"A200", UNSIGNED32,		INPUT},
+																												{"A480", INTEGER8,		OUTPUT},
+																												{"A4C0", UNSIGNED8,			OUTPUT},
+																												{"A540", INTEGER16, OUTPUT},
+																												{"A580", UNSIGNED16,		OUTPUT},
+																												{"A640", INTEGER32, OUTPUT},
+																												{"A680", UNSIGNED32,			OUTPUT},
+																												
+																												};	
+
+
 ModuleCol modCol[TOTAL_MODULES]; 
 
 
@@ -184,7 +201,7 @@ void GroupInOutPIVariables(ProcessImage PIInCol[], ProcessImage PIOutCol[])
 	
 	CNodeCollection* objNodeCol;
 	objNodeCol =  CNodeCollection::getNodeColObjectPointer();
-	int PIVarsCount =0;
+	//int PIVarsCount =0;
 	InVars = 0;
 	OutVars = 0;
 	for(int i=0; i< objNodeCol->getNumberOfNodes(); i++)
@@ -566,7 +583,7 @@ void WriteXAPHeaderContents(ProcessImage PI[], int NumberOfVars, EPIDirectionTyp
 		
 		//char* strCNID = new char[NODE_ID + ALLOC_BUFFER];
 		int ModuleNo = 0;
-		int LastModuleNo = 0;
+		//int LastModuleNo = 0;
 		
 		int totalsize = 0;
 		int DataSize  = 0;
@@ -583,7 +600,7 @@ void WriteXAPHeaderContents(ProcessImage PI[], int NumberOfVars, EPIDirectionTyp
 					char* strCNID = new char[50];
 					char* ModName =  new char[50];
 					char* strModuleNo = new char[20];
-					char* varNo = new char[10];
+					//char* varNo = new char[10];
 					
 					
 					DataSize  = PI[i].DataInfo.DataSize;
@@ -703,7 +720,7 @@ void WriteXAPHeaderContents(ProcessImage PI[], int NumberOfVars, EPIDirectionTyp
 			strsize =  _IntToAscii(totalsize, strsize, 10);
 			strcat(Buffer1, strsize);
 			
-			int len =  strlen(Buffer1);
+			unsigned int len =  strlen(Buffer1);
 			printf("\n Length of Buffer1 %d", len);
 			printf(" Buffer1 :%s", Buffer1);
 			if((len != fwrite(Buffer1, sizeof(char),len,fileptr)))
@@ -783,7 +800,7 @@ void AddPDOIndexsToMN(char* Index, char* SubIndex, EPDOType pdoType)
 		objIndex = objIdxCol->getIndexbyIndexValue(Index);
 		if(objIndex != NULL && (retCode.code != OCFM_ERR_INDEX_ALREADY_EXISTS) )
 		{
-			objIndex->setObjectType("ARRAY");
+			objIndex->setObjectType((char*)"ARRAY");
 			if(pdoType == PDO_RPDO)
 			{				
 				strcpy(ObjectName, "PI_OUTPUTS_A");
@@ -806,7 +823,7 @@ void AddPDOIndexsToMN(char* Index, char* SubIndex, EPDOType pdoType)
 		objSIdx = objIndex->getSubIndexbyIndexValue(SubIndex);
 		if(objSIdx != NULL)
 		{
-			objSIdx->setObjectType("VAR");
+			objSIdx->setObjectType((char*)"VAR");
 			
 			/* Its reversed because CN's RPDO is MN's TPDO*/
 			
@@ -815,7 +832,7 @@ void AddPDOIndexsToMN(char* Index, char* SubIndex, EPDOType pdoType)
 				strcpy(pdoMap, "TPDO");
 				strcpy(ObjectName, "PI_OUTPUTS_");
 				strcat(ObjectName, getPIName(Index));								
-				objSIdx->setAccessType("wo");
+				objSIdx->setAccessType((char*)"wo");
 				}
 			else if(pdoType == PDO_TPDO)
 			{				
@@ -823,7 +840,7 @@ void AddPDOIndexsToMN(char* Index, char* SubIndex, EPDOType pdoType)
 				strcpy(ObjectName, "PI_INPUTS_");
 				strcat(ObjectName, getPIName(Index));	
 				
-				objSIdx->setAccessType("ro");
+				objSIdx->setAccessType((char*)"ro");
 			}
 				objSIdx->setName(ObjectName);
 				objSIdx->setPDOMapping(pdoMap);
@@ -845,16 +862,20 @@ void AddPDOIndexsToMN(char* Index, char* SubIndex, EPDOType pdoType)
  }
 char* getPIAddress(PDODataType dt,  EPIDirectionType dirType)
 {
-	
-	for(int i = 0; i< NO_OF_PI_ENTERIES; i++)
+	int i;
+	for(i = 0; i< NO_OF_PI_ENTERIES; i++)
 	{
 		if((AddressTable[i].dt == dt) && (AddressTable[i].Direction == dirType))
 		return AddressTable[i].Address;
 	}
 
+	//Handled error case and returned dummy value to avoid warning
+	cout << "Error in returning getPIAddress" << endl;
+	return (char*) "Error";
 }
 char* getPIDataTypeName(char* Address)
 {
+	char *RetString = NULL;
 	
 	for(int i = 0; i< NO_OF_PI_ENTERIES; i++)
 	{		
@@ -864,41 +885,49 @@ char* getPIDataTypeName(char* Address)
 			{
 				case UNSIGNED8 :
 				{
-					return "Unsigned8";
+					RetString = (char*) "Unsigned8";
 					break;
 				}
 				case INTEGER8 :
 				{
-					return "Integer8";
+					RetString = (char*) "Integer8";
 					break;
 				}
 				case UNSIGNED16 :
 				{
-					return "Unsigned16";
+					RetString = (char*) "Unsigned16";
 					break;
 				}
 				case INTEGER16 :
 				{
-					return "Integer8";
+					RetString = (char*) "Integer8";
 					break;
 				}
 				case UNSIGNED32 :
 				{
-					return "Unsigned32";
+					RetString = (char*) "Unsigned32";
 					break;
 				}
 				case INTEGER32 :
 				{
-					return "Integer32";
+					RetString = (char*) "Integer32";
 					break;
 				}
-				
+				default:
+				{
+					//Handled error case and returned dummy value to avoid warning
+					cout << "Error in returning getPIDataTypeName" << endl;
+					RetString = (char*) "Error";
+					break;
+				}
 			}
 		}
 	}
+	return RetString;	
 }
 char* getPIName(char* Address)
 {
+	char *RetString = NULL;
 	
 	for(int i = 0; i< NO_OF_PI_ENTERIES; i++)
 	{		
@@ -908,38 +937,46 @@ char* getPIName(char* Address)
 			{
 				case UNSIGNED8 :
 				{
-					return "U8";
+					RetString = (char*) "U8";
 					break;
 				}
 				case INTEGER8 :
 				{
-					return "I8";
+					RetString = (char*) "I8";
 					break;
 				}
 				case UNSIGNED16 :
 				{
-					return "U16";
+					RetString = (char*) "U16";
 					break;
 				}
 				case INTEGER16 :
 				{
-					return "I16";
+					RetString = (char*) "I16";
 					break;
 				}
 				case UNSIGNED32 :
 				{
-					return "U32";
+					RetString = (char*) "U32";
 					break;
 				}
 				case INTEGER32 :
 				{
-					return "I32";
+					RetString = (char*) "I32";
 					break;
 				}
-				
+				default:
+				{
+					//Handled error case and returned dummy value to avoid warning
+					cout << "Error in returning getPIDataTypeName" << endl;
+					RetString = (char*) "Error";
+					break;
+				}
 			}
 		}
 	}
+	
+	return RetString;
 }
 bool CheckIfProcessImageIdx(char* Index)
 {

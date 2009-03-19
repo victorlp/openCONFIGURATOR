@@ -83,32 +83,14 @@
 extern int ConfigDate;
 extern int ConfigTime;
 static const int g_simple_arr_size = 19;
-static const char *g_Simple[][2] = {
-																										{"BOOL" ,    "1"},
-																										{"BITSTRING","1"},
-																										{"BYTE",     "8"},
-																										{"CHAR",     "1"},
-																										{"WORD",     "16"},
-																										{"DWORD",    "32"},
-																										{"LWORD",    "64"},
-																										{"SINT",     "8"},
-																										{"INT",      "16"},
-																										{"DINT",     "32"},
-																										{"LINT",     "64"},
-																										{"USINT",    "8"},
-																										{"UINT",     "16	"},
-																										{"UDINT",    "32"},
-																										{"ULINT",    "64"},
-																										{"REAL",     "16"},
-																										{"LREAL",    "64"},
-																										{"STRING",   "1"},
-																										{"WSTRING",  "1"}
-																										};
+typedef enum{
+ADD = 0,
+DELETE
+}EOperation;
 
-
-/****************************************************************************************/
-/* Function Declarations
-/*****************************************************************************************/
+/****************************************************************************************************
+* Function Declarations
+****************************************************************************************************/
 
 //void LoadObjectDictionary(char* fileName);
 char* ConvertToUpper(char* str);

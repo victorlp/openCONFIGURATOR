@@ -105,8 +105,9 @@ CIndex* CIndexCollection::getIndex(int Count)
 	}
 CIndex* CIndexCollection::getIndexbyIndexValue(char* Index)
 	{
-		int i = 0;
-		for(int i =0; i<m_IndexCount;i++)
+		int i;
+		
+		for(i =0; i<m_IndexCount;i++)
 		{
 			CIndex objIndex;
 			objIndex = collectionObj[i];

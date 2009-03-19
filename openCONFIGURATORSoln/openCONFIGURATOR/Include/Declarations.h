@@ -275,9 +275,9 @@ typedef enum
 	AUTOSAVE
 }EProjectSettings;
 
-/****************************************************************************************/
-/* Function Declarations
-/*****************************************************************************************/
+/*****************************************************************************************
+* Function Declarations
+*****************************************************************************************/
 
 DllExport ocfmRetCode ImportXML(char* fileName, int NodeID, ENodeType NodeType);
 DllExport ocfmRetCode ReImportXML(char* fileName, int NodeID, ENodeType NodeType);

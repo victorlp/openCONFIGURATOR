@@ -120,17 +120,9 @@ void CPjtSettings::setSaveAttr(EAutoSave AutoSaveMode)
 
 EAutoGenerate CPjtSettings::getGenerateAttr()
 {
-
-
 	#if defined DEBUG
-		cout << "\n Returning m_saveMode:-" << m_saveMode <<endl;	
-	#endif	
-
-	//m_generateMode = YES_AG;
-	//m_saveMode = YES_AS;
-	//#if defined DEBUG
 		cout << "\n Returning m_generateMode:-" << m_generateMode <<endl;	
-	//#endif	
+	#endif	
 
 	return m_generateMode;
 		

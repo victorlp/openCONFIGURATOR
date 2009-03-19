@@ -75,10 +75,10 @@
 #include <string.h>
 
 /**************************************************************************************************
-	* Function Name: IfNodeExists
-    * Description:	Checks for existance of a Node
-	* Return value: ocfmRetCode
-/****************************************************************************************************/
+* Function Name: IfNodeExists
+* Description:	Checks for existance of a Node
+* Return value: ocfmRetCode
+****************************************************************************************************/
 ocfmRetCode IfNodeExists(int NodeID, ENodeType NodeType, int* NodePos, bool& ExistfFlag)
 {	
 	//cout << "NodeType:" << NodeType << endl;
@@ -118,11 +118,11 @@ ocfmRetCode IfNodeExists(int NodeID, ENodeType NodeType, int* NodePos, bool& Exi
 					}					
 				}						
 			}
-			//ErrStruct.code = OCFM_ERR_NODEID_NOT_FOUND;
-			//return ErrStruct;
-		/*	ocfmException objException;				
-			objException.ocfm_Excpetion(OCFM_ERR_NODEID_NOT_FOUND);
-			throw objException;*/
+			/*ErrStruct.code = OCFM_ERR_NODEID_NOT_FOUND;
+			return ErrStruct;*/
+			ocfmException* objException = new ocfmException;
+			objException->ocfm_Excpetion(OCFM_ERR_NODEID_NOT_FOUND);
+			throw objException;	
 			
 		}
 		else
@@ -144,7 +144,7 @@ ocfmRetCode IfNodeExists(int NodeID, ENodeType NodeType, int* NodePos, bool& Exi
 Returns -2 if the Index doesnot exist. Returns Zero and fills the error string on Index existance or 
 if Node doesn't exist or if NodeType is invalid. 
 
-/****************************************************************************************************/
+****************************************************************************************************/
 ocfmRetCode IfIndexExists(int NodeID, ENodeType NodeType, char* IndexID, int *IndexPos)
 {
 	CNode objNode;		
@@ -262,7 +262,7 @@ if Node doesn't exist or if NodeType is invalid.
 	Index Doesn't Exist 	- -2
 	SubIndex Doesn't Exist 	- -3
 	Invalid NodeType		- -4
-/****************************************************************************************************/
+****************************************************************************************************/
 ocfmRetCode IfSubIndexExists(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID, int* SubIndexPos, int* IndexPos)
 {
 		CNode objNode;		
@@ -431,5 +431,10 @@ bool IfVersionNumberMatches(xmlTextReaderPtr reader)
 			return false;
 			
 		}
+	}
+	else
+	{
+		cout << "\nError! IfVersionNumberMatches function can't find VERSION" << endl;
+		return false;	
 	}
 }

@@ -94,7 +94,7 @@
 
 int lastVarIndex = -1;
 static bool CDTCompleted = false;
-static bool NotLoadedOBD = true;
+//static bool NotLoadedOBD = true;
 //static stOffsets size8Offset;
 //static stOffsets size16Offset;
 //static stOffsets size32Offset;
@@ -116,10 +116,10 @@ int ConfigTime;
 
 #define CDC_BUFFER 5000
 
-/**************************************************************************************************
-	* Function Name: AddIndexAttributes
-    * Description: Adds the default attributes to the Index, when addded.
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: AddIndexAttributes
+* Description: Adds the default attributes to the Index, when addded.
+****************************************************************************************************/
 static void AddIndexAttributes(char* IndexID, CIndex* objIndex, CIndex* objDictIndex)
 	{
 		// Setting the Index Value
@@ -137,7 +137,7 @@ static void AddIndexAttributes(char* IndexID, CIndex* objIndex, CIndex* objDictI
 		if(objDictIndex->getName() != NULL)
 			objIndex->setName((char*) objDictIndex->getName());
 		else
-			objIndex->setName("");
+			objIndex->setName((char*) "");
 
 		if(objDictIndex->getObjectType() != NULL)		
 			objIndex->setObjectType((char*) objDictIndex->getObjectType());
@@ -148,17 +148,17 @@ static void AddIndexAttributes(char* IndexID, CIndex* objIndex, CIndex* objDictI
 		if( objDictIndex->getLowLimit() != NULL)
 			objIndex->setLowLimit((char*) objDictIndex->getLowLimit());
 		else
-			objIndex->setLowLimit("");
+			objIndex->setLowLimit((char*) "");
 			
 		if(objDictIndex->getHighLimit() != NULL)
 			objIndex->setHighLimit((char*) objDictIndex->getHighLimit());
 		else
-			objIndex->setHighLimit("");
+			objIndex->setHighLimit((char*) "");
 			
 		if(objDictIndex->getAccessType() != NULL)
 			objIndex->setAccessType((char*) objDictIndex->getAccessType());
 		else
-			objIndex->setAccessType("");
+			objIndex->setAccessType((char*) "");
 		
 		////$S To be checked by $M
 		if(objDictIndex->getPDOMapping() != NULL)
@@ -186,26 +186,26 @@ static void AddIndexAttributes(char* IndexID, CIndex* objIndex, CIndex* objDictI
 		if(objDictIndex->getDefaultValue() != NULL)
 			objIndex->setDefaultValue((char*) objDictIndex->getDefaultValue());
 		else
-			objIndex->setDefaultValue("");
+			objIndex->setDefaultValue((char*) "");
 			
 		if(objDictIndex->getActualValue() != NULL)
 			objIndex->setActualValue((char*) objDictIndex->getActualValue());
 		else
-			objIndex->setActualValue("");
+			objIndex->setActualValue((char*) "");
 		//$STODO:
 		if(objDictIndex->getDataType().getName() != NULL)
 			//objIndex->setDataType((char*) objIndex->getDataTypeValue(), objIndex->getNodeID());
 			objIndex->setDataTypeST(objDictIndex->getDataType());
 		else
-			objIndex->setDataType("");
+			objIndex->setDataType((char*) "");
 
 		return;
 	}
 
-/**************************************************************************************************
-	* Function Name: AddSubIndexAttributes
-    * Description: Adds the default attributes to the Index, when addded.
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: AddSubIndexAttributes
+* Description: Adds the default attributes to the Index, when addded.
+****************************************************************************************************/
 static void AddSubIndexAttributes(char* SubIndexID, CSubIndex* objSubIndex, CSubIndex* objDictSIndex)
 	{
 			
@@ -215,28 +215,28 @@ static void AddSubIndexAttributes(char* SubIndexID, CSubIndex* objSubIndex, CSub
 		if(objDictSIndex->getName() != NULL)
 			objSubIndex->setName((char*) objDictSIndex->getName());
 		else
-			objSubIndex->setName("");
+			objSubIndex->setName((char*) "");
 		if(objDictSIndex->getObjectType() != NULL)
 			//objSubIndex->setObjectType(atoi(objSubIndex->getObjectType()));
 			objSubIndex->setObjectType((char*) (objDictSIndex->getObjectType()));
 		else
 			//Setting "0", so default case is hit, when setting
-			objSubIndex->setObjectType("");
+			objSubIndex->setObjectType((char*) "");
 				
 		if( objDictSIndex->getLowLimit() != NULL)
 			objSubIndex->setLowLimit((char*) objDictSIndex->getLowLimit());
 		else
-			objSubIndex->setLowLimit("");
+			objSubIndex->setLowLimit((char*) "");
 			
 		if(objDictSIndex->getHighLimit() != NULL)
 			objSubIndex->setHighLimit((char*) objDictSIndex->getHighLimit());
 		else
-			objSubIndex->setHighLimit("");
+			objSubIndex->setHighLimit((char*) "");
 			
 		if(objDictSIndex->getAccessType() != NULL)
 			objSubIndex->setAccessType((char*) objDictSIndex->getAccessType());
 		else
-			objSubIndex->setAccessType("");
+			objSubIndex->setAccessType((char*) "");
 				
 		//if(objSubIndex->getPDOMapping() != NULL)
 		//{
@@ -251,26 +251,26 @@ static void AddSubIndexAttributes(char* SubIndexID, CSubIndex* objSubIndex, CSub
 		if(objDictSIndex->getDefaultValue() != NULL)
 			objSubIndex->setDefaultValue((char*) objDictSIndex->getDefaultValue());
 		else
-			objSubIndex->setDefaultValue("");
+			objSubIndex->setDefaultValue((char*) "");
 			
 		if(objDictSIndex->getActualValue() != NULL)
 			objSubIndex->setActualValue((char*) objDictSIndex->getActualValue());
 		else
-			objSubIndex->setActualValue("");
+			objSubIndex->setActualValue((char*) "");
 		
 		if(objDictSIndex->getDataType().getName() != NULL)
 			//objSubIndex->setDataType(objSubIndex->getDataTypeValue());
 			objSubIndex->setDataTypeST(objDictSIndex->getDataType());
 		else
-			objSubIndex->setDataType("");
+			objSubIndex->setDataType((char*) "");
 		return;
 	}
 
  
-/**************************************************************************************************
-	* Function Name: CreateNode
-    * Description:
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: CreateNode
+* Description:
+****************************************************************************************************/
 ocfmRetCode CreateNode(int NodeID, ENodeType NodeType, char* NodeName)
 {
 	ocfmRetCode ErrStruct;
@@ -283,7 +283,7 @@ ocfmRetCode CreateNode(int NodeID, ENodeType NodeType, char* NodeName)
 		if(NodeType ==MN)
 		{
 			//cout << "loading od.xml"<< endl;
-			LoadObjectDictionary("od.xml");
+			LoadObjectDictionary((char*) "od.xml");
 			cout << "loaded xml" << endl;
 		}
 		if(NodeType == CN)
@@ -328,11 +328,11 @@ ocfmRetCode CreateNode(int NodeID, ENodeType NodeType, char* NodeName)
 	}
 }
 
-/**************************************************************************************************
-	* Function Name: DeleteNode
-    * Description:
-	* Return value: ocfmRetCode
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: DeleteNode
+* Description:
+* Return value: ocfmRetCode
+****************************************************************************************************/
 ocfmRetCode DeleteNode(int NodeID, ENodeType NodeType)
 	{
 		int NodePos;
@@ -368,11 +368,11 @@ ocfmRetCode DeleteNode(int NodeID, ENodeType NodeType)
 		return ErrStruct;		
 	}
 	
-/**************************************************************************************************
-	* Function Name: DeleteIndex
-    * Description: Deletes the Index after performing check for Index Existanse
-	* Return value: ocfmRetCode
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: DeleteIndex
+* Description: Deletes the Index after performing check for Index Existanse
+* Return value: ocfmRetCode
+****************************************************************************************************/
 ocfmRetCode DeleteIndex(int NodeID, ENodeType NodeType, char* IndexID)
 	{
 		
@@ -413,11 +413,11 @@ ocfmRetCode DeleteIndex(int NodeID, ENodeType NodeType, char* IndexID)
 		}
 	}
 	
-/**************************************************************************************************
-	* Function Name: DeleteSubIndex
-    * Description: Deletes the Index after performing check for Index Existanse
-	* Return value: ocfmRetCode
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: DeleteSubIndex
+* Description: Deletes the Index after performing check for Index Existanse
+* Return value: ocfmRetCode
+****************************************************************************************************/
 ocfmRetCode DeleteSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID)
 	{
 		CNode objNode;		
@@ -469,11 +469,11 @@ ocfmRetCode DeleteSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* 
 			return ex._ocfmRetCode;
 		}		
 	}
-/**************************************************************************************************
-	* Function Name: AddSubIndex
- * Description:
-	* Return value: ocfmRetCode
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: AddSubIndex
+* Description:
+* Return value: ocfmRetCode
+****************************************************************************************************/
 ocfmRetCode AddSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID)
 	{
 	//cout << "\nInside AddSubIndex\n" << endl;
@@ -611,11 +611,11 @@ void setIndexName(char* ObjectIndex, char* ObjectName)
 		printf("\n ObjectName %s",ObjectName);
 	}
 }
-/**************************************************************************************************
-	* Function Name: AddIndex
-    * Description:
-	* Return value: ocfmRetCode
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: AddIndex
+* Description:
+* Return value: ocfmRetCode
+****************************************************************************************************/
 ocfmRetCode AddIndex(int NodeID, ENodeType NodeType, char* IndexID)
 	{
 		int IndexPos = 0;
@@ -712,11 +712,11 @@ ocfmRetCode AddIndex(int NodeID, ENodeType NodeType, char* IndexID)
 			return ex._ocfmRetCode;
 		}
 	}	
-/**************************************************************************************************
-	* Function Name: EditIndex
-    * Description:
-	* Return value: ocfmRetCode
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: EditIndex
+* Description:
+* Return value: ocfmRetCode
+****************************************************************************************************/
 ocfmRetCode SetIndexAttributes(int NodeID, ENodeType NodeType,
  char* IndexID, char* IndexValue,
  char* IndexName, EFlag flagIfIncludedInCdc)
@@ -777,11 +777,11 @@ ocfmRetCode SetIndexAttributes(int NodeID, ENodeType NodeType,
 	}
 }
 
-/**************************************************************************************************
-	* Function Name: EditSubIndex
-    * Description:
-	* Return value: ocfmRetCode
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: EditSubIndex
+* Description:
+* Return value: ocfmRetCode
+****************************************************************************************************/
 ocfmRetCode SetSubIndexAttributes(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID, char* IndexValue, char* IndexName)
 {
 		CNode objNode;		
@@ -849,7 +849,7 @@ ocfmRetCode SetSubIndexAttributes(int NodeID, ENodeType NodeType, char* IndexID,
 	* Function Name: EditIndex with all attributes
     * Description:
 	* Return value: ocfmRetCode
-/****************************************************************************************************/
+****************************************************************************************************/
 ocfmRetCode SetALLIndexAttributes(int NodeID, ENodeType NodeType, 
 																																		char* IndexID, char* ActualValue,
 																																		char* IndexName, char* Access, char* dataTypeName,
@@ -936,11 +936,11 @@ ocfmRetCode SetALLIndexAttributes(int NodeID, ENodeType NodeType,
 	}
 }
 
-/**************************************************************************************************
+/****************************************************************************************************
 	* Function Name: EditSubIndex
     * Description:
 	* Return value: ocfmRetCode
-/****************************************************************************************************/
+****************************************************************************************************/
 ocfmRetCode SetALLSubIndexAttributes(int NodeID, ENodeType NodeType, 
 																																					char* IndexID, char* SubIndexID,
 																																					char* ActualValue, char* IndexName,
@@ -1034,10 +1034,10 @@ ocfmRetCode SetALLSubIndexAttributes(int NodeID, ENodeType NodeType,
 		}
 }
 
-/**************************************************************************************************
-	* Function Name: DisplayNodeTree
-    * Description:
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: DisplayNodeTree
+* Description:
+****************************************************************************************************/
 void DisplayNodeTree()
 	{
 		CNode objNode;		
@@ -1068,10 +1068,10 @@ void DisplayNodeTree()
 			
 	}	
 	
-/**************************************************************************************************
-	* Function Name: GetIndexData
-   * Description: 
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: GetIndexData
+* Description: 
+****************************************************************************************************/
 void GetIndexData(CIndex* objIndex, char* Buffer)
 	{
 			int len;
@@ -1266,23 +1266,23 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 				}
 	}
 	
-	/**************************************************************************************************
-	* Function Name: UpdateCNCycleTime
- * Description: Updates the cycle time(1006) of the CN
-/**************************************************************************************************/
+/****************************************************************************************************
+* Function Name: UpdateCNCycleTime
+* Description: Updates the cycle time(1006) of the CN
+****************************************************************************************************/
 
 	void UpdateCNCycleTime(CIndexCollection  *objIdxCol,char* cycleTime)
 	{
 		CIndex* objIndex;
-		objIndex = objIdxCol->getIndexbyIndexValue("1006");
+		objIndex = objIdxCol->getIndexbyIndexValue((char*) "1006");
 		if(objIndex!= NULL)
 		objIndex->setActualValue(cycleTime);
 		
 	}
-	/**************************************************************************************************
-	* Function Name: WriteCNsData
- * Description: Writes all CNS data to CDC file
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: WriteCNsData
+* Description: Writes all CNS data to CDC file
+****************************************************************************************************/
 
 	void WriteCNsData(char* fileName)
 {
@@ -1335,7 +1335,7 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 							//comment = strcat(comment,(char*)count);
 							/*strcpy(Buffer2, comment);*/
 							int NumberOfIndexes;
-							bool firstBuffer = true;																								
+							//bool firstBuffer = true;																								
 							NumberOfIndexes = objIndexCollection->getNumberofIndexes();
 							
 							CIndex* objIndex;
@@ -1372,7 +1372,7 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 		
 									
 									objIndex = objIndexCollection->getIndex(i);
-									const char* IndexValue = objIndex->getIndexValue();
+									//const char* IndexValue = objIndex->getIndexValue();
 									
 								//if(CheckAllowedCNIndexes((char*)IndexValue) && (objIndex->getFlagIfIncludedCdc() == true))
 								if(objIndex->getFlagIfIncludedCdc() == TRUE)
@@ -1522,17 +1522,17 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 
 		return NumberOfEntries ;
 	}
-/**************************************************************************************************
-	* Function Name: GenerateCDC
-    * Description: Generates the CDC file
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: GenerateCDC
+* Description: Generates the CDC file
+****************************************************************************************************/
 ocfmRetCode GenerateCDC(char* CDCLocation)
 	{
 		CNode objNode;	
 		CIndexCollection* objIndexCollection;
 		//ofstream file;
 		char *Buffer1;
-		int len;
+		unsigned int len;
 		ocfmRetCode retCode;
 		//const char tempFileName[9] = "temp.txt";
 		char* tempFileName;
@@ -1593,8 +1593,9 @@ ocfmRetCode GenerateCDC(char* CDCLocation)
 				cout << "\n\n\n\n Generating MN OBD\n\n\n\n" << endl;
 				retCode = GenerateMNOBD();
 				if(retCode.code != OCFM_ERR_SUCCESS)
-				return retCode;
-				checkFlag = false;
+					return retCode;
+				else
+					checkFlag = false;
 			}
 		
 
@@ -1613,13 +1614,12 @@ ocfmRetCode GenerateCDC(char* CDCLocation)
 				strcat(Buffer1, "\n");
 				len =  strlen(Buffer1);
 		
-			
-				/* Write number of enteries */
-				if((fwrite(Buffer1, sizeof(char),len,fileptr))!=NULL)
-				{
-					free(Buffer1);
-				}
 				
+				/* Write number of enteries */
+				if((len != (fwrite(Buffer1, sizeof(char),len,fileptr))))
+				{
+					delete[] Buffer1;
+				}
 				for(int i=0;i < objNodeCollection->getNumberOfNodes();i++)
 				{
 						CNode objNode;
@@ -1643,14 +1643,14 @@ ocfmRetCode GenerateCDC(char* CDCLocation)
 								strcat(Buffer1, "\n");	
 								len = strlen(Buffer1);
 								// write 1F81 entry in MN text file
-								if((fwrite(Buffer1, sizeof(char),len,fileptr))!=NULL)
+								if((len != (fwrite(Buffer1, sizeof(char),len,fileptr))))
 								{
 									//fclose(fileptr);
 									//printf("Buffer1 written");
 								
 								}
 							
-								free(Buffer1);
+								delete[] Buffer1;
 						}
 					}
 					/*	}*/
@@ -1674,23 +1674,23 @@ ocfmRetCode GenerateCDC(char* CDCLocation)
 					if((!checkFlag) || (checkFlag && (objIndex->getFlagIfIncludedCdc() == TRUE)))
 					{
 							Buffer1 = (char*)malloc(CDC_BUFFER);
-							len = strlen(Buffer1);				
+							len = strlen(Buffer1);
+							
 							GetIndexData(objIndex,Buffer1);
 							len = strlen(Buffer1);
-							if((fwrite(Buffer1, sizeof(char),len,fileptr))!=NULL)
+							if((len != (fwrite(Buffer1, sizeof(char),len,fileptr))))
 							{
 								//printf("Buffer1 written");
 							
 							}					
 							
-							free(Buffer1);
+							delete[] Buffer1;
 						}
 							
 				}
 				fclose(fileptr);
 				
 			/*************************Write CN's Data in Buffer2***************************************************/
-			
 			WriteCNsData((char*)tempFileName);
 			int ret;
 			
@@ -1723,7 +1723,7 @@ ocfmRetCode GenerateCDC(char* CDCLocation)
 								strcat(Buffer1, hex);								
 								strcat(Buffer1, "\t00000004\t80000007\n");																						
 								len = strlen(Buffer1);
-								if((fwrite(Buffer1, sizeof(char),len,fileptr))!=NULL)
+								if((len != (fwrite(Buffer1, sizeof(char),len,fileptr))))
 								{
 								
 									ret = fclose(fileptr);
@@ -1742,7 +1742,7 @@ ocfmRetCode GenerateCDC(char* CDCLocation)
 									ex.ocfm_Excpetion(OCFM_ERR_CANNOT_OPEN_FILE);
 									throw ex;		
 								}*/
-								free(Buffer1);
+								delete[] Buffer1;
 						}
 					}
 					/*	}*/
@@ -1784,10 +1784,10 @@ ocfmRetCode GenerateCDC(char* CDCLocation)
 		}
 	}
 
-/**************************************************************************************************
+/****************************************************************************************************
 	* Function Name: GenerateMNOBD
-   * Description: Generates the MN Object Dictionary
-/****************************************************************************************************/
+    * Description: Generates the MN Object Dictionary
+****************************************************************************************************/
 //void GenerateMNOBD()
 //	{
 //		CNodeCollection *objNodeCollection;
@@ -2065,10 +2065,10 @@ void DecodeUniqiueIDRef(char* uniquedIdref, CNode* objNode, EPDOType pdoType, ch
 		throw ex;
 	}
 }
-/**************************************************************************************************
-	* Function Name: ProcessPDONodes
-    * Description: Processes the Node
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: ProcessPDONodes
+* Description: Processes the Node
+****************************************************************************************************/
 ocfmRetCode ProcessPDONodes()
 {
 		CNodeCollection* objNodeCol;
@@ -2162,7 +2162,7 @@ ocfmRetCode ProcessPDONodes()
 														
 														const char* value = objSI->getActualValue();
 														int len = strlen(value);
-														char* reverseValue = (char*)malloc(len);
+														//char* reverseValue = (char*)malloc(len);
 														/* Reverse the actual value to get Index / subindex*/
 												/*		reverseValue = reverse((char*)value);*/
 														
@@ -2531,7 +2531,8 @@ int getCNDataLen(char* Buffer)
 		//For Byte Packing
 		for (iCtr = 0 , count = 0; iCtr < iLength; iCtr++, count++ )
 		{
-			tempCn1Obd[count] = (unsigned char)( ( ca_cn1obd[ iCtr ] << 4 ) | ca_cn1obd[ ++iCtr ] );
+			tempCn1Obd[count] = (unsigned char)( ( ca_cn1obd[ iCtr ] << 4 ) | ca_cn1obd[ iCtr + 1 ] );
+			iCtr++;
 			//printf("0x%2x\t",tempCn1Obd[count]);
 		}
 		//printf("Size : %d\n", count);
@@ -2568,12 +2569,12 @@ CIndex* getMNIndexValues(char* Index)
 		return objIndex;
 }
 
-/**************************************************************************************************
-	* Function Name: ImportObjDictXML
-    * Description: Imports the Object Dictionary XML file. Objects from this Object dictionary file 
+/****************************************************************************************************
+* Function Name: ImportObjDictXML
+* Description: Imports the Object Dictionary XML file. Objects from this Object dictionary file 
 	will be used when Adding Index and/or Adding SubIndex
-	* Return value: ocfmRetCode
-/****************************************************************************************************/
+* Return value: ocfmRetCode
+****************************************************************************************************/
 //ocfmRetCode ImportObjDictXML(char* fileName)
 //{
 //	xmlTextReaderPtr reader;
@@ -2793,7 +2794,7 @@ void EndWrtitingXAP( xmlTextWriterPtr& writer, char* fileName, xmlDocPtr& doc)
 	int rc;
 
    
-		 /*///* Close the element named ApplicationProcess. */
+	// Close the element named ApplicationProcess.
     rc = xmlTextWriterEndElement(writer);
     if (rc < 0)
     {
@@ -2839,8 +2840,8 @@ ocfmRetCode GenerateXAP(char* fileName)
 			CNode objNode;
 			xmlTextWriterPtr writer = NULL;
 			xmlDocPtr doc = NULL;
-			int picount = 0;
-			int i=10;
+			//int picount = 0;
+			//int i=10;
 			ProcessImage PIInCol[4000] = {};
 			ProcessImage PIOutCol[4000] = {};
 			GroupInOutPIVariables(PIInCol, PIOutCol);
@@ -2868,11 +2869,11 @@ ocfmRetCode GenerateXAP(char* fileName)
 		}
 }
 
-/**************************************************************************************************
-	* Function Name: GetIndexAttributes
-    * Description:
-	* Return value: ocfmRetCode
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: GetIndexAttributes
+* Description:
+* Return value: ocfmRetCode
+****************************************************************************************************/
 
 ocfmRetCode GetIndexAttributes(
 	int				NodeID, 
@@ -2996,10 +2997,10 @@ ocfmRetCode GetIndexAttributes(
 }
 
 /**************************************************************************************************
-	* Function Name: GetIndexAttributesbyPositions
-    * Description:
-	* Return value: ocfmRetCode
-/****************************************************************************************************/
+* Function Name: GetIndexAttributesbyPositions
+* Description:
+* Return value: ocfmRetCode
+****************************************************************************************************/
 ocfmRetCode GetIndexAttributesbyPositions(
 	int 			NodePos, 
 	int 			IndexPos, 
@@ -3140,10 +3141,10 @@ ocfmRetCode GetIndexAttributesbyPositions(
 }
 
 /**************************************************************************************************
-	* Function Name: GetSubIndexAttributes
-    * Description:
-	* Return value: ocfmRetCode
-/****************************************************************************************************/
+* Function Name: GetSubIndexAttributes
+* Description:
+* Return value: ocfmRetCode
+****************************************************************************************************/
 ocfmRetCode GetSubIndexAttributes(
 	int 			NodeID, 
 	ENodeType 		NodeType, 
@@ -3267,10 +3268,10 @@ ocfmRetCode GetSubIndexAttributes(
 }
 
 /**************************************************************************************************
-	* Function Name: GetSubIndexAttributesbyPositions
-    * Description:
-	* Return value: ocfmRetCode
-/****************************************************************************************************/
+* Function Name: GetSubIndexAttributesbyPositions
+* Description:
+* Return value: ocfmRetCode
+****************************************************************************************************/
 ocfmRetCode GetSubIndexAttributesbyPositions(
 	int 			NodePos, 
 	int 			IndexPos,
@@ -3420,10 +3421,10 @@ ocfmRetCode GetSubIndexAttributesbyPositions(
 
 }
 /**************************************************************************************************
-	* Function Name: GetNodeCount
-    * Description:
-	* Return value: ocfmRetCode
-/****************************************************************************************************/
+* Function Name: GetNodeCount
+* Description:
+* Return value: ocfmRetCode
+****************************************************************************************************/
 ocfmRetCode GetNodeCount(
 	int 		MNID, 
 	int* 		Out_NodeCount)
@@ -3468,18 +3469,18 @@ char* getPIName(int NodeID)
 char* getParameterAccess(char* access)
 {
 	if (!strcmp(ConvertToUpper(access), "READ"))
-	return "ro\0";
+	return (char*)"ro\0";
 	else if(!strcmp(ConvertToUpper(access),"READWRITE"))
-	return "rw\0";
-	else return "xx";
+	return (char*)"rw\0";
+	else return (char*)"xx";
 
 }
 
 /**************************************************************************************************
-	* Function Name: GetIndexCount
-    * Description:
-	* Return value: ocfmRetCode
-/****************************************************************************************************/
+* Function Name: GetIndexCount
+* Description:
+* Return value: ocfmRetCode
+****************************************************************************************************/
 ocfmRetCode GetIndexCount(
 	int 		NodeID, 
 	ENodeType 	NodeType, 
@@ -3527,11 +3528,11 @@ ocfmRetCode GetIndexCount(
 	}
 }
 
-/**************************************************************************************************
-	* Function Name: GetSubIndexCount
-    * Description:
-	* Return value: ocfmRetCode
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: GetSubIndexCount
+* Description:
+* Return value: ocfmRetCode
+****************************************************************************************************/
 ocfmRetCode GetSubIndexCount(
 	int 		NodeID,
 	ENodeType 	NodeType,
@@ -3621,11 +3622,11 @@ void LoadObjectDictionary(char* fileName)
 		xmlMemoryDump();
 
 	}
-/**************************************************************************************************
-	* Function Name: GetNodeIDbyNodePos
-    * Description: Fills the NodeID and NodeType for the NodeCount
-	* Return value: ocfmRetCode
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: GetNodeIDbyNodePos
+* Description: Fills the NodeID and NodeType for the NodeCount
+* Return value: ocfmRetCode
+****************************************************************************************************/
 
 ocfmRetCode GetNodeAttributesbyNodePos(
 	int NodePos,
@@ -3685,11 +3686,11 @@ ocfmRetCode GetNodeAttributesbyNodePos(
 	}
 }
 
-/**************************************************************************************************
-	* Function Name: GetIndexIDbyIndexPos
-    * Description: Fills the IndexID for the IndexCount, given NodeID and the NodeType
-	* Return value: ocfmRetCode
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: GetIndexIDbyIndexPos
+* Description: Fills the IndexID for the IndexCount, given NodeID and the NodeType
+* Return value: ocfmRetCode
+****************************************************************************************************/
 
 ocfmRetCode GetIndexIDbyIndexPos(
 	int NodeID, 
@@ -3758,11 +3759,11 @@ ocfmRetCode GetIndexIDbyIndexPos(
 	}
 }
 
-/**************************************************************************************************
-	* Function Name: GetIndexIDbyPositions
-    * Description: Fills the IndexID for the IndexCount,
-	* Return value: ocfmRetCode
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: GetIndexIDbyPositions
+* Description: Fills the IndexID for the IndexCount,
+* Return value: ocfmRetCode
+****************************************************************************************************/
 
 ocfmRetCode GetIndexIDbyPositions(
 	int NodePos, 
@@ -3829,11 +3830,11 @@ ocfmRetCode GetIndexIDbyPositions(
 	
 }
 
-/**************************************************************************************************
-	* Function Name: GetSubIndexIDbySubIndexPos
-    * Description: Fills the SubIndexID for the SubIndexPos, given NodeID, NodeType and the IndexID
-	* Return value: ocfmRetCode
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: GetSubIndexIDbySubIndexPos
+* Description: Fills the SubIndexID for the SubIndexPos, given NodeID, NodeType and the IndexID
+* Return value: ocfmRetCode
+****************************************************************************************************/
 
 ocfmRetCode GetSubIndexIDbySubIndexPos(
 	int NodeID, 
@@ -3901,11 +3902,11 @@ ocfmRetCode GetSubIndexIDbySubIndexPos(
 	}
 }
 
-/**************************************************************************************************
-	* Function Name: GetSubIndexIDbyPositions
-    * Description: Fills the SubIndexID for the SubIndexPos, given NodePos and the IndexPos
-	* Return value: ocfmRetCode
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: GetSubIndexIDbyPositions
+* Description: Fills the SubIndexID for the SubIndexPos, given NodePos and the IndexPos
+* Return value: ocfmRetCode
+****************************************************************************************************/
 
 ocfmRetCode GetSubIndexIDbyPositions(
 	int NodePos, 
@@ -3988,11 +3989,11 @@ ocfmRetCode GetSubIndexIDbyPositions(
 	}
 }
 
-/**************************************************************************************************
-	* Function Name: DeleteNodeObjDict
-    * Description: Deletes the Node Object Dictinary.
-	* Return value: ocfmRetCode
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: DeleteNodeObjDict
+* Description: Deletes the Node Object Dictinary.
+* Return value: ocfmRetCode
+****************************************************************************************************/
 
 ocfmRetCode DeleteNodeObjDict(
 	int NodeID, ENodeType NodeType)
@@ -4043,11 +4044,11 @@ ocfmRetCode DeleteNodeObjDict(
 	}
 }
 
-/**************************************************************************************************
-	* Function Name: SaveProject
-    * Description: Saves all the Nodes into the Project location
-	* Return value: ocfmRetCode
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: SaveProject
+* Description: Saves all the Nodes into the Project location
+* Return value: ocfmRetCode
+****************************************************************************************************/
 
 ocfmRetCode SaveProject(char* ProjectPath, char* ProjectName)
 {
@@ -4174,6 +4175,7 @@ ocfmRetCode SaveProject(char* ProjectPath, char* ProjectName)
 
 			}
 			ErrStruct.code = OCFM_ERR_SUCCESS;
+			delete [] path;
 			return ErrStruct;
 		}
 		else
@@ -4185,9 +4187,10 @@ ocfmRetCode SaveProject(char* ProjectPath, char* ProjectName)
 	}
 	catch(ocfmException* ex)
 	{
+		delete [] path;
 		return ex->_ocfmRetCode;
 	}
-	delete [] path;
+	
 }
 void GetMNPDOSubIndex(MNPdoVariable var, int& prevSubIndex, CIndex* objIdx,char* MNIndex, int prevSize)
 {
@@ -4383,7 +4386,7 @@ ocfmRetCode AddOtherMNIndexes(CNode *objNode, char* tmp_CycleTime)
 					
 					/* Set 5ms value*/	
 					cout << "\ntmp_CycleTime:" << tmp_CycleTime <<endl;
-					SetIndexAttributes(240, MN, MNIndex, tmp_CycleTime,"NMT_CycleLen_U32", TRUE);
+					SetIndexAttributes(240, MN, MNIndex, tmp_CycleTime,(char*)"NMT_CycleLen_U32", TRUE);
 					
 					printf("\ncycle time %s", tmp_CycleTime);
 					
@@ -4395,7 +4398,7 @@ ocfmRetCode AddOtherMNIndexes(CNode *objNode, char* tmp_CycleTime)
 					strcpy(MNIndex, "1300");
 					retCode = AddIndex(240, MN, MNIndex);
 					/* $:To do by M hard coded*/
-					SetIndexAttributes(240, MN, MNIndex, "5000","SDO_SequLayerTimeout_U32", TRUE);
+					SetIndexAttributes(240, MN, MNIndex, (char*)"5000",(char*)"SDO_SequLayerTimeout_U32", TRUE);
 					
 					
 					/* Add 1C02*/
@@ -4409,21 +4412,21 @@ ocfmRetCode AddOtherMNIndexes(CNode *objNode, char* tmp_CycleTime)
 						objIndex->setFlagIfIncludedCdc(TRUE);
 						/* Set subindex value 40 or 0000028 */
 						strcpy(Sidx, "00");
-						SetSIdxValue(MNIndex, Sidx, "3", objIdxCol, objNode->getNodeId(), MN, false);
+						SetSIdxValue(MNIndex, Sidx, (char*)"3", objIdxCol, objNode->getNodeId(), MN, false);
 								#if defined DEBUG	
 						cout<< "1c02 subidex added"<<endl;
 					#endif
 						
 						strcpy(Sidx, "01");
-						SetSIdxValue(MNIndex, Sidx, "40", objIdxCol, objNode->getNodeId(), MN,  false);
+						SetSIdxValue(MNIndex, Sidx, (char*)"40", objIdxCol, objNode->getNodeId(), MN,  false);
 								#if defined DEBUG	
 						cout<< "1c02 subidex 01 added"<<endl;
 					#endif
 						strcpy(Sidx, "02");
-						SetSIdxValue(MNIndex, Sidx, "40", objIdxCol, objNode->getNodeId(), MN, false);
+						SetSIdxValue(MNIndex, Sidx, (char*)"40", objIdxCol, objNode->getNodeId(), MN, false);
 						
 						strcpy(Sidx, "03");
-						SetSIdxValue(MNIndex, Sidx, "40", objIdxCol, objNode->getNodeId(), MN, false);
+						SetSIdxValue(MNIndex, Sidx, (char*)"40", objIdxCol, objNode->getNodeId(), MN, false);
 
 					}
 					
@@ -4436,7 +4439,7 @@ ocfmRetCode AddOtherMNIndexes(CNode *objNode, char* tmp_CycleTime)
 								/* $:set Flag to true*/
 						objIndex->setFlagIfIncludedCdc(TRUE);
 			
-						AddForEachSIdx(MNIndex, objIdxCol, objNode->getNodeId(), "40",false);					
+						AddForEachSIdx(MNIndex, objIdxCol, objNode->getNodeId(), (char*)"40",false);					
 					
 					}
 					
@@ -4490,7 +4493,7 @@ ocfmRetCode AddOtherMNIndexes(CNode *objNode, char* tmp_CycleTime)
 								/* $:set Flag to true*/
 						objIndex->setFlagIfIncludedCdc(TRUE);
 						
-						AddForEachSIdx(MNIndex, objIdxCol, objNode->getNodeId(), "", true);			
+						AddForEachSIdx(MNIndex, objIdxCol, objNode->getNodeId(), (char*)"", true);			
 			
 					}
 					
@@ -4509,7 +4512,7 @@ ocfmRetCode AddOtherMNIndexes(CNode *objNode, char* tmp_CycleTime)
 						SetSIdxValue(MNIndex, Sidx, "", objIdxCol, objNode->getNodeId(),true);
 				*/	
 						strcpy(Sidx, "02");
-						SetSIdxValue(MNIndex, Sidx, "", objIdxCol, objNode->getNodeId(), MN, true);
+						SetSIdxValue(MNIndex, Sidx, (char*)"", objIdxCol, objNode->getNodeId(), MN, true);
 				
 					/*		strcpy(Sidx, "03");
 						SetSIdxValue(MNIndex, Sidx, "", objIdxCol, objNode->getNodeId(), true);
@@ -4543,14 +4546,14 @@ ocfmRetCode AddOtherMNIndexes(CNode *objNode, char* tmp_CycleTime)
 								/* $:set Flag to true*/
 						objIndex->setFlagIfIncludedCdc(TRUE);
 						strcpy(Sidx, "00");
-						SetSIdxValue(MNIndex, Sidx, "", objIdxCol, objNode->getNodeId(), MN, true);
+						SetSIdxValue(MNIndex, Sidx, (char*)"", objIdxCol, objNode->getNodeId(), MN, true);
 						
 						//$:To do By M as subindex 01 shud be equal to 02, need to find the reason 
 						strcpy(Sidx, "01");
-						SetSIdxValue(MNIndex, Sidx, "100000", objIdxCol, objNode->getNodeId(), MN, false);
+						SetSIdxValue(MNIndex, Sidx, (char*)"100000", objIdxCol, objNode->getNodeId(), MN, false);
 					
 						strcpy(Sidx, "02");
-						SetSIdxValue(MNIndex, Sidx, "", objIdxCol, objNode->getNodeId(), MN, true);
+						SetSIdxValue(MNIndex, Sidx, (char*)"", objIdxCol, objNode->getNodeId(), MN, true);
 						
 					/*	strcpy(Sidx, "03");
 						SetSIdxValue(MNIndex, Sidx, "", objIdxCol, objNode->getNodeId(), true);
@@ -4584,7 +4587,7 @@ ocfmRetCode AddOtherMNIndexes(CNode *objNode, char* tmp_CycleTime)
 								/* $:set Flag to true*/
 						objIndex->setFlagIfIncludedCdc(TRUE);
 			
-						AddForEachSIdx(MNIndex, objIdxCol, objNode->getNodeId(), "1490", false);			
+						AddForEachSIdx(MNIndex, objIdxCol, objNode->getNodeId(), (char*)"1490", false);			
 											
 					
 					}
@@ -4597,7 +4600,7 @@ ocfmRetCode AddOtherMNIndexes(CNode *objNode, char* tmp_CycleTime)
 								/* $:set Flag to true*/
 						objIndex->setFlagIfIncludedCdc(TRUE);
 			
-						AddForEachSIdx(MNIndex, objIdxCol, objNode->getNodeId(), "1490", false);			
+						AddForEachSIdx(MNIndex, objIdxCol, objNode->getNodeId(), (char*)"1490", false);			
 											
 					
 					}
@@ -4610,7 +4613,7 @@ ocfmRetCode AddOtherMNIndexes(CNode *objNode, char* tmp_CycleTime)
 								/* $:set Flag to true*/
 						objIndex->setFlagIfIncludedCdc(TRUE);
 			
-						AddForEachSIdx(MNIndex, objIdxCol, objNode->getNodeId(), "2000000",false);			
+						AddForEachSIdx(MNIndex, objIdxCol, objNode->getNodeId(), (char*)"2000000",false);			
 											
 					
 					}
@@ -4657,10 +4660,10 @@ ocfmRetCode AddOtherMNIndexes(CNode *objNode, char* tmp_CycleTime)
 		}
 
 }
-/**************************************************************************************************
-	* Function Name: GenerateMNOBD
-   * Description: 
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: GenerateMNOBD
+* Description: 
+****************************************************************************************************/
 ocfmRetCode GenerateMNOBD()
 	{
 		CNode objNode;		
@@ -4786,7 +4789,7 @@ ocfmRetCode GenerateMNOBD()
 						Idx = _IntToAscii(objNode.getNodeId(), Idx, 10);
 						char* Sidx =  new char[2];
 						strcpy(Sidx, "01");
-						SetSubIndexAttributes(240, MN, MNIndex, Sidx, Idx,"NodeID_U8");
+						SetSubIndexAttributes(240, MN, MNIndex, Sidx, Idx,(char*)"NodeID_U8");
 									
 						strcpy(MNIndex, "1A");
 						Idx = _IntToAscii((objNode.getNodeId()-1), Idx, 16);
@@ -4821,7 +4824,7 @@ ocfmRetCode GenerateMNOBD()
 						char* actval = new char[4];
 						actval = _IntToAscii(objNode.MNPDOOUTVarCollection.Count(), actval, 16);
 						actval = ConvertToHexformat(actval, 2, true);	
-						objSubIdex = objIndex->getSubIndexbyIndexValue("00");
+						objSubIdex = objIndex->getSubIndexbyIndexValue((char*)"00");
 						objSubIdex->setActualValue(actval);
 		
 					}
@@ -4852,7 +4855,7 @@ ocfmRetCode GenerateMNOBD()
 						Idx = _IntToAscii(objNode.getNodeId(), Idx, 10);
 						char* Sidx =  new char[2];
 						strcpy(Sidx, "01");
-						SetSubIndexAttributes(240, MN, MNIndex, Sidx, Idx,"NodeID_U8");
+						SetSubIndexAttributes(240, MN, MNIndex, Sidx, Idx,(char*)"NodeID_U8");
 				
 							
 						strcpy(MNIndex, "16");
@@ -4884,7 +4887,7 @@ ocfmRetCode GenerateMNOBD()
 						actval = _IntToAscii(objNode.MNPDOINVarCollection.Count(), actval, 16);
 						//actval = padLeft(actval, '0', 4);
 						actval = ConvertToHexformat(actval, 2, true);						
-						objSubIdex = objIndex->getSubIndexbyIndexValue("00");
+						objSubIdex = objIndex->getSubIndexbyIndexValue((char*)"00");
 						objSubIdex->setActualValue(actval);
 					
 					}
@@ -5367,11 +5370,11 @@ int ComputeINOffset(int dataSize, EPDOType pdoType)
 		}
 	}*/
 
-/**************************************************************************************************
+/****************************************************************************************************
 * Function Name: OpenProject
 * Description: Saves all the Nodes into the Project location
 * Return value: ocfmRetCode
-/****************************************************************************************************/
+****************************************************************************************************/
 
 ocfmRetCode OpenProject(char* PjtPath, char* projectXmlFileName)
 {
@@ -5440,10 +5443,10 @@ ocfmRetCode OpenProject(char* PjtPath, char* projectXmlFileName)
 }
 
 
-/**************************************************************************************************
-	* Function Name: processProjectXML
-    * Description: Process the Node value,Name and its attributes
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: processProjectXML
+* Description: Process the Node value,Name and its attributes
+****************************************************************************************************/
 ocfmRetCode processProjectXML(xmlTextReaderPtr reader, char* PjtPath)
 {
 	const xmlChar *name, *value;
@@ -5616,10 +5619,10 @@ ocfmRetCode processProjectXML(xmlTextReaderPtr reader, char* PjtPath)
 	return ErrStruct;
 }
 
-/**************************************************************************************************
-	* Function Name: setProjectSettings_Auto
-    * Description: Gets the Auto info from the Pjt xml and stores in the object
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: setProjectSettings_Auto
+* Description: Gets the Auto info from the Pjt xml and stores in the object
+****************************************************************************************************/
 bool setProjectSettings_Auto(xmlTextReaderPtr reader)
 {
 	const xmlChar* name,*value;
@@ -5679,10 +5682,10 @@ bool setProjectSettings_Auto(xmlTextReaderPtr reader)
 	return true;
 }
 
-/**************************************************************************************************
-	* Function Name: setProjectSettings_Communication
-    * Description: Gets the communication info from the Pjt xml and stores in the object
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: setProjectSettings_Communication
+* Description: Gets the communication info from the Pjt xml and stores in the object
+****************************************************************************************************/
 bool setProjectSettings_Communication(xmlTextReaderPtr reader)
 {
 	const xmlChar* name,*value;
@@ -5728,10 +5731,10 @@ bool setProjectSettings_Communication(xmlTextReaderPtr reader)
 	return true;
 }
 
-/**************************************************************************************************
-	* Function Name: getandCreateNode
-    * Description: Gets the Node properties from the Pjt xml and Creates the Nodes
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: getandCreateNode
+* Description: Gets the Node properties from the Pjt xml and Creates the Nodes
+****************************************************************************************************/
 bool getandCreateNode(xmlTextReaderPtr reader, char* PjtPath)
 {
 	const xmlChar* name,*value;
@@ -5870,11 +5873,11 @@ bool getandCreateNode(xmlTextReaderPtr reader, char* PjtPath)
 
 	return true;
 }
-/**************************************************************************************************
+/****************************************************************************************************
 * Function Name: saveProjectXML
 * Description: Saves the project details into the Project location
 * Return value: bool[True/False]
-/****************************************************************************************************/
+****************************************************************************************************/
 bool saveProjectXML(char* ProjectPath, char* ProjectName)
 {
 	
@@ -6059,13 +6062,13 @@ if (rc < 0)
 cout << "\n5" << endl;
 		CNode objNode;		
 		CNodeCollection *objNodeCollection = NULL;
-		CIndexCollection *objIndexCollection = NULL;
+		//CIndexCollection *objIndexCollection = NULL;
 		CIndex objIndex;
-		CIndex* objIndexPtr =  NULL;
+		//CIndex* objIndexPtr =  NULL;
 		cout << "\n5_0" << endl;
-		Parameter* para = NULL;
-		CApplicationProcess* objAppProc = NULL;
-		int IndexPos = 0;
+		//Parameter* para = NULL;
+		//CApplicationProcess* objAppProc = NULL;
+		//int IndexPos = 0;
 		cout << "\n5_1" << endl;
 		objIndex.setNodeID(objNode.getNodeId());
 		cout << "\n5_2" << endl;
@@ -6215,7 +6218,7 @@ void CreateMNPDOVar(int Offset, int dataSize,IEC_Datatype dtenum, EPDOType pdoTy
 					strcpy(objPDOvar.Index, getPIAddress(INTEGER8, OUTPUT));	
 					
 					break;	
-					case UINT :											
+				case UINT :											
 					if(pdoType == PDO_TPDO)
 					strcpy(objPDOvar.Index, getPIAddress(UNSIGNED16, INPUT));	
 					
@@ -6231,7 +6234,7 @@ void CreateMNPDOVar(int Offset, int dataSize,IEC_Datatype dtenum, EPDOType pdoTy
 					strcpy(objPDOvar.Index, getPIAddress(INTEGER16, OUTPUT));	
 					
 					break;
-					case UDINT:											
+				case UDINT:											
 					if(pdoType == PDO_TPDO)
 					strcpy(objPDOvar.Index, getPIAddress(UNSIGNED32, INPUT));	
 					
@@ -6255,8 +6258,32 @@ void CreateMNPDOVar(int Offset, int dataSize,IEC_Datatype dtenum, EPDOType pdoTy
 					
 					else if(pdoType == PDO_RPDO)
 					strcpy(objPDOvar.Index, "A061");*/	
-					break;		
-				
+					break;
+				// Handled all values 
+				case BOOL:
+					cout << "Data type BOOL not handled" << endl;
+					break;
+				case BYTE:
+					cout << "Data type BYTE not handled" << endl;
+					break;
+				case _CHAR:
+					cout << "Data type _CHAR not handled" << endl;
+					break;
+				case DWORD:
+					cout << "Data type DWORD not handled" << endl;
+					break;
+				case LWORD:
+					cout << "Data type LWORD not handled" << endl;
+					break;
+				case ULINT:
+					cout << "Data type ULINT not handled" << endl;
+					break;
+				case STRING:
+					cout << "Data type STRING not handled" << endl;
+					break;
+				case WSTRING:
+					cout << "Data type WSTRING not handled" << endl;
+					break;
 			}
 			
 			printf("\n objPDOvar.Index%s", objPDOvar.Index);
@@ -6291,9 +6318,9 @@ void CreateMNPDOVar(int Offset, int dataSize,IEC_Datatype dtenum, EPDOType pdoTy
 		
 }
 /**************************************************************************************************
-	* Function Name: GetProjectSettings
- * Description: Gets the Project Settings of the tool
-/***************************************************************************************************/
+* Function Name: GetProjectSettings
+* Description: Gets the Project Settings of the tool
+****************************************************************************************************/
 
 ocfmRetCode GetProjectSettings(EAutoGenerate* autoGen, EAutoSave* autoSave)
 {
@@ -6323,10 +6350,10 @@ ocfmRetCode GetProjectSettings(EAutoGenerate* autoGen, EAutoSave* autoSave)
 }
 
 
-/**************************************************************************************************
-	* Function Name: SetProjectSettings
- * Description: Sets the Project Settings of the tool
-/***************************************************************************************************/
+/****************************************************************************************************
+* Function Name: SetProjectSettings
+* Description: Sets the Project Settings of the tool
+****************************************************************************************************/
 
 ocfmRetCode SetProjectSettings(EAutoGenerate autoGen, EAutoSave autoSave)
 {
@@ -6355,17 +6382,17 @@ ocfmRetCode SetProjectSettings(EAutoGenerate autoGen, EAutoSave autoSave)
 			return ex._ocfmRetCode;
 		}
 }
-/**************************************************************************************************
-	* Function Name: UpdateNumberOfEnteriesSIdx
- * Description: Updtade subindex "00"/NumberofEnteries
-/***************************************************************************************************/
+/****************************************************************************************************
+* Function Name: UpdateNumberOfEnteriesSIdx
+* Description: Updtade subindex "00"/NumberofEnteries
+****************************************************************************************************/
 
 void	UpdateNumberOfEnteriesSIdx(CIndex *objIndex, ENodeType NodeType)
 {
 	CSubIndex *objSIdx;
 	int totalSIdxs;
 	char str[10];
-	objSIdx = objIndex->getSubIndexbyIndexValue("00");
+	objSIdx = objIndex->getSubIndexbyIndexValue((char*)"00");
 	
 	/* subindexes excluding "00"*/
 	totalSIdxs = objIndex->getNumberofSubIndexes() - 1;

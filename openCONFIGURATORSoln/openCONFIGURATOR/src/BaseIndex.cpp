@@ -29,44 +29,44 @@ CBaseIndex::~CBaseIndex(void)
 		//delete m_DefaultValue;
 	}
 #pragma region Properties
-/**************************************************************************************************
-	* Function Name: getName
-    * Description: Returns the Name of the Index Object
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: getName
+* Description: Returns the Name of the Index Object
+****************************************************************************************************/
 
 const char* CBaseIndex::getName()
 	{return m_Name;}
 
-/**************************************************************************************************
-	* Function Name: setName
-    * Description: sets the Name of the Index Object
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: setName
+* Description: sets the Name of the Index Object
+****************************************************************************************************/
 void CBaseIndex::setName(char* Name)
 	{
 		m_Name = new char[strlen(Name) + 1];
 		strcpy((char*)m_Name, Name);
 	}
-/**************************************************************************************************
-	* Function Name: getIndexValue
-    * Description: Returns the Index of the Index Object
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: getIndexValue
+* Description: Returns the Index of the Index Object
+****************************************************************************************************/
 
 const char* CBaseIndex::getIndexValue()
 	{return m_Index;}
 
-/**************************************************************************************************
-	* Function Name: setIndex
-    * Description: sets the Index of the Index Object
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: setIndex
+* Description: sets the Index of the Index Object
+****************************************************************************************************/
 void CBaseIndex::setIndexValue(char* Index)
 	{
 		m_Index = new char[strlen(Index)];
 		strcpy((char*)m_Index, Index);
 	}
-/**************************************************************************************************
-	* Function Name: getLowLimit
-    * Description: Returns the LowLimit of the Index Object
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: getLowLimit
+* Description: Returns the LowLimit of the Index Object
+****************************************************************************************************/
 
 const char* CBaseIndex::getLowLimit()
 	{
@@ -76,19 +76,19 @@ const char* CBaseIndex::getLowLimit()
 			return NULL;
 	}
 
-/**************************************************************************************************
-	* Function Name: setLowLimit
-    * Description: sets the LowLimit of the Index Object
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: setLowLimit
+* Description: sets the LowLimit of the Index Object
+****************************************************************************************************/
 void CBaseIndex::setLowLimit(char* LowLimit)
 	{
 		m_LowLimit = new char[strlen(LowLimit)];
 		strcpy((char*)m_LowLimit,LowLimit);
  }
-/**************************************************************************************************
-	* Function Name: getLowLimit
-    * Description: Returns the LowLimit of the Index Object
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: getLowLimit
+* Description: Returns the LowLimit of the Index Object
+****************************************************************************************************/
 
 const char* CBaseIndex::getHighLimit()
 	{
@@ -98,36 +98,36 @@ const char* CBaseIndex::getHighLimit()
 			return NULL;
 	}
 
-/**************************************************************************************************
-	* Function Name: setLowLimit
-    * Description: sets the LowLimit of the Index Object
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: setLowLimit
+* Description: sets the LowLimit of the Index Object
+****************************************************************************************************/
 void CBaseIndex::setHighLimit(char* HighLimit)
 	{
 		m_HighLimit = new char[strlen(HighLimit)];
 		strcpy((char*)m_HighLimit,HighLimit);
 	}
-/**************************************************************************************************
-	* Function Name: getDefaultValue
-    * Description: Returns the Default Value of the Index Object
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: getDefaultValue
+* Description: Returns the Default Value of the Index Object
+****************************************************************************************************/
 
 const char* CBaseIndex::getDefaultValue()
 	{return m_DefaultValue;}
 
-/**************************************************************************************************
-	* Function Name: setDefaultValue
-    * Description: sets the Default Value of the Index Object
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: setDefaultValue
+* Description: sets the Default Value of the Index Object
+****************************************************************************************************/
 void CBaseIndex::setDefaultValue(char* Value)
 	{				
 		m_DefaultValue = new char[strlen(Value)];
 		strcpy((char*)m_DefaultValue,Value);
 	}
-/**************************************************************************************************
-	* Function Name: getActualValue
-    * Description: Returns the Actual Value of the Index Object
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: getActualValue
+* Description: Returns the Actual Value of the Index Object
+****************************************************************************************************/
 
 const char* CBaseIndex::getActualValue()
 	{
@@ -136,36 +136,36 @@ const char* CBaseIndex::getActualValue()
 		return m_ActualValue;
 	}
 
-/**************************************************************************************************
-	* Function Name: setActualValue
-    * Description: sets the Actual Value of the Index Object
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: setActualValue
+* Description: sets the Actual Value of the Index Object
+****************************************************************************************************/
 void CBaseIndex::setActualValue(char* Value)
 	{
 		m_ActualValue = new char[strlen(Value) + ALLOC_BUFFER];		
 		strcpy((char*)m_ActualValue,Value);
 	}
-/**************************************************************************************************
-	* Function Name: getAccessType
-    * Description: Returns the Access Type of the Index Object
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: getAccessType
+* Description: Returns the Access Type of the Index Object
+****************************************************************************************************/
 
 	const char* CBaseIndex::getAccessType()
 	{return m_accessType;}
 
-/**************************************************************************************************
-	* Function Name: setAccessType
-    * Description: sets the Access Type of the Index Object
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: setAccessType
+* Description: sets the Access Type of the Index Object
+****************************************************************************************************/
 void CBaseIndex::setAccessType(char* accessType)
 	{	
 		m_accessType = new char[strlen(accessType)];	
 		strcpy((char*)m_accessType,accessType);
 	}	
-/**************************************************************************************************
-	* Function Name: getObjectType
-    * Description: Returns the Object Type of the Index Object as const char*
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: getObjectType
+* Description: Returns the Object Type of the Index Object as const char*
+****************************************************************************************************/
 
 	const char* CBaseIndex::getObjectType ()
 	{
@@ -193,20 +193,20 @@ void CBaseIndex::setAccessType(char* accessType)
 	
 	}
 	
-/**************************************************************************************************
-	* Function Name: getEObjectType
-    * Description: Returns the Object Type of the Index Object as Enum
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: getEObjectType
+* Description: Returns the Object Type of the Index Object as Enum
+****************************************************************************************************/
 	
 	EObjectType	CBaseIndex::getEObjectType()
 	{
 		return m_objectType;
 	}
 
-/**************************************************************************************************
-	* Function Name: setObjectType
-    * Description: sets the Object of the Index Object
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: setObjectType
+* Description: sets the Object of the Index Object
+****************************************************************************************************/
 	void CBaseIndex::setObjectType(char* objectType)
 	{	
 		char *str = new char[50];
@@ -228,10 +228,10 @@ void CBaseIndex::setAccessType(char* accessType)
 		m_objectType = RECORD;
 		delete [] str;			
 	}	
-/**************************************************************************************************
-	* Function Name: getPDOMapping
-    * Description: Returns the PDOMapping of the Index Object
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: getPDOMapping
+* Description: Returns the PDOMapping of the Index Object
+****************************************************************************************************/
 
 const char* CBaseIndex::getPDOMapping ()
 	{
@@ -258,10 +258,10 @@ const char* CBaseIndex::getPDOMapping ()
 		//return m_pdoMapping;
 	}
 
-/**************************************************************************************************
-	* Function Name: setPDOMapping
-    * Description: sets the PDOMapping of the Index Object
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: setPDOMapping
+* Description: sets the PDOMapping of the Index Object
+****************************************************************************************************/
 void CBaseIndex::setPDOMapping(char* pdoMapping)
 	{		
 		char *str = new char[50];
@@ -281,18 +281,18 @@ void CBaseIndex::setPDOMapping(char* pdoMapping)
 		m_pdoMapping = TPDO;
 		delete [] str;
 	}
-/**************************************************************************************************
-	* Function Name: getDataType
-    * Description: Returns the DataType of the Index Object
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: getDataType
+* Description: Returns the DataType of the Index Object
+****************************************************************************************************/
 
 DataType CBaseIndex::getDataType ()
 	{return m_dataType;}
 
-/**************************************************************************************************
-	* Function Name: setDataType
-    * Description: sets the DataType of the Index Object
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: setDataType
+* Description: sets the DataType of the Index Object
+****************************************************************************************************/
 void CBaseIndex::setDataType(char* dataTypeName)
 	{	
 		DataType* dt;
@@ -307,10 +307,10 @@ void CBaseIndex::setDataType(char* dataTypeName)
 		/*m_dataType.DataTypeValue =dt.DataTypeValue;
 		m_dataType.Name =dt.Name ;*/
 	}
-	/**************************************************************************************************
-	* Function Name: setDataType
-    * Description: sets the DataType of the Index Object
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: setDataType
+* Description: sets the DataType of the Index Object
+****************************************************************************************************/
 void CBaseIndex::setDataType(char* dataTypeName, int NodeID)
 	{	
 		DataType* dt;
@@ -324,43 +324,43 @@ void CBaseIndex::setDataType(char* dataTypeName, int NodeID)
 		/*m_dataType.DataTypeValue =dt.DataTypeValue;
 		m_dataType.Name =dt.Name ;*/
 	}
-/**************************************************************************************************
-	* Function Name: getNodeID
-    * Description: Returns the NodeID of the Node of the Index Object
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: getNodeID
+* Description: Returns the NodeID of the Node of the Index Object
+****************************************************************************************************/
 
 int CBaseIndex::getNodeID()
 	{return m_NodeID;}
 
-/**************************************************************************************************
-	* Function Name: setNodeID
-    * Description: sets the NodeID of the Index Object
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: setNodeID
+* Description: sets the NodeID of the Index Object
+****************************************************************************************************/
 void CBaseIndex::setNodeID(int NodeID)
 	{	
 		m_NodeID = NodeID;
 	}
-	/**************************************************************************************************
-	* Function Name: getNodeID
-    * Description: Returns the NodeID of the Node of the Index Object
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: getNodeID
+* Description: Returns the NodeID of the Node of the Index Object
+****************************************************************************************************/
 
 char* CBaseIndex::getUniqueIDRef()
 	{return m_UniqueIDRef;}
 
-/**************************************************************************************************
-	* Function Name: setNodeID
-    * Description: sets the NodeID of the Index Object
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: setNodeID
+* Description: sets the NodeID of the Index Object
+****************************************************************************************************/
 void CBaseIndex::setUniqueIDRef(char* UniqueID)
 	{	
 		m_UniqueIDRef = new char[strlen(UniqueID)];
 		strcpy((char*)m_UniqueIDRef,UniqueID);
 	}
-		/**************************************************************************************************
-	* Function Name: getDataTypeValue
-    * Description: Returns only datatype value of the Node of the Index Object
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: getDataTypeValue
+* Description: Returns only datatype value of the Node of the Index Object
+****************************************************************************************************/
 
 char* CBaseIndex::getDataTypeValue()
 	{
@@ -370,19 +370,19 @@ char* CBaseIndex::getDataTypeValue()
 			return NULL;
 	}
 
-/**************************************************************************************************
-	* Function Name: setDataTypeValue
-    * Description: sets the datatype value  of the Index Object
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: setDataTypeValue
+* Description: sets the datatype value  of the Index Object
+****************************************************************************************************/
 void CBaseIndex::setDataTypeValue(char* value)
 	{	
 		m_dataTypeValue = new char[strlen(value)];
 		strcpy((char*)m_dataTypeValue,value);
 	}
-	/**************************************************************************************************
-	* Function Name: setDefaultValue
-    * Description: sets the datatype value  of the Index Object
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: setDefaultValue
+* Description: sets the datatype value  of the Index Object
+****************************************************************************************************/
 void CBaseIndex::setDataTypeST(DataType dt)
 	{	
 		m_dataType = dt;
@@ -390,19 +390,19 @@ void CBaseIndex::setDataTypeST(DataType dt)
 #pragma endregion Properties
 
 #pragma region MemberFunctions
-/**************************************************************************************************
-	* Function Name: SaveChanges
-    * Description: Saves the changes of the Index properties
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: SaveChanges
+* Description: Saves the changes of the Index properties
+****************************************************************************************************/
 void CBaseIndex::SaveChanges(char* Index,char* Name)
 	{
 		m_Index = Index;
 		m_Name  = Name;
 	}
-/**************************************************************************************************
-	* Function Name: ValidateIndex
-    * Description: Saves the changes of the Index properties
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: ValidateIndex
+* Description: Saves the changes of the Index properties
+****************************************************************************************************/
 bool CBaseIndex::IsIndexVaueValid(char* hexValue)
 	{
 		unsigned long l,lowlimit,highLimit;
@@ -426,18 +426,18 @@ bool CBaseIndex::IsIndexVaueValid(char* hexValue)
 		return flag;
 	}
 	
-/**************************************************************************************************
-	* Function Name: setFlagIfIncludedCdc
-    * Description: sets the flag whether the Index should be included in cdc
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: setFlagIfIncludedCdc
+* Description: sets the flag whether the Index should be included in cdc
+****************************************************************************************************/
 void CBaseIndex::setFlagIfIncludedCdc(EFlag flag)
 	{
 		m_IsIncludedInCDC = flag;
 	}
-/**************************************************************************************************
-	* Function Name: getFlagIfIncludedCdc
-    * Description: Returns whether the Index should be included in cdc
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: getFlagIfIncludedCdc
+* Description: Returns whether the Index should be included in cdc
+****************************************************************************************************/
 
 EFlag CBaseIndex::getFlagIfIncludedCdc()
 	{return m_IsIncludedInCDC;}

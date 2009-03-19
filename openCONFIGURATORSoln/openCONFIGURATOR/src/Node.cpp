@@ -86,105 +86,105 @@ CNode::~CNode(void)
 
 #pragma region Properties
 /**************************************************************************************************
-	* Function Name: getNodeType
-    * Description: Returns the NodeType of the Node
-/****************************************************************************************************/
+* Function Name: getNodeType
+* Description: Returns the NodeType of the Node
+****************************************************************************************************/
 
 ENodeType CNode:: getNodeType()
 	{return m_NodeType;}
 
 /**************************************************************************************************
-	* Function Name: setNodeType
-    * Description: sets the Node Type of the Node.Value can be either CN or MN
-/****************************************************************************************************/
+* Function Name: setNodeType
+* Description: sets the Node Type of the Node.Value can be either CN or MN
+****************************************************************************************************/
 void CNode::setNodeType(ENodeType NodeType)
 	{m_NodeType = NodeType; }
 /**************************************************************************************************
-	* Function Name: getNodeId
-    * Description: Returns the Index of the Index Object
-/****************************************************************************************************/
+* Function Name: getNodeId
+* Description: Returns the Index of the Index Object
+****************************************************************************************************/
 
 int CNode::getNodeId()
 	{return m_NodeId;}
 
 /**************************************************************************************************
-	* Function Name: setIndex
-    * Description: sets the Index of the Index Object
-/****************************************************************************************************/
+* Function Name: setIndex
+* Description: sets the Index of the Index Object
+****************************************************************************************************/
 void CNode::setNodeId(int NodeId)
 	{
 		m_NodeId = NodeId;
 		
 	}
 /**************************************************************************************************
-	* Function Name: getNodeIndex
-    * Description: Returns the Index of the Index Object
-/****************************************************************************************************/
+* Function Name: getNodeIndex
+* Description: Returns the Index of the Index Object
+****************************************************************************************************/
 
 int CNode::getNodeIndex()
 	{return m_NodeIndex;}
 
 /**************************************************************************************************
-	* Function Name: setNodeIndex
-    * Description: sets the Index of the Index Object
-/****************************************************************************************************/
+* Function Name: setNodeIndex
+* Description: sets the Index of the Index Object
+****************************************************************************************************/
 void CNode::setNodeIndex(int NodeIndex)
 	{m_NodeIndex = NodeIndex; }
 /**************************************************************************************************
-	* Function Name: getNodeName
-    * Description: Returns the Nama of the Node
-/****************************************************************************************************/
+* Function Name: getNodeName
+* Description: Returns the Nama of the Node
+****************************************************************************************************/
 
 char* CNode::getNodeName()
 	{return m_NodeName;}
 
 /**************************************************************************************************
-	* Function Name: setNodeName
-    * Description: sets the Name of the Node
-/****************************************************************************************************/
+* Function Name: setNodeName
+* Description: sets the Name of the Node
+****************************************************************************************************/
 void CNode::setNodeName(char* NodeName)
 	{	
 		m_NodeName = new char[strlen(NodeName) + ALLOC_BUFFER];
 		strcpy((char*)m_NodeName, NodeName);
 	}
-	/**************************************************************************************************
-	* Function Name: HasPdoObjects
-    * Description: Returns true if PDO Objects are present else false
-/****************************************************************************************************/
+/**************************************************************************************************
+* Function Name: HasPdoObjects
+* Description: Returns true if PDO Objects are present else false
+****************************************************************************************************/
 
 bool CNode::HasPdoObjects()
 	{return m_HasPdoObjects;}
 
 /**************************************************************************************************
-	* Function Name: setNodeName
-    * Description: sets the Name of the Node
-/****************************************************************************************************/
+* Function Name: setNodeName
+* Description: sets the Name of the Node
+****************************************************************************************************/
 void CNode::setFlagForPdoObjects(bool flag)
 	{	
 		m_HasPdoObjects = flag;
 	}
 /**************************************************************************************************
-	* Function Name: getIndexCollection
-    * Description: Returns the IndexCollection of the Node
-/****************************************************************************************************/
+* Function Name: getIndexCollection
+* Description: Returns the IndexCollection of the Node
+****************************************************************************************************/
 
 CIndexCollection* CNode::getIndexCollection()
 	{
 		return m_IndexCollection;
 	}
 /**************************************************************************************************
-	* Function Name: getApplicationProcess
-    * Description: Returns the Application Process of the Node
-/****************************************************************************************************/
+* Function Name: getApplicationProcess
+* Description: Returns the Application Process of the Node
+****************************************************************************************************/
 
 CApplicationProcess* CNode::getApplicationProcess()
 	{
 		return m_ApplicationProcess;
 	}
 /**************************************************************************************************
-	* Function Name: getDataTypeCollection
-    * Description: returns the DataType Collection
-/****************************************************************************************************/
+* Function Name: getDataTypeCollection
+* Description: returns the DataType Collection
+****************************************************************************************************/
 CDataTypeCollection* CNode::getDataTypeCollection()
 	{return m_DataTypeCollection;}
 void CNode::CreateIndexCollection() 
@@ -291,7 +291,7 @@ ProcessImage* CNode::getPIbyParaIndex(int paraIndex)
 	for(int count=0; count<ProcessImageCollection.Count(); count++)
 		{
 			pi = ProcessImageCollection.GetAddress(count);
-			if(pi->ParametrIndex = paraIndex)
+			if(pi->ParametrIndex == paraIndex)
 			return pi;			
 		}			
 	return pi;

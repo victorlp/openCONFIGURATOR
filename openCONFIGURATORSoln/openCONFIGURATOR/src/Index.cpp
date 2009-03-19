@@ -71,7 +71,7 @@
 
 CIndex::CIndex(void)
 	{
-		int m_SubIndexCount = collectionObj.Count();
+		m_SubIndexCount = collectionObj.Count();
 	}
 
 CIndex::~CIndex(void)
@@ -85,10 +85,10 @@ EPDOType CIndex::getPDOType()
 void CIndex::setPDOType(EPDOType PDOType)
 	{ m_PDOType = PDOType;}
 #pragma region MemberFunctions
-/**************************************************************************************************
-	* Function Name: addSubIndex
-    * Description: add the SubIndex in the Index Object
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: addSubIndex
+* Description: add the SubIndex in the Index Object
+****************************************************************************************************/
 
 void CIndex::addSubIndex(CSubIndex objSubIndex) 
 	{
@@ -98,10 +98,10 @@ void CIndex::addSubIndex(CSubIndex objSubIndex)
 		
 	}
 	
-/**************************************************************************************************
-	* Function Name: deleteSubIndex
-    * Description: delete the SubIndex in the Index Object
-/****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: deleteSubIndex
+* Description: delete the SubIndex in the Index Object
+****************************************************************************************************/
 
 void CIndex::deleteSubIndex(int SubIndexID) 
 	{
@@ -119,10 +119,10 @@ CSubIndex* CIndex::getSubIndex(int SubIndexId)
 	}
 	CSubIndex* CIndex::getSubIndexbyIndexValue(char* Index)
 	{
-		int i = 0;
+		int i;
 		CSubIndex* objSIndex;
 
-		for(int i =0; i<collectionObj.Count();i++)
+		for(i =0; i<collectionObj.Count();i++)
 		{			
 			objSIndex = &collectionObj[i];
 			if(strcmp(objSIndex->getIndexValue(),Index)==0)

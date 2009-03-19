@@ -79,7 +79,27 @@
 #include <string.h>
 #define MY_ENCODING "UTF-8"
 int LastIndexParsed=0;
-
+static const char *g_Simple[][2] = {
+																										{"BOOL" ,    "1"},
+																										{"BITSTRING","1"},
+																										{"BYTE",     "8"},
+																										{"CHAR",     "1"},
+																										{"WORD",     "16"},
+																										{"DWORD",    "32"},
+																										{"LWORD",    "64"},
+																										{"SINT",     "8"},
+																										{"INT",      "16"},
+																										{"DINT",     "32"},
+																										{"LINT",     "64"},
+																										{"USINT",    "8"},
+																										{"UINT",     "16	"},
+																										{"UDINT",    "32"},
+																										{"ULINT",    "64"},
+																										{"REAL",     "16"},
+																										{"LREAL",    "64"},
+																										{"STRING",   "1"},
+																										{"WSTRING",  "1"}
+																										};
 void setIndexAttributes(xmlTextReaderPtr reader, CIndex* objIndex, bool& hasPDO)
 	{
 		const xmlChar* name, *value;
@@ -329,7 +349,7 @@ void setParameterAttributes(xmlTextReaderPtr reader, Parameter* stParameter)
   
   name = xmlTextReaderConstName(reader);
   value = xmlTextReaderConstValue(reader);
-		while(!(CheckEndElement(xmlTextReaderNodeType(reader),(char*)name, "parameter")))
+		while(!(CheckEndElement(xmlTextReaderNodeType(reader),(char*)name, (char*)"parameter")))
 		{
 			ret = xmlTextReaderRead(reader);
 			if(ret!=1)
@@ -345,7 +365,7 @@ void setParameterAttributes(xmlTextReaderPtr reader, Parameter* stParameter)
 			{
 					stParameter->name_id_dt_attr.setDataType((char*)name);
 			}		
-			if(CheckStartElement(xmlTextReaderNodeType(reader),(char*)name, "dataTypeIDRef"))
+			if(CheckStartElement(xmlTextReaderNodeType(reader),(char*)name, (char*)"dataTypeIDRef"))
 			{
 				if (xmlTextReaderHasAttributes(reader)==1)
 				{
@@ -407,7 +427,7 @@ bool CheckifSimpleDT(char* Name, char* size)
 		//Retrieve the name and Value of an attribute
 		value = xmlTextReaderConstValue(reader);
 		name =xmlTextReaderConstName(reader);		
-		bool vardecCompleted = false;
+		//bool vardecCompleted = false;
 							
 	
 		if(strcmp(ConvertToUpper((char*)name), "UNIQUEID")==0)
@@ -457,7 +477,7 @@ static void getVarDeclaration(xmlTextReaderPtr reader, CComplexDataType* objCDT)
   name = xmlTextReaderConstName(reader);
   value = xmlTextReaderConstValue(reader);
    
-		while(!(CheckEndElement(xmlTextReaderNodeType(reader),(char*)name, "struct")))
+		while(!(CheckEndElement(xmlTextReaderNodeType(reader),(char*)name, (char*)"struct")))
 		{
 			varDeclaration temp;
 			temp.Initialize();
@@ -481,14 +501,14 @@ static void getVarDeclaration(xmlTextReaderPtr reader, CComplexDataType* objCDT)
 			//printf("\nName:%s",name);
 			//printf("\n NodeType: %d",xmlTextReaderNodeType(reader));
 			
-			if(CheckEndElement(xmlTextReaderNodeType(reader),(char*)name, "varDeclaration"))
+			if(CheckEndElement(xmlTextReaderNodeType(reader),(char*)name, (char*)"varDeclaration"))
 			{
 				stvardecl.StructUniqueId = (char*)malloc(strlen(objCDT->name_id_attr->getUniqueID() +1));
 				strcpy(stvardecl.StructUniqueId , objCDT->name_id_attr->getUniqueID());
 				objCDT->addVarDeclaration(stvardecl);
 				stvardecl = temp;
 			}
-			if(CheckStartElement(xmlTextReaderNodeType(reader),(char*)name, "varDeclaration"))
+			if(CheckStartElement(xmlTextReaderNodeType(reader),(char*)name, (char*)"varDeclaration"))
 			{
 						//printf("\nELEMENT----- Name = %s ",name);
 						if (value==NULL)
@@ -527,7 +547,7 @@ static void getVarDeclaration(xmlTextReaderPtr reader, CComplexDataType* objCDT)
 					if(strcmp(stvardecl.size,"")==0)
 					strcpy(stvardecl.size, size);
 			}		
-			if(CheckStartElement(xmlTextReaderNodeType(reader),(char*)name, "dataTypeIDRef"))
+			if(CheckStartElement(xmlTextReaderNodeType(reader),(char*)name, (char*)"dataTypeIDRef"))
 		{
 				if (xmlTextReaderHasAttributes(reader)==1)
 				{
@@ -550,9 +570,9 @@ static void getVarDeclaration(xmlTextReaderPtr reader, CComplexDataType* objCDT)
 
 	
 /**************************************************************************************************
-	* Function Name: ImportXML
-    * Description: Imports the XML file
-/****************************************************************************************************/
+* Function Name: ImportXML
+* Description: Imports the XML file
+****************************************************************************************************/
 
 ocfmRetCode ImportXML(char* fileName, int NodeID, ENodeType NodeType)
 	{	
@@ -587,9 +607,9 @@ ocfmRetCode ImportXML(char* fileName, int NodeID, ENodeType NodeType)
 		}	
 	}
 /**************************************************************************************************
-	* Function Name: processNode
-    * Description: Process the Node value,Name and its attributes
-/****************************************************************************************************/
+* Function Name: processNode
+* Description: Process the Node value,Name and its attributes
+****************************************************************************************************/
 void processNode(xmlTextReaderPtr reader,ENodeType NodeType,int NodeIndex)
 {
 		const xmlChar *name, *value;
@@ -765,9 +785,9 @@ void processNode(xmlTextReaderPtr reader,ENodeType NodeType,int NodeIndex)
 		}	
 }
 /**************************************************************************************************
-	* Function Name: parseFile
-    * Description: Parses the XML file
-/****************************************************************************************************/
+* Function Name: parseFile
+* Description: Parses the XML file
+****************************************************************************************************/
 ocfmRetCode parseFile(char* filename, int NodeIndex, ENodeType  NodeType) 
 {
     xmlTextReaderPtr reader;
@@ -810,12 +830,12 @@ ocfmRetCode parseFile(char* filename, int NodeIndex, ENodeType  NodeType)
 }
  
 /**************************************************************************************************
-	* Function Name: ReImport
-    * Description: Parses the XML file
-	Return value Legend:
+* Function Name: ReImport
+* Description: Parses the XML file
+* Return value Legend:
 	Cannot ReImport 		- -1
 	ReImport Success 		- 1
-/****************************************************************************************************/
+****************************************************************************************************/
 ocfmRetCode ReImportXML(char* fileName, int NodeID, ENodeType NodeType)
 {
 	int NodePos;
@@ -874,9 +894,9 @@ ocfmRetCode ReImportXML(char* fileName, int NodeID, ENodeType NodeType)
 } 
  
 /**************************************************************************************************
-	* Function Name: CreateTree
-    * Description:
-/****************************************************************************************************/
+* Function Name: CreateTree
+* Description:
+****************************************************************************************************/
 void CreateTree()
 	{
 		//objNodeCollection= CNodeCollection::getNodeColObject();
@@ -939,7 +959,8 @@ void ConvertCdcToBinary(char* fileName)
 		//For Byte Packing
 		for (iCtr = 0 , count = 0; iCtr < iLength; iCtr++, count++ )
 		{
-			tempCn1Obd[count] = (unsigned char)( ( ca_cn1obd[ iCtr ] << 4 ) | ca_cn1obd[ ++iCtr ] );
+			tempCn1Obd[count] = (unsigned char)( ( ca_cn1obd[ iCtr ] << 4 ) | ca_cn1obd[iCtr + 1 ] );
+			iCtr++;
 			//printf("0x%2x\t",tempCn1Obd[count]);
 		}
 		//printf("Size : %d\n", count);
@@ -947,7 +968,7 @@ void ConvertCdcToBinary(char* fileName)
 		// Write to Binary file
 		fwrite(&tempCn1Obd,1,count,fout);
 	}
-	Exit :
+
 	fclose(fin);
 	fclose(fout);	
 }
@@ -960,11 +981,11 @@ void ProcessUniqueIDRefs(CNode* objNode)
  
 
 /**************************************************************************************************
-	* Function Name: ImportObjDictXML
-    * Description: Imports the Object Dictionary XML file. Objects from this Object dictionary file 
-	will be used when Adding Index and/or Adding SubIndex
-	* Return value: ocfmRetCode
-/****************************************************************************************************/
+* Function Name: ImportObjDictXML
+* Description: Imports the Object Dictionary XML file. Objects from this Object dictionary file 
+  will be used when Adding Index and/or Adding SubIndex
+* Return value: ocfmRetCode
+****************************************************************************************************/
 //ocfmRetCode ImportObjDictXML(char* fileName)
 //{
 //	xmlTextReaderPtr reader;
@@ -1006,9 +1027,9 @@ void ProcessUniqueIDRefs(CNode* objNode)
 //	
 //}
 /**************************************************************************************************
-	* Function Name: processNode
-    * Description: Process the Node value,Name and its attributes
-/****************************************************************************************************/
+* Function Name: processNode
+* Description: Process the Node value,Name and its attributes
+****************************************************************************************************/
 void processObjDict(xmlTextReaderPtr reader)
 {
 	//const xmlChar *name, *value;
@@ -1141,9 +1162,9 @@ void processObjDict(xmlTextReaderPtr reader)
 }
 
 /**************************************************************************************************
-	* Function Name: SaveNode
-    * Description: Saves the content of a Node into a XML in XDC format
-/****************************************************************************************************/
+* Function Name: SaveNode
+* Description: Saves the content of a Node into a XML in XDC format
+****************************************************************************************************/
 
 ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType)
 {	

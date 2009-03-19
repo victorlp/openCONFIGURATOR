@@ -101,10 +101,10 @@ CObjectDictionary* CObjectDictionary::getObjDictPtr()
 		return objectDictionary;
 		
 	}
-	/**************************************************************************************************
-	* Function Name: ProcessObjectDictionary
-    * Description: Process the Node value,Name and its attributes
-/****************************************************************************************************/
+/**************************************************************************************************
+* Function Name: ProcessObjectDictionary
+* Description: Process the Node value,Name and its attributes
+****************************************************************************************************/
 void CObjectDictionary::ProcessObjectDictionary(xmlTextReaderPtr reader)
 {
 		const xmlChar *name, *value;	
@@ -241,9 +241,9 @@ void CObjectDictionary::ProcessObjectDictionary(xmlTextReaderPtr reader)
 		}	
 }
 /**************************************************************************************************
-	* Function Name: addSubIndex
-    * Description: add the SubIndex in the Index Object
-/****************************************************************************************************/
+* Function Name: addSubIndex
+* Description: add the SubIndex in the Index Object
+****************************************************************************************************/
 
 void CObjectDictionary::addSameAttributesObjects(s_attrIdx_SIdx object)
 	{
