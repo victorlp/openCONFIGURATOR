@@ -1102,13 +1102,19 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 							//Buffer =(char*)realloc(Buffer,6);	
 							dt = objIndex->getDataType();
 							int padLength=0;
+							char* size = new char[8 + ALLOC_BUFFER];
 							if(dt.Name != NULL)
 							{
-								dt.DataSize = padLeft(dt.DataSize, '0', 4);
-								strcat(Buffer ,dt.DataSize);				
-								padLength = hex2int(dt.DataSize)*2;
+								//dt.DataSize = padLeft(dt.DataSize, '0', 4);
+								//strcat(Buffer ,dt.DataSize);	
+								size  = _IntToAscii(dt.DataSize, size, 16); 
+								size = padLeft(size, '0', 8);
+								strcat(Buffer, size);	
+								padLength = dt.DataSize*2;
 							}
-							else strcat(Buffer,"0000");
+							
+							else strcat(Buffer,"00000000");
+							delete[] size;
 							
 							strcat(Buffer,"\t");
 						
@@ -1197,13 +1203,24 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 								DataType dt;			
 								dt = objSubIndex->getDataType();
 								int padLength=0;
+							char* size = new char[8 + ALLOC_BUFFER];
 								if(dt.Name != NULL)
+								{
+									//dt.DataSize = padLeft(dt.DataSize, '0', 4);
+									//strcat(Buffer ,dt.DataSize);	
+									size  = _IntToAscii(dt.DataSize, size, 16); 
+									size = padLeft(size, '0', 8);
+									strcat(Buffer, size);	
+									padLength = dt.DataSize*2;
+								}
+							
+								/*if(dt.Name != NULL)
 								{
 									strcat(Buffer ,dt.DataSize);				
 									padLength = hex2int(dt.DataSize)*2;
-								}
+								}*/
 								else strcat(Buffer,"0000");
-								
+								delete[] size;
 								strcat(Buffer,"\t");
 							
 								if (objSubIndex->getActualValue()!=NULL)
@@ -1448,28 +1465,25 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 			
 			CIndex *objIndex;
 			objIndex = objIdxCol->getIndex(i);
-			printf("\n Index: %s, Flag: %d", objIndex->getIndexValue(), objIndex->getFlagIfIncludedCdc());
 			
 			if(objIndex->getFlagIfIncludedCdc() == TRUE)
 			{
 				if(objIndex->getNumberofSubIndexes() == 0)
 				NumberOfEntries =  NumberOfEntries + 1;
-				printf("\n Index: %s, Flag: %d", objIndex->getIndexValue(), objIndex->getFlagIfIncludedCdc());
-				printf("\n NumberOfEntries: %d",NumberOfEntries);
 				if(CheckIfMappingPDO((char*)objIndex->getIndexValue()))
 				NumberOfEntries =  NumberOfEntries + 1; /* add initalize 00 entry subindex */
 				for(int count = 0; count < objIndex->getNumberofSubIndexes(); count++)
 				{
 					if(objIndex->getSubIndex(count)->getActualValue() !=NULL)
 					NumberOfEntries =  NumberOfEntries + 1;
-					printf("\n NumberOfEntries: %d",NumberOfEntries);
+	
 				}
 				
 			}			
 		}
 		/* Add + 1 for the number of enteries line*/
 		NumberOfEntries = NumberOfEntries + 1;		
-		printf("\n NumberOfEntries: %d",NumberOfEntries);
+		
 		return NumberOfEntries ;
 	}
 		int getCNsTotalIndexSubIndex(int NodeID)
@@ -1583,7 +1597,7 @@ ocfmRetCode GenerateCDC(char* CDCLocation)
 			CPjtSettings* stPjtSettings;
 			stPjtSettings = CPjtSettings::getPjtSettingsPtr();
 			bool checkFlag = true;
-			printf("\n autogenerate %d",stPjtSettings->getGenerateAttr());
+		
 			if(stPjtSettings->getGenerateAttr() == YES_AG)
 			{	
 				cout << "\n\n\n\n Generating MN OBD\n\n\n\n" << endl;
@@ -2190,7 +2204,10 @@ ocfmRetCode ProcessPDONodes()
 												
 														CIndex* objModuleIndex;
 														CSubIndex* objSIndex;
-														
+														char* uniqueidRefID = NULL;			
+														char* Name = NULL;
+														char* Access = NULL;
+														DataType dt;						
 												
 																		
 															objModuleIndex = objIndexCollection->getIndexbyIndexValue(strModuleIndex);
@@ -2199,42 +2216,127 @@ ocfmRetCode ProcessPDONodes()
 																objex.ocfm_Excpetion(OCFM_ERR_MODULE_INDEX_NOT_FOUND);
 																throw objex;
 															}
+															
+															if(objModuleIndex->getNumberofSubIndexes() == 0 && (strcmp(strSubIndex, "00")==0))
+															{
+																if(objModuleIndex->getUniqueIDRef()!= NULL)
+																{
+																	uniqueidRefID =  new char[strlen(objModuleIndex->getUniqueIDRef()) +  ALLOC_BUFFER];
+																	strcpy(uniqueidRefID, objModuleIndex->getUniqueIDRef());
+																}				
+																else
+																{
+																	Name = new char[strlen(objModuleIndex->getName()) + ALLOC_BUFFER];
+																	strcpy(Name, objModuleIndex->getName());
+																	
+																	Access = new char[strlen(objModuleIndex->getAccessType()) + ALLOC_BUFFER];
+																	strcpy(Access, objModuleIndex->getAccessType());
+																	dt = objModuleIndex->getDataType();
+																	
+																}											
+															}
+															else
+															{
  															objSIndex = objModuleIndex->getSubIndexbyIndexValue(strSubIndex);
-															if(objSIndex==NULL)
-															{								
-																objex.ocfm_Excpetion(OCFM_ERR_MODULE_SUBINDEX_NOT_FOUND);
-																throw objex;
+																if(objSIndex==NULL)
+																{								
+																	objex.ocfm_Excpetion(OCFM_ERR_MODULE_SUBINDEX_NOT_FOUND);
+																	throw objex;
+																}
+																else
+																{
+																	if(objSIndex->getUniqueIDRef() != NULL)
+																	{
+																		uniqueidRefID =  new char[strlen(objSIndex->getUniqueIDRef()) +  ALLOC_BUFFER];
+																		strcpy(uniqueidRefID, objSIndex->getUniqueIDRef());
+																	}
+																	else
+																	{
+																		Name = new char[strlen(objSIndex->getName()) + ALLOC_BUFFER];
+																		strcpy(Name, objSIndex->getName());
+																	
+																		Access = new char[strlen(objSIndex->getAccessType()) + ALLOC_BUFFER];
+																		strcpy(Access, objSIndex->getAccessType());
+																		dt = objSIndex->getDataType();
+																	}
+																}
+																
 															}
 															
-																									
+															
+															EPDOType pdoType = objIndex->getPDOType();							
 															
 														//printf("\n NodeID %d",objNode->getNodeId());
-															if(objSIndex->getUniqueIDRef()!=NULL)
+															if(uniqueidRefID != NULL)
 															{
-																DecodeUniqiueIDRef(objSIndex->getUniqueIDRef(), objNode, objIndex->getPDOType(), (char*) objModuleIndex->getName(), (char*)objModuleIndex->getIndexValue());
+																//DecodeUniqiueIDRef(objSIndex->getUniqueIDRef(), objNode, pdoType, (char*) objModuleIndex->getName(), (char*)objModuleIndex->getIndexValue());
+																DecodeUniqiueIDRef(uniqueidRefID, objNode, pdoType, (char*) objModuleIndex->getName(), (char*)objModuleIndex->getIndexValue());
 																//printf("\n size8 prev offset: %d",size8INOffset.prevOffset);
 																//printf("\n size8 curr offset: %d",size8INOffset.currOffset);
 															}
  															else
 															{
-																ProcessImage objProcessImage;
-									
-																/* Name of the Process Image variable*/
-																objProcessImage.Name = (char*)malloc(strlen(objSIndex->getName())+ ALLOC_BUFFER);
-																strcpy(objProcessImage.Name, objSIndex->getName());
+																ProcessImage pi;
+																
+																	
+																		/* Name of the Process Image variable*/
+																	//pi.Name = (char*)malloc(strlen(objSIndex->getName()) + 6 + ALLOC_BUFFER);
+																	
+																	pi.Name = (char*)malloc(strlen(Name) + 6 + ALLOC_BUFFER);
+																	strcpy(pi.Name,getPIName(objNode->getNodeId()));
+																	
+																	//strcat(pi.Name, ModuleName);
+																	strcat(pi.Name, ".");
+																	strcat(pi.Name,Name);
+																	//strcat(pi.Name,objSIndex->getName());
+																	
+																	//pi.ModuleName = (char*)malloc(strlen(ModuleName) + ALLOC_BUFFER);
+																	//strcpy(pi.ModuleName, ModuleName);		
+																	
+																		pi.ModuleIndex = (char*)malloc(strlen(strModuleIndex) + ALLOC_BUFFER);
+																	strcpy(pi.ModuleIndex, strModuleIndex);	
+																	
+																				
+																	//pi.VarName = (char*)malloc(strlen(objSIndex->getName()) + ALLOC_BUFFER);
+																	pi.VarName = (char*)malloc(strlen(Name) + ALLOC_BUFFER);
+																	strcpy(pi.VarName, Name);		
+															 
+													
+																
 																/* Access of the Process Image variable*/
-																strcpy(objProcessImage.Direction, objSIndex->getAccessType());
-																DataType dt;
-																dt = objSIndex->getDataType();
+																//strcpy(pi.Direction, objSIndex->getAccessType());
+																strcpy(pi.Direction, Access);
+																//DataType dt;
+																//dt = objSIndex->getDataType();
 																/* Data Size in hex of the Process Image variable*/
 															/*	objProcessImage.DataSize = (char*)malloc(strlen(dt.DataSize+1));*/
 																//strcpy(objProcessImage.DataSize, dt.DataSize);
-																objProcessImage.DataInfo.DataSize = atoi(dt.DataSize);
+																if(dt.DataSize == NULL)
+																{
+																	objex.ocfm_Excpetion(OCFM_ERR_INVALID_DATATYPE_FOR_PDO);
+																	throw objex;
+																}
+																//pi.DataInfo.DataSize = atoi(dt.DataSize);
+																pi.DataInfo.DataSize = dt.DataSize;
 																/* Datatype in hex of the Process Image variable*/
-																objProcessImage.DataInfo._dt_Name = (char*)malloc(strlen(dt.Name+1));
-																strcpy(objProcessImage.DataInfo ._dt_Name, dt.Name);
+																pi.DataInfo._dt_Name = (char*)malloc(strlen(dt.Name+1));
+																strcpy(pi.DataInfo ._dt_Name, dt.Name);	
+																pi.DataInfo._dt_enum = dt.IEC_dt;
 																
-																objNode->addProcessImage(objProcessImage);
+																	if( pdoType == PDO_TPDO)
+																	{
+																		pi.ByteOffset = ComputeOUTOffset(pi.DataInfo.DataSize, pdoType);			
+																		pi.DirectionType = INPUT ;
+																	}
+																	else if( pdoType == PDO_RPDO)
+																	{
+																		pi.ByteOffset = ComputeINOffset(pi.DataInfo.DataSize, pdoType);			
+																		pi.DirectionType = OUTPUT;
+																	}
+		
+				
+																CreateMNPDOVar(pi.ByteOffset, pi.DataInfo.DataSize, pi.DataInfo._dt_enum, pdoType, objNode);
+																objNode->addProcessImage(pi);
 															}															
 													}
 													sicount++;
@@ -5169,9 +5271,8 @@ int ComputeINOffset(int dataSize, EPDOType pdoType)
 						
 								
 								size32INOffset.prevOffset = size32INOffset.currOffset ;
-								size32INOffset.currOffset = size32INOffset.currOffset + 4;
-								printf("\nsize32INOffset.prevOffset %d", size32INOffset.prevOffset);
-								printf("\nsize32INOffset.currOffset %d", size32INOffset.currOffset);
+								size32INOffset.currOffset = size32INOffset.currOffset + 4;					
+							
 						}
 						
 						/* if greater no change*/
@@ -6413,3 +6514,4 @@ void	UpdateNumberOfEnteriesSIdx(CIndex *objIndex, ENodeType NodeType)
 	if(objSIdx!=NULL)
 	objSIdx->setActualValue(_IntToAscii(totalSIdxs, str, 16)); 
 }
+

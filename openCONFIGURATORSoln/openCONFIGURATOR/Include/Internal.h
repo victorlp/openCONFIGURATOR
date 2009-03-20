@@ -150,4 +150,5 @@ char* StringToUpper(char* str);
 void setFlagForRequiredIndexes(int NodeId);
 void UpdateCNCycleTime(CIndexCollection  *objIdxCol,char* cycleTime);
 void	UpdateNumberOfEnteriesSIdx(CIndex *objIndex, ENodeType NodeType);
+int getDataSize(char* dataTypeVal);
 #endif // internal_h

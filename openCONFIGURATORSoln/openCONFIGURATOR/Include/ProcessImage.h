@@ -90,27 +90,7 @@
 		INTEGER32
 	}PDODataType;
 	
-	typedef enum IEC_Datatype
-	{
-		BITSTRING = 0,
-		BOOL,
-		BYTE,
-		_CHAR,
-		DWORD,
-		LWORD,
-		SINT,
-		INT,
-		DINT,
-		LINT,
-		USINT,
-		UINT,
-		UDINT,
-		ULINT,
-		REAL,
-		LREAL,
-		STRING,
-		WSTRING
-	}IEC_Datatype;
+
 
 	typedef struct PIDataInfo
 	{

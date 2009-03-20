@@ -141,12 +141,36 @@ typedef enum
 			 readWriteOutput, /*both read and write, access, but represents process output data*/
 			 noAccess				 /*access denied				*/
 }EParameterAccess;
+	typedef enum IEC_Datatype
+	{
+		BITSTRING = 0,
+		BOOL,
+		BYTE,
+		_CHAR,
+		DWORD,
+		LWORD,
+		SINT,
+		INT,
+		DINT,
+		LINT,
+		USINT,
+		UINT,
+		UDINT,
+		ULINT,
+		REAL,
+		LREAL,
+		STRING,
+		WSTRING
+	}IEC_Datatype;
 struct DataType
 {
 		char*		Name;
 		char*		DataTypeValue;
-		char*		DataSize;
+		//char*		DataSize;
+		int				DataSize;
+		IEC_Datatype IEC_dt;
 		char* getName(){return Name;}
+		
 		void setName(char* DataTypeName)
 		{
 			Name = new char[strlen(DataTypeName) + 1];
@@ -274,6 +298,7 @@ typedef enum
 	AUTOGENERATE = 0,
 	AUTOSAVE
 }EProjectSettings;
+
 
 /*****************************************************************************************
 * Function Declarations

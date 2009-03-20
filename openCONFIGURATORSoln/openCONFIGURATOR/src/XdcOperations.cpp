@@ -110,6 +110,8 @@ void setIndexAttributes(xmlTextReaderPtr reader, CIndex* objIndex, bool& hasPDO)
 		value = xmlTextReaderConstValue(reader);
 		name = xmlTextReaderConstName(reader);				
 		
+		printf("\n Value %s", value);
+		printf("\n Name %s", name);
 		if(strcmp(ConvertToUpper((char*)name), "INDEX")==0)
 			{			
 				// Setting the Index Value
@@ -202,6 +204,9 @@ void setSubIndexAttributes(xmlTextReaderPtr reader, CSubIndex* objSubIndex)
 		value = xmlTextReaderConstValue(reader);
 		name =xmlTextReaderConstName(reader);							
 
+
+		printf("\n subindex Value %s", value);
+		printf("\n subindex Name %s", name);
 		if(strcmp(ConvertToUpper((char*)name), "SUBINDEX")==0)						
 		objSubIndex->setIndexValue((char*)value);
 
@@ -287,8 +292,52 @@ void setDataTypeAttributes(xmlTextReaderPtr reader ,DataType* objDataType)
 			strcpy(objDataType->Name, (char*)name);
 			//printf("\n outsideName:%s", objDataType->Name);
 			//printf("objDataType->DataTypeValue:%s, objDataType->Name:%s\n", objDataType->DataTypeValue, objDataType->Name);
-			objDataType->DataSize = new char[9];
-			if((strcmp(objDataType->Name,"Unsigned8")==0) ||
+			//objDataType->DataSize = new char[9];
+			
+			objDataType->DataSize = getDataSize(objDataType->Name);
+			if(strcmp(objDataType->Name,"Unsigned8")==0 || strcmp(objDataType->Name,"UNSIGNED8")==0 )
+			{
+				objDataType->IEC_dt = USINT;
+				
+			}
+			else if(strcmp(objDataType->Name,"Boolean")==0 || strcmp(objDataType->Name,"BOOLEAN")==0)
+			{
+				objDataType->IEC_dt = BOOL;
+				
+			}
+				else if(strcmp(objDataType->Name,"Integer8")==0 || strcmp(objDataType->Name,"INTEGER8")==0)
+			{
+				objDataType->IEC_dt = SINT;
+				
+			}
+			
+				else if(strcmp(objDataType->Name,"Unsigned16")==0 || strcmp(objDataType->Name,"UNSIGNED16")==0)
+			{
+				objDataType->IEC_dt = UINT;
+			
+			}
+				else if(strcmp(objDataType->Name,"Integer16")==0 || strcmp(objDataType->Name,"INTEGER16")==0)
+			{
+				objDataType->IEC_dt = INT;
+			
+			}
+				else if(strcmp(objDataType->Name,"Unsigned32")==0 || strcmp(objDataType->Name,"UNSIGNED32")==0)
+			{
+				objDataType->IEC_dt = UDINT;
+			
+			}
+				else if(strcmp(objDataType->Name,"Integer32")==0 || strcmp(objDataType->Name,"INTEGER32")==0)
+			{
+				objDataType->IEC_dt = DINT;
+			
+			}
+				else if(strcmp(objDataType->Name,"Real32")==0 || strcmp(objDataType->Name,"REAL32")==0)
+			{
+				objDataType->IEC_dt = REAL;
+			
+			}
+			
+			/*if((strcmp(objDataType->Name,"Unsigned8")==0) ||
 				(strcmp(objDataType->Name,"Boolean")==0 ) ||
 				(strcmp(objDataType->Name,"Integer8")==0 ))
 					strcpy(objDataType->DataSize,"00000001");
@@ -300,10 +349,13 @@ void setDataTypeAttributes(xmlTextReaderPtr reader ,DataType* objDataType)
 			if((strcmp(objDataType->Name,"Unsigned32")==0) ||
 				(strcmp(objDataType->Name,"Integer32")==0 ) ||
 				(strcmp(objDataType->Name,"Real32")==0 ))
-				strcpy(objDataType->DataSize,"00000004");
+				strcpy(objDataType->DataSize,"00000004");*/
 				
-				if(strcmp(objDataType->Name,"Unsigned64")==0)
-				strcpy(objDataType->DataSize,"00000008");
+			else	if(strcmp(objDataType->Name,"Unsigned64")==0 || strcmp(objDataType->Name,"UNSIGNED64")==0)
+			{
+				objDataType->IEC_dt = LREAL;
+			}
+			 
 			
 				}
 				//printf("\noutside DataType");
@@ -649,8 +701,7 @@ void processNode(xmlTextReaderPtr reader,ENodeType NodeType,int NodeIndex)
 
 					objNode = objNodeCollection->getNodePtr(NodeType,NodeIndex);							
 					objDataTypeCollection = objNode->getDataTypeCollection();
-					objDataTypeCollection->addDataType(objDataType);
-					printf("\n Datatypes parsed");
+					objDataTypeCollection->addDataType(objDataType);					
 
 				}
 			else if(strcmp(((char*)name),"parameter")==0)
@@ -709,7 +760,7 @@ void processNode(xmlTextReaderPtr reader,ENodeType NodeType,int NodeIndex)
 						//Set the NodeID
 						objIndex.setNodeID(objNode->getNodeId());
 						bool hasPDO = false;
-
+						printf("\n before Index parsed");
 					if (xmlTextReaderHasAttributes(reader)==1)
 						{						
 							while(xmlTextReaderMoveToNextAttribute(reader))
@@ -730,6 +781,7 @@ void processNode(xmlTextReaderPtr reader,ENodeType NodeType,int NodeIndex)
 						//Add Index object to the IndexCollection
 						objIndexCollection->addIndex(objIndex);				
 						LastIndexParsed = objIndexCollection->getNumberofIndexes()-1;
+						//printf("\nIndex parsed %s", objIndex.getIndexValue());
 						
 				}
 		else	if(strcmp(((char*)name),"SubObject")==0 )
@@ -768,7 +820,7 @@ void processNode(xmlTextReaderPtr reader,ENodeType NodeType,int NodeIndex)
 						//printf("LastIndexParsed: %d-%s\n",LastIndexParsed, objIndexPtr->getIndexValue());
 						//printf("SubIndex value: %s \n",objSubIndex.getIndexValue());
 						objIndexPtr->addSubIndex(objSubIndex);
-
+						//	printf("\nSUB Index parsed %s", objSubIndex.getIndexValue());
 						////free memory
 						//objIndexPtr->~CIndex();
 						//delete objIndexPtr;
@@ -1901,3 +1953,50 @@ ocfmRetCode AddOtherRequiredCNIndexes(int NodeId)
 	}
 					
 					
+int getDataSize(char* dataTypeVal)
+{
+
+		if(strcmp(dataTypeVal,"Unsigned8")==0 || strcmp(dataTypeVal,"UNSIGNED8")==0 )
+			{
+					return 1;				
+			}
+			else if(strcmp(dataTypeVal,"Boolean")==0 || strcmp(dataTypeVal,"BOOLEAN")==0)
+			{
+				return 1;					
+			}
+				else if(strcmp(dataTypeVal,"Integer8")==0 || strcmp(dataTypeVal,"INTEGER8")==0)
+			{
+				return 1;						
+			}
+			
+				else if(strcmp(dataTypeVal,"Unsigned16")==0 || strcmp(dataTypeVal,"UNSIGNED16")==0)
+			{
+				return 2;
+			
+			}
+				else if(strcmp(dataTypeVal, "Integer16")==0 || strcmp(dataTypeVal,"INTEGER16")==0)
+			{
+				return 2;
+			
+			}
+				else if(strcmp(dataTypeVal,"Unsigned32")==0 || strcmp(dataTypeVal,"UNSIGNED32")==0)
+			{
+				return 4;
+			
+			}
+				else if(strcmp(dataTypeVal,"Integer32")==0 || strcmp(dataTypeVal,"INTEGER32")==0)
+			{
+				return 4;
+			
+			}
+				else if(strcmp(dataTypeVal,"Real32")==0 || strcmp(dataTypeVal,"REAL32")==0)
+			{
+				return 4;
+			
+			}	
+				else if(strcmp(dataTypeVal,"Unsigned64")==0 || strcmp(dataTypeVal,"UNSIGNED64")==0)
+			{
+				return 8;
+			
+			}	
+}

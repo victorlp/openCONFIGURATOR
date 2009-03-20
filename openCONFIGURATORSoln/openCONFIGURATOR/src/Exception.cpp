@@ -220,6 +220,8 @@ ocfmException::~ocfmException(void)
 				strcpy(_ocfmRetCode.errorString, "Cannot open project: Invalid Project XML");		
 			case OCFM_ERR_PROJECT_SETTINGS:
 						strcpy(_ocfmRetCode.errorString, "Project Settings are NULL");		
+			case OCFM_ERR_INVALID_DATATYPE_FOR_PDO:
+									strcpy(_ocfmRetCode.errorString, "Invalid Datatype for PDO");		
 			default:
 						break;			
 		}
