@@ -110,8 +110,7 @@ void setIndexAttributes(xmlTextReaderPtr reader, CIndex* objIndex, bool& hasPDO)
 		value = xmlTextReaderConstValue(reader);
 		name = xmlTextReaderConstName(reader);				
 		
-		printf("\n Value %s", value);
-		printf("\n Name %s", name);
+
 		if(strcmp(ConvertToUpper((char*)name), "INDEX")==0)
 			{			
 				// Setting the Index Value
@@ -205,8 +204,7 @@ void setSubIndexAttributes(xmlTextReaderPtr reader, CSubIndex* objSubIndex)
 		name =xmlTextReaderConstName(reader);							
 
 
-		printf("\n subindex Value %s", value);
-		printf("\n subindex Name %s", name);
+		
 		if(strcmp(ConvertToUpper((char*)name), "SUBINDEX")==0)						
 		objSubIndex->setIndexValue((char*)value);
 
@@ -763,7 +761,7 @@ void processNode(xmlTextReaderPtr reader,ENodeType NodeType,int NodeIndex)
 						//Set the NodeID
 						objIndex.setNodeID(objNode->getNodeId());
 						bool hasPDO = false;
-						printf("\n before Index parsed");
+					
 					if (xmlTextReaderHasAttributes(reader)==1)
 						{						
 							while(xmlTextReaderMoveToNextAttribute(reader))
@@ -1959,47 +1957,114 @@ ocfmRetCode AddOtherRequiredCNIndexes(int NodeId)
 int getDataSize(char* dataTypeVal)
 {
 
-		if(strcmp(dataTypeVal,"Unsigned8")==0 || strcmp(dataTypeVal,"UNSIGNED8")==0 )
-			{
-					return 1;				
-			}
-			else if(strcmp(dataTypeVal,"Boolean")==0 || strcmp(dataTypeVal,"BOOLEAN")==0)
+		if(strcmp(StringToUpper(dataTypeVal),"UNSIGNED8")==0 || 
+					strcmp(StringToUpper(dataTypeVal),"BOOLEAN")==0			|| 
+					strcmp(StringToUpper(dataTypeVal),"INTEGER8")==0)
+					
 			{
 				return 1;					
-			}
-				else if(strcmp(dataTypeVal,"Integer8")==0 || strcmp(dataTypeVal,"INTEGER8")==0)
-			{
-				return 1;						
-			}
+			}				
 			
-				else if(strcmp(dataTypeVal,"Unsigned16")==0 || strcmp(dataTypeVal,"UNSIGNED16")==0)
+			else if(strcmp(StringToUpper(dataTypeVal),"UNSIGNED16")==0 ||
+										strcmp(StringToUpper(dataTypeVal), "INTEGER16")==0)
+			
 			{
 				return 2;
 			
 			}
-				else if(strcmp(dataTypeVal, "Integer16")==0 || strcmp(dataTypeVal,"INTEGER16")==0)
-			{
-				return 2;
 			
-			}
-				else if(strcmp(dataTypeVal,"Unsigned32")==0 || strcmp(dataTypeVal,"UNSIGNED32")==0)
-			{
-				return 4;
 			
-			}
-				else if(strcmp(dataTypeVal,"Integer32")==0 || strcmp(dataTypeVal,"INTEGER32")==0)
+				else if(strcmp(StringToUpper(dataTypeVal),"INTEGER24")==0 || 
+												strcmp(StringToUpper(dataTypeVal),"UNSIGNED24")==0)
 			{
-				return 4;
-			
-			}
-				else if(strcmp(dataTypeVal,"Real32")==0 || strcmp(dataTypeVal,"REAL32")==0)
-			{
-				return 4;
+				return 3;
 			
 			}	
-				else if(strcmp(dataTypeVal,"Unsigned64")==0 || strcmp(dataTypeVal,"UNSIGNED64")==0)
+				else if(strcmp(StringToUpper(dataTypeVal),"UNSIGNED32")==0 ||
+												strcmp(StringToUpper(dataTypeVal),"INTEGER32")==0 ||
+												strcmp(StringToUpper(dataTypeVal),"REAL32")==0)
+			{
+				return 4;
+			
+			}
+			
+				else if(strcmp(StringToUpper(dataTypeVal),"INTEGER40")==0 ||
+													strcmp(StringToUpper(dataTypeVal),"UNSIGNED40")==0)
+			{
+				return 5;
+			
+			}	
+				else if(strcmp(StringToUpper(dataTypeVal),"INTEGER48")==0 || 
+												strcmp(StringToUpper(dataTypeVal),"UNSIGNED48")==0 )
+			{
+				return 6;
+			
+			}	
+				else if(strcmp(StringToUpper(dataTypeVal),"INTEGER56")==0 || 
+												strcmp(StringToUpper(dataTypeVal),"UNSIGNED56")==0)
+			{
+				return 5;
+			
+			}	
+				else if(strcmp(StringToUpper(dataTypeVal),"UNSIGNED64")==0 || 
+												strcmp(StringToUpper(dataTypeVal),"INTEGER64")==0 ||
+												strcmp(StringToUpper(dataTypeVal),"REAL64")==0)
 			{
 				return 8;
 			
 			}	
+			
+			else if(strcmp(StringToUpper(dataTypeVal),"MAC_ADDRESS")==0)
+			{
+				return 6;
+			
+			}	
+			else if(strcmp(StringToUpper(dataTypeVal),"IP_ADDRESS")==0)
+			{
+				return 4;
+			
+			}	
+		 /* NETTIME is composed as follows:
+							STRUCT OF
+							UNSIGNED32 seconds
+							UNSIGNED32 nanoseconds */
+			else if(strcmp(StringToUpper(dataTypeVal),"NETTIME")==0)
+			{
+				return 8;
+			
+			}	
+
+			
+			/*STRUCT OF
+								UNSIGNED28 ms,
+								VOID4 reserved,
+								UNSIGNED16 days
+							TIME_DIFFERENCE*/
+			
+			else if(strcmp(StringToUpper(dataTypeVal),"TIME_DIFF")==0)
+			{
+				return 6;
+			
+			}	
+				/*STRUCT OF
+								UNSIGNED28 ms,
+								VOID4 reserved,
+								UNSIGNED16 days
+							TIME_DIFFERENCE*/
+				else if(strcmp(StringToUpper(dataTypeVal),"TIME_OF_DAY")==0)
+			{
+				return 6;
+			
+			}	
+		
+			
+}
+
+bool checkIfStringDatatypes(char* datatypeValue)
+{
+	if(strcmp(StringToUpper(datatypeValue), "VISIBLE_STRING") == 0 ||
+				strcmp(StringToUpper(datatypeValue), "OCTET_STRING") == 0 ||
+				strcmp(StringToUpper(datatypeValue), "UNICODE_STRING") == 0)
+	return true;
+	else return false;
 }

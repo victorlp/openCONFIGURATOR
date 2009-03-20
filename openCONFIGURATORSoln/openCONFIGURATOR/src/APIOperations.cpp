@@ -668,7 +668,7 @@ ocfmRetCode AddIndex(int NodeID, ENodeType NodeType, char* IndexID)
 						objSIdx = objDictIndex->getSubIndex(i);
 						objIndex.addSubIndex(*objSIdx);
 					}
-					//setIndexName(subString(IndexID,2,4),(char*)objIndex->getName());
+					//setIndexName(subString(IndexID,2,4),(char*)objIndex.getName());
 					objIndexCollection->addIndex(objIndex);
 				}
 				else if((NodeType == MN) && CheckIfProcessImageIdx(IndexID))
@@ -1074,7 +1074,7 @@ void DisplayNodeTree()
 void GetIndexData(CIndex* objIndex, char* Buffer)
 	{
 			int len;
-			
+			bool IfStringDT = false;
 			//Get the Index Value		
 			
 			/*if(objIndex->getNumberofSubIndexes()==0 &&(objIndex->getDefaultValue()!= NULL ||
@@ -1107,10 +1107,23 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 							{
 								//dt.DataSize = padLeft(dt.DataSize, '0', 4);
 								//strcat(Buffer ,dt.DataSize);	
-								size  = _IntToAscii(dt.DataSize, size, 16); 
-								size = padLeft(size, '0', 8);
-								strcat(Buffer, size);	
-								padLength = dt.DataSize*2;
+								if(!checkIfStringDatatypes(dt.Name)) 
+								{
+									size  = _IntToAscii(dt.DataSize, size, 16); 
+									size = padLeft(size, '0', 8);
+									strcat(Buffer, size);	
+									padLength = dt.DataSize*2;
+									IfStringDT = false;
+									}
+									else
+									{			
+										int len = strlen(objIndex->getActualValue());							
+										size = _IntToAscii(len, size, 16);
+										size = padLeft(size, '0', 8);
+										strcat(Buffer, size);	
+										padLength = len*2;
+										IfStringDT = true;
+									}
 							}
 							
 							else strcat(Buffer,"00000000");
@@ -1122,45 +1135,30 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 							{	
 										char actvalue[20];
 										actvalue[0]  = '\0';
-										if(CheckIfHex((char*)objIndex->getActualValue()))
-										//if(actvalue!=NULL)
+										if(IfStringDT)
 										{
-											int len = strlen((char*)objIndex->getActualValue());
-											//char substr[18];
-											//substr =  (char*)objSubIndex->getActualValue(),2,len -2);
-											strncpy(actvalue,(objIndex->getActualValue()+ 2),len-2 );
-											actvalue[len -2] ='\0';
-											//delete[] substr;
-											//printf("\n ACT Value%s",actvalue);
-										
-											//strcpy(actvalue, subString(actvalue,1,strlen(actvalue)-1));
-											strcat(Buffer,padLeft(actvalue,'0',padLength));
-											//delete[] actvalue;
-											//actvalue = '\0';
-											//int l = strlen(actvalue);
+											strcat(Buffer,(char*)objIndex->getActualValue());
 										}
+										else
+										{
+											if(CheckIfHex((char*)objIndex->getActualValue()))
+											//if(actvalue!=NULL)
+											{
+												int len = strlen((char*)objIndex->getActualValue());
+												strncpy(actvalue,(objIndex->getActualValue()+ 2),len-2 );
+												actvalue[len -2] ='\0';								
+												strcat(Buffer,padLeft(actvalue,'0',padLength));
 												
-								/*char* actvalue = new char[30];												
-								if(strchr((char*)objIndex->getActualValue(),'x')!=NULL )
-								{
-									strcpy(actvalue,strchr((char*)objIndex->getActualValue(),'x'));
-									strcpy(actvalue, subString(actvalue,1,strlen(actvalue)-1));
-									strcat(Buffer,padLeft(actvalue,'0',padLength));
-								}*/
-								else
-								{
-								 
-									//actvalue =  _IntToAscii(atoi(objIndex->getActualValue()),actvalue,16);
-									///*printf("\n actval%s",actvalue);*/
-									////printf("Index:% s actvalue: %s padlength:%d",objIndex->getIndexValue(),objIndex->getActualValue(),padLength);
-									////strcat(Buffer,padLeft((char*)objIndex->getActualValue(),'0',padLength));								
-									//strcat(Buffer,padLeft(actvalue, '0', padLength));
-										strcpy(actvalue, _IntToAscii(atoi(objIndex->getActualValue()),actvalue,16));
-										//printf("\n ACT Value%s",actvalue);
-									
-												//strcpy(actvalue, _IntToAscii(atoi(objIndex->getActualValue()),actvalue,16));
-										strcat(Buffer,padLeft(actvalue, '0', padLength));
-									
+											}										
+						
+										else
+										{
+									 
+											strcpy(actvalue, _IntToAscii(atoi(objIndex->getActualValue()),actvalue,16));
+											//printf("\n ACT Value%s",actvalue);															
+											strcat(Buffer,padLeft(actvalue, '0', padLength));
+										
+									}
 								}
 							}
 					
@@ -1204,14 +1202,26 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 								dt = objSubIndex->getDataType();
 								int padLength=0;
 							char* size = new char[8 + ALLOC_BUFFER];
+							
 								if(dt.Name != NULL)
 								{
-									//dt.DataSize = padLeft(dt.DataSize, '0', 4);
-									//strcat(Buffer ,dt.DataSize);	
+									if(!checkIfStringDatatypes(dt.Name)) 
+								{
 									size  = _IntToAscii(dt.DataSize, size, 16); 
 									size = padLeft(size, '0', 8);
 									strcat(Buffer, size);	
 									padLength = dt.DataSize*2;
+									IfStringDT = false;
+									}
+									else
+									{			
+										int len = strlen(objIndex->getActualValue());							
+										size = _IntToAscii(len, size, 16);
+										size = padLeft(size, '0', 8);
+										strcat(Buffer, size);	
+										padLength = len*2;
+											IfStringDT = true;
+									}
 								}
 							
 								/*if(dt.Name != NULL)
@@ -1241,24 +1251,30 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 										
 										char actvalue[20];
 										actvalue[0]  = '\0';
-										if(CheckIfHex((char*)objSubIndex->getActualValue()))
-										//if(actvalue!=NULL)
+										if(IfStringDT)
 										{
-											int len = strlen((char*)objSubIndex->getActualValue());
-											strncpy(actvalue,(objSubIndex->getActualValue()+ 2),len-2 );
-											actvalue[len -2] ='\0';
-										
-											//printf("\n ACT Value%s",actvalue);
-											strcat(Buffer,padLeft(actvalue,'0',padLength));
-										
+											strcat(Buffer,(char*)objSubIndex->getActualValue());
 										}
-											else
-											{				
-												//actvalue = new char[50];									
-												strcpy(actvalue, _IntToAscii(atoi(objSubIndex->getActualValue()),actvalue,16));
+										else
+										{
+											if(CheckIfHex((char*)objSubIndex->getActualValue()))										
+											{
+												int len = strlen((char*)objSubIndex->getActualValue());
+												strncpy(actvalue,(objSubIndex->getActualValue()+ 2),len-2 );
+												actvalue[len -2] ='\0';
+											
 												//printf("\n ACT Value%s",actvalue);
-									
-												strcat(Buffer,padLeft(actvalue, '0', padLength));
+												strcat(Buffer,padLeft(actvalue,'0',padLength));
+											
+											}
+												else
+												{				
+													//actvalue = new char[50];									
+													strcpy(actvalue, _IntToAscii(atoi(objSubIndex->getActualValue()),actvalue,16));
+													//printf("\n ACT Value%s",actvalue);
+										
+													strcat(Buffer,padLeft(actvalue, '0', padLength));
+												}
 											}
 										
 										}
