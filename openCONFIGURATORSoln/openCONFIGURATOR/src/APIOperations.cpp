@@ -855,10 +855,10 @@ ocfmRetCode SetSubIndexAttributes(int NodeID, ENodeType NodeType, char* IndexID,
 	* Return value: ocfmRetCode
 ****************************************************************************************************/
 ocfmRetCode SetALLIndexAttributes(int NodeID, ENodeType NodeType, 
-																																		char* IndexID, char* ActualValue,
-																																		char* IndexName, char* Access, char* dataTypeName,
-																																		char* pdoMappingVal, char* defaultValue, char* highLimit,
-																																		char* lowLimit, char* objType, EFlag flagIfIncludedInCdc)
+char* IndexID, char* ActualValue,
+char* IndexName, char* Access, char* dataTypeName,
+char* pdoMappingVal, char* defaultValue, char* highLimit,
+char* lowLimit, char* objType, EFlag flagIfIncludedInCdc)
 {
 	int IndexPos;
 	ocfmRetCode ErrStruct;
@@ -866,24 +866,23 @@ ocfmRetCode SetALLIndexAttributes(int NodeID, ENodeType NodeType,
 	{
 		ErrStruct = IfIndexExists(NodeID, NodeType, IndexID, &IndexPos);
 		if(ErrStruct.code == OCFM_ERR_SUCCESS)
-		{
+		{	
 			//IndexPos = ErrStruct.returnValue;
 		}
 		else
-		{
+		{		
 			//OCFM_ERR_INDEXID_NOT_FOUND
 			//return ErrStruct;
 			ocfmException objException;				
 			objException.ocfm_Excpetion(OCFM_ERR_INDEXID_NOT_FOUND);
 			throw objException;
-		}
+		}		
 		CIndex* objIndexPtr;
 
 		CNode objNode;		
 		CNodeCollection *objNodeCollection;
 		CIndexCollection *objIndexCollection;
-		CIndex objIndex;
-		
+		CIndex objIndex;		
 		objIndex.setNodeID(objNode.getNodeId());
 		objNodeCollection= CNodeCollection::getNodeColObjectPointer();
 		objNode = objNodeCollection->getNode(NodeType, NodeID);
@@ -896,10 +895,7 @@ ocfmRetCode SetALLIndexAttributes(int NodeID, ENodeType NodeType,
 		
 		if(Access != NULL)
 		objIndexPtr->setAccessType(Access);
-		
-		if(dataTypeName != NULL)
-		objIndexPtr->setDataType(dataTypeName);
-		
+
 		if(pdoMappingVal != NULL)
 		objIndexPtr->setPDOMapping(pdoMappingVal);
 		
@@ -915,10 +911,24 @@ ocfmRetCode SetALLIndexAttributes(int NodeID, ENodeType NodeType,
 		if(objType != NULL)
 		objIndexPtr->setObjectType(objType);
 		
-		
 		objIndexPtr->setFlagIfIncludedCdc(flagIfIncludedInCdc);
-		if(objIndexPtr->IsIndexVaueValid(ActualValue))
+		
+		if(dataTypeName != NULL)
 		{
+			if( (CheckIfDataTypeExists(dataTypeName, objIndexPtr->getNodeID())) == TRUE)
+			{
+				objIndexPtr->setDataType(dataTypeName);
+			}
+			else
+			{
+				ocfmException objException;				
+				objException.ocfm_Excpetion(OCFM_ERR_DATATYPE_NOT_FOUND);
+				throw objException;
+			}
+		}
+		
+		if(objIndexPtr->IsIndexVaueValid(ActualValue))
+		{		
 			//printf("\nIndex value%s",IndexValue);
 			objIndexPtr->setActualValue(ActualValue);
 			
@@ -996,9 +1006,6 @@ ocfmRetCode SetALLSubIndexAttributes(int NodeID, ENodeType NodeType,
 			if(Access != NULL)
 			objSubIndexPtr->setAccessType(Access);
 			
-			if(dataTypeName != NULL)
-			objSubIndexPtr->setDataType(dataTypeName);
-			
 			if(pdoMappingVal != NULL)
 			objSubIndexPtr->setPDOMapping(pdoMappingVal);
 			
@@ -1020,6 +1027,21 @@ ocfmRetCode SetALLSubIndexAttributes(int NodeID, ENodeType NodeType,
 					objSubIndexPtr->setActualValue(ActualValue);
 					ErrStruct.code = OCFM_ERR_SUCCESS;
 			}
+			
+			if(dataTypeName != NULL)
+			{
+				if( (CheckIfDataTypeExists(dataTypeName, objSubIndexPtr->getNodeID())) == TRUE)
+				{
+					objSubIndexPtr->setDataType(dataTypeName);
+				}
+				else
+				{
+					ocfmException objException;				
+					objException.ocfm_Excpetion(OCFM_ERR_DATATYPE_NOT_FOUND);
+					throw objException;
+				}
+			}
+			
 			//else
 			//{
 			//	ocfmException objException;				
@@ -1027,7 +1049,7 @@ ocfmRetCode SetALLSubIndexAttributes(int NodeID, ENodeType NodeType,
 			//	throw objException;
 			//	//ErrStruct.code =  OCFM_ERR_VALUE_NOT_WITHIN_RANGE;
 			//}
-			objSubIndexPtr->setName(IndexName);
+			//objSubIndexPtr->setName(IndexName);
 			//printf("SubIndexValue:%s-%s\n", objSubIndexPtr->getName(), SubIndexID);
 			/*ErrStruct.code = OCFM_ERR_SUCCESS;*/
 			return ErrStruct;

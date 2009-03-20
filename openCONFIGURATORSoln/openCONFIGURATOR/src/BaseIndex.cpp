@@ -302,8 +302,11 @@ void CBaseIndex::setDataType(char* dataTypeName)
 		CDataTypeCollection* dtcol;
 		dtcol=objNode.getDataTypeCollection();
 		dt = dtcol->getDataType(dataTypeName);	
-		
-		m_dataType= *dt;
+		if(dt != NULL)
+		{
+			m_dataType= *dt;
+		}		
+		cout << "Out of CBaseIndex::setDataType\n\n" << endl;
 		/*m_dataType.DataTypeValue =dt.DataTypeValue;
 		m_dataType.Name =dt.Name ;*/
 	}
