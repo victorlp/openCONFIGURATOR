@@ -583,9 +583,11 @@ ocfmRetCode AddSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* Sub
 			return ex._ocfmRetCode;
 		}
 	}	
-void setIndexName(char* ObjectIndex, char* ObjectName)
+char* getIndexName(char* ObjectIndex, char* ObjectName)
 {
 	char* Name = NULL;// = new char[100];
+	char* ModifiedName = new char[strlen(ObjectName)];
+	
 	int len;
 	printf("\nObjectName %s", ObjectName);
 	Name = strchr(ObjectName, 'X')	;
@@ -607,9 +609,10 @@ void setIndexName(char* ObjectIndex, char* ObjectName)
 			i++;	
 		}
 		Name = Name-i;
-		ObjectName = subString(ObjectName, 0, strlen(ObjectName)-pos);
-		strcat(ObjectName, Name);	
-		printf("\n ObjectName %s",ObjectName);
+		strcpy(ModifiedName, subString(ObjectName, 0, strlen(ObjectName)-pos));		
+		strcat(ModifiedName, Name);	
+		printf("\n ModifiedName %s",ModifiedName);
+		return ModifiedName;
 	}
 }
 /****************************************************************************************************
@@ -669,7 +672,9 @@ ocfmRetCode AddIndex(int NodeID, ENodeType NodeType, char* IndexID)
 						objIndex.addSubIndex(*objSIdx);
 					}
 					//setIndexName(subString(IndexID,2,4),(char*)objIndex.getName());
+					objIndex.setName(getIndexName(subString(IndexID,2,4), (char*)objIndex.getName()));
 					objIndexCollection->addIndex(objIndex);
+					printf("\nObject Added");
 				}
 				else if((NodeType == MN) && CheckIfProcessImageIdx(IndexID))
 				{	
