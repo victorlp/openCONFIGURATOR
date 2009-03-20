@@ -854,7 +854,7 @@ void AddPDOIndexsToMN(char* Index, char* SubIndex, EPDOType pdoType)
 		}
 	}
 	
-	delete[] Name;
+	
 		
 	Name = getPIDataTypeName(Index);
 		
@@ -866,8 +866,9 @@ void AddPDOIndexsToMN(char* Index, char* SubIndex, EPDOType pdoType)
 	
 	UpdateNumberOfEnteriesSIdx(objIndex, MN);
 	
-	delete[] pdoMap;
-	delete[] ObjectName;
+	//delete[] Name;
+	//delete[] pdoMap;
+	//delete[] ObjectName;
 	
  }
 char* getPIAddress(PDODataType dt,  EPIDirectionType dirType)

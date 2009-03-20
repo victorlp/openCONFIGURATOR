@@ -541,8 +541,11 @@ static void getVarDeclaration(xmlTextReaderPtr reader, CComplexDataType* objCDT)
 					ret = xmlTextReaderRead(reader);
 					if (ret != 1) 
 					{
-						ocfmException* objException = new ocfmException;
-						objException->ocfm_Excpetion(OCFM_ERR_XML_FILE_CORRUPTED);
+						//ocfmException* objException = new ocfmException;
+						//objException->ocfm_Excpetion(OCFM_ERR_XML_FILE_CORRUPTED);
+						ocfmException objException;// = new ocfmException;
+						objException.ocfm_Excpetion(OCFM_ERR_XML_FILE_CORRUPTED);
+						throw &objException;
 					}
 				  
 			}

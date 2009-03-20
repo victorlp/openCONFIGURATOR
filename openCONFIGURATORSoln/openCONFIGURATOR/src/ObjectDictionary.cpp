@@ -256,31 +256,41 @@ void CObjectDictionary::createSameattrObject(char* value, ObjectType objType, ch
 {
 		
 		s_attrIdx_SIdx object;											
-		char* s_idx, *e_idx = new char[3];
+		char* s_idx = new char[RANGE_INDEX];
+		char* e_idx = NULL;
+		//= new char[RANGE_INDEX];
 									
-		e_idx = strchr(value, '-');			
+		e_idx = strchr(value, '-');	
+		if(e_idx!= NULL)
+		{
 		s_idx = subString(value, 0, strlen(e_idx)-1);
-		e_idx = subString(e_idx, 1, strlen(e_idx));
+		e_idx = subString(value, strlen(s_idx) + 1, strlen(value));
 		
-		object.start_Index = new char[5];
-		object.end_Index		 = new char[5];
+		
 		object.objectType = objType;
-		object.Idx								= new char[5];
+		object.Idx								= new char[INDEX_LEN];
 		
 		if(objType == INDEX) 
 		{
+			object.start_Index = new char[INDEX_LEN];
+			object.end_Index		 = new char[INDEX_LEN];
 			strcpy(object.end_Index, subString(Idx, 0, 4 - strlen(s_idx)));
 			strcat(object.end_Index, e_idx);
 			strcpy(object.start_Index, Idx);	
 		}
 		else 
 		{
+			object.start_Index = new char[SUBINDEX_LEN];
+			object.end_Index		 = new char[SUBINDEX_LEN];
 			strcpy(object.start_Index, s_idx);
 			strcpy(object.end_Index, e_idx);
 		}				
 			
 		strcpy(object.Idx, Idx);
 		addSameAttributesObjects(object); 
+	}
+		//delete [] e_idx;
+		delete [] s_idx;
 }
 CIndex* CObjectDictionary::getObjectDictIndex(char* Idx)
 {

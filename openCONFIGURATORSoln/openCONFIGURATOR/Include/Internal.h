@@ -82,6 +82,7 @@
 #define ALLOC_BUFFER 5
 #define INDEX_LEN 5
 #define SUBINDEX_LEN 3
+#define RANGE_INDEX 3
 extern int ConfigDate;
 extern int ConfigTime;
 static const int g_simple_arr_size = 19;

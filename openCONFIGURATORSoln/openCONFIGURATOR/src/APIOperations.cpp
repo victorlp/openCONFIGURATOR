@@ -1358,9 +1358,11 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 							char* Buffer4;
 									
 						/*************WRITE MN'S 1006,1020 Indexes Values *******************************/			
-							Buffer4 = (char*)malloc(10000);	
+							//Buffer4 = (char*)malloc(10000);	
+							Buffer4 = new char[10000];	
 							objIndex = getMNIndexValues("1006");
-							Buffer2 = (char*)malloc(20000);		
+							//Buffer2 = (char*)malloc(20000);		
+							Buffer2 = new char[20000];		
 						
 							if(objIndex!=NULL)
 							{
@@ -1422,7 +1424,8 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 							strcat(CNDataLength, c);				
 							
 							// First write the IF22 data in a Buffer and then CN-ns Object Dictionary
-							Buffer3 = (char*)malloc(strlen(Buffer2)+50);
+							//Buffer3 = (char*)malloc(strlen(Buffer2)+50);
+							Buffer3 = new char [strlen(Buffer2)+50];
 							strcpy(Buffer3, CNDataLength);
 							strcat(Buffer3, "\n");
 							strcat(Buffer3, Buffer2);
@@ -1440,8 +1443,10 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 								{
 									fclose(fileptr);																							
 								}
-					free(Buffer2);
-					free(Buffer3);
+					//free(Buffer2);
+					delete [] Buffer2;
+					//free(Buffer3);
+					delete [] Buffer3;
 					}
 			
 			}
@@ -4115,9 +4120,9 @@ ocfmRetCode DeleteNodeObjDict(
 		}
 		else
 		{
-			ocfmException* objException = new ocfmException;
-			objException->ocfm_Excpetion(OCFM_ERR_INVALID_NODEID);
-			throw objException;
+			ocfmException objException;// = new ocfmException;
+			objException.ocfm_Excpetion(OCFM_ERR_INVALID_NODEID);
+			throw &objException;
 		}
 		
 		CNode objNode;

@@ -120,16 +120,16 @@ ocfmRetCode IfNodeExists(int NodeID, ENodeType NodeType, int* NodePos, bool& Exi
 			}
 			/*ErrStruct.code = OCFM_ERR_NODEID_NOT_FOUND;
 			return ErrStruct;*/
-			ocfmException* objException = new ocfmException;
-			objException->ocfm_Excpetion(OCFM_ERR_NODEID_NOT_FOUND);
-			throw objException;	
+			ocfmException objException;// = new ocfmException;
+			objException.ocfm_Excpetion(OCFM_ERR_NODEID_NOT_FOUND);
+			throw &objException;	
 			
 		}
 		else
 		{
-			ocfmException* objException = new ocfmException;
-			objException->ocfm_Excpetion(OCFM_ERR_NO_NODES_FOUND);
-			throw objException;	
+			ocfmException objException;// = new ocfmException;
+			objException.ocfm_Excpetion(OCFM_ERR_NO_NODES_FOUND);
+			throw &objException;	
 		}
 	}
 	catch(ocfmException* ex)
