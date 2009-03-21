@@ -794,11 +794,11 @@ void AddPDOIndexsToMN(char* Index, char* SubIndex, EPDOType pdoType)
 	char* ObjectName = new char[14 + ALLOC_BUFFER];
 	
 	objNodeCol =  CNodeCollection::getNodeColObjectPointer();
-	objMNNode = objNodeCol->getNode(MN, 240);
+	objMNNode = objNodeCol->getNode(MN, MN_NODEID);
 	objDTCol = objMNNode.getDataTypeCollection();
 	
 	
-	retCode = AddIndex(240, MN, Index);	
+	retCode = AddIndex(MN_NODEID, MN, Index);	
 	objIdxCol = objMNNode.getIndexCollection();
 	if(objIdxCol != NULL)
 	{
@@ -817,6 +817,13 @@ void AddPDOIndexsToMN(char* Index, char* SubIndex, EPDOType pdoType)
 				strcat(ObjectName, getPIName(Index));	
 			}
 			objIndex->setName(ObjectName);
+			/* Add subindex 00 */
+			
+			retCode = AddSubIndex(MN_NODEID, MN, Index, "00");
+			if(retCode.code  ==  OCFM_ERR_SUCCESS)
+			{
+				//SetSubIndexAttributes(MN_NODEID, MN, Index, "00", NULL, "NumberOfEntries");
+			}
 		}
 	}
 	
@@ -828,6 +835,7 @@ void AddPDOIndexsToMN(char* Index, char* SubIndex, EPDOType pdoType)
 		objSIdx = objIndex->getSubIndexbyIndexValue(SubIndex);
 		if(objSIdx != NULL)
 		{
+			
 			objSIdx->setObjectType((char*)"VAR");
 			
 			/* Its reversed because CN's RPDO is MN's TPDO*/

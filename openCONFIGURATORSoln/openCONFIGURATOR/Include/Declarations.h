@@ -76,7 +76,7 @@
 /************************************************************************************************
 Constants
 ************************************************************************************************/
-const int MN_NODEID=240;
+#define MN_NODEID 240
 const int OFFSET_INTEGER_8 = 0;
 const int OFFSET_UNSIGNED_INTEGER_8 = 0;
 #define OFFSET_FIRST_INDEX_IN_MN_OBD	4

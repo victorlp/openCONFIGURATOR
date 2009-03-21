@@ -267,8 +267,18 @@ void setDataTypeAttributes(xmlTextReaderPtr reader ,DataType* objDataType)
 			//printf("objDataType->DataTypeValue:%s\n",objDataType->DataTypeValue);
 			//Read the Equivalent name of a datatype
 			ret = xmlTextReaderRead(reader);
+			if(ret!=1)
+				{
+				
+							ocfmException objException;						
+							objException.ocfm_Excpetion(OCFM_ERR_XML_FILE_CORRUPTED);
+							throw objException;
+					
+				}
 			while(xmlTextReaderNodeType(reader) != XML_READER_TYPE_ELEMENT)
 			{
+				
+				ret = xmlTextReaderRead(reader);
 				if(ret!=1)
 				{
 				
@@ -277,7 +287,6 @@ void setDataTypeAttributes(xmlTextReaderPtr reader ,DataType* objDataType)
 							throw objException;
 					
 				}
-				ret = xmlTextReaderRead(reader);			
 			}
 		
 			value = xmlTextReaderConstValue(reader);
@@ -833,7 +842,7 @@ void processNode(xmlTextReaderPtr reader,ENodeType NodeType,int NodeIndex)
 			}
 		
 		}
-		catch(ocfmException* ex)
+		catch(ocfmException& ex)
 		{
 			
 			 throw ex;
@@ -922,7 +931,20 @@ ocfmRetCode ReImportXML(char* fileName, int NodeID, ENodeType NodeType)
 			// Delete DataTypeCollection
 			objDataTypeCollection->DeleteDataTypeCollection();
 			//cout<< "Number of DataType:" << objDataTypeCollection->getNumberOfDataTypes() << endl;
-			parseFile(fileName, NodeID, NodeType);
+			ErrStruct = parseFile(fileName, NodeID, NodeType);
+			if(ErrStruct.code != OCFM_ERR_SUCCESS)
+			{
+				#if defined DEBUG
+					cout << "\nparseFile in ReImport failed\n" << endl;
+				#endif
+					ErrStruct = DeleteNodeObjDict(NodeID, NodeType);
+					if(ErrStruct.code != OCFM_ERR_SUCCESS)
+					{
+							#if defined DEBUG
+								cout << "\nDeleteNodeObjDict in ReImport failed\n" << endl;
+							#endif
+					}
+			}
 			/* Add other required index*/		
 			if(NodeType == CN)
 			{
@@ -1904,7 +1926,7 @@ void setFlagForRequiredIndexes(int NodeId)
 ocfmRetCode AddOtherRequiredCNIndexes(int NodeId)
 {
 			ocfmRetCode retCode;
-			char* MNIndex = new char[INDEX_LEN];		
+			char* Index = new char[INDEX_LEN];		
 			char* Sidx =  new char[SUBINDEX_LEN];
 			CIndexCollection* objIdxCol;
 			CNodeCollection* objNodeCol;
@@ -1916,12 +1938,12 @@ ocfmRetCode AddOtherRequiredCNIndexes(int NodeId)
 				objIdxCol = objNode->getIndexCollection();
 					
 				/* Add 1006*/
-					strcpy(MNIndex, "1020");
+					strcpy(Index, "1020");
 							#if defined DEBUG	
 						cout << "string copied" << endl;
 					
 					#endif
-					retCode = AddIndex(objNode->getNodeId(), CN, MNIndex);
+					retCode = AddIndex(objNode->getNodeId(), CN, Index);
 						#if defined DEBUG	
 						cout << "retcode" << retCode.code<<endl;
 						cout<< "1020 added"<<endl;
@@ -1936,12 +1958,12 @@ ocfmRetCode AddOtherRequiredCNIndexes(int NodeId)
 						/* Set subindex value 40 or 0000028 */
 								
 						strcpy(Sidx, "01");
-						SetSIdxValue(MNIndex, Sidx, Val, objIdxCol, objNode->getNodeId(), CN,  false);
+						SetSIdxValue(Index, Sidx, Val, objIdxCol, objNode->getNodeId(), CN,  false);
 							
 						Val = _IntToAscii(ConfigTime,Val, 10);
 				
 						strcpy(Sidx, "02");
-						SetSIdxValue(MNIndex, Sidx, Val, objIdxCol, objNode->getNodeId(), CN, false);
+						SetSIdxValue(Index, Sidx, Val, objIdxCol, objNode->getNodeId(), CN, false);
 						
 					
 				}
@@ -1950,7 +1972,8 @@ ocfmRetCode AddOtherRequiredCNIndexes(int NodeId)
 					return ex._ocfmRetCode;
 				}
 				
-				
+		retCode.code = OCFM_ERR_SUCCESS;
+		return retCode;
 	}
 					
 					
@@ -2056,7 +2079,7 @@ int getDataSize(char* dataTypeVal)
 				return 6;
 			
 			}	
-		
+					
 			
 }
 

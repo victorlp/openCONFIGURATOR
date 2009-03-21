@@ -306,7 +306,7 @@ void CBaseIndex::setDataType(char* dataTypeName)
 		{
 			m_dataType= *dt;
 		}		
-		cout << "Out of CBaseIndex::setDataType\n\n" << endl;
+		//cout << "Out of CBaseIndex::setDataType\n\n" << endl;
 		/*m_dataType.DataTypeValue =dt.DataTypeValue;
 		m_dataType.Name =dt.Name ;*/
 	}
