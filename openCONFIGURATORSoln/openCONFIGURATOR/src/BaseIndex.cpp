@@ -293,7 +293,7 @@ DataType CBaseIndex::getDataType ()
 * Function Name: setDataType
 * Description: sets the DataType of the Index Object
 ****************************************************************************************************/
-void CBaseIndex::setDataType(char* dataTypeName)
+void CBaseIndex::setDataType(char* dataTypeValue)
 	{	
 		DataType* dt;
 		CNodeCollection* objNodeCol;
@@ -301,7 +301,7 @@ void CBaseIndex::setDataType(char* dataTypeName)
 		CNode objNode = objNodeCol->getNode(m_NodeID);
 		CDataTypeCollection* dtcol;
 		dtcol=objNode.getDataTypeCollection();
-		dt = dtcol->getDataType(dataTypeName);	
+		dt = dtcol->getDataType(dataTypeValue);			
 		if(dt != NULL)
 		{
 			m_dataType= *dt;
@@ -322,7 +322,7 @@ void CBaseIndex::setDataType(char* dataTypeName, int NodeID)
 		CNode objNode = objNodeCol->getNode(NodeID);
 		CDataTypeCollection* dtcol;
 		dtcol=objNode.getDataTypeCollection();
-		dt = dtcol->getDataType(dataTypeName);	
+		dt = dtcol->getDataTypeByName(dataTypeName);				
 		m_dataType= *dt;
 		/*m_dataType.DataTypeValue =dt.DataTypeValue;
 		m_dataType.Name =dt.Name ;*/

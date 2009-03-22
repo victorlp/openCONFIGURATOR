@@ -362,6 +362,19 @@ bool CheckIfDataTypeExists(char* dtValue, int NodeID)
 	else return true;
 }
 
+bool CheckIfDataTypeByNameExists(char* dtName, int NodeID)
+{
+	CNodeCollection* objNodeCol;
+	objNodeCol= CNodeCollection::getNodeColObjectPointer();
+	CNode objNode = objNodeCol->getNode(NodeID);
+	CDataTypeCollection* dtcol;
+	dtcol=objNode.getDataTypeCollection();
+	DataType* dt;
+	dt = dtcol->getDataTypeByName(dtName); 
+	if (dt== NULL)
+	return false;
+	else return true;
+}
 bool CheckIfSubIndexExists(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID)
 {
 		CNode objNode;		

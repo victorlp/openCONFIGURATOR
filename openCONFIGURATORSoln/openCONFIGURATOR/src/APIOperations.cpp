@@ -115,6 +115,7 @@ int ConfigDate;
 int ConfigTime;
 
 #define CDC_BUFFER 5000
+#define PI_VAR_COUNT 4000
 
 /****************************************************************************************************
 * Function Name: AddIndexAttributes
@@ -923,16 +924,25 @@ char* lowLimit, char* objType, EFlag flagIfIncludedInCdc)
 		//cout << "EditIndexValue:Index Actual Value:" << objIndexPtr->getActualValue() << IndexValue << endl;
 		/* Check if the value is valid*/
 		if(IndexName!= NULL)
-		objIndexPtr->setName(IndexName);
+		{
+			 if(strcmp(IndexName, "") != 0)
+			objIndexPtr->setName(IndexName);
+		}
 		
 		if(Access != NULL)
-		objIndexPtr->setAccessType(Access);
+		{
+			if(strcmp(Access, "") != 0)
+			objIndexPtr->setAccessType(Access);
+		}
 
 		if(pdoMappingVal != NULL)
-		objIndexPtr->setPDOMapping(pdoMappingVal);
-		
+		{
+			objIndexPtr->setPDOMapping(pdoMappingVal);
+		}
 		if(defaultValue != NULL)
-		objIndexPtr->setDefaultValue(defaultValue);
+		{
+			objIndexPtr->setDefaultValue(defaultValue);
+		}
 		
 		if(highLimit != NULL)
 		objIndexPtr->setHighLimit(highLimit);
@@ -947,15 +957,21 @@ char* lowLimit, char* objType, EFlag flagIfIncludedInCdc)
 		
 		if(dataTypeName != NULL)
 		{
-			if( (CheckIfDataTypeExists(dataTypeName, objIndexPtr->getNodeID())) == TRUE)
+			if(strcmp(dataTypeName, "") !=0)
 			{
-				objIndexPtr->setDataType(dataTypeName);
-			}
-			else
-			{
-				ocfmException objException;				
-				objException.ocfm_Excpetion(OCFM_ERR_DATATYPE_NOT_FOUND);
-				throw objException;
+				if( (CheckIfDataTypeByNameExists(dataTypeName, objIndexPtr->getNodeID())) == true)
+				{
+					objIndexPtr->setDataType(dataTypeName, NodeID);
+					DataType dt;
+					dt = objIndexPtr->getDataType();
+					printf("\n name %s", dt.getName());
+				}
+				else
+				{
+					ocfmException objException;				
+					objException.ocfm_Excpetion(OCFM_ERR_DATATYPE_NOT_FOUND);
+					throw objException;
+				}
 			}
 		}
 		
@@ -1068,15 +1084,18 @@ ocfmRetCode SetALLSubIndexAttributes(int NodeID, ENodeType NodeType,
 			
 			if(dataTypeName != NULL)
 			{
-				if( (CheckIfDataTypeExists(dataTypeName, objSubIndexPtr->getNodeID())) == TRUE)
-				{
-					objSubIndexPtr->setDataType(dataTypeName);
-				}
-				else
-				{
-					ocfmException objException;				
-					objException.ocfm_Excpetion(OCFM_ERR_DATATYPE_NOT_FOUND);
-					throw objException;
+			if(strcmp(dataTypeName, "") !=0)
+			{
+					if( (CheckIfDataTypeByNameExists(dataTypeName, objSubIndexPtr->getNodeID())) == true)
+					{
+						objSubIndexPtr->setDataType(dataTypeName);
+					}
+					else
+					{
+						ocfmException objException;				
+						objException.ocfm_Excpetion(OCFM_ERR_DATATYPE_NOT_FOUND);
+						throw objException;
+					}
 				}
 			}
 			
@@ -3037,8 +3056,8 @@ ocfmRetCode GenerateXAP(char* fileName)
 			xmlDocPtr doc = NULL;
 			//int picount = 0;
 			//int i=10;
-			ProcessImage PIInCol[4000] = {};
-			ProcessImage PIOutCol[4000] = {};
+			ProcessImage PIInCol[PI_VAR_COUNT] = {};
+			ProcessImage PIOutCol[PI_VAR_COUNT] = {};
 			GroupInOutPIVariables(PIInCol, PIOutCol);
 			/* Calculate Offsets for Input Variable*/
 			//CalculateOffsets(InVars, INPUT);

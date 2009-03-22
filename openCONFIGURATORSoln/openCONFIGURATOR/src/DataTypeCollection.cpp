@@ -115,7 +115,9 @@ DataType* CDataTypeCollection::getDataTypeByName(char* DataTypeName)
 			{				
 				dt=this->getDataTypeElement(i);				
 				if(strcmp(StringToUpper(dt->getName()),StringToUpper(DataTypeName))==0)
+				{		
 					return dt;
+				}
 
 			}
 			dt = NULL;			

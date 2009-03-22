@@ -154,4 +154,5 @@ void UpdateCNCycleTime(CIndexCollection  *objIdxCol,char* cycleTime);
 void	UpdateNumberOfEnteriesSIdx(CIndex *objIndex, ENodeType NodeType);
 int getDataSize(char* dataTypeVal);
 bool checkIfStringDatatypes(char* datatypeValue);
+bool CheckIfDataTypeByNameExists(char* dtName, int NodeID);
 #endif // internal_h

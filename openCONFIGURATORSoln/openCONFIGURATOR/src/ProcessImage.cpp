@@ -79,7 +79,7 @@
 
 int InVars =0;
 int OutVars = 0;
-#define HEADER_FILE_BUFFER 500000
+#define HEADER_FILE_BUFFER 5000000
 #define TOTAL_MODULES 10000
 
 static tADDRESSTABLE AddressTable[NO_OF_PI_ENTERIES] = {
