@@ -4273,7 +4273,7 @@ ocfmRetCode SaveProject(char* ProjectPath, char* ProjectName)
 	/*strcpy(ProjectPath,"c:\\parser");
 	strcpy(ProjectName, "mypjt");*/
 	//path = new char[200];
-	path = new char[(strlen(ProjectPath)) + (strlen(ProjectName)) + strlen("CDC_XAP") + ALLOC_BUFFER];
+	path = new char[(strlen(ProjectPath)) + (strlen(ProjectName)) + strlen("cdc_xap") + ALLOC_BUFFER];
 	
 	try
 	{	
@@ -4314,14 +4314,14 @@ ocfmRetCode SaveProject(char* ProjectPath, char* ProjectName)
 		
 		#if defined(_WIN32) && defined(_MSC_VER)
 		{
-			sprintf(path, "%s\\%s\\%s", ProjectPath, ProjectName, "CDC_XAP");
+			sprintf(path, "%s\\%s\\%s", ProjectPath, ProjectName, "cdc_xap");
 			cout << "\npath:" << path <<endl;
 			mkdir(path);	
 			cout << "mkdir success"<<endl;
 		}
 		#else
 		{
-			sprintf(path, "%s/%s/%s", ProjectPath, ProjectName, "CDC_XAP");				
+			sprintf(path, "%s/%s/%s", ProjectPath, ProjectName, "cdc_xap");				
 			mkdir(path, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
 		}
 		#endif
@@ -4354,7 +4354,7 @@ ocfmRetCode SaveProject(char* ProjectPath, char* ProjectName)
 						cout << "Trace_5" <<endl;
 				#if defined(_WIN32) && defined(_MSC_VER)
 				{
-					sprintf(path, "%s\\%s\\XDC", ProjectPath, ProjectName);				
+					sprintf(path, "%s\\%s\\%s", ProjectPath, ProjectName, "octx");				
 					struct stat fileInfo;
 					int intStat;
 					intStat = stat(path,&fileInfo);
@@ -4378,7 +4378,7 @@ ocfmRetCode SaveProject(char* ProjectPath, char* ProjectName)
 				{
 					struct stat fileInfo;
 					int intStat;
-					sprintf(path, "%s/%s/XDC", ProjectPath, ProjectName);				
+					sprintf(path, "%s/%s/%s", ProjectPath, ProjectName, "octx");				
 					intStat = stat(path,&fileInfo);
 					if(intStat == 0) 
 					{
@@ -6370,7 +6370,7 @@ cout << "\n6" << endl;
 		char* tmp_XdcName;
 		tmp_XdcName = new char[20];
 		
-		sprintf(tmp_XdcName, "XDC/%s.octx", tmp_NodeID);		
+		sprintf(tmp_XdcName, "%s/%s.octx", "octx", tmp_NodeID);		
 		rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "xdc", BAD_CAST tmp_XdcName);
 
 		// End Node Tag
