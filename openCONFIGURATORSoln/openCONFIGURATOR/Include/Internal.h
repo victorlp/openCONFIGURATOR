@@ -10,7 +10,7 @@
 //  
 // PURPOSE:  purpose description
 //
-// AUTHOR:  
+// AUTHOR:  Kalycito Powerlink Team
 //
 //  COPYRIGHT NOTICE:
 //
@@ -68,7 +68,13 @@
 //  REVISION HISTORY:
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
+
+/************************************************************************************************
+* Includes
+************************************************************************************************/
 #include <string>
+#include <libxml/xmlwriter.h>
+#include <libxml/xmlreader.h>
 #include "Exports.h"
 #include "Index.h"
 #include "ProjectSettings.h"
@@ -76,21 +82,34 @@
 #include "Declarations.h"
 #include "Node.h"
 #include "IndexCollection.h"
-#include <libxml/xmlwriter.h>
-#include <libxml/xmlreader.h>
+
+/************************************************************************************************
+* Defines
+************************************************************************************************/
 #define TOOL_VERSION "1.0.0"
 #define ALLOC_BUFFER 5
 #define INDEX_LEN 5
 #define SUBINDEX_LEN 3
 #define RANGE_INDEX 3
-#
-extern int ConfigDate;
-extern int ConfigTime;
-static const int g_simple_arr_size = 19;
+
+/************************************************************************************************
+* Enumerations
+************************************************************************************************/
 typedef enum{
 ADD = 0,
 DELETE
 }EOperation;
+
+/************************************************************************************************
+* Externs
+************************************************************************************************/
+extern int ConfigDate;
+extern int ConfigTime;
+
+/************************************************************************************************
+* Global variables
+************************************************************************************************/
+static const int g_simple_arr_size = 19;
 
 /****************************************************************************************************
 * Function Declarations
@@ -145,8 +164,8 @@ void SetSIdxValue(char* Idx, char* SIdx,
 ocfmRetCode AddOtherRequiredCNIndexes(int NodeId);
 void CreateMNPDOVar(int Offset, int dataSize,IEC_Datatype dtenum, EPDOType pdoType, CNode *objNode);
 int getCNsTotalIndexSubIndex(int NodeID);
-CHAR toupper (CHAR ch);
-CHAR tobin(CHAR ch);
+//CHAR toupper (CHAR ch);
+//CHAR tobin(CHAR ch);
 int reversedata(UINT8 *actemp1, UINT8 *actemp2, UINT32 size);
 char* StringToUpper(char* str);
 void setFlagForRequiredIndexes(int NodeId);
@@ -155,4 +174,7 @@ void	UpdateNumberOfEnteriesSIdx(CIndex *objIndex, ENodeType NodeType);
 int getDataSize(char* dataTypeVal);
 bool checkIfStringDatatypes(char* datatypeValue);
 bool CheckIfDataTypeByNameExists(char* dtName, int NodeID);
+ocfmRetCode AddOtherMNIndexes(int NodeID);
+void AuotgenerateOtherIndexs(CNode* objNode);
+
 #endif // internal_h

@@ -67,6 +67,7 @@
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
 #include "../Include/IndexCollection.h"
+#include "../Include/Internal.h"
 #include <stdio.h>
 
 CIndexCollection::CIndexCollection(void)
@@ -82,6 +83,18 @@ void CIndexCollection::addIndex(CIndex objIndex)
 	{
 		
 		int i = collectionObj.Add();
+		char* substr= new char[3];
+			substr = subString((char*)objIndex.getIndexValue(), 0, 2);
+		if(strcmp(substr,"14")==0 ||strcmp(substr,"16") ==0)
+		{
+						objIndex.setPDOType(PDO_RPDO);				
+					
+		}
+		else if(strcmp(substr,"18")==0 ||strcmp(substr,"1A") ==0)
+			{
+				objIndex.setPDOType(PDO_TPDO);
+				
+			}
 		collectionObj[i] = objIndex;
 		m_IndexCount= collectionObj.Count();
 
@@ -98,6 +111,49 @@ void CIndexCollection::DeleteIndexCollection()
 	{
 		collectionObj.Clear();
 		m_IndexCount = collectionObj.Count();
+	}
+	void CIndexCollection::DeletePDOs() 
+	{
+		int i;
+		char* substr= new char[3];
+		
+		for(i =0; i<m_IndexCount;i++)
+		{
+			CIndex objIndex;
+			objIndex = collectionObj[i];
+			substr = subString((char*)objIndex.getIndexValue(), 0, 2);
+			if(strcmp(substr, "1A")==0 || strcmp(substr, "1a")==0 ||
+					strcmp(substr, "14")==0 || strcmp(substr, "16")==0   ||
+					strcmp(substr, "18")==0 )
+			{
+			/*if(!(CheckIfNotPDO((char*)objIndex.getIndexValue())));
+			{*/
+				printf("\n objIndex.getIndexValue() : %s", objIndex.getIndexValue());
+				collectionObj.Remove(i);
+	   m_IndexCount = collectionObj.Count();
+	   i = 0;
+			}
+			
+		}		
+	}
+	void CIndexCollection::DeletePIObjects()
+	{
+		int i;
+		char* substr= new char[2];
+		
+		for(i =0; i<m_IndexCount;i++)
+		{
+			CIndex objIndex;
+			objIndex = collectionObj[i];
+				substr = subString((char*)objIndex.getIndexValue(), 0, 1);
+			if(strcmp(substr,"A")==0  ||  strcmp(substr,"a")==0 )
+			{
+				collectionObj.Remove(i);
+	   m_IndexCount = collectionObj.Count();
+	   i= 0;
+			}
+			
+		}		
 	}
 CIndex* CIndexCollection::getIndex(int Count)
 	{

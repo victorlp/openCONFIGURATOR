@@ -10,7 +10,7 @@
 //  
 // PURPOSE:  purpose description
 //
-// AUTHOR:  
+// AUTHOR:  Kalycito Powerlink Team
 //
 //  COPYRIGHT NOTICE:
 //
@@ -68,6 +68,10 @@
 //  REVISION HISTORY:
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
+
+/****************************************************************************************************
+* Includes
+****************************************************************************************************/
 #include "NodeCollection.h"
 #include "ObjectDictionary.h"
 #include "Declarations.h"

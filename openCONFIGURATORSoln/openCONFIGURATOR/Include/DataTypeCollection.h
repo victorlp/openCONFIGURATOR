@@ -11,7 +11,7 @@
 // PURPOSE: This class will have the collection of datatypes within the DatatypeList tag of 
 // xdd/xdc file.
 //
-// AUTHOR:  Monica B
+// AUTHOR:  Kalycito Powerlink Team
 //
 //  COPYRIGHT NOTICE:
 //
@@ -70,8 +70,13 @@
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
+
+/****************************************************************************************************
+* Includes
+****************************************************************************************************/
 #include "Declarations.h"
 #include "TCollection.h"
+
 class DllExport CDataTypeCollection
 //class CDataTypeCollection
 	{

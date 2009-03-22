@@ -10,7 +10,7 @@
 //  
 // PURPOSE:  purpose description
 //
-// AUTHOR:  
+// AUTHOR:  Kalycito Powerlink Team
 //
 //  COPYRIGHT NOTICE:
 //
@@ -69,7 +69,11 @@
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
+/************************************************************************************************
+* Defines
+************************************************************************************************/
 #define DllExport
+//# define DEBUG
 
 /* Windows Platform */
 #if defined(_WIN32) && defined(_MSC_VER)
@@ -79,4 +83,3 @@
  #endif 
 #endif // Exports_h
 
-# define DEBUG

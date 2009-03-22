@@ -204,26 +204,32 @@ void GroupInOutPIVariables(ProcessImage PIInCol[], ProcessImage PIOutCol[])
 	//int PIVarsCount =0;
 	InVars = 0;
 	OutVars = 0;
+	CNode* objNode;
 	for(int i=0; i< objNodeCol->getNumberOfNodes(); i++)
 	{
-		CNode objNode;
-		objNode = objNodeCol->getNodebyCollectionIndex(i);	
 		
-		for(int i=0; i<objNode.ProcessImageCollection.Count(); i++)
+		objNode = objNodeCol->getNodebyColIndex(i);	
+
+		/*if(objNode.getNodeType() == CN)
+		{*/
+		
+		for(int i=0; i<objNode->ProcessImageCollection.Count(); i++)
 		{
 			
-			if(objNode.ProcessImageCollection[i].DirectionType == INPUT)
+			if(objNode->ProcessImageCollection[i].DirectionType == INPUT)
 			{
-				PIInCol[InVars]  = objNode.ProcessImageCollection[i];
+				PIInCol[InVars]  = objNode->ProcessImageCollection[i];
 				InVars++;
 				//PIInCol = (ProcessImage*)realloc(PIInCol,(size + 1)*sizeof(ProcessImage));			
 			}
-			else if(objNode.ProcessImageCollection[i].DirectionType == OUTPUT)
+			else if(objNode->ProcessImageCollection[i].DirectionType == OUTPUT)
 			{			
-				PIOutCol[OutVars]  = objNode.ProcessImageCollection[i];
+		
+				PIOutCol[OutVars]  = objNode->ProcessImageCollection[i];
 					OutVars++;
 				//PIOutCol = (PIOutCol *)realloc(PIOutCol,(size + 1)*sizeof(ProcessImage));
 			}
+	/*	}*/
 		}
 }
 }
@@ -562,6 +568,8 @@ void GenerateXAPHeaderFile(char* fileName, ProcessImage PI_IN[], ProcessImage PI
 		fclose(fileptr);
 		
 			/* write Output structure */
+		if(OutVar !=0)
+		{
 		if (( fileptr = fopen(strFileName,"a+")) == NULL)
 		{
 					ocfmException ex;
@@ -569,11 +577,10 @@ void GenerateXAPHeaderFile(char* fileName, ProcessImage PI_IN[], ProcessImage PI
 					delete [] strFileName;
 					throw ex;						
 		}
-		if(OutVar !=0)
-		{	
 			WriteXAPHeaderContents(PI_OUT, OutVar, OUTPUT, fileptr );
-		}		
+				
 		fclose(fileptr);
+		}
 		delete [] strFileName;
 }
 void WriteXAPHeaderContents(ProcessImage PI[], int NumberOfVars, EPIDirectionType dirType, FILE* fileptr)
@@ -637,10 +644,12 @@ void WriteXAPHeaderContents(ProcessImage PI[], int NumberOfVars, EPIDirectionTyp
 				
 					strCNID = _IntToAscii(PI[i].CNNodeID, strCNID, 10); 
 					strcpy(strModuleNo, subString( PI[i].ModuleIndex,2, 2));
+					
+					
 					strcpy(ModName, PI[i].ModuleName);
 					
 			
-					//printf("\n Module Name: %s",ModName);
+					printf("\n Module Name: %s",ModName);
 					strcat(Buffer,"unsigned");
 					strcat(Buffer," ");
 					char* varName = new char[100];
@@ -716,45 +725,32 @@ void WriteXAPHeaderContents(ProcessImage PI[], int NumberOfVars, EPIDirectionTyp
 		
 		
 			char* strsize = new char[50];
-			printf("\n Totalsize %d",totalsize);
-			
+						
 			/* write the size in bytes*/
 			totalsize =  totalsize/8;	
 			strsize =  _IntToAscii(totalsize, strsize, 10);
 			strcat(Buffer1, strsize);
 			
-			unsigned int len =  strlen(Buffer1);
-			printf("\n Length of Buffer1 %d", len);
-			printf(" Buffer1 :%s", Buffer1);
+			unsigned int len =  strlen(Buffer1);		
+			
 			if((len != fwrite(Buffer1, sizeof(char),len,fileptr)))
 			{	
-				printf("\n xap.h buffer1 not  written");
 				ocfmException ex;
-				ex.ocfm_Excpetion(OCFM_ERR_FILE_CANNOT_OPEN);
+				ex.ocfm_Excpetion(OCFM_ERR_XAP_FILE_NOT_WRITTEN);
 				delete[] Buffer;
 				delete[] Buffer1;
 				throw ex;
 			}
-			else
-			{
-			printf("\n buffer1 written");
-			/////fclose(fileptr);
-			}
 		
 			len  =  strlen(Buffer);
-			printf("\n\nlen of Buffer :%d", len);
-
+			
 			if((len != fwrite(Buffer, sizeof(char),len,fileptr)))
-			{	
-				printf("\n xap.h buffer not written");
+			{		
 				ocfmException ex;
-				ex.ocfm_Excpetion(OCFM_ERR_FILE_CANNOT_OPEN);
+				ex.ocfm_Excpetion(OCFM_ERR_XAP_FILE_NOT_WRITTEN);
 				throw ex;
 			}
-			else
-			{
-			printf("\n done");
-			}
+			
 			delete[] Buffer;
 			delete[] Buffer1;
 	
@@ -879,19 +875,53 @@ void AddPDOIndexsToMN(char* Index, char* SubIndex, EPDOType pdoType)
 	//delete[] ObjectName;
 	
  }
-char* getPIAddress(PDODataType dt,  EPIDirectionType dirType)
+char* getPIAddress(PDODataType dt,  EPIDirectionType dirType, int Offset, int dataSize)
 {
 	int i;
+	int subIndex;
+	char* Address = new char[INDEX_LEN + ALLOC_BUFFER];
+
 	for(i = 0; i< NO_OF_PI_ENTERIES; i++)
 	{
 		if((AddressTable[i].dt == dt) && (AddressTable[i].Direction == dirType))
-		return AddressTable[i].Address;
+		{
+			 return AddressTable[i].Address;
+		}
 	}
-
-	//Handled error case and returned dummy value to avoid warning
-	cout << "Error in returning getPIAddress" << endl;
-	return (char*) "Error";
 }
+//char* getPIAddress(PDODataType dt,  EPIDirectionType dirType, int Offset, int dataSize)
+//{
+//	int i;
+//	int subIndex;
+//	char* Address = new char[INDEX_LEN + ALLOC_BUFFER];
+//
+//	for(i = 0; i< NO_OF_PI_ENTERIES; i++)
+//	{
+//		if((AddressTable[i].dt == dt) && (AddressTable[i].Direction == dirType))
+//		{
+//			subIndex = Offset/dataSize + 1;
+//			printf("\n subindex %d", subIndex);
+//			if(subIndex > 254)
+//			{
+//				int div = subIndex / 254;
+//				int iAddress;
+//				iAddress = atoi(AddressTable[i].Address);
+//				iAddress = iAddress + div;
+//				Address  = _IntToAscii(iAddress, Address, 16);				
+//			}
+//			else
+//			{
+//				return AddressTable[i].Address;
+//			}
+//			
+//		}
+//		printf("Address");
+//		return Address;
+//	}
+//	//Handled error case and returned dummy value to avoid warning
+//	cout << "Error in returning getPIAddress" << endl;
+//	return (char*) "Error";
+//}
 char* getPIDataTypeName(char* Address)
 {
 	char *RetString = NULL;

@@ -221,7 +221,9 @@ ocfmException::~ocfmException(void)
 			case OCFM_ERR_PROJECT_SETTINGS:
 						strcpy(_ocfmRetCode.errorString, "Project Settings are NULL");		
 			case OCFM_ERR_INVALID_DATATYPE_FOR_PDO:
-									strcpy(_ocfmRetCode.errorString, "Invalid Datatype for PDO");		
+									strcpy(_ocfmRetCode.errorString, "Invalid Datatype for PDO");	
+		 case OCFM_ERR_XAP_FILE_NOT_WRITTEN:
+		 						strcpy(_ocfmRetCode.errorString, "XAP File Not Written");	
 			default:
 						break;			
 		}

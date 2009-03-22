@@ -631,7 +631,7 @@ char* getIndexName(char* ObjectIndex, char* ObjectName)
 		Name = Name-i;
 		strcpy(ModifiedName, subString(ObjectName, 0, strlen(ObjectName)-pos));		
 		strcat(ModifiedName, Name);	
-		printf("\n ModifiedName %s",ModifiedName);
+		
 		return ModifiedName;
 	}
 	else
@@ -660,7 +660,7 @@ ocfmRetCode AddIndex(int NodeID, ENodeType NodeType, char* IndexID)
 			ErrStruct = IfIndexExists(NodeID, NodeType, IndexID, &IndexPos);
 			
 			
-			//cout << "\n\nErrStruct.code from IfIndexExists:" << ErrStruct.code << endl;
+			cout << "\n\nErrStruct.code from IfIndexExists:" << ErrStruct.code << endl;
 			
 			if( ErrStruct.code == OCFM_ERR_SUCCESS )
 			{
@@ -780,6 +780,10 @@ ocfmRetCode SetIndexAttributes(int NodeID, ENodeType NodeType,
 		/* Check if the value is valid*/
 		if(IndexName != NULL)
 		objIndexPtr->setName(IndexName);
+		else
+		{
+			objIndexPtr->setName('\0');
+		}
 		
 		objIndexPtr->setFlagIfIncludedCdc(flagIfIncludedInCdc);
 		
@@ -925,7 +929,7 @@ char* lowLimit, char* objType, EFlag flagIfIncludedInCdc)
 		/* Check if the value is valid*/
 		if(IndexName!= NULL)
 		{
-			 if(strcmp(IndexName, "") != 0)
+			 //if(strcmp(IndexName, "") != 0)
 			objIndexPtr->setName(IndexName);
 		}
 		
@@ -1088,7 +1092,7 @@ ocfmRetCode SetALLSubIndexAttributes(int NodeID, ENodeType NodeType,
 			{
 					if( (CheckIfDataTypeByNameExists(dataTypeName, objSubIndexPtr->getNodeID())) == true)
 					{
-						objSubIndexPtr->setDataType(dataTypeName);
+						objSubIndexPtr->setDataType(dataTypeName, NodeID);
 					}
 					else
 					{
@@ -1275,9 +1279,8 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 											
 						//Place a tab			
 						len = strlen(Buffer);
-						strcat(Buffer,"\t");
-						//printf("%s",Buffer);
-
+						strcat(Buffer,"\t");				
+	
 							/*if(objSubIndex->getActualValue() != NULL || objSubIndex->getDefaultValue()!=NULL)*/
 								strcat(Buffer, objSubIndex->getIndexValue());
 								strcat(Buffer,"\t");
@@ -1307,16 +1310,16 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 											IfStringDT = true;
 									}
 								}
-							
+					
 								/*if(dt.Name != NULL)
 								{
 									strcat(Buffer ,dt.DataSize);				
 									padLength = hex2int(dt.DataSize)*2;
 								}*/
-								else strcat(Buffer,"0000");
+								else strcat(Buffer,"00000000");
 								delete[] size;
 								strcat(Buffer,"\t");
-							
+			
 								if (objSubIndex->getActualValue()!=NULL)
 								{
 
@@ -1364,6 +1367,7 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 										}
 										
 								}
+					
 									/*else strcat(Buffer,objSubIndex->getDefaultValue());*/
 								strcat(Buffer,"\n");
 								
@@ -1789,12 +1793,12 @@ ocfmRetCode GenerateCDC(char* CDCLocation)
 					CIndex* objIndex;
 					objIndex = objIndexCollection->getIndex(i);
 					//if((!checkFlag) || (checkFlag && (objIndex->getFlagIfIncludedCdc() == TRUE)))
+					
 					if(objIndex->getFlagIfIncludedCdc() == TRUE)
 					{
 							//Buffer1 = (char*)malloc(CDC_BUFFER);
 							Buffer1 = new char[CDC_BUFFER];
-							len = strlen(Buffer1);
-							
+							len = strlen(Buffer1);							
 							GetIndexData(objIndex,Buffer1);
 							len = strlen(Buffer1);
 							if((len != (fwrite(Buffer1, sizeof(char),len,fileptr))))
@@ -2315,7 +2319,8 @@ ocfmRetCode ProcessPDONodes()
 														CIndex* objModuleIndex;
 														CSubIndex* objSIndex;
 														char* uniqueidRefID = NULL;			
-														char* Name = NULL;
+														char* ModuleName = NULL;
+														char* SubObjectName = NULL;
 														char* Access = NULL;
 														DataType dt;						
 												
@@ -2327,6 +2332,13 @@ ocfmRetCode ProcessPDONodes()
 																throw objex;
 															}
 															
+															if(objModuleIndex->getName() != NULL)
+															{
+																	
+																		ModuleName = new char[strlen(objModuleIndex->getName()) + ALLOC_BUFFER];
+																		strcpy(ModuleName, objModuleIndex->getName());
+															}
+															
 															if(objModuleIndex->getNumberofSubIndexes() == 0 && (strcmp(strSubIndex, "00")==0))
 															{
 																if(objModuleIndex->getUniqueIDRef()!= NULL)
@@ -2336,12 +2348,16 @@ ocfmRetCode ProcessPDONodes()
 																}				
 																else
 																{
-																	Name = new char[strlen(objModuleIndex->getName()) + ALLOC_BUFFER];
-																	strcpy(Name, objModuleIndex->getName());
+																
 																	
-																	Access = new char[strlen(objModuleIndex->getAccessType()) + ALLOC_BUFFER];
-																	strcpy(Access, objModuleIndex->getAccessType());
-																	dt = objModuleIndex->getDataType();
+																		
+																		if(objModuleIndex->getAccessType() != NULL)
+																		{
+																			Access = new char[strlen(objModuleIndex->getAccessType()) + ALLOC_BUFFER];
+																			strcpy(Access, objModuleIndex->getAccessType());
+																			dt = objModuleIndex->getDataType();
+																		}
+																	
 																	
 																}											
 															}
@@ -2362,12 +2378,19 @@ ocfmRetCode ProcessPDONodes()
 																	}
 																	else
 																	{
-																		Name = new char[strlen(objSIndex->getName()) + ALLOC_BUFFER];
-																		strcpy(Name, objSIndex->getName());
-																	
-																		Access = new char[strlen(objSIndex->getAccessType()) + ALLOC_BUFFER];
-																		strcpy(Access, objSIndex->getAccessType());
-																		dt = objSIndex->getDataType();
+																		if(objSIndex->getName() != NULL)
+																		{
+																			SubObjectName = new char[strlen(objSIndex->getName()) + ALLOC_BUFFER];
+																			strcpy(SubObjectName, objSIndex->getName());
+																			printf("\n subindex Name%s", SubObjectName );
+																			
+																			if(objSIndex->getAccessType() != NULL)
+																			{
+																				Access = new char[strlen(objSIndex->getAccessType()) + ALLOC_BUFFER];
+																				strcpy(Access, objSIndex->getAccessType());
+																			}
+																			dt = objSIndex->getDataType();
+																		}
 																	}
 																}
 																
@@ -2375,7 +2398,7 @@ ocfmRetCode ProcessPDONodes()
 															
 															
 															EPDOType pdoType = objIndex->getPDOType();							
-															
+															printf("\n pdo type %d",objIndex->getPDOType());
 														//printf("\n NodeID %d",objNode->getNodeId());
 															if(uniqueidRefID != NULL)
 															{
@@ -2390,63 +2413,87 @@ ocfmRetCode ProcessPDONodes()
 																
 																	
 																		/* Name of the Process Image variable*/
-																	//pi.Name = (char*)malloc(strlen(objSIndex->getName()) + 6 + ALLOC_BUFFER);
-																	
-																	pi.Name = (char*)malloc(strlen(Name) + 6 + ALLOC_BUFFER);
+																	pi.Name = (char*)malloc(6 + ALLOC_BUFFER);
 																	strcpy(pi.Name,getPIName(objNode->getNodeId()));
 																	
+								
+																	if(ModuleName != NULL)
+																	{
+																		pi.Name = (char*)realloc(pi.Name, strlen(pi.Name)+ strlen(ModuleName) + ALLOC_BUFFER);																		
+																		strcat(pi.Name,ModuleName);
+																		
+																		pi.ModuleName = (char*)malloc(strlen(ModuleName) + ALLOC_BUFFER);
+																		strcpy(pi.ModuleName, ModuleName);		
+																	}
+																
+											
 																	//strcat(pi.Name, ModuleName);
-																	strcat(pi.Name, ".");
-																	strcat(pi.Name,Name);
+																
+																
 																	//strcat(pi.Name,objSIndex->getName());
 																	
-																	//pi.ModuleName = (char*)malloc(strlen(ModuleName) + ALLOC_BUFFER);
-																	//strcpy(pi.ModuleName, ModuleName);		
+																	
+																	
+																
 																	
 																		pi.ModuleIndex = (char*)malloc(strlen(strModuleIndex) + ALLOC_BUFFER);
 																	strcpy(pi.ModuleIndex, strModuleIndex);	
 																	
 																				
 																	//pi.VarName = (char*)malloc(strlen(objSIndex->getName()) + ALLOC_BUFFER);
-																	pi.VarName = (char*)malloc(strlen(Name) + ALLOC_BUFFER);
-																	strcpy(pi.VarName, Name);		
+																	if(SubObjectName != NULL)
+																	{
+																		pi.VarName = (char*)malloc(strlen(SubObjectName) + ALLOC_BUFFER);
+																		strcpy(pi.VarName, SubObjectName);		
+																		
+																	
+																		pi.Name = (char*)realloc(pi.Name,(strlen(pi.Name) + strlen(SubObjectName) + 1+ ALLOC_BUFFER));
+																		strcat(pi.Name, ".");
+																		strcat(pi.Name,SubObjectName);
+																	}
 															 
 													
 																
 																/* Access of the Process Image variable*/
 																//strcpy(pi.Direction, objSIndex->getAccessType());
-																strcpy(pi.Direction, Access);
+														
 																//DataType dt;
 																//dt = objSIndex->getDataType();
 																/* Data Size in hex of the Process Image variable*/
 															/*	objProcessImage.DataSize = (char*)malloc(strlen(dt.DataSize+1));*/
 																//strcpy(objProcessImage.DataSize, dt.DataSize);
-																if(dt.DataSize == NULL)
+																//printf("\n Datasize %d", dt.DataSize);
+																if(dt.getName() == NULL)
 																{
 																	objex.ocfm_Excpetion(OCFM_ERR_INVALID_DATATYPE_FOR_PDO);
 																	throw objex;
 																}
 																//pi.DataInfo.DataSize = atoi(dt.DataSize);
-																pi.DataInfo.DataSize = dt.DataSize;
+																pi.DataInfo.DataSize = dt.DataSize *8;
 																/* Datatype in hex of the Process Image variable*/
-																pi.DataInfo._dt_Name = (char*)malloc(strlen(dt.Name+1));
+																pi.DataInfo._dt_Name = (char*)malloc(strlen(dt.Name)+ALLOC_BUFFER );
 																strcpy(pi.DataInfo ._dt_Name, dt.Name);	
 																pi.DataInfo._dt_enum = dt.IEC_dt;
 																
 																	if( pdoType == PDO_TPDO)
 																	{
-																		pi.ByteOffset = ComputeOUTOffset(pi.DataInfo.DataSize, pdoType);			
+																		pi.ByteOffset = ComputeOUTOffset(pi.DataInfo.DataSize, pdoType);																			
+																		pi.BitOffset = -1;		
 																		pi.DirectionType = INPUT ;
 																	}
 																	else if( pdoType == PDO_RPDO)
 																	{
-																		pi.ByteOffset = ComputeINOffset(pi.DataInfo.DataSize, pdoType);			
-																		pi.DirectionType = OUTPUT;
+																		pi.ByteOffset = ComputeINOffset(pi.DataInfo.DataSize, pdoType);		
+																		pi.BitOffset = -1;	
+																		pi.DirectionType = OUTPUT;																		
 																	}
-		
-				
+																	pi.CNNodeID = objNode->getNodeId();
+					
+																
 																CreateMNPDOVar(pi.ByteOffset, pi.DataInfo.DataSize, pi.DataInfo._dt_enum, pdoType, objNode);
+																
 																objNode->addProcessImage(pi);
+																
 															}															
 													}
 													sicount++;
@@ -2832,8 +2879,11 @@ CIndex* getMNIndexValues(char* Index)
 void WriteXAPElements(ProcessImage piCol[], xmlTextWriterPtr& writer,int VarCount, EPIDirectionType piType)
 {
 	int rc;
+	
 	if (VarCount!=0)
 	{
+	
+		
 	/* Start an element named "Channel". Since thist is the first
      * element, this will be the root element of the document. */
     rc = xmlTextWriterStartElement(writer, BAD_CAST "ProcessImage");
@@ -2897,7 +2947,7 @@ void WriteXAPElements(ProcessImage piCol[], xmlTextWriterPtr& writer,int VarCoun
     //}
 
 				/* Add an attribute with name "DataType" and value to channel */
-				 //printf("\n%s",pi.DataType);
+				 
     rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "dataType",
                                      BAD_CAST pi.DataInfo._dt_Name );
     if (rc < 0)
@@ -2907,7 +2957,7 @@ void WriteXAPElements(ProcessImage piCol[], xmlTextWriterPtr& writer,int VarCoun
     }
     
     ///* Add an attribute with name "dataSize" and value to channel */
-    //printf("\n%s",pi.DataSize);
+    
     char * size = new char[20];
     size = _IntToAscii(pi.DataInfo.DataSize,size,10);
     
@@ -2921,10 +2971,12 @@ void WriteXAPElements(ProcessImage piCol[], xmlTextWriterPtr& writer,int VarCoun
 			
    
      ///* Add an attribute with name "dataSize" and value to channel */
-    //printf("\n%s",pi.ByteOffset);
+   
   		char* byteOffset = new char[6];
 				byteOffset = _IntToAscii(pi.ByteOffset, byteOffset, 16);
+			
 				byteOffset = ConvertToHexformat(byteOffset, 4, 1);
+			
 			
     rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "PIOffset",
                                      BAD_CAST byteOffset );
@@ -2933,7 +2985,7 @@ void WriteXAPElements(ProcessImage piCol[], xmlTextWriterPtr& writer,int VarCoun
         //printf("testXmlwriterDoc: Error at xmlTextWriterWriteAttribute\n");
         return;
     }
-    
+   
     if(pi.BitOffset!=-1)
     {
 						char* bitoffset = new char[4];
@@ -2942,11 +2994,12 @@ void WriteXAPElements(ProcessImage piCol[], xmlTextWriterPtr& writer,int VarCoun
 			
 					rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "BitOffset",
                                      BAD_CAST bitoffset );
-    }
+    
     if (rc < 0)
     {
         //printf("testXmlwriterDoc: Error at xmlTextWriterWriteAttribute\n");
         return;
+    }
     }
     ///* Close the element named Channel. */
     rc = xmlTextWriterEndElement(writer);
@@ -3007,7 +3060,7 @@ void EndWrtitingXAP( xmlTextWriterPtr& writer, char* fileName, xmlDocPtr& doc)
 { 
 	int rc;
 
-   
+   printf(" ending xap");
 	// Close the element named ApplicationProcess.
     rc = xmlTextWriterEndElement(writer);
     if (rc < 0)
@@ -3033,6 +3086,7 @@ ocfmRetCode GenerateXAP(char* fileName)
 		ocfmException objException;
 		objNodeCollection = CNodeCollection::getNodeColObjectPointer();		
 		ocfmRetCode retCode;
+		char* xapFileName = new char[strlen(fileName) + 4 + ALLOC_BUFFER];
 		try
 		{
 			if(objNodeCollection->getNumberOfNodes()==0)
@@ -3051,6 +3105,8 @@ ocfmRetCode GenerateXAP(char* fileName)
 				
 				if(retCode.code != OCFM_ERR_SUCCESS)
 				return retCode;
+				
+				printf("\n Nodes processed");
 			CNode objNode;
 			xmlTextWriterPtr writer = NULL;
 			xmlDocPtr doc = NULL;
@@ -3067,12 +3123,20 @@ ocfmRetCode GenerateXAP(char* fileName)
 			
 			
 			StartXAPxml(writer, doc);	
-			
+			if(InVars !=0)
 			WriteXAPElements(PIInCol, writer, InVars, INPUT);
+			
+			if(OutVars !=0)
+			printf("\n outvars %d",OutVars);
 			WriteXAPElements(PIOutCol, writer, OutVars, OUTPUT);
 
-			EndWrtitingXAP(writer, fileName, doc);
+
+			strcpy(xapFileName, fileName);
+			strcat(xapFileName, ".xml");
+			printf("xapfilename %s", xapFileName); 
+			EndWrtitingXAP(writer, xapFileName, doc);
 			
+			printf("\n xap generated");
 			/*Generate Header file */			
 			GenerateXAPHeaderFile (fileName, PIInCol, PIOutCol, InVars, OutVars);
 			return objException._ocfmRetCode;
@@ -4592,7 +4656,7 @@ void AddForEachSIdx(char* Idx,CIndexCollection * objIdxCol, int MNNodeID,char* V
 		
 	}
 }
-ocfmRetCode AddOtherMNIndexes(CNode *objNode, char* tmp_CycleTime)
+ocfmRetCode AddOtherMNIndexes(int NodeID)
 {
 			ocfmRetCode retCode;
 			char* MNIndex = new char[INDEX_LEN];		
@@ -4600,8 +4664,13 @@ ocfmRetCode AddOtherMNIndexes(CNode *objNode, char* tmp_CycleTime)
 			CIndex* objIndex;
 			CIndexCollection* objIdxCol;
 			
+			CNode *objNode;
+		CNodeCollection *objNodeCollection = NULL;
+		
 			try
 			{
+				objNodeCollection = CNodeCollection::getNodeColObjectPointer();
+				objNode = objNodeCollection->getNodePtr(MN, NodeID);
 				objIdxCol = objNode->getIndexCollection();
 					
 				/* Add 1006*/
@@ -4617,27 +4686,29 @@ ocfmRetCode AddOtherMNIndexes(CNode *objNode, char* tmp_CycleTime)
 					#endif
 					
 					/* Set 5ms value*/	
-					cout << "\ntmp_CycleTime:" << tmp_CycleTime <<endl;
-					SetIndexAttributes(240, MN, MNIndex, tmp_CycleTime,(char*)"NMT_CycleLen_U32", TRUE);
+//					cout << "\ntmp_CycleTime:" << tmp_CycleTime <<endl;
+					SetIndexAttributes(240, MN, MNIndex, "50000",(char*)"NMT_CycleLen_U32", TRUE);
 					
-					printf("\ncycle time %s", tmp_CycleTime);
+				//	printf("\ncycle time %s", tmp_CycleTime);
 					
 						/* Add 1020*/
 					strcpy(MNIndex, "1020");
 					retCode = AddIndex(240, MN, MNIndex);
 					
+						printf("1020 added");
+						cout << retCode.code;
 							/* Add 1020*/
 					strcpy(MNIndex, "1300");
 					retCode = AddIndex(240, MN, MNIndex);
 					/* $:To do by M hard coded*/
 					SetIndexAttributes(240, MN, MNIndex, (char*)"5000",(char*)"SDO_SequLayerTimeout_U32", TRUE);
 					
-					
+					printf("1300 added");
 					/* Add 1C02*/
 					strcpy(MNIndex, "1C02");
 					retCode = AddIndex(240, MN, MNIndex);
 				
-					if(retCode.code == OCFM_ERR_SUCCESS)
+					if(retCode.code == OCFM_ERR_SUCCESS || retCode.code == OCFM_ERR_INDEX_ALREADY_EXISTS)
 					{				
 						objIndex = objIdxCol->getIndexbyIndexValue(MNIndex);
 							/* $:set Flag to true*/
@@ -4665,7 +4736,7 @@ ocfmRetCode AddOtherMNIndexes(CNode *objNode, char* tmp_CycleTime)
 					/* Add 1C09*/
 					strcpy(MNIndex, "1C09");
 					retCode = AddIndex(240, MN, MNIndex);
-					if(retCode.code == OCFM_ERR_SUCCESS)
+					if(retCode.code == OCFM_ERR_SUCCESS || retCode.code == OCFM_ERR_INDEX_ALREADY_EXISTS)
 					{				
 						objIndex = objIdxCol->getIndexbyIndexValue(MNIndex);
 								/* $:set Flag to true*/
@@ -4678,7 +4749,7 @@ ocfmRetCode AddOtherMNIndexes(CNode *objNode, char* tmp_CycleTime)
 							/* Add 1F26*/
 					strcpy(MNIndex, "1F26");
 					retCode = AddIndex(240, MN, MNIndex);
-					if(retCode.code == OCFM_ERR_SUCCESS)
+					if(retCode.code == OCFM_ERR_SUCCESS || retCode.code == OCFM_ERR_INDEX_ALREADY_EXISTS)
 					{				
 						objIndex = objIdxCol->getIndexbyIndexValue(MNIndex);
 								/* $:set Flag to true*/
@@ -4700,7 +4771,7 @@ ocfmRetCode AddOtherMNIndexes(CNode *objNode, char* tmp_CycleTime)
 							/* Add 1F27*/
 					strcpy(MNIndex, "1F27");
 					retCode = AddIndex(240, MN, MNIndex);
-					if(retCode.code == OCFM_ERR_SUCCESS)
+					if(retCode.code == OCFM_ERR_SUCCESS || retCode.code == OCFM_ERR_INDEX_ALREADY_EXISTS)
 					{				
 						objIndex = objIdxCol->getIndexbyIndexValue(MNIndex);		
 								/* $:set Flag to true*/
@@ -4719,7 +4790,7 @@ ocfmRetCode AddOtherMNIndexes(CNode *objNode, char* tmp_CycleTime)
 					/* Add 1F84*/
 					strcpy(MNIndex, "1F84");
 					retCode = AddIndex(240, MN, MNIndex);
-					if(retCode.code == OCFM_ERR_SUCCESS)
+					if(retCode.code == OCFM_ERR_SUCCESS || retCode.code == OCFM_ERR_INDEX_ALREADY_EXISTS)
 					{				
 						objIndex = objIdxCol->getIndexbyIndexValue(MNIndex);
 								/* $:set Flag to true*/
@@ -4732,7 +4803,7 @@ ocfmRetCode AddOtherMNIndexes(CNode *objNode, char* tmp_CycleTime)
 							/* Add 1F89*/
 					strcpy(MNIndex, "1F89");
 					retCode = AddIndex(240, MN, MNIndex);
-					if(retCode.code == OCFM_ERR_SUCCESS)
+					if(retCode.code == OCFM_ERR_SUCCESS || retCode.code == OCFM_ERR_INDEX_ALREADY_EXISTS)
 					{
 						objIndex = objIdxCol->getIndexbyIndexValue(MNIndex);
 								/* $:set Flag to true*/
@@ -4772,7 +4843,7 @@ ocfmRetCode AddOtherMNIndexes(CNode *objNode, char* tmp_CycleTime)
 					/* Add 1F8A*/
 					strcpy(MNIndex, "1F8A");
 					retCode = AddIndex(240, MN, MNIndex);
-					if(retCode.code == OCFM_ERR_SUCCESS)
+					if(retCode.code == OCFM_ERR_SUCCESS || retCode.code == OCFM_ERR_INDEX_ALREADY_EXISTS)
 					{				
 						objIndex = objIdxCol->getIndexbyIndexValue(MNIndex);
 								/* $:set Flag to true*/
@@ -4810,51 +4881,12 @@ ocfmRetCode AddOtherMNIndexes(CNode *objNode, char* tmp_CycleTime)
 					
 						}
 					cout << "1F89 added";
-								/* Add 1F8B*/
-					strcpy(MNIndex, "1F8B");
-					retCode = AddIndex(240, MN, MNIndex);
-					if(retCode.code == OCFM_ERR_SUCCESS)
-					{				
-						objIndex = objIdxCol->getIndexbyIndexValue(MNIndex);
-								/* $:set Flag to true*/
-						objIndex->setFlagIfIncludedCdc(TRUE);
-			
-						AddForEachSIdx(MNIndex, objIdxCol, objNode->getNodeId(), (char*)"1490", false);			
-											
-					
-					}
-							/* Add 1F8D*/
-					strcpy(MNIndex, "1F8D");
-					retCode = AddIndex(240, MN, MNIndex);
-					if(retCode.code == OCFM_ERR_SUCCESS)
-					{				
-						objIndex = objIdxCol->getIndexbyIndexValue(MNIndex);
-								/* $:set Flag to true*/
-						objIndex->setFlagIfIncludedCdc(TRUE);
-			
-						AddForEachSIdx(MNIndex, objIdxCol, objNode->getNodeId(), (char*)"1490", false);			
-											
-					
-					}
-							/* Add 1F92*/
-					strcpy(MNIndex, "1F92");
-					retCode = AddIndex(240, MN, MNIndex);
-					if(retCode.code == OCFM_ERR_SUCCESS)
-					{				
-						objIndex = objIdxCol->getIndexbyIndexValue(MNIndex);
-								/* $:set Flag to true*/
-						objIndex->setFlagIfIncludedCdc(TRUE);
-			
-						AddForEachSIdx(MNIndex, objIdxCol, objNode->getNodeId(), (char*)"2000000",false);			
-											
-					
-					}
 					
 							/* Add 1F98*/
 					strcpy(MNIndex, "1F98");
 					
 					retCode = AddIndex(240, MN, MNIndex);
-					if(retCode.code == OCFM_ERR_SUCCESS)
+					if(retCode.code == OCFM_ERR_SUCCESS || retCode.code == OCFM_ERR_INDEX_ALREADY_EXISTS)
 					{				
 					
 							objIndex = objIdxCol->getIndexbyIndexValue(MNIndex);
@@ -4932,6 +4964,9 @@ ocfmRetCode GenerateMNOBD()
 				#if defined DEBUG	
 						cout<< "Nodes Processed"<<endl;
 					#endif
+					#if defined DEBUG	
+						cout<< retCode.code <<endl;
+					#endif
 				if(retCode.code != OCFM_ERR_SUCCESS)
 				return retCode;
 				char* tmp_CycleTime;
@@ -4944,56 +4979,86 @@ ocfmRetCode GenerateMNOBD()
 				
 				objNodeCollection = CNodeCollection::getNodeColObjectPointer();
 				objNode = objNodeCollection->getNode(MN, 240);
-				objIndexCollection = objNode.getIndexCollection();
-				//Check for existance of the Index
-				for(int tmpIndexcount = 0; tmpIndexcount < objIndexCollection->getNumberofIndexes(); tmpIndexcount++)
-				{
-					CIndex* objIndexPtr;
-					objIndexPtr =objIndexCollection->getIndex(tmpIndexcount);						
-					//printf("IndexValue:%s-%s\n", objIndexPtr->getIndexValue(), IndexID);
-					char *str = new char[50];
-						strcpy(str, (char*)objIndexPtr->getIndexValue());
-									
-					if((strcmp(ConvertToUpper(str), "1006") == 0))
-					{
-						//printf("Index Already Exists tmpIndexcount:%d!\n",tmpIndexcount);
-						CIndex* objIndexPtr;
-						objIndexPtr = objIndexCollection->getIndex(tmpIndexcount);
-						//cout<< "objIndex.getName():" << objIndexPtr->getName() << endl;
-						if(objIndexPtr->getActualValue() == NULL)
-						{
-							//cout<< "objIndex.getActualValue():NULL" << endl;
-							strcpy(tmp_CycleTime, "50000");
-						}
-						else
-						{
-							//cout<< "objIndex.getActualValue():" << objIndexPtr->getActualValue() << endl;
-							strcpy(tmp_CycleTime, (char*)objIndexPtr->getActualValue());
-						}
-					}
-				}
 				
+			
+				objIndexCollection = objNode.getIndexCollection();
+				////Check for existance of the Index
+				//CIndex* objIndexPtr;
+				//objIndexPtr = objIndexCollection->getIndexbyIndexValue("1006");
+				//if(objIndexPtr != NULL)
+				//{
+				//		if(objIndexPtr->getActualValue() == NULL)
+				//		{
+				//			//cout<< "objIndex.getActualValue():NULL" << endl;
+				//			strcpy(tmp_CycleTime, "50000");
+				//		}
+				//		else
+				//		{
+				//			//cout<< "objIndex.getActualValue():" << objIndexPtr->getActualValue() << endl;
+				//			strcpy(tmp_CycleTime, (char*)objIndexPtr->getActualValue());
+				//		}
+				//}
+				//
+				//for(int tmpIndexcount = 0; tmpIndexcount < objIndexCollection->getNumberofIndexes(); tmpIndexcount++)
+				//{
+				//	CIndex* objIndexPtr;
+				//	objIndexPtr =objIndexCollection->getIndex(tmpIndexcount);						
+				//	//printf("IndexValue:%s-%s\n", objIndexPtr->getIndexValue(), IndexID);
+				//	char *str = new char[50];
+				//		strcpy(str, (char*)objIndexPtr->getIndexValue());
+				//		printf("str %s", str);			
+				//	if((strcmp(ConvertToUpper(str), "1006") == 0))
+				//	{
+				//		//printf("Index Already Exists tmpIndexcount:%d!\n",tmpIndexcount);
+				//		CIndex* objIndexPtr;
+				//		objIndexPtr = objIndexCollection->getIndex(tmpIndexcount);
+				//		//cout<< "objIndex.getName():" << objIndexPtr->getName() << endl;
+				//		if(objIndexPtr->getActualValue() == NULL)
+				//		{
+				//			//cout<< "objIndex.getActualValue():NULL" << endl;
+				//			strcpy(tmp_CycleTime, "50000");
+				//		}
+				//		else
+				//		{
+				//			//cout<< "objIndex.getActualValue():" << objIndexPtr->getActualValue() << endl;
+				//			strcpy(tmp_CycleTime, (char*)objIndexPtr->getActualValue());
+				//		}
+				//	}
+				//}
+				
+				#if defined DEBUG	
+						cout<< "N1006"<<endl;
+					#endif
 				/* Delete the MN's old object dictionary*/
 
 				objIndexCollection = objMNNode->getIndexCollection();	
 
+					cout << "Indexes deleted";
 					// Delete IndexCollection
-					objIndexCollection->DeleteIndexCollection();
+				//	objIndexCollection->DeleteIndexCollection();
+				objIndexCollection->DeletePDOs();
+				
+				// Delete Process Image Objects
+				objIndexCollection->DeletePIObjects();
 	
+	
+				// Autogenertate other indexs 
+				AuotgenerateOtherIndexs(objMNNode);
 				//DeleteNodeObjDict(240, MN);		
 						#if defined DEBUG	
 						cout<< "MN Node Object dictionary deleted"<<endl;
 					#endif
 				/* Add other Indexes than PDO*/
-					AddOtherMNIndexes(objMNNode, tmp_CycleTime);
+					//AddOtherMNIndexes(objMNNode, tmp_CycleTime);
+					//AddOtherMNIndexes(objMNNode);
 					#if defined DEBUG	
 						cout<< "Index added"<<endl;
 					#endif
-						if(retCode.code != OCFM_ERR_SUCCESS)
+					/*	if(retCode.code != OCFM_ERR_SUCCESS)
 						{
 							ex.ocfm_Excpetion(retCode.code);
 							throw ex;
-						}
+						}*/
 					#if defined DEBUG	
 						cout<< "Deleted"<<endl;
 					#endif
@@ -5036,6 +5101,7 @@ ocfmRetCode GenerateMNOBD()
 									
 						strcpy(MNIndex, "1A");
 						Idx = _IntToAscii((objNode.getNodeId()-1), Idx, 16);
+						printf("\n Nodeid %d", objNode.getNodeId());
 						Idx = padLeft(Idx, '0', 2);
 						MNIndex =strcat(MNIndex, Idx);
 						/* Set the MN's PDO Index*/
@@ -6439,58 +6505,59 @@ void CreateMNPDOVar(int Offset, int dataSize,IEC_Datatype dtenum, EPDOType pdoTy
 		objPDOvar.DataSize = dataSize;
 	/* Assign Index*/
 			objPDOvar.Index = new char[4 + ALLOC_BUFFER];
+			cout << "CreateMNPDOVar";
 			switch(dtenum)
 			{
 			
 				case USINT:
 				case BITSTRING :						
 					if(pdoType == PDO_TPDO)
-					strcpy(objPDOvar.Index, getPIAddress(UNSIGNED8, INPUT));	
+					strcpy(objPDOvar.Index, getPIAddress(UNSIGNED8, INPUT, Offset, dataSize));	
 					
 					else if(pdoType == PDO_RPDO)
-					strcpy(objPDOvar.Index, getPIAddress(UNSIGNED8, OUTPUT));	
+					strcpy(objPDOvar.Index, getPIAddress(UNSIGNED8, OUTPUT, Offset, dataSize));	
 					
 					
 					break;					
 				case SINT  :						
 					if(pdoType == PDO_TPDO)
-					strcpy(objPDOvar.Index, getPIAddress(INTEGER8, INPUT));	
+					strcpy(objPDOvar.Index, getPIAddress(INTEGER8, INPUT, Offset, dataSize));	
 					
 					else if(pdoType == PDO_RPDO)
-					strcpy(objPDOvar.Index, getPIAddress(INTEGER8, OUTPUT));	
+					strcpy(objPDOvar.Index, getPIAddress(INTEGER8, OUTPUT, Offset, dataSize));	
 					
 					break;	
 				case UINT :											
 					if(pdoType == PDO_TPDO)
-					strcpy(objPDOvar.Index, getPIAddress(UNSIGNED16, INPUT));	
+					strcpy(objPDOvar.Index, getPIAddress(UNSIGNED16, INPUT , Offset, dataSize));	
 					
 					else if(pdoType == PDO_RPDO)
-					strcpy(objPDOvar.Index, getPIAddress(UNSIGNED16, OUTPUT));	
+					strcpy(objPDOvar.Index, getPIAddress(UNSIGNED16, OUTPUT, Offset, dataSize));	
 					
 					break;									
 				case INT :											
 					if(pdoType == PDO_TPDO)
-					strcpy(objPDOvar.Index, getPIAddress(INTEGER16, INPUT));	
+					strcpy(objPDOvar.Index, getPIAddress(INTEGER16, INPUT, Offset, dataSize));	
 					
 					else if(pdoType == PDO_RPDO)
-					strcpy(objPDOvar.Index, getPIAddress(INTEGER16, OUTPUT));	
+					strcpy(objPDOvar.Index, getPIAddress(INTEGER16, OUTPUT, Offset, dataSize));	
 					
 					break;
 				case UDINT:											
 					if(pdoType == PDO_TPDO)
-					strcpy(objPDOvar.Index, getPIAddress(UNSIGNED32, INPUT));	
+					strcpy(objPDOvar.Index, getPIAddress(UNSIGNED32, INPUT, Offset, dataSize));	
 					
 					else if(pdoType == PDO_RPDO)
-					strcpy(objPDOvar.Index, getPIAddress(UNSIGNED32, OUTPUT));	
+					strcpy(objPDOvar.Index, getPIAddress(UNSIGNED32, OUTPUT, Offset, dataSize));	
 					
 					break;		
 				case DINT:
 				case REAL:											
 					if(pdoType == PDO_TPDO)
-					strcpy(objPDOvar.Index, getPIAddress(INTEGER32, INPUT));	
+					strcpy(objPDOvar.Index, getPIAddress(INTEGER32, INPUT, Offset, dataSize));	
 					
 					else if(pdoType == PDO_RPDO)
-					strcpy(objPDOvar.Index, getPIAddress(INTEGER32, OUTPUT));		
+					strcpy(objPDOvar.Index, getPIAddress(INTEGER32, OUTPUT, Offset, dataSize));		
 					
 					break;																			
 				case LINT:
@@ -6649,3 +6716,120 @@ void	UpdateNumberOfEnteriesSIdx(CIndex *objIndex, ENodeType NodeType)
 	objSIdx->setActualValue(_IntToAscii(totalSIdxs, str, 16)); 
 }
 
+void AuotgenerateOtherIndexs(CNode* objNode)
+{
+
+			ocfmRetCode retCode;
+			char* MNIndex = new char[INDEX_LEN];		
+			char* Sidx =  new char[SUBINDEX_LEN];
+			CIndex* objIndex;
+			CIndexCollection* objIdxCol;
+			
+			objIdxCol = objNode->getIndexCollection();
+		/* Add 1C09*/
+					strcpy(MNIndex, "1C09");
+					retCode = AddIndex(240, MN, MNIndex);
+					if(retCode.code == OCFM_ERR_SUCCESS || retCode.code == OCFM_ERR_INDEX_ALREADY_EXISTS)
+					{				
+						objIndex = objIdxCol->getIndexbyIndexValue(MNIndex);
+								/* $:set Flag to true*/
+						objIndex->setFlagIfIncludedCdc(TRUE);
+			
+						AddForEachSIdx(MNIndex, objIdxCol, objNode->getNodeId(), (char*)"40",false);					
+					
+					}
+					
+							/* Add 1F26*/
+					strcpy(MNIndex, "1F26");
+					retCode = AddIndex(240, MN, MNIndex);
+					if(retCode.code == OCFM_ERR_SUCCESS || retCode.code == OCFM_ERR_INDEX_ALREADY_EXISTS)
+					{				
+						objIndex = objIdxCol->getIndexbyIndexValue(MNIndex);
+								/* $:set Flag to true*/
+						objIndex->setFlagIfIncludedCdc(TRUE);
+			
+						char* Val = new char[8];
+						ConfigDate = getConfigDate();
+						Val = _IntToAscii(ConfigDate,Val, 10);
+						//hexVal = padLeft(hexVal, '0' , 8);
+						AddForEachSIdx(MNIndex, objIdxCol, objNode->getNodeId(), Val, false);		
+											
+										//AddForEachSIdx(MNIndex, objIdxCol, objNode->getNodeId(), hexVal, false);		
+	
+					}
+					
+							#if defined DEBUG	
+						cout<< "1F26 subidex added"<<endl;
+					#endif
+							/* Add 1F27*/
+					strcpy(MNIndex, "1F27");
+					retCode = AddIndex(240, MN, MNIndex);
+					if(retCode.code == OCFM_ERR_SUCCESS || retCode.code == OCFM_ERR_INDEX_ALREADY_EXISTS)
+					{				
+						objIndex = objIdxCol->getIndexbyIndexValue(MNIndex);		
+								/* $:set Flag to true*/
+						objIndex->setFlagIfIncludedCdc(TRUE);
+			
+						char* Val = new char[50];
+						ConfigTime = getConfigTime();
+						cout << "\n\n\nConfigTime:" << ConfigTime << endl;																		
+						Val = _IntToAscii(ConfigTime,Val, 10);
+						//Val = padLeft(hexVal, '0' , 8);
+
+						AddForEachSIdx(MNIndex, objIdxCol, objNode->getNodeId(), Val, false);										
+					}
+					
+					
+					/* Add 1F84*/
+					strcpy(MNIndex, "1F84");
+					retCode = AddIndex(240, MN, MNIndex);
+					if(retCode.code == OCFM_ERR_SUCCESS || retCode.code == OCFM_ERR_INDEX_ALREADY_EXISTS)
+					{				
+						objIndex = objIdxCol->getIndexbyIndexValue(MNIndex);
+								/* $:set Flag to true*/
+						objIndex->setFlagIfIncludedCdc(TRUE);
+						
+						AddForEachSIdx(MNIndex, objIdxCol, objNode->getNodeId(), (char*)"", true);			
+			
+					}
+								/* Add 1F8B*/
+					strcpy(MNIndex, "1F8B");
+					retCode = AddIndex(240, MN, MNIndex);
+					if(retCode.code == OCFM_ERR_SUCCESS || retCode.code == OCFM_ERR_INDEX_ALREADY_EXISTS)
+					{				
+						objIndex = objIdxCol->getIndexbyIndexValue(MNIndex);
+								/* $:set Flag to true*/
+						objIndex->setFlagIfIncludedCdc(TRUE);
+			
+						AddForEachSIdx(MNIndex, objIdxCol, objNode->getNodeId(), (char*)"1490", false);			
+											
+					
+					}
+							/* Add 1F8D*/
+					strcpy(MNIndex, "1F8D");
+					retCode = AddIndex(240, MN, MNIndex);
+					if(retCode.code == OCFM_ERR_SUCCESS || retCode.code == OCFM_ERR_INDEX_ALREADY_EXISTS)
+					{				
+						objIndex = objIdxCol->getIndexbyIndexValue(MNIndex);
+								/* $:set Flag to true*/
+						objIndex->setFlagIfIncludedCdc(TRUE);
+			
+						AddForEachSIdx(MNIndex, objIdxCol, objNode->getNodeId(), (char*)"1490", false);			
+											
+					
+					}
+							/* Add 1F92*/
+					strcpy(MNIndex, "1F92");
+					retCode = AddIndex(240, MN, MNIndex);
+					if(retCode.code == OCFM_ERR_SUCCESS || retCode.code == OCFM_ERR_INDEX_ALREADY_EXISTS)
+					{				
+						objIndex = objIdxCol->getIndexbyIndexValue(MNIndex);
+								/* $:set Flag to true*/
+						objIndex->setFlagIfIncludedCdc(TRUE);
+			
+						AddForEachSIdx(MNIndex, objIdxCol, objNode->getNodeId(), (char*)"2000000",false);			
+											
+					
+					}
+					
+}

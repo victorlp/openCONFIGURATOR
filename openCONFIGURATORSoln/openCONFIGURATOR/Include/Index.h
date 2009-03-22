@@ -10,7 +10,7 @@
 //  
 // PURPOSE:  purpose description
 //
-// AUTHOR:  MonicaB
+// AUTHOR:  Kalycito Powerlink Team
 //
 //  COPYRIGHT NOTICE:
 //
@@ -68,7 +68,12 @@
 //  REVISION HISTORY:
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
+
+/************************************************************************************************
+* Defines
+************************************************************************************************/
 #include "TCollection.h"
 #include "Declarations.h"
 #include "BaseIndex.h"

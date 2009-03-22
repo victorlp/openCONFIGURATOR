@@ -255,10 +255,11 @@ bool IsAscii(char cArg)
 }
 bool CheckIfNotPDO(char* pbIndex)
 	{
-		if(strncmp(pbIndex, "14",2) == 0 || strncmp(pbIndex, "16",2) == 0 || strncmp(pbIndex, "18",2) == 0 ||
-				strncmp(pbIndex,"1A",2) == 0)
+		if(strncmp(pbIndex, "14xx",2) == 0 || strncmp(pbIndex, "16xx",2) == 0 || strncmp(pbIndex, "18xx",2) == 0 ||
+				strncmp(pbIndex,"1Axx",2) == 0)
 			return false;
 		else return true;
+		printf("\n pbindex %s", pbIndex);
 	}
 bool CheckIfManufactureSpecificObject(char* pbIndex)
 {

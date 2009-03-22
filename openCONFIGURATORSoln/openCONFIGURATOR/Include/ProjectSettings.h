@@ -10,7 +10,7 @@
 //  
 // PURPOSE:  purpose description
 //
-// AUTHOR:  MonicaB
+// AUTHOR:  Kalycito Powrelink Team
 //
 //  COPYRIGHT NOTICE:
 //
@@ -68,7 +68,12 @@
 //  REVISION HISTORY:
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
+
+/****************************************************************************************************
+* Includes
+****************************************************************************************************/
 #include "Declarations.h"
 
 class DllExport CPjtSettings

@@ -10,7 +10,7 @@
 //  
 // PURPOSE:  purpose description
 //
-// AUTHOR:  
+// AUTHOR:  Kalycito Powerlink Team
 //
 //  COPYRIGHT NOTICE:
 //
@@ -70,6 +70,10 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
+/************************************************************************************************
+* Includes
+************************************************************************************************/
 #include "DataTypeCollection.h"
 #include "IndexCollection.h"
 #include "Declarations.h"
@@ -91,8 +95,7 @@ class DllExport CNode
 		int								m_NodeIndex;
 		bool							m_HasPdoObjects;
 		char*						m_NodeName;
-		/*
-	//*/	/*typedef TCollection<ProcessImage> PICollection;*/
+		/*	typedef TCollection<ProcessImage> PICollection;*/
 	public:
 		/*typedef _PICollection PICollection;*/
 		TCollection<ProcessImage> ProcessImageCollection;

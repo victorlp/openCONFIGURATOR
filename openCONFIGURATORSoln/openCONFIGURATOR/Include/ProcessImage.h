@@ -10,7 +10,7 @@
 //  
 // PURPOSE:  purpose description
 //
-// AUTHOR:  
+// AUTHOR:  Kalycito Powerlink Team
 //
 //  COPYRIGHT NOTICE:
 //
@@ -69,17 +69,26 @@
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //
+
+/************************************************************************************************
+* Includes
+************************************************************************************************/
 //#include <libxml/xmlreader.h>
 //#include <libxml/xmlwriter.h>
 //#include <libxml/encoding.h>
-#include "Declarations.h"
 #include <iostream>
 #include <fstream>
+#include "Declarations.h"
+
+/************************************************************************************************
+* Enumerations
+************************************************************************************************/
 	typedef enum EPIDirectionType
 	{
 		INPUT = 0,
 		OUTPUT
 	}EPIDirectionType;
+
 	typedef enum ePDODataType
 	{
 		UNSIGNED8 = 0,
@@ -92,12 +101,17 @@
 	
 
 
-	typedef struct PIDataInfo
-	{
-		IEC_Datatype _dt_enum;
-		int										DataSize;
-		char*								_dt_Name;
-	}PIDataInfo;
+typedef struct PIDataInfo
+{
+	IEC_Datatype _dt_enum;
+	int										DataSize;
+	char*								_dt_Name;
+}PIDataInfo;
+
+
+/************************************************************************************************
+* Structures
+************************************************************************************************/
 struct ProcessImage
 {
 		char*					Name;
@@ -130,22 +144,36 @@ typedef struct tAddressTable
 	EPIDirectionType Direction;
 	
 }tADDRESSTABLE;
+
 struct stOffsets
 {
 	int prevOffset;
 	int currOffset;
 };
-extern int InVars;
-extern int OutVars;
-//extern ProcessImage PIInCol[4000];
-//extern ProcessImage PIOutCol[4000];
-static const int NO_OF_PI_ENTERIES = 12;
 		
 struct ModuleCol
 {
 	int ModuleNo;
 	char ModuleName[50];
 };
+
+/************************************************************************************************
+* Externs
+************************************************************************************************/
+extern int InVars;
+extern int OutVars;
+//extern ProcessImage PIInCol[4000];
+//extern ProcessImage PIOutCol[4000];
+
+/************************************************************************************************
+* Constants
+************************************************************************************************/
+static const int NO_OF_PI_ENTERIES = 12;
+
+
+/****************************************************************************************************
+* Function Declarations
+****************************************************************************************************/
 
 //void GroupInOutPIVariables();
 void GroupInOutPIVariables(ProcessImage PIInCol[], ProcessImage PIOutCol[]);
@@ -156,7 +184,7 @@ int ComputeOUTOffset(int dataSize, EPDOType pdoType);
 void SetPIOffsets(ProcessImage* pi,int& StartingByteOffset, int pos, int& StartBitOffset);
 void GenerateXAPHeaderFile(char* fileName, ProcessImage PI_IN[], ProcessImage PI_OUT[], int InVar, int OutVar);
 void AddPDOIndexsToMN(char* Index, char* SubIndex, EPDOType pdoType);
-char* getPIAddress(PDODataType dt,  EPIDirectionType dirType);
+char* getPIAddress(PDODataType dt,  EPIDirectionType dirType, int Offset, int dataSize);
 char* getPIDataTypeName(char* Address);
 char* getPIName(char* Address);
 bool CheckIfProcessImageIdx(char* Index);

@@ -43,8 +43,16 @@ const char* CBaseIndex::getName()
 ****************************************************************************************************/
 void CBaseIndex::setName(char* Name)
 	{
-		m_Name = new char[strlen(Name) + 1];
-		strcpy((char*)m_Name, Name);
+		if(Name != NULL)
+		{
+			m_Name = new char[strlen(Name) + ALLOC_BUFFER];
+			strcpy((char*)m_Name, Name);
+		}
+		else
+		{
+				m_Name = new char[1 + ALLOC_BUFFER];
+				strcpy((char*)m_Name,"");
+		}
 	}
 /****************************************************************************************************
 * Function Name: getIndexValue

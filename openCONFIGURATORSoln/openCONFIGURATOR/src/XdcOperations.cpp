@@ -662,6 +662,11 @@ ocfmRetCode ImportXML(char* fileName, int NodeID, ENodeType NodeType)
 				AddOtherRequiredCNIndexes(NodeID);
 			}
 			
+			if(NodeType == MN)
+			{
+				AddOtherMNIndexes(NodeID);
+			}
+			
 			ErrStruct.code = OCFM_ERR_SUCCESS;
 			return ErrStruct;
 		}

@@ -10,7 +10,7 @@
 //  
 // PURPOSE:  purpose description
 //
-// AUTHOR:  
+// AUTHOR:  Kalycito Powerlink Team
 //
 //  COPYRIGHT NOTICE:
 //
@@ -68,8 +68,13 @@
 //  REVISION HISTORY:
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
-#include "Error.h"
+
+/************************************************************************************************
+Includes
+************************************************************************************************/
+#include "Declarations.h"
 
 class ocfmException : public std::exception
 {

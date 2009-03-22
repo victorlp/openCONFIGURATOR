@@ -10,7 +10,7 @@
 //  
 // PURPOSE:  purpose description
 //
-// AUTHOR:  
+// AUTHOR:  Kalycito Powerlink Team
 //
 //  COPYRIGHT NOTICE:
 //
@@ -70,8 +70,13 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
+/************************************************************************************************
+* Includes
+************************************************************************************************/
 #include "Declarations.h"
 #include "Node.h"
+
 class DllExport CNodeCollection
 //class CNodeCollection
 	{

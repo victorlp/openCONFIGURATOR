@@ -8,7 +8,7 @@
 //
 // PURPOSE:  purpose description
 //
-// AUTHOR:  
+// AUTHOR:   Kalycito Powerlink Team
 //
 //  COPYRIGHT NOTICE:
 //
@@ -66,6 +66,10 @@
 //  REVISION HISTORY:
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
+
+/****************************************************************************************************
+* Includes
+****************************************************************************************************/
 #include <string.h>
 #include <stdlib.h>
 #include "Exports.h"
@@ -74,11 +78,15 @@
 //using namespace std;
 
 /************************************************************************************************
-Constants
+* Constants
 ************************************************************************************************/
 #define MN_NODEID 240
 const int OFFSET_INTEGER_8 = 0;
 const int OFFSET_UNSIGNED_INTEGER_8 = 0;
+
+/****************************************************************************************************
+* Defines
+****************************************************************************************************/
 #define OFFSET_FIRST_INDEX_IN_MN_OBD	4
 
 #define OFFSET_NUM_ENTRIES_MN 0
@@ -91,12 +99,18 @@ const int OFFSET_UNSIGNED_INTEGER_8 = 0;
 #define	INDEX_SIZE		4
 #define	SUBINDEX_SIZE	2
 #define NODE_ID			3
-
+#define ERR_STRING_LEN	100
 #define OFFSET_FIRST_INDEX_IN_1F22 11
-typedef			 char	CHAR;
+
+/****************************************************************************************************
+* Typedefs
+****************************************************************************************************/
+
+typedef	signed 	 char	CHAR;
 typedef unsigned char	UINT8;
 typedef unsigned short	UINT16;
 typedef unsigned int	UINT32;
+typedef signed int		INT32;
 /************************************************************************************************
 Enumerations
 ************************************************************************************************/
@@ -299,9 +313,9 @@ typedef enum
 }EProjectSettings;
 
 
-/*****************************************************************************************
+/************************************************************************************************
 * Function Declarations
-*****************************************************************************************/
+****************************************************************************************************/
 
 DllExport ocfmRetCode ImportXML(char* fileName, int NodeID, ENodeType NodeType);
 DllExport ocfmRetCode ReImportXML(char* fileName, int NodeID, ENodeType NodeType);

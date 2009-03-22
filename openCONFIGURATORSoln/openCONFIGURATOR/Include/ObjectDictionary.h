@@ -10,7 +10,7 @@
 //  
 // PURPOSE:  purpose description
 //
-// AUTHOR:  
+// AUTHOR:  Kalycito Powerlink Team
 //
 //  COPYRIGHT NOTICE:
 //
@@ -70,6 +70,11 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+
+/************************************************************************************************
+* Includes
+************************************************************************************************/
+#include <libxml/xmlreader.h>
 #include "Index.h"
 #include "DataTypeCollection.h"
 #include "IndexCollection.h"
@@ -77,7 +82,6 @@
 #include "Node.h"
 #include "TCollection.h"
 #include "Internal.h"
-#include <libxml/xmlreader.h>
 
 class CObjectDictionary
 	{

@@ -10,7 +10,7 @@
 //  
 // PURPOSE:  purpose description
 //
-// AUTHOR:  
+// AUTHOR:  Kalycito Powerlink Team
 //
 //  COPYRIGHT NOTICE:
 //
@@ -68,7 +68,15 @@
 //  REVISION HISTORY:
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
+
+/****************************************************************************************************
+* Includes
+****************************************************************************************************/
 #include "Exports.h"
+
+/************************************************************************************************
+* Enumerations
+************************************************************************************************/
 typedef enum
 {
 					OCFM_ERR_SUCCESS					= 0,
@@ -91,31 +99,36 @@ typedef enum
 					OCFM_ERR_NODE_ALREADY_EXISTS,/*17*/
 					OCFM_ERR_INDEX_ALREADY_EXISTS,/*18*/
 					OCFM_ERR_SUBINDEX_ALREADY_EXISTS,	/*19*/				
-					OCFM_ERR_INVALID_VALUE,
-					OCFM_ERR_INVALID_NAME,
-					OCFM_ERR_XML_FILE_CORRUPTED,
-					OCFM_ERR_CANNOT_OPEN_FILE,
-					OCFM_ERR_PARSE_XML,
-					OCFM_ERR_MODULE_INDEX_NOT_FOUND,
-					OCFM_ERR_MODULE_SUBINDEX_NOT_FOUND,
-					OCFM_ERR_UNIQUE_ID_REF_NOT_FOUND,
-					OCFM_ERR_STRUCT_DATATYPE_NOT_FOUND,
-					OCFM_ERR_NO_CN_NODES_FOUND,
-					OCFM_ERR_DATATYPE_NOT_FOUND,
-					OCFM_ERR_VALUE_NOT_WITHIN_RANGE,
-					OCFM_ERR_MN_NODE_DOESNT_EXIST,
-					OCFM_ERR_CREATE_XML_WRITER_FAILED,
-					OCFM_ERR_XML_WRITER_START_ELT_FAILED,
-					OCFM_ERR_XML_WRITER_END_ELT_FAILED,
-					OCFM_ERR_XML_START_DOC_FAILED,
-					OCFM_ERR_XML_END_DOC_FAILED,
-					OCFM_ERR_CANNOT_OPEN_PROJECT_VER_MISMATCH,
-					OCFM_ERR_INVALID_PJTXML,
-					OCFM_ERR_PROJECT_SETTINGS,
-					OCFM_ERR_INVALID_DATATYPE_FOR_PDO,
-					OCFM_ERR_UNKNOWN					
+					OCFM_ERR_INVALID_VALUE,/*20*/	
+					OCFM_ERR_INVALID_NAME,/*21*/	
+					OCFM_ERR_XML_FILE_CORRUPTED,/*22*/	
+					OCFM_ERR_CANNOT_OPEN_FILE,/*23*/	
+					OCFM_ERR_PARSE_XML,/*24*/	
+					OCFM_ERR_MODULE_INDEX_NOT_FOUND,/*25*/	
+					OCFM_ERR_MODULE_SUBINDEX_NOT_FOUND,/*26*/	
+					OCFM_ERR_UNIQUE_ID_REF_NOT_FOUND,/*27*/	
+					OCFM_ERR_STRUCT_DATATYPE_NOT_FOUND,/*28*/	
+					OCFM_ERR_NO_CN_NODES_FOUND,/*29*/	
+					OCFM_ERR_DATATYPE_NOT_FOUND,/*30*/	
+					OCFM_ERR_VALUE_NOT_WITHIN_RANGE,/*31*/	
+					OCFM_ERR_MN_NODE_DOESNT_EXIST,/*32*/	
+					OCFM_ERR_CREATE_XML_WRITER_FAILED,/*33*/	
+					OCFM_ERR_XML_WRITER_START_ELT_FAILED,/*34*/	
+					OCFM_ERR_XML_WRITER_END_ELT_FAILED,/*35*/	
+					OCFM_ERR_XML_START_DOC_FAILED,/*36*/	
+					OCFM_ERR_XML_END_DOC_FAILED,/*37*/	
+					OCFM_ERR_CANNOT_OPEN_PROJECT_VER_MISMATCH,/*38*/	
+					OCFM_ERR_INVALID_PJTXML,/*39*/	
+					OCFM_ERR_PROJECT_SETTINGS,/*40*/
+					OCFM_ERR_INVALID_DATATYPE_FOR_PDO,/*41*/
+					OCFM_ERR_XAP_FILE_NOT_WRITTEN,/*42*/	
+					OCFM_ERR_UNKNOWN	/*43*/
 	
 }EConfiuguratorErrors;
+
+/************************************************************************************************
+* Structures
+************************************************************************************************/
 
 DllExport typedef  struct ocfmRetCode
 {

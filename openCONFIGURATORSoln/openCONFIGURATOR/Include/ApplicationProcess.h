@@ -11,7 +11,7 @@
 // PURPOSE:  This class has the collection of all the objects within the Application Process tag 
 // xdd/xdc file.
 //
-// AUTHOR:  Monica B
+// AUTHOR:  Kalycito Powerlink Team
 //
 //  COPYRIGHT NOTICE:
 //
@@ -69,12 +69,18 @@
 //  REVISION HISTORY:
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
-#pragma once
-#include <string>
 
-using namespace std;
+#pragma once
+
+/****************************************************************************************************
+* Includes
+****************************************************************************************************/
+#include <string>
 #include "ComplexDataType.h"
 #include "TCollection.h"
+
+using namespace std;
+
 class DllExport CApplicationProcess
 	{
 	public:

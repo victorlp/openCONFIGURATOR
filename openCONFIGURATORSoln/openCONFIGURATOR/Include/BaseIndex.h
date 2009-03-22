@@ -10,7 +10,7 @@
 //  
 // PURPOSE:  BaseClass for CIndex/CSubIndex
 //
-// AUTHOR:  Monica B
+// AUTHOR:  Kalycito Powerlink Team
 //
 //  COPYRIGHT NOTICE:
 //
@@ -69,8 +69,13 @@
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
+
+/****************************************************************************************************
+* Includes
+****************************************************************************************************/
 #include "TCollection.h"
 #include "Declarations.h"
+
 #pragma once
 
 class DllExport CBaseIndex
@@ -147,7 +152,7 @@ class DllExport CBaseIndex
 		void setDataTypeValue(char* value);
 
 
-	 EFlag getFlagIfIncludedCdc();
+	 	EFlag getFlagIfIncludedCdc();
 		void setFlagIfIncludedCdc(EFlag flag);
 		
 		void setDataTypeST(DataType  dt);

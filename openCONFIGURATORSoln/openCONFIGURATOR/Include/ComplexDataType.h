@@ -10,7 +10,7 @@
 //  
 // PURPOSE:  This class is to handle complex datatypes in xdd/xdc file
 //
-// AUTHOR:  Monica B
+// AUTHOR:  Kalycito Powerlink Team
 //
 //  COPYRIGHT NOTICE:
 //
@@ -70,11 +70,14 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#include "Declarations.h"
-#include "TCollection.h"
+
+/****************************************************************************************************
+* Includes
+****************************************************************************************************/
 #include <string.h>
 #include <stdlib.h>
-
+#include "Declarations.h"
+#include "TCollection.h"
 
 class DllExport CComplexDataType
 {

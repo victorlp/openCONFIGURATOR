@@ -10,7 +10,7 @@
 //  
 // PURPOSE:  purpose description
 //
-// AUTHOR:  
+// AUTHOR:  Kalycito Powerlink Team
 //
 //  COPYRIGHT NOTICE:
 //
@@ -69,10 +69,14 @@
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-
 #pragma once
+
+/************************************************************************************************
+* Defines
+************************************************************************************************/
 #include "Index.h"
 //#include "TCollection.h"
+
 using namespace std;
 class DllExport CIndexCollection
 //class CIndexCollection
@@ -92,6 +96,7 @@ class DllExport CIndexCollection
 		int getNumberofIndexes();
 		CIndex* getIndex(int Count);
 		CIndex* getIndexbyIndexValue(char* Index);		
-		
+		void DeletePDOs();
+		void DeletePIObjects();
 	};
 #endif // IndexCollection_h
