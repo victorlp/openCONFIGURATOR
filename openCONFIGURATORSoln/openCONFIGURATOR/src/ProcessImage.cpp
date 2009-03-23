@@ -647,9 +647,8 @@ void WriteXAPHeaderContents(ProcessImage PI[], int NumberOfVars, EPIDirectionTyp
 					
 					
 					strcpy(ModName, PI[i].ModuleName);
-					
-			
-					printf("\n Module Name: %s",ModName);
+							
+				
 					strcat(Buffer,"unsigned");
 					strcat(Buffer," ");
 					char* varName = new char[100];
@@ -875,20 +874,6 @@ void AddPDOIndexsToMN(char* Index, char* SubIndex, EPDOType pdoType)
 	//delete[] ObjectName;
 	
  }
-char* getPIAddress(PDODataType dt,  EPIDirectionType dirType, int Offset, int dataSize)
-{
-	int i;
-	int subIndex;
-	char* Address = new char[INDEX_LEN + ALLOC_BUFFER];
-
-	for(i = 0; i< NO_OF_PI_ENTERIES; i++)
-	{
-		if((AddressTable[i].dt == dt) && (AddressTable[i].Direction == dirType))
-		{
-			 return AddressTable[i].Address;
-		}
-	}
-}
 //char* getPIAddress(PDODataType dt,  EPIDirectionType dirType, int Offset, int dataSize)
 //{
 //	int i;
@@ -899,29 +884,58 @@ char* getPIAddress(PDODataType dt,  EPIDirectionType dirType, int Offset, int da
 //	{
 //		if((AddressTable[i].dt == dt) && (AddressTable[i].Direction == dirType))
 //		{
-//			subIndex = Offset/dataSize + 1;
-//			printf("\n subindex %d", subIndex);
-//			if(subIndex > 254)
-//			{
-//				int div = subIndex / 254;
-//				int iAddress;
-//				iAddress = atoi(AddressTable[i].Address);
-//				iAddress = iAddress + div;
-//				Address  = _IntToAscii(iAddress, Address, 16);				
-//			}
-//			else
-//			{
-//				return AddressTable[i].Address;
-//			}
-//			
+//			 return AddressTable[i].Address;
 //		}
-//		printf("Address");
-//		return Address;
 //	}
-//	//Handled error case and returned dummy value to avoid warning
-//	cout << "Error in returning getPIAddress" << endl;
-//	return (char*) "Error";
 //}
+PIObject getPIAddress(PDODataType dt,  EPIDirectionType dirType, int Offset, int dataSize)
+{
+	int i;
+	int subIndex;
+	PIObject stPIObject;
+	
+	stPIObject.Index = new char[INDEX_LEN];
+	stPIObject.SubIndex = new char[SUBINDEX_LEN];
+	
+	
+	
+	for(i = 0; i< NO_OF_PI_ENTERIES; i++)
+	{
+		if((AddressTable[i].dt == dt) && (AddressTable[i].Direction == dirType))
+		{
+			subIndex = (Offset)/ dataSize + 1;
+			printf("\n subindex %d", subIndex);
+			if(subIndex > 254)
+			{
+				int div = subIndex / 254;
+				int mod = subIndex % 254;
+				int iAddress;
+				iAddress = atoi(AddressTable[i].Address);
+				iAddress = iAddress + div;
+				stPIObject.Index  = _IntToAscii(iAddress, stPIObject.Index, 16);								
+				stPIObject.SubIndex =  _IntToAscii(mod, 	stPIObject.SubIndex, 16);
+				stPIObject.SubIndex = padLeft(	stPIObject.SubIndex, '0', 2);
+				return stPIObject;
+			}
+			else
+			{		
+				
+					strcpy(stPIObject.Index, AddressTable[i].Address);
+					printf("\n adress %s",stPIObject.Index);
+					stPIObject.SubIndex =  _IntToAscii(subIndex, 	stPIObject.SubIndex, 16);
+					stPIObject.SubIndex = padLeft(	stPIObject.SubIndex, '0', 2);
+					return stPIObject;
+			
+			}
+			
+		}
+		
+	
+	}
+	//Handled error case and returned dummy value to avoid warning
+	cout << "Error in returning getPIAddress" << endl;
+	//return (char*) "Error";
+}
 char* getPIDataTypeName(char* Address)
 {
 	char *RetString = NULL;

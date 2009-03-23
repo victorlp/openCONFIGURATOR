@@ -418,22 +418,29 @@ bool CBaseIndex::IsIndexVaueValid(char* hexValue)
 	{
 		unsigned long l,lowlimit,highLimit;
 		bool flag = true;
-		return flag;
+		//return flag;
 		l = hex2int(hexValue);
-		if(this->m_LowLimit != NULL)
+		if(this->m_LowLimit != NULL )
 		{		
+			if(strcmp(this->m_LowLimit,"")!=0)
+			{
 		 lowlimit = hex2int((char *)m_LowLimit);	
 		 if(l>= lowlimit)
 			flag = true;
 		 else flag = false;	 
+		 }
 		}
 		if(this->m_HighLimit!= NULL)
 		{
-			highLimit = hex2int((char *)m_HighLimit);
-			if(l<= highLimit)
-			flag = true;
-			else flag = false;
+			if(strcmp(this->m_HighLimit,"")!=0)
+			{
+				highLimit = hex2int((char *)m_HighLimit);
+				if(l<= highLimit)
+				flag = true;
+				else flag = false;
+				}
 		} 
+		printf("\n flag %d",flag);
 		return flag;
 	}
 	

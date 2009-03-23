@@ -106,7 +106,7 @@ const int OFFSET_UNSIGNED_INTEGER_8 = 0;
 * Typedefs
 ****************************************************************************************************/
 
-typedef	signed 	 char	CHAR;
+//typedef	signed 	 char	CHAR;
 typedef unsigned char	UINT8;
 typedef unsigned short	UINT16;
 typedef unsigned int	UINT32;

@@ -151,6 +151,12 @@ struct stOffsets
 	int currOffset;
 };
 		
+struct PIObject
+{
+	char* Index;
+	char* SubIndex;
+	
+};
 struct ModuleCol
 {
 	int ModuleNo;
@@ -184,7 +190,7 @@ int ComputeOUTOffset(int dataSize, EPDOType pdoType);
 void SetPIOffsets(ProcessImage* pi,int& StartingByteOffset, int pos, int& StartBitOffset);
 void GenerateXAPHeaderFile(char* fileName, ProcessImage PI_IN[], ProcessImage PI_OUT[], int InVar, int OutVar);
 void AddPDOIndexsToMN(char* Index, char* SubIndex, EPDOType pdoType);
-char* getPIAddress(PDODataType dt,  EPIDirectionType dirType, int Offset, int dataSize);
+PIObject getPIAddress(PDODataType dt,  EPIDirectionType dirType, int Offset, int dataSize);
 char* getPIDataTypeName(char* Address);
 char* getPIName(char* Address);
 bool CheckIfProcessImageIdx(char* Index);

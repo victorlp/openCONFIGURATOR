@@ -284,8 +284,14 @@ ocfmRetCode CreateNode(int NodeID, ENodeType NodeType, char* NodeName)
 		if(NodeType ==MN)
 		{
 			//cout << "loading od.xml"<< endl;
-			LoadObjectDictionary((char*) "od.xml");
-			cout << "loaded xml" << endl;
+			printf("\n ObjectDictLoaded %d", ObjectDictLoaded);
+			if(!ObjectDictLoaded)
+			{
+				LoadObjectDictionary((char*) "od.xml");
+				ObjectDictLoaded = true;
+				cout << "loaded xml" << endl;
+			}
+			
 		}
 		if(NodeType == CN)
 		{
@@ -862,6 +868,7 @@ ocfmRetCode SetSubIndexAttributes(int NodeID, ENodeType NodeType, char* IndexID,
 			objSubIndexPtr->setName(IndexName);
 			if(IndexValue != NULL)
 			{
+				printf("\nIndex value%s",IndexValue);
 				if(objSubIndexPtr->IsIndexVaueValid(IndexValue))		
 				{
 					printf("\nIndex value%s",IndexValue);
@@ -981,9 +988,10 @@ char* lowLimit, char* objType, EFlag flagIfIncludedInCdc)
 		
 		if(ActualValue != NULL)
 		{		
+				printf("\nIndex value%s",ActualValue);
 			if(objIndexPtr->IsIndexVaueValid(ActualValue))
 			{
-				//printf("\nIndex value%s",IndexValue);
+				printf("\nIndex value%s",ActualValue);
 				objIndexPtr->setActualValue(ActualValue);
 				
 			//printf("EditIndexValue:Index Actual Value:%s-%s\n", objIndexPtr->getActualValue(), IndexValue);
@@ -1078,6 +1086,7 @@ ocfmRetCode SetALLSubIndexAttributes(int NodeID, ENodeType NodeType,
 			
 			if(ActualValue != NULL)
 			{
+				printf("\nIndex value%s",ActualValue);
 				if(objSubIndexPtr->IsIndexVaueValid(ActualValue))		
 				{
 						printf("\nIndex value%s",ActualValue);
@@ -4414,7 +4423,7 @@ ocfmRetCode SaveProject(char* ProjectPath, char* ProjectName)
 				char* fileName;
 				cout << "Trace_4_3" <<endl;
 				//fileName = new char[(strlen(path) + 4 + 5)];
-				fileName  =  new char[100];
+				fileName  =  new char[PROJECT_FILE_NAME];
 						cout << "Trace_5" <<endl;
 				#if defined(_WIN32) && defined(_MSC_VER)
 				{
@@ -4948,6 +4957,8 @@ ocfmRetCode GenerateMNOBD()
 		ocfmException ex;
 		int prevSubIndex = 0 ;
 		int prevSize = 0;
+		
+		printf("\Inside autogen");
 		try
 		{		
 			objNodeCollection = CNodeCollection::getNodeColObjectPointer();	
@@ -5696,9 +5707,11 @@ ocfmRetCode OpenProject(char* PjtPath, char* projectXmlFileName)
 	#endif
 	
 	fileName = new char[(strlen(PjtPath) + strlen(projectXmlFileName) + 5)];
+	printf("\n len of filename %d", strlen(fileName));
 	#if defined(_WIN32) && defined(_MSC_VER)
 	{		
 		sprintf(fileName, "%s\\%s", PjtPath, projectXmlFileName);	
+		printf("\n len of filename %d", strlen(fileName));
 		cout << "\nSave Pjt fileName:" << fileName << endl;
 	}
 	#else
@@ -6200,7 +6213,7 @@ int rc;
 cout << "\n\nInside Save Project XML:" << endl;
 char* fileName;
 //fileName = new char[strlen(ProjectPath) + strlen(ProjectName) + strlen(ProjectName) + 10];
-fileName = new char[100];
+fileName = new char[PROJECT_FILE_NAME];
 //fileName = new char[(strlen(ProjectPath) + strlen(ProjectName) + strlen(ProjectName) + ALLOC_BUFFER)];
 //fileName = new char[100];
 //int len = strlen(ProjectPath);
@@ -6497,6 +6510,7 @@ void CreateMNPDOVar(int Offset, int dataSize,IEC_Datatype dtenum, EPDOType pdoTy
 {
 		MNPdoVariable objPDOvar;
 		CNodeCollection* objNodeCol;
+		PIObject objpi;
 		
 		objNodeCol =  CNodeCollection::getNodeColObjectPointer();		
 		
@@ -6504,7 +6518,8 @@ void CreateMNPDOVar(int Offset, int dataSize,IEC_Datatype dtenum, EPDOType pdoTy
 		objPDOvar.pdoType = pdoType;
 		objPDOvar.DataSize = dataSize;
 	/* Assign Index*/
-			objPDOvar.Index = new char[4 + ALLOC_BUFFER];
+			objPDOvar.Index = new char[INDEX_LEN + ALLOC_BUFFER];
+			objPDOvar.SubIndex = new char[SUBINDEX_LEN + ALLOC_BUFFER];
 			cout << "CreateMNPDOVar";
 			switch(dtenum)
 			{
@@ -6512,53 +6527,80 @@ void CreateMNPDOVar(int Offset, int dataSize,IEC_Datatype dtenum, EPDOType pdoTy
 				case USINT:
 				case BITSTRING :						
 					if(pdoType == PDO_TPDO)
-					strcpy(objPDOvar.Index, getPIAddress(UNSIGNED8, INPUT, Offset, dataSize));	
+					{
+						objpi =  getPIAddress(UNSIGNED8, INPUT, Offset, dataSize);
+					
+					}
 					
 					else if(pdoType == PDO_RPDO)
-					strcpy(objPDOvar.Index, getPIAddress(UNSIGNED8, OUTPUT, Offset, dataSize));	
+					{
+						objpi =  getPIAddress(UNSIGNED8, OUTPUT, Offset, dataSize);
+						//strcpy(objPDOvar.Index, getPIAddress(UNSIGNED8, OUTPUT, Offset, dataSize));	
+					}
 					
 					
 					break;					
 				case SINT  :						
 					if(pdoType == PDO_TPDO)
-					strcpy(objPDOvar.Index, getPIAddress(INTEGER8, INPUT, Offset, dataSize));	
+					{
+							objpi =  getPIAddress(INTEGER8, INPUT, Offset, dataSize);
+						//strcpy(objPDOvar.Index, getPIAddress(INTEGER8, INPUT, Offset, dataSize));	
+					}
 					
 					else if(pdoType == PDO_RPDO)
-					strcpy(objPDOvar.Index, getPIAddress(INTEGER8, OUTPUT, Offset, dataSize));	
-					
+					{
+							objpi =  getPIAddress(INTEGER8, OUTPUT, Offset, dataSize);
+						//strcpy(objPDOvar.Index, getPIAddress(INTEGER8, OUTPUT, Offset, dataSize));	
+					}
 					break;	
 				case UINT :											
 					if(pdoType == PDO_TPDO)
-					strcpy(objPDOvar.Index, getPIAddress(UNSIGNED16, INPUT , Offset, dataSize));	
-					
+					{
+							objpi =  getPIAddress(UNSIGNED16, INPUT, Offset, dataSize);
+						//strcpy(objPDOvar.Index, getPIAddress(UNSIGNED16, INPUT , Offset, dataSize));	
+					}
 					else if(pdoType == PDO_RPDO)
-					strcpy(objPDOvar.Index, getPIAddress(UNSIGNED16, OUTPUT, Offset, dataSize));	
-					
+					{
+						objpi =  getPIAddress(UNSIGNED16, OUTPUT, Offset, dataSize);
+						//strcpy(objPDOvar.Index, getPIAddress(UNSIGNED16, OUTPUT, Offset, dataSize));	
+					}
 					break;									
 				case INT :											
 					if(pdoType == PDO_TPDO)
-					strcpy(objPDOvar.Index, getPIAddress(INTEGER16, INPUT, Offset, dataSize));	
-					
+					{
+						objpi =  getPIAddress(INTEGER16, INPUT, Offset, dataSize);
+						//strcpy(objPDOvar.Index, getPIAddress(INTEGER16, INPUT, Offset, dataSize));	
+					}
 					else if(pdoType == PDO_RPDO)
-					strcpy(objPDOvar.Index, getPIAddress(INTEGER16, OUTPUT, Offset, dataSize));	
-					
+					{
+						objpi =  getPIAddress(INTEGER16, OUTPUT, Offset, dataSize);
+						//strcpy(objPDOvar.Index, getPIAddress(INTEGER16, OUTPUT, Offset, dataSize));	
+					}
 					break;
 				case UDINT:											
 					if(pdoType == PDO_TPDO)
-					strcpy(objPDOvar.Index, getPIAddress(UNSIGNED32, INPUT, Offset, dataSize));	
-					
+					{
+						objpi =  getPIAddress(UNSIGNED32, INPUT, Offset, dataSize);
+						//strcpy(objPDOvar.Index, getPIAddress(UNSIGNED32, INPUT, Offset, dataSize));	
+					}
 					else if(pdoType == PDO_RPDO)
-					strcpy(objPDOvar.Index, getPIAddress(UNSIGNED32, OUTPUT, Offset, dataSize));	
-					
+					{
+						objpi =  getPIAddress(UNSIGNED32, OUTPUT, Offset, dataSize);
+						//strcpy(objPDOvar.Index, getPIAddress(UNSIGNED32, OUTPUT, Offset, dataSize));	
+					}
 					break;		
 				case DINT:
 				case REAL:											
 					if(pdoType == PDO_TPDO)
-					strcpy(objPDOvar.Index, getPIAddress(INTEGER32, INPUT, Offset, dataSize));	
-					
+					{
+						objpi =  getPIAddress(INTEGER32, INPUT, Offset, dataSize);
+						//strcpy(objPDOvar.Index, getPIAddress(INTEGER32, INPUT, Offset, dataSize));	
+					}
 					else if(pdoType == PDO_RPDO)
-					strcpy(objPDOvar.Index, getPIAddress(INTEGER32, OUTPUT, Offset, dataSize));		
-					
+					{
+						objpi =  getPIAddress(INTEGER32, OUTPUT, Offset, dataSize);
+						//strcpy(objPDOvar.Index, getPIAddress(INTEGER32, OUTPUT, Offset, dataSize));		
+					}
 					break;																			
 				case LINT:
 				case LREAL:
@@ -6594,8 +6636,11 @@ void CreateMNPDOVar(int Offset, int dataSize,IEC_Datatype dtenum, EPDOType pdoTy
 					cout << "Data type WSTRING not handled" << endl;
 					break;
 			}
-			
+	
+			strcpy(objPDOvar.Index,objpi.Index);	
+			strcpy(objPDOvar.SubIndex, objpi.SubIndex);		
 			printf("\n objPDOvar.Index%s", objPDOvar.Index);
+	
 	
 	/* Assign SubIndex*/							
 		int SIdx;

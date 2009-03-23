@@ -377,26 +377,26 @@ int getConfigTime()
   uiMSeconds += (pstTimeInfo->tm_sec) * 1000;
   return uiMSeconds;
 }
-CHAR toupper (CHAR cArg)
-{
-	if (cArg >= 97 && cArg <= 122)
-	{
-		cArg = cArg - 32;
-	}
-	return cArg;
-}
-CHAR tobin(CHAR cArg)
-{
-	if(cArg >= 65 && cArg <= 70)
-	{
-		cArg = cArg - 55;
-	}
-	else if ( cArg >=48 && cArg <= 57)
-	{
-		cArg = cArg - 48;
-	}
-	return cArg;
-}
+//CHAR toupper (CHAR cArg)
+//{
+//	if (cArg >= 97 && cArg <= 122)
+//	{
+//		cArg = cArg - 32;
+//	}
+//	return cArg;
+//}
+//CHAR tobin(CHAR cArg)
+//{
+//	if(cArg >= 65 && cArg <= 70)
+//	{
+//		cArg = cArg - 55;
+//	}
+//	else if ( cArg >=48 && cArg <= 57)
+//	{
+//		cArg = cArg - 48;
+//	}
+//	return cArg;
+//}
 int reversedata(UINT8 *pbArg1, UINT8 *pbArg2, UINT32 uiSize)
 {
 	UINT32 uiLoopCount;
