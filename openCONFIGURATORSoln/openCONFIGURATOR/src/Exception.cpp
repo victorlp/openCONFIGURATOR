@@ -224,6 +224,8 @@ ocfmException::~ocfmException(void)
 									strcpy(_ocfmRetCode.errorString, "Invalid Datatype for PDO");	
 		 case OCFM_ERR_XAP_FILE_NOT_WRITTEN:
 		 						strcpy(_ocfmRetCode.errorString, "XAP File Not Written");	
+		 case OCFM_ERR_MAX_PI_SIZE:
+									strcpy(_ocfmRetCode.errorString, "MAX PI Size(4064 bytes) crossed");	
 			default:
 						break;			
 		}

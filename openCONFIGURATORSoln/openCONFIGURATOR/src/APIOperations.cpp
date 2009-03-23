@@ -113,6 +113,7 @@ char C_DLL_ISOCHR_MAX_PAYL[5] = "1490";
 char C_DLL_MIN_ASYNC_MTU[4] = "300";
 int ConfigDate;
 int ConfigTime;
+int totalBytesMapped;
 
 #define CDC_BUFFER 5000
 #define PI_VAR_COUNT 4000
@@ -1950,7 +1951,7 @@ ocfmRetCode GenerateCDC(char* CDCLocation)
 //
 //	}
 
-void  ProcessCDT(CComplexDataType* objCDT,CApplicationProcess* objAppProc,
+ocfmRetCode  ProcessCDT(CComplexDataType* objCDT,CApplicationProcess* objAppProc,
 																 CNode* objNode, Parameter* para, EPDOType pdoType,
 																 char* ModuleName, char* ModuleIndex)
 {
@@ -2062,8 +2063,7 @@ void  ProcessCDT(CComplexDataType* objCDT,CApplicationProcess* objAppProc,
 				 datasize =  pi.DataInfo.DataSize;
 				 
 				}
-			
-				if(pdoType == PDO_RPDO)
+			 	if(pdoType == PDO_RPDO)
 				{
 					Offset =  ComputeOUTOffset(datasize, pdoType);			
 				}
@@ -2076,6 +2076,14 @@ void  ProcessCDT(CComplexDataType* objCDT,CApplicationProcess* objAppProc,
 			pi.ByteOffset = Offset;
 			if(newBitStringVar)
 			{
+				/* Total bytes Mapped */
+			 totalBytesMapped = totalBytesMapped + datasize;
+				if(totalBytesMapped >  MAX_PI_SIZE)
+				{
+					ocfmException objex;
+					objex.ocfm_Excpetion(OCFM_ERR_MAX_PI_SIZE);
+					throw objex;
+				}
 				CreateMNPDOVar(Offset, datasize, pi.DataInfo._dt_enum, pdoType, objNode);
 			}
 			
@@ -2208,6 +2216,7 @@ ocfmRetCode ProcessPDONodes()
 		ocfmException objex;
 		objNodeCol = CNodeCollection::getNodeColObjectPointer();
 		CNode* objNode;
+
 	
 		CIndexCollection* objPDOCollection;
 		CIndexCollection* objIndexCollection;
@@ -2413,6 +2422,7 @@ ocfmRetCode ProcessPDONodes()
 															{
 																//DecodeUniqiueIDRef(objSIndex->getUniqueIDRef(), objNode, pdoType, (char*) objModuleIndex->getName(), (char*)objModuleIndex->getIndexValue());
 																DecodeUniqiueIDRef(uniqueidRefID, objNode, pdoType, (char*) objModuleIndex->getName(), (char*)objModuleIndex->getIndexValue());
+															
 																//printf("\n size8 prev offset: %d",size8INOffset.prevOffset);
 																//printf("\n size8 curr offset: %d",size8INOffset.currOffset);
 															}
@@ -2479,6 +2489,15 @@ ocfmRetCode ProcessPDONodes()
 																}
 																//pi.DataInfo.DataSize = atoi(dt.DataSize);
 																pi.DataInfo.DataSize = dt.DataSize *8;
+																
+																/* Total bytes Mapped */
+																totalBytesMapped = totalBytesMapped +  dt.DataSize *8;;
+																if(totalBytesMapped >  MAX_PI_SIZE)
+																{
+																	ocfmException objex;
+																	objex.ocfm_Excpetion(OCFM_ERR_MAX_PI_SIZE);
+																	throw objex;
+																}
 																/* Datatype in hex of the Process Image variable*/
 																pi.DataInfo._dt_Name = (char*)malloc(strlen(dt.Name)+ALLOC_BUFFER );
 																strcpy(pi.DataInfo ._dt_Name, dt.Name);	

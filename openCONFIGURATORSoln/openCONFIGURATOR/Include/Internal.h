@@ -92,6 +92,7 @@
 #define SUBINDEX_LEN 3
 #define RANGE_INDEX 3
 #define PROJECT_FILE_NAME 500
+#define MAX_PI_SIZE 4064
 
 /************************************************************************************************
 * Enumerations

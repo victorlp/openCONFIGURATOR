@@ -122,7 +122,8 @@ typedef enum
 					OCFM_ERR_PROJECT_SETTINGS,/*40*/
 					OCFM_ERR_INVALID_DATATYPE_FOR_PDO,/*41*/
 					OCFM_ERR_XAP_FILE_NOT_WRITTEN,/*42*/	
-					OCFM_ERR_UNKNOWN	/*43*/
+					OCFM_ERR_MAX_PI_SIZE,/*43*/
+					OCFM_ERR_UNKNOWN	/*44*/
 	
 }EConfiuguratorErrors;
 
