@@ -1,14 +1,14 @@
-///////////////////////////////////////////////////////////////////////////////////////////////
+/*//////////////////////////////////////////////////////////////////////////////////////////////
 //
 //  $Header: $
 //
-// NAME:  ClassNAME
+// NAME:  Utility.cpp
 //
 // BASE  CLASSES: none
 //  
 // PURPOSE:  purpose description
 //
-// AUTHOR:  
+// AUTHOR:  Kalycito Powerlink Team
 //
 //  COPYRIGHT NOTICE:
 //
@@ -61,109 +61,164 @@
 //        2. the validity or enforceability in other jurisdictions of that or
 //           any other provision of this License.
 //
-//****************************************************************************/
-//
+***********************************************************************************************/
+/*
 //  REVISION HISTORY:
 // $Log:      $
-///////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////*/
 
+/****************************************************************************************************
+* Includes
+****************************************************************************************************/
+#include <iostream>
+#include <stdlib.h>
+#include <time.h>
 #include "../Include/Declarations.h"
 #include "../Include/Internal.h"
 #include "../Include/ProcessImage.h"
 
-#include <iostream>
-#include <stdlib.h>
-#include <time.h>
+
 using namespace std;
+
+/****************************************************************************************************
+* FUNCTION DEFINITIONS
+****************************************************************************************************/
+
+/****************************************************************************************************
+* Function Name: ConvertToUpper
+* Description:
+* Return value: char*
+****************************************************************************************************/
 char* ConvertToUpper(char* pbStrBuffer)
-	{
-		UINT32 uiLoopCount;
+{
+	UINT32 uiLoopCount;
 
-		for(uiLoopCount = 0; pbStrBuffer[uiLoopCount]; ++uiLoopCount)
-		{
-			pbStrBuffer[uiLoopCount] = toupper(pbStrBuffer[uiLoopCount]);
-		}
-		return pbStrBuffer;
-		//int t;
-		//int len = strlen(str);
-		//char* str1;
-		//str1 = new char[len];
-		//for(t=0; t<strlen(str); ++t)
-		//{
-		//	str1[t] = toupper(str[t]);
-		//}		
-		//str1[t] = '\0';
-		//return str1;
+	for(uiLoopCount = 0; pbStrBuffer[uiLoopCount]; ++uiLoopCount)
+	{
+		pbStrBuffer[uiLoopCount] = toupper(pbStrBuffer[uiLoopCount]);
 	}
-	char* StringToUpper(char* pbStrBuffer)
-	{
-		UINT32 uiLoopCount;
-		UINT32 uiStringLen = strlen(pbStrBuffer);
-		char* strUpp = new char[uiStringLen + ALLOC_BUFFER];
-
-		for(uiLoopCount = 0; uiLoopCount < uiStringLen; ++uiLoopCount)
-		{
-			strUpp[uiLoopCount] = toupper(pbStrBuffer[uiLoopCount]);
-		}
-		strUpp[uiLoopCount] = '\0';
-		return strUpp;
+	return pbStrBuffer;
+	//int t;
+	//int len = strlen(str);
+	//char* str1;
+	//str1 = new char[len];
+	//for(t=0; t<strlen(str); ++t)
+	//{
+	//	str1[t] = toupper(str[t]);
+	//}		
+	//str1[t] = '\0';
+	//return str1;
+}
 	
+/****************************************************************************************************
+* Function Name: StringToUpper
+* Description:
+* Return value: char*
+****************************************************************************************************/
+char* StringToUpper(char* pbStrBuffer)
+{
+	UINT32 uiLoopCount;
+	UINT32 uiStringLen = strlen(pbStrBuffer);
+	
+	char* pbStrUpp = new char[uiStringLen + ALLOC_BUFFER];
+
+	for(uiLoopCount = 0; uiLoopCount < uiStringLen; ++uiLoopCount)
+	{
+		pbStrUpp[uiLoopCount] = toupper(pbStrBuffer[uiLoopCount]);
 	}
+	
+	pbStrUpp[uiLoopCount] = '\0';
+	return pbStrUpp;
+
+}
+	
+/****************************************************************************************************
+* Function Name: reverse
+* Description:
+* Return value: char*
+****************************************************************************************************/
 char* reverse(char* pbStrBuffer)
 {
     char* pbCharLeft  = pbStrBuffer;
     char* pbCharRight = pbCharLeft + strlen(pbStrBuffer) - 1;
     char  cTemp;
+	
     while (pbCharLeft < pbCharRight) {
-        cTemp	= *pbCharLeft;
-        *pbCharLeft++  = *pbCharRight;
-        *pbCharRight-- = cTemp;
+        cTemp			= *pbCharLeft;
+        *pbCharLeft++  	= *pbCharRight;
+        *pbCharRight-- 	= cTemp;
     }
     return pbStrBuffer;
 }
+
+/****************************************************************************************************
+* Function Name: padLeft
+* Description:
+* Return value: char*
+****************************************************************************************************/
 char* padLeft(char* pbStrBuffer, char cPadChar, int iPadLength)
 {
-			char abTemp[50];
-			int iLoopCount = 0;
-			int iStringLen = strlen(pbStrBuffer);
-			
-			if (iStringLen < iPadLength)
+		char abTempBuff[50];
+		int iLoopCount = 0;
+		int iStringLen = strlen(pbStrBuffer);
+		
+		if (iStringLen < iPadLength)
+		{
+			//temp = new char[iPadLength-iStringLen+1];		
+			pbStrBuffer = reverse(pbStrBuffer);
+			while(iLoopCount < (iPadLength-iStringLen))
 			{
-				//temp = new char[iPadLength-iStringLen+1];		
-				pbStrBuffer = reverse(pbStrBuffer);
-				while(iLoopCount < (iPadLength-iStringLen))
-				{
-					abTemp[iLoopCount] = cPadChar;
-					iLoopCount++;
-				}
-				abTemp[iLoopCount] = '\0';
-				strcat(pbStrBuffer, abTemp);				
-				pbStrBuffer = reverse(pbStrBuffer);
+				abTempBuff[iLoopCount] = cPadChar;
+				iLoopCount++;
 			}
-			return pbStrBuffer;
-	}
+			
+			abTempBuff[iLoopCount] = '\0';
+			strcat(pbStrBuffer, abTempBuff);				
+			pbStrBuffer = reverse(pbStrBuffer);
+		}
+		return pbStrBuffer;
+}
+
+/****************************************************************************************************
+* Function Name: subString
+* Description:
+* Return value: char*
+****************************************************************************************************/
 char* subString(char* pbStrBuffer, int iStartPos, int iStringLen)
 {
 		char* pbSubStrBuffer;
 	
 		pbSubStrBuffer = new char[iStringLen + 1];
-		strncpy(pbSubStrBuffer,(const char*)(pbStrBuffer + iStartPos),iStringLen);
+		strncpy(pbSubStrBuffer, (const char*)(pbStrBuffer + iStartPos), iStringLen);
 		pbSubStrBuffer[iStringLen]='\0';
 		return pbSubStrBuffer;
 }
+
+/****************************************************************************************************
+* Function Name: utoa
+* Description:
+* Return value: char *
+****************************************************************************************************/
 char *utoa(unsigned uValue, char *pbDigits, int iBaseValue)
 {
     char *pbAlphNum, *pbTempBuffer;
 	
     pbAlphNum = (char *) "0123456789abcdefghijklmnopqrstuvwxyz"; 
     if (iBaseValue == 0)
+	{
         iBaseValue = 10;
+	}
     if (pbDigits == NULL || iBaseValue < 2 || iBaseValue > 36)
+	{
         return NULL;
-    if (uValue < (unsigned) iBaseValue) {
+	}
+    if (uValue < (unsigned) iBaseValue) 
+	{
         pbDigits[0] = pbAlphNum[uValue];
         pbDigits[1] = '\0';
-    } else {
+    }
+	else 
+	{
         for (pbTempBuffer = utoa(uValue / ((unsigned)iBaseValue), pbDigits, iBaseValue);
              *pbTempBuffer;
              pbTempBuffer++);
@@ -172,10 +227,15 @@ char *utoa(unsigned uValue, char *pbDigits, int iBaseValue)
     return pbDigits;
 }
 
+/****************************************************************************************************
+* Function Name: _IntToAscii
+* Description:
+* Return value: char *
+****************************************************************************************************/
 char *_IntToAscii(int iValue, char *pbDigits, int iBaseValue)
 {
     char *pbDigit;
-    unsigned uValue; /* assume unsigned is big enough to hold all the
+    UINT32 uiValue; /* assume unsigned is big enough to hold all the
                  * unsigned values -x could possibly be -- don't
                  * know how well this assumption holds on the
                  * DeathStation 9000, so beware of nasal demons
@@ -183,15 +243,22 @@ char *_IntToAscii(int iValue, char *pbDigits, int iBaseValue)
 
     pbDigit = pbDigits;
     if (iBaseValue == 0)
+	{
         iBaseValue = 10;
+	}
     if (pbDigits == NULL || iBaseValue < 2 || iBaseValue > 36)
+	{
         return NULL;
+	}
     if (iValue < 0) {
         *pbDigit++ = '-';
-        uValue = -((unsigned)iValue);
-    } else
-        uValue = iValue;
-    utoa(uValue, pbDigit, iBaseValue);
+        uiValue = -((unsigned)iValue);
+    }
+	else
+	{
+        uiValue = iValue;
+	}
+    utoa(uiValue, pbDigit, iBaseValue);
 
     return pbDigits;
 }
@@ -200,6 +267,7 @@ char *_IntToAscii(int iValue, char *pbDigits, int iBaseValue)
 /**************************************************************************************************
 * Function Name: _IntToAscii
 * Description: Perform C++ style "_IntToAscii"
+* Return value: char*
 ***************************************************************************************************/
 
 //char* _IntToAscii( int value, char* result, int base ) 
@@ -227,6 +295,12 @@ char *_IntToAscii(int iValue, char *pbDigits, int iBaseValue)
 //	*out = 0;
 //	return result;
 //}
+
+/**************************************************************************************************
+* Function Name: hex2int
+* Description: 
+* Return value: unsigned long
+***************************************************************************************************/
 unsigned long hex2int(char *pbStrBuffer)
 {
     UINT32 uiLoopCount;
@@ -235,76 +309,161 @@ unsigned long hex2int(char *pbStrBuffer)
 				
     for(uiLoopCount = 0; uiLoopCount < uiStrLen; uiLoopCount++)
     {
-	if(IsAscii(pbStrBuffer[uiLoopCount]))
-		pbStrBuffer[uiLoopCount] = toupper(pbStrBuffer[uiLoopCount]);	
-       if(pbStrBuffer[uiLoopCount] <= 57)
-        uiValue += (pbStrBuffer[uiLoopCount] - 48)*(1<<(4*(uiStrLen-1-uiLoopCount)));
-       else
-        uiValue += (pbStrBuffer[uiLoopCount] - 55)*(1<<(4*(uiStrLen-1-uiLoopCount)));
+		if(IsAscii(pbStrBuffer[uiLoopCount]))
+		{
+			pbStrBuffer[uiLoopCount] = toupper(pbStrBuffer[uiLoopCount]);	
+		}
+		if(pbStrBuffer[uiLoopCount] <= 57)
+		{
+			uiValue += (pbStrBuffer[uiLoopCount] - 48)*(1<<(4*(uiStrLen-1-uiLoopCount)));
+		}
+		else
+		{
+			uiValue += (pbStrBuffer[uiLoopCount] - 55)*(1<<(4*(uiStrLen-1-uiLoopCount)));
+		}
     }
     return uiValue;
 }
+
+/**************************************************************************************************
+* Function Name: IsAscii
+* Description: 
+* Return value: bool
+***************************************************************************************************/
 bool IsAscii(char cArg)
 {
 	UINT32 uiCount;
+	
 	uiCount = cArg;
+	
 	if (uiCount >= 48 && uiCount <= 57)
-		return false;
-	else 
-		return true;
-}
-bool CheckIfNotPDO(char* pbIndex)
 	{
+		return false;
+	}
+	else 
+	{
+		return true;
+	}
+}
+
+/**************************************************************************************************
+* Function Name: CheckIfNotPDO
+* Description:
+* Return value: bool
+***************************************************************************************************/
+bool CheckIfNotPDO(char* pbIndex)
+{
 		if(strncmp(pbIndex, "14xx",2) == 0 || strncmp(pbIndex, "16xx",2) == 0 || strncmp(pbIndex, "18xx",2) == 0 ||
 				strncmp(pbIndex,"1Axx",2) == 0)
-			return false;
-		else return true;
-		printf("\n pbindex %s", pbIndex);
+	{
+		return false;
 	}
+	else 
+	{
+		return true;
+	}
+}
+	
+/**************************************************************************************************
+* Function Name: CheckIfManufactureSpecificObject
+* Description: 
+* Return value: bool
+***************************************************************************************************/
 bool CheckIfManufactureSpecificObject(char* pbIndex)
 {
-		UINT32 _Device_Index;
-		_Device_Index = hex2int( (char *) "2000");
-		if(hex2int(pbIndex) >= _Device_Index )
+		UINT32 uiDeviceIndex;
+		
+		uiDeviceIndex = hex2int( (char *) "2000");
+		if(hex2int(pbIndex) >= uiDeviceIndex )
+		{
 			return true;
-		else return false;
+		}
+		else
+		{
+			return false;
+		}
 }
+
+/**************************************************************************************************
+* Function Name: CheckIfMappingPDO
+* Description: 
+* Return value: bool
+***************************************************************************************************/
 bool CheckIfMappingPDO(char* pbIndex)
 {
-		if(strncmp(pbIndex, "1A",2) == 0 || strncmp(pbIndex, "16",2) == 0)
-		return true;
-		else return false;
+		if(strncmp(pbIndex, "1A", 2) == 0 || strncmp(pbIndex, "16", 2) == 0)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 }
+
+/**************************************************************************************************
+* Function Name: CheckAllowedCNIndexes
+* Description: 
+* Return value: bool
+***************************************************************************************************/
 bool CheckAllowedCNIndexes(char* pbIndexValue)
 {
 	if((CheckIfNotPDO((char*)pbIndexValue) == false)  || CheckIfManufactureSpecificObject((char*)pbIndexValue) ||
 					strcmp(pbIndexValue,"1F98") == 0 
 					||	strcmp(pbIndexValue,"1020") == 0
 					||	strcmp(pbIndexValue,"1006") == 0)
-	return true;
-	else return false;							
+	{
+		return true;
+	}
+	else
+	{
+		return false;							
+	}
 }
+
+/**************************************************************************************************
+* Function Name: ConvertToHexformat
+* Description: 
+* Return value: char*
+***************************************************************************************************/
 char* ConvertToHexformat(char* pbHexValue, int iPadLength, bool bDoPadding)
 {
 	char* pbHexTemp;
 
 	pbHexTemp = (char*)malloc(iPadLength + 3);
 	strcpy(pbHexTemp, "0x");
+	
 	if(bDoPadding)
-	pbHexValue = padLeft(pbHexValue, '0', iPadLength);
+	{
+		pbHexValue = padLeft(pbHexValue, '0', iPadLength);
+	}
 	strcat(pbHexTemp, pbHexValue);
 	
 	return pbHexTemp;
 }
+
+/**************************************************************************************************
+* Function Name: CheckIfHex
+* Description: 
+* Return value: bool
+***************************************************************************************************/
 bool CheckIfHex(char* pbValue)
 {
 	if(strchr(pbValue,'x') == NULL)
 	{
 		if(strchr(pbValue,'X') == NULL)
-		return false;
-		else return true;
+		{
+			return false;
+		}
+		else
+		{
+			return true;
+		}
 	}
-	else return true;
+	else
+	{
+		return true;
+	}
 		
 }
 //char* ReplaceChars(char ch, int num, char* str)
@@ -322,61 +481,83 @@ bool CheckIfHex(char* pbValue)
 //		}
 //		return str;
 //}
+
+/**************************************************************************************************
+* Function Name: getConfigDate
+* Description: 
+* Return value: int
+***************************************************************************************************/
 int getConfigDate()
 {
   // to have the total number of days Since 1984
-  UINT32 uiDays = 0;
+  INT32 iDays = 0;
   // to have the total number of years Since 1984  
-  UINT32 uiYearSince = 0;
+  INT32 iYearSince = 0;
   // to have the current Year
-  UINT32 uiCurrentYear = 0;
+  INT32 iCurrentYear = 0;
   time_t rawtime;
-  struct tm * pstTimeInfo;
+  struct tm *pstTimeInfo;
 
   time ( &rawtime );
   pstTimeInfo = localtime ( &rawtime );
-  printf ( "Current local time and date: %s", asctime (pstTimeInfo) );
+  //printf ( "Current local time and date: %s", asctime (pstTimeInfo) );
 
-  cout << "\ntm_yday:" << pstTimeInfo->tm_yday << endl;
-  cout << "\ntm_year Since 1900:" << pstTimeInfo->tm_year << endl;
-  uiYearSince = ((pstTimeInfo->tm_year)- 84);
-  cout << "\ntm_year Since 1984:" << uiYearSince << endl;
-  uiCurrentYear = ((pstTimeInfo->tm_year) + 1900);
-  cout << "\nCurrent Year:" << uiCurrentYear << endl;
+  //cout << "\ntm_yday:" << pstTimeInfo->tm_yday << endl;
+  //cout << "\ntm_year Since 1900:" << pstTimeInfo->tm_year << endl;
+  iYearSince = ((pstTimeInfo->tm_year)- 84);
+  //cout << "\ntm_year Since 1984:" << iYearSince << endl;
+  iCurrentYear = ((pstTimeInfo->tm_year) + 1900);
+  //cout << "\nCurrent Year:" << iCurrentYear << endl;
   
   // Loops thru all the years except the curent year
-  for(UINT32 uiLoopCount = 0; uiLoopCount < uiYearSince; uiLoopCount++)
+  for(INT32 iLoopCount = 0; iLoopCount < iYearSince; iLoopCount++)
   {
-  	UINT32 uiTmpYear = 0;
-  	UINT32 uiTmpDays = 0;
-  	uiTmpYear = (1984 + uiLoopCount);
+  	INT32 iTmpYear = 0;
+  	INT32 iTmpDays = 0;
+  	iTmpYear = (1984 + iLoopCount);
   	//cout << "\nYear:" << uiTmpYear << endl;
-  	if (uiTmpYear%4 == 0 && !(uiTmpYear%100 == 0 && uiTmpYear%400 != 0))
-  		uiTmpDays = 366;
+  	if (iTmpYear % 4 == 0 && !(iTmpYear % 100 == 0 && iTmpYear % 400 != 0))
+	{
+  		iTmpDays = 366;
+	}
   	else
-  		uiTmpDays = 365;
-
-  	uiDays += uiTmpDays;
+	{
+  		iTmpDays = 365;
+	}
+  	iDays += iTmpDays;
   }
   // To calculate number of days since Jan 1 of current year
-  uiDays += pstTimeInfo->tm_yday;
-  cout << "days:" << uiDays << endl;
-  return uiDays;
+  iDays += pstTimeInfo->tm_yday;
+  //cout << "days:" << iDays << endl;
+  return iDays;
 }
+
+/**************************************************************************************************
+* Function Name: getConfigTime
+* Description: 
+* Return value: int
+***************************************************************************************************/
 int getConfigTime()
 {
   time_t rawtime;
-  struct tm * pstTimeInfo;
-  UINT32 uiMSeconds = 0;
+  struct tm *pstTimeInfo;
+  INT32 iMSeconds = 0;
 
   time ( &rawtime );
   pstTimeInfo = localtime ( &rawtime );
   
-  uiMSeconds += (pstTimeInfo->tm_hour) * 3600000;
-  uiMSeconds += (pstTimeInfo->tm_min) * 60000;
-  uiMSeconds += (pstTimeInfo->tm_sec) * 1000;
-  return uiMSeconds;
+  iMSeconds += (pstTimeInfo->tm_hour) * 3600000;
+  iMSeconds += (pstTimeInfo->tm_min) * 60000;
+  iMSeconds += (pstTimeInfo->tm_sec) * 1000;
+  
+  return iMSeconds;
 }
+
+/**************************************************************************************************
+* Function Name: toupper
+* Description: 
+* Return value: CHAR
+***************************************************************************************************/
 //CHAR toupper (CHAR cArg)
 //{
 //	if (cArg >= 97 && cArg <= 122)
@@ -385,6 +566,12 @@ int getConfigTime()
 //	}
 //	return cArg;
 //}
+
+/**************************************************************************************************
+* Function Name: tobin
+* Description: 
+* Return value: CHAR
+***************************************************************************************************/
 //CHAR tobin(CHAR cArg)
 //{
 //	if(cArg >= 65 && cArg <= 70)
@@ -397,12 +584,25 @@ int getConfigTime()
 //	}
 //	return cArg;
 //}
+
+/**************************************************************************************************
+* Function Name: reversedata
+* Description: 
+* Return value: int
+***************************************************************************************************/
 int reversedata(UINT8 *pbArg1, UINT8 *pbArg2, UINT32 uiSize)
 {
 	UINT32 uiLoopCount;
+	
 	if (pbArg1 == NULL || pbArg2 == NULL)
+	{
 		return -1;
+	}	
+	
 	for (uiLoopCount = 0; uiLoopCount < uiSize; uiLoopCount++)
+	{
 		*(pbArg1 + uiLoopCount) = *(pbArg2 + uiSize - 1 - uiLoopCount);
+	}
+		
 	return 0;
 }

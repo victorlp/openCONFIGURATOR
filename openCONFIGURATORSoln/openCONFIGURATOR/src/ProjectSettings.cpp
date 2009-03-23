@@ -2,13 +2,13 @@
 //
 //  $Header: $
 //
-// NAME:  ClassNAME
+// NAME:  ProjectSettings.cpp
 //
 // BASE  CLASSES: none
 //  
 // PURPOSE:  purpose description
 //
-// AUTHOR:  
+// AUTHOR:  Kalycito Powerlink Team
 //
 //  COPYRIGHT NOTICE:
 //
@@ -66,25 +66,46 @@
 //  REVISION HISTORY:
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
+
+/****************************************************************************************************
+* Includes
+****************************************************************************************************/
+#include <iostream>
 #include "../Include/ProjectSettings.h"
 #include "../Include/Internal.h"
-#include <iostream>
+
 using namespace std;
 
+/****************************************************************************************************
+* Global Variables
+****************************************************************************************************/
+bool CPjtSettings::instanceFlag=false;
+CPjtSettings* CPjtSettings::objPjtSettings = NULL;
+
+/****************************************************************************************************
+* FUNCTION DEFINITIONS
+****************************************************************************************************/
+
+/****************************************************************************************************
+* Constructor
+****************************************************************************************************/
 CPjtSettings::CPjtSettings(void)
 	{		
-		#if defined DEBUG
+	#if defined DEBUG
 			cout << "\nPjtSettings Objects Initialized!\n" << endl;	
-		#endif
-		m_saveMode = DISCARD_AS;
-		m_generateMode = NO_AG;
-		m_IP_openPOWERLINK = NULL;	
-			#if defined DEBUG
+	#endif
+		m_saveMode 			= DISCARD_AS;
+		m_generateMode 		= NO_AG;
+		m_IP_openPOWERLINK 	= NULL;	
+	#if defined DEBUG
 		//cout << "\n Returning m_saveMode:-" << m_saveMode <<endl;	
 	#endif
 		//getGenerateAttr();
 	}
 
+/****************************************************************************************************
+* Destructor
+****************************************************************************************************/
 CPjtSettings::~CPjtSettings(void)
 	{		
 		instanceFlag = false;
@@ -93,14 +114,17 @@ CPjtSettings::~CPjtSettings(void)
 		#endif
 	}
 
-bool CPjtSettings::instanceFlag=false;
-CPjtSettings* CPjtSettings::objPjtSettings = NULL;
+/****************************************************************************************************
+* Function Name: CPjtSettings::getPjtSettingsPtr
+* Description:
+* Return value: CPjtSettings*
+****************************************************************************************************/
 CPjtSettings* CPjtSettings::getPjtSettingsPtr()
 {
 	if(!instanceFlag)
 	{
-		objPjtSettings = new CPjtSettings();
-		instanceFlag=true;
+		objPjtSettings 	= 	new CPjtSettings();
+		instanceFlag	=	true;
 		#if defined DEBUG
 			cout << "\n\n\n\nNew PjtSettings Object Created!\n" << endl;	
 		#endif
@@ -108,16 +132,31 @@ CPjtSettings* CPjtSettings::getPjtSettingsPtr()
 	return objPjtSettings;	
 }
 
+/****************************************************************************************************
+* Function Name: CPjtSettings::getSaveAttr
+* Description:
+* Return value: EAutoSave
+****************************************************************************************************/
 EAutoSave CPjtSettings::getSaveAttr()
 {
 	return m_saveMode;
 }
 
-void CPjtSettings::setSaveAttr(EAutoSave AutoSaveMode)
+/****************************************************************************************************
+* Function Name: CPjtSettings::setSaveAttr
+* Description:
+* Return value: void
+****************************************************************************************************/
+void CPjtSettings::setSaveAttr(EAutoSave enumAutoSaveMode)
 {
-	m_saveMode = AutoSaveMode;
+	m_saveMode = enumAutoSaveMode;
 }
 
+/****************************************************************************************************
+* Function Name: CPjtSettings::getGenerateAttr
+* Description:
+* Return value: EAutoGenerate
+****************************************************************************************************/
 EAutoGenerate CPjtSettings::getGenerateAttr()
 {
 	#if defined DEBUG
@@ -128,22 +167,41 @@ EAutoGenerate CPjtSettings::getGenerateAttr()
 		
 }
 
-void CPjtSettings::setGenerateAttr(EAutoGenerate AutoGenerateMode)
+/****************************************************************************************************
+* Function Name: CPjtSettings::setGenerateAttr
+* Description:
+* Return value: void
+****************************************************************************************************/
+void CPjtSettings::setGenerateAttr(EAutoGenerate enumAutoGenerateMode)
 {
-	m_generateMode = AutoGenerateMode;
+	m_generateMode = enumAutoGenerateMode;
 }
 
-void CPjtSettings::setPOWERLINK_IP(char* IPAddr)
+/****************************************************************************************************
+* Function Name: CPjtSettings::setPOWERLINK_IP
+* Description:
+* Return value: void
+****************************************************************************************************/
+void CPjtSettings::setPOWERLINK_IP(char* pbIPAddr)
 {	
-	m_IP_openPOWERLINK = new char[strlen(IPAddr) + ALLOC_BUFFER];
-	strcpy((char*)m_IP_openPOWERLINK, IPAddr);
+	m_IP_openPOWERLINK = new char[strlen(pbIPAddr) + ALLOC_BUFFER];
+	strcpy((char*)m_IP_openPOWERLINK, pbIPAddr);
 }
 
+/****************************************************************************************************
+* Function Name: CPjtSettings::getPOWERLINK_IP
+* Description:
+* Return value: char*
+****************************************************************************************************/
 const char* CPjtSettings::getPOWERLINK_IP()
 {
 	if(m_IP_openPOWERLINK != NULL)
+	{
 		return m_IP_openPOWERLINK;
+	}
 	else
+	{
 		return NULL;
+	}
 }
 

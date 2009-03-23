@@ -2,13 +2,13 @@
 //
 //  $Header: $
 //
-// NAME:  ClassNAME
+// NAME:  Node.cpp
 //
 // BASE  CLASSES: none
 //  
 // PURPOSE:  purpose description
 //
-// AUTHOR:  
+// AUTHOR:  Kalycito Powerlink Team
 //
 //  COPYRIGHT NOTICE:
 //
@@ -66,244 +66,380 @@
 //  REVISION HISTORY:
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
+
+/****************************************************************************************************
+* Includes
+****************************************************************************************************/
+#include <stdio.h>
 #include "../Include/Node.h"
 #include "../Include/Internal.h"
-#include <stdio.h>
 
+/****************************************************************************************************
+* FUNCTION DEFINITIONS
+****************************************************************************************************/
+
+/****************************************************************************************************
+* Constructor
+****************************************************************************************************/
 CNode::CNode(void)
-	{
-		m_NodeName = NULL;		
-		m_IndexCollection = NULL;
-		m_DataTypeCollection =  NULL;	 
-		m_IndexCollection = NULL;
-		m_ApplicationProcess = NULL;
-		m_HasPdoObjects = false;
-	}
+{
+		m_NodeName 				= NULL;		
+		m_IndexCollection 		= NULL;
+		m_DataTypeCollection 	=  NULL;	 
+		m_IndexCollection 		= NULL;
+		m_ApplicationProcess	= NULL;
+		m_HasPdoObjects 		= false;
+}
 
+/****************************************************************************************************
+* Destructor
+****************************************************************************************************/
 CNode::~CNode(void)
-	{
-	}
+{
+	//Add destrucor code here
+}
 
 #pragma region Properties
+
 /**************************************************************************************************
-* Function Name: getNodeType
+* Function Name: CNode::getNodeType
 * Description: Returns the NodeType of the Node
+* Return value: ENodeType
 ****************************************************************************************************/
 
 ENodeType CNode:: getNodeType()
-	{return m_NodeType;}
+{
+		return m_NodeType;
+}
 
 /**************************************************************************************************
-* Function Name: setNodeType
+* Function Name: CNode::setNodeType
 * Description: sets the Node Type of the Node.Value can be either CN or MN
+* Return value: void
 ****************************************************************************************************/
-void CNode::setNodeType(ENodeType NodeType)
-	{m_NodeType = NodeType; }
+void CNode::setNodeType(ENodeType objNodeType)
+{
+		m_NodeType = objNodeType; 
+}
+	
 /**************************************************************************************************
-* Function Name: getNodeId
+* Function Name: CNode::getNodeId
 * Description: Returns the Index of the Index Object
+* Return value: INT32
 ****************************************************************************************************/
-
-int CNode::getNodeId()
-	{return m_NodeId;}
+INT32 CNode::getNodeId()
+{
+		return m_NodeId;
+}
 
 /**************************************************************************************************
-* Function Name: setIndex
+* Function Name: CNode::setIndex
 * Description: sets the Index of the Index Object
+* Return value: void
 ****************************************************************************************************/
-void CNode::setNodeId(int NodeId)
-	{
-		m_NodeId = NodeId;
+void CNode::setNodeId(int iNodeId)
+{
+		m_NodeId = iNodeId;
 		
-	}
+}
+
 /**************************************************************************************************
-* Function Name: getNodeIndex
+* Function Name: CNode::getNodeIndex
 * Description: Returns the Index of the Index Object
+* Return value:
 ****************************************************************************************************/
 
-int CNode::getNodeIndex()
-	{return m_NodeIndex;}
+INT32 CNode::getNodeIndex()
+{
+		return m_NodeIndex;
+}
 
 /**************************************************************************************************
-* Function Name: setNodeIndex
+* Function Name: CNode::setNodeIndex
 * Description: sets the Index of the Index Object
+* Return value:
 ****************************************************************************************************/
-void CNode::setNodeIndex(int NodeIndex)
-	{m_NodeIndex = NodeIndex; }
+void CNode::setNodeIndex(int iNodeIndex)
+{
+		m_NodeIndex = iNodeIndex; 
+}
 /**************************************************************************************************
-* Function Name: getNodeName
+* Function Name: CNode::getNodeName
 * Description: Returns the Nama of the Node
+* Return value:
 ****************************************************************************************************/
-
 char* CNode::getNodeName()
-	{return m_NodeName;}
+{
+		return m_NodeName;
+}
 
 /**************************************************************************************************
-* Function Name: setNodeName
+* Function Name: CNode::setNodeName
 * Description: sets the Name of the Node
+* Return value: void
 ****************************************************************************************************/
-void CNode::setNodeName(char* NodeName)
-	{	
-		m_NodeName = new char[strlen(NodeName) + ALLOC_BUFFER];
-		strcpy((char*)m_NodeName, NodeName);
-	}
+void CNode::setNodeName(char* pbNodeName)
+{	
+		m_NodeName = new char[strlen(pbNodeName) + ALLOC_BUFFER];
+		strcpy((char*)m_NodeName, pbNodeName);
+}
 /**************************************************************************************************
-* Function Name: HasPdoObjects
+* Function Name: CNode::HasPdoObjects
 * Description: Returns true if PDO Objects are present else false
+* Return value: bool
 ****************************************************************************************************/
-
 bool CNode::HasPdoObjects()
-	{return m_HasPdoObjects;}
+{
+		return m_HasPdoObjects;
+}
 
 /**************************************************************************************************
-* Function Name: setNodeName
+* Function Name: CNode::setFlagForPdoObjects
 * Description: sets the Name of the Node
+* Return value: void
 ****************************************************************************************************/
-void CNode::setFlagForPdoObjects(bool flag)
-	{	
-		m_HasPdoObjects = flag;
-	}
+void CNode::setFlagForPdoObjects(bool bFlag)
+{	
+		m_HasPdoObjects = bFlag;
+}
+	
 /**************************************************************************************************
 * Function Name: getIndexCollection
 * Description: Returns the IndexCollection of the Node
+* Return value: CIndexCollection*
 ****************************************************************************************************/
-
 CIndexCollection* CNode::getIndexCollection()
-	{
+{
+	//$Scout << "getIndexCollection()\n" << endl;
 		return m_IndexCollection;
-	}
+}
+	
 /**************************************************************************************************
-* Function Name: getApplicationProcess
+* Function Name: CNode::getApplicationProcess
 * Description: Returns the Application Process of the Node
+* Return value: CApplicationProcess*
 ****************************************************************************************************/
 
 CApplicationProcess* CNode::getApplicationProcess()
-	{
+{
 		return m_ApplicationProcess;
-	}
+}
 /**************************************************************************************************
-* Function Name: getDataTypeCollection
+* Function Name: CNode::getDataTypeCollection
 * Description: returns the DataType Collection
+* Return value: CDataTypeCollection*
 ****************************************************************************************************/
 CDataTypeCollection* CNode::getDataTypeCollection()
-	{return m_DataTypeCollection;}
-void CNode::CreateIndexCollection() 
-	{
-		CIndexCollection* objIndexCollection;
-		objIndexCollection = new CIndexCollection();
-		m_IndexCollection =objIndexCollection ;
-	}
-void CNode::CreateDataTypeCollection() 
-	{
-		CDataTypeCollection* objDataTypeCollection;
-		objDataTypeCollection = new CDataTypeCollection();
-		m_DataTypeCollection = objDataTypeCollection ;
-	}
-
- void CNode::addProcessImage(ProcessImage processImage)
- {
-	 int i = ProcessImageCollection.Add();
-  //*(ProcessImageCollection + i) = processImage;
-  ProcessImageCollection[i] = processImage;
- }
- void CNode::addMNPDOvar(MNPdoVariable var, EPDOType pdoType)
- {
-		if(pdoType == PDO_RPDO)
-		{
-			int i = MNPDOOUTVarCollection.Add();
-			//*(ProcessImageCollection + i) = processImage;	
-			MNPDOOUTVarCollection[i] = var;
-		}
-		else if(pdoType == PDO_TPDO)
-		{
-			int i = MNPDOINVarCollection.Add();
-			//*(ProcessImageCollection + i) = processImage;	
-			MNPDOINVarCollection[i] = var;
-		}
- }
-void CNode::CreateApplicationProcess()
 {
-	CApplicationProcess* objAPPProcess;
-	objAPPProcess = new CApplicationProcess();
-	m_ApplicationProcess =  objAPPProcess;
+		return m_DataTypeCollection;
 }
 
+/**************************************************************************************************
+* Function Name: CNode::CreateIndexCollection
+* Description: 
+* Return value: void
+****************************************************************************************************/
+void CNode::CreateIndexCollection() 
+{
+		CIndexCollection* pobjIndexCollection;
+		
+		pobjIndexCollection = new CIndexCollection();
+		m_IndexCollection 	= pobjIndexCollection ;
+}
+	
+/**************************************************************************************************
+* Function Name: CNode::CreateDataTypeCollection
+* Description: 
+* Return value: void
+****************************************************************************************************/
+void CNode::CreateDataTypeCollection() 
+{
+		CDataTypeCollection* pobjDataTypeCollection;
+		pobjDataTypeCollection = new CDataTypeCollection();
+		m_DataTypeCollection 	= pobjDataTypeCollection ;
+}
 
-CIndexCollection* CNode::getPDOIndexCollection(EPDOType PDOType)
-	{
+/**************************************************************************************************
+* Function Name: CNode::addProcessImage
+* Description: 
+* Return value: void
+****************************************************************************************************/
+void CNode::addProcessImage(ProcessImage objProcessImage)
+{
+	 INT32 iItemPosition = ProcessImageCollection.Add();
+  //*(ProcessImageCollection + i) = processImage;	
+ 	 ProcessImageCollection[iItemPosition] 	  = objProcessImage;
+}
+ 
+/**************************************************************************************************
+* Function Name: CNode::addMNPDOvar
+* Description: 
+* Return value: void
+****************************************************************************************************/
+void CNode::addMNPDOvar(MNPdoVariable stPdoVar, EPDOType enumEpdoType)
+{
+		if(enumEpdoType == PDO_RPDO)
+		{
+			INT32 iItemPosition = MNPDOOUTVarCollection.Add();
+			//*(ProcessImageCollection + i) = processImage;	
+			MNPDOOUTVarCollection[iItemPosition] = stPdoVar;
+		}
+		else if(enumEpdoType == PDO_TPDO)
+		{
+			INT32 iItemPosition = MNPDOINVarCollection.Add();
+			//*(ProcessImageCollection + i) = processImage;	
+			MNPDOINVarCollection[iItemPosition] = stPdoVar;
+		}
+ }
+ 
+/**************************************************************************************************
+* Function Name: CNode::CreateApplicationProcess
+* Description: 
+* Return value: void
+****************************************************************************************************/
+void CNode::CreateApplicationProcess()
+{
+	CApplicationProcess* pobjAppliProcess;
+	
+	pobjAppliProcess 	 = new CApplicationProcess();
+	m_ApplicationProcess =  pobjAppliProcess;
+}
+
+/**************************************************************************************************
+* Function Name: CNode::getPDOIndexCollection
+* Description: 
+* Return value: CIndexCollection*
+****************************************************************************************************/
+CIndexCollection* CNode::getPDOIndexCollection(EPDOType enumEpdoType)
+{
 		//printf("\nGetPDOCollection starts");
-		CIndexCollection* PDOCollection = new CIndexCollection();
-		for(int count=0;count<m_IndexCollection->getNumberofIndexes();count++)
-			{
-				CIndex* objIndex;
-				objIndex = m_IndexCollection->getIndex(count);
-				if(objIndex->getPDOType() ==PDOType)
-					PDOCollection->addIndex(*objIndex);					
-			}
-			//printf("\nGetPDOCollection ends");
-		return PDOCollection;
-	}
-	CIndexCollection* CNode::getPDOIndexCollection()
-	{
-		//printf("\nGetPDOCollection starts");
-		CIndexCollection* PDOCollection = new CIndexCollection();
-		for(int count=0;count<m_IndexCollection->getNumberofIndexes();count++)
-			{
-				CIndex* objIndex;
-				objIndex = m_IndexCollection->getIndex(count);
-				if(objIndex->getPDOType() ==  PDO_TPDO || objIndex->getPDOType() ==  PDO_RPDO)
+		CIndexCollection* pobjPdoIndexCollection = new CIndexCollection();
+		
+		for(INT32 iLoopCount=0; iLoopCount < m_IndexCollection->getNumberofIndexes(); iLoopCount++)
+		{
+				CIndex* pobjIndex;
+				
+				pobjIndex = m_IndexCollection->getIndex(iLoopCount);
+				
+				if(pobjIndex->getPDOType() == enumEpdoType)
 				{
-					PDOCollection->addIndex(*objIndex);					
-					printf("\nIndex:%s", objIndex->getIndexValue());
+					pobjPdoIndexCollection->addIndex(*pobjIndex);					
 				}
-			}
+		}
 			//printf("\nGetPDOCollection ends");
-		return PDOCollection;
+		return pobjPdoIndexCollection;
 	}
+	
+/**************************************************************************************************
+* Function Name: CNode::getPDOIndexCollection
+* Description: 
+* Return value: CIndexCollection*
+****************************************************************************************************/
+CIndexCollection* CNode::getPDOIndexCollection()
+{
+		//printf("\nGetPDOCollection starts");
+		CIndexCollection* pobjPdoIndexCollection = new CIndexCollection();
+		
+		for(INT32 iLoopCount=0; iLoopCount < m_IndexCollection->getNumberofIndexes(); iLoopCount++)
+		{
+				CIndex* pobjIndex;
+				
+				pobjIndex = m_IndexCollection->getIndex(iLoopCount);
+				if(pobjIndex->getPDOType() ==  PDO_TPDO || pobjIndex->getPDOType() ==  PDO_RPDO)
+				{
+					pobjPdoIndexCollection->addIndex(*pobjIndex);					
+					printf("\nIndex:%s", pobjIndex->getIndexValue());
+				}
+		}
+			//printf("\nGetPDOCollection ends");
+		return pobjPdoIndexCollection;
+}
+
+/**************************************************************************************************
+* Function Name: CNode::getIndexCollectionWithoutPDO
+* Description: 
+* Return value: CIndexCollection*
+****************************************************************************************************/
 CIndexCollection* CNode::getIndexCollectionWithoutPDO()
-	{
-		CIndexCollection* objIndexCol = new CIndexCollection();
-		for(int count=0;count<m_IndexCollection->getNumberofIndexes();count++)
-			{
-				CIndex* objIndex;
-				objIndex = m_IndexCollection->getIndex(count);
-				if(CheckIfNotPDO((char*)objIndex->getIndexValue()))
-						objIndexCol->addIndex(*objIndex);			
-			}			
-		return objIndexCol;
+{
+		CIndexCollection* pobjIndexCol = new CIndexCollection();
+		
+		for(INT32 iLoopCount=0; iLoopCount < m_IndexCollection->getNumberofIndexes(); iLoopCount++)
+		{
+				CIndex* pobjIndex;
+				
+				pobjIndex = m_IndexCollection->getIndex(iLoopCount);
+				if(CheckIfNotPDO((char*)pobjIndex->getIndexValue()))
+				{
+						pobjIndexCol->addIndex(*pobjIndex);			
+				}
+		}			
+		return pobjIndexCol;
 	}
 //CDTCollection* CNode::getComplexDTCollection()
 // {
 //	return collectionObjCDT;
 // }
+
+/**************************************************************************************************
+* Function Name: CNode::isNull
+* Description: 
+* Return value: bool
+****************************************************************************************************/
 bool CNode::isNull()
 {
-	if (m_IndexCollection==NULL)
-	return true;
+	if (m_IndexCollection == NULL)
+	{
+		return true;
+	}
 	else
-	return false;
+	{
+		return false;
+	}
 }
 //CNode CNode::newNull()
 //{return new CNullObjectClass();}
-ProcessImage* CNode::getPIbyParaIndex(int paraIndex)
+
+/**************************************************************************************************
+* Function Name: CNode::getPIbyParaIndex
+* Description: 
+* Return value: ProcessImage*
+****************************************************************************************************/
+ProcessImage* CNode::getPIbyParaIndex(int iParaIndex)
 {
-	ProcessImage* pi =NULL;
-	for(int count=0; count<ProcessImageCollection.Count(); count++)
-		{
-			pi = ProcessImageCollection.GetAddress(count);
-			if(pi->ParametrIndex == paraIndex)
-			return pi;			
-		}			
-	return pi;
+	ProcessImage* pobjProcessImage = NULL;
+	
+	for(INT32 iLoopCount=0; iLoopCount < ProcessImageCollection.Count(); iLoopCount++)
+	{
+			pobjProcessImage = ProcessImageCollection.GetAddress(iLoopCount);
+			
+			if(pobjProcessImage->ParametrIndex == iParaIndex)
+			{
+				return pobjProcessImage;			
+			}
+	}			
+	return pobjProcessImage;
 }
+
+/**************************************************************************************************
+* Function Name: CNode::DeleteCollectionsForPI
+* Description: 
+* Return value: void
+****************************************************************************************************/
 void CNode::DeleteCollectionsForPI()
 {
-	if(MNPDOINVarCollection.Count()!=0)
-	MNPDOINVarCollection.Clear();
+	if(MNPDOINVarCollection.Count() != 0)
+	{
+		MNPDOINVarCollection.Clear();
+	}
 	if(MNPDOOUTVarCollection.Count()!=0)	
-	MNPDOOUTVarCollection.Clear();
+	{
+		MNPDOOUTVarCollection.Clear();
+	}
 	if(ProcessImageCollection.Count()!=0)
-	ProcessImageCollection.Clear();
+	{
+		ProcessImageCollection.Clear();
+	}
 }
 #pragma endregion Properties
 

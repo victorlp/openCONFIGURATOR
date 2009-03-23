@@ -2,13 +2,13 @@
 //
 //  $Header: $
 //
-// NAME:  ClassNAME
+// NAME:  IndexCollection.cpp
 //
 // BASE  CLASSES: none
 //  
 // PURPOSE:  purpose description
 //
-// AUTHOR:  
+// AUTHOR:  Kalycito Powerlink Team
 //
 //  COPYRIGHT NOTICE:
 //
@@ -66,23 +66,44 @@
 //  REVISION HISTORY:
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
+
+/****************************************************************************************************
+* Includes
+****************************************************************************************************/
+#include <stdio.h>
 #include "../Include/IndexCollection.h"
 #include "../Include/Internal.h"
-#include <stdio.h>
 
+/****************************************************************************************************
+* FUNCTION DEFINITIONS
+****************************************************************************************************/
+
+/****************************************************************************************************
+* Constructor
+****************************************************************************************************/
 CIndexCollection::CIndexCollection(void)
-	{
+{
 		//IndexList.size =0;
 		m_IndexCount = 0;
-	}
+}
 
+/****************************************************************************************************
+* Destructor
+****************************************************************************************************/
 CIndexCollection::~CIndexCollection(void)
-	{
-	}
+{
+	//Add destructor code here
+}
+
+/****************************************************************************************************
+* Function Name: CIndexCollection::addIndex
+* Description:
+* Return value: void
+****************************************************************************************************/
 void CIndexCollection::addIndex(CIndex objIndex)
-	{
+{
 		
-		int i = collectionObj.Add();
+		INT32 iItemPosition = collectionObj.Add();
 		char* substr= new char[3];
 			substr = subString((char*)objIndex.getIndexValue(), 0, 2);
 		if(strcmp(substr,"14")==0 ||strcmp(substr,"16") ==0)
@@ -95,84 +116,132 @@ void CIndexCollection::addIndex(CIndex objIndex)
 				objIndex.setPDOType(PDO_TPDO);
 				
 			}
-		collectionObj[i] = objIndex;
+		collectionObj[iItemPosition] = objIndex;
 		m_IndexCount= collectionObj.Count();
 
-	}
-void CIndexCollection::deleteIndex(int IndexID)
-	{
-	   collectionObj.Remove(IndexID);
+}
+	
+/****************************************************************************************************
+* Function Name: CIndexCollection::deleteIndex
+* Description:
+* Return value: void
+****************************************************************************************************/
+void CIndexCollection::deleteIndex(int iIndexID)
+{
+	   collectionObj.Remove(iIndexID);
 	   m_IndexCount = collectionObj.Count();
 	   //printf("\n\nAfter Delete - Count:%d\n\n", m_IndexCount);
 
-	}
+}
 	
+/****************************************************************************************************
+* Function Name: CIndexCollection::DeleteIndexCollection
+* Description:
+* Return value: void
+****************************************************************************************************/
 void CIndexCollection::DeleteIndexCollection() 
-	{
+{
 		collectionObj.Clear();
 		m_IndexCount = collectionObj.Count();
-	}
-	void CIndexCollection::DeletePDOs() 
+}
+
+/****************************************************************************************************
+* Function Name: CIndexCollection::DeletePDOs
+* Description:
+* Return value: void
+****************************************************************************************************/
+
+void CIndexCollection::DeletePDOs() 
+{
+	int i;
+	char* substr= new char[3];
+	
+	for(i =0; i<m_IndexCount;i++)
 	{
-		int i;
-		char* substr= new char[3];
+		CIndex objIndex;
+		objIndex = collectionObj[i];
+		substr = subString((char*)objIndex.getIndexValue(), 0, 2);
+		if(strcmp(substr, "1A")==0 || strcmp(substr, "1a")==0 ||
+				strcmp(substr, "14")==0 || strcmp(substr, "16")==0   ||
+				strcmp(substr, "18")==0 )
+		{
+		/*if(!(CheckIfNotPDO((char*)objIndex.getIndexValue())));
+		{*/
+	
+			collectionObj.Remove(i);
+   m_IndexCount = collectionObj.Count();
+   i = 0;
+		}
 		
-		for(i =0; i<m_IndexCount;i++)
+	}		
+}
+
+/****************************************************************************************************
+* Function Name: CIndexCollection::DeletePIObjects
+* Description:
+* Return value: void
+****************************************************************************************************/
+
+void CIndexCollection::DeletePIObjects()
+{
+	int i;
+	char* substr= new char[2];
+	
+	for(i =0; i<m_IndexCount;i++)
+	{
+		CIndex objIndex;
+		objIndex = collectionObj[i];
+			substr = subString((char*)objIndex.getIndexValue(), 0, 1);
+		if(strcmp(substr,"A")==0  ||  strcmp(substr,"a")==0 )
+		{
+			collectionObj.Remove(i);
+			m_IndexCount = collectionObj.Count();
+			i= 0;
+		}
+		
+	}		
+}
+	
+/****************************************************************************************************
+* Function Name: CIndexCollection::getIndex
+* Description:
+* Return value: CIndex*
+****************************************************************************************************/
+CIndex* CIndexCollection::getIndex(int iCount)
+{
+		return &collectionObj[iCount];
+}
+	
+/****************************************************************************************************
+* Function Name: CIndexCollection::getIndexbyIndexValue
+* Description:
+* Return value: CIndex*
+****************************************************************************************************/
+CIndex* CIndexCollection::getIndexbyIndexValue(char* pbIndex)
+{
+		INT32 iLoopCount;
+		
+		for(iLoopCount =0; iLoopCount < m_IndexCount; iLoopCount++)
 		{
 			CIndex objIndex;
-			objIndex = collectionObj[i];
-			substr = subString((char*)objIndex.getIndexValue(), 0, 2);
-			if(strcmp(substr, "1A")==0 || strcmp(substr, "1a")==0 ||
-					strcmp(substr, "14")==0 || strcmp(substr, "16")==0   ||
-					strcmp(substr, "18")==0 )
-			{
-			/*if(!(CheckIfNotPDO((char*)objIndex.getIndexValue())));
-			{*/
-				printf("\n objIndex.getIndexValue() : %s", objIndex.getIndexValue());
-				collectionObj.Remove(i);
-	   m_IndexCount = collectionObj.Count();
-	   i = 0;
-			}
 			
-		}		
-	}
-	void CIndexCollection::DeletePIObjects()
-	{
-		int i;
-		char* substr= new char[2];
-		
-		for(i =0; i<m_IndexCount;i++)
-		{
-			CIndex objIndex;
-			objIndex = collectionObj[i];
-				substr = subString((char*)objIndex.getIndexValue(), 0, 1);
-			if(strcmp(substr,"A")==0  ||  strcmp(substr,"a")==0 )
+			objIndex = collectionObj[iLoopCount];
+			if(strcmp(objIndex.getIndexValue(),pbIndex) == 0)
 			{
-				collectionObj.Remove(i);
-	   m_IndexCount = collectionObj.Count();
-	   i= 0;
+				return &collectionObj[iLoopCount];
 			}
-			
-		}		
-	}
-CIndex* CIndexCollection::getIndex(int Count)
-	{
-		return &collectionObj[Count];
-	}
-CIndex* CIndexCollection::getIndexbyIndexValue(char* Index)
-	{
-		int i;
-		
-		for(i =0; i<m_IndexCount;i++)
-		{
-			CIndex objIndex;
-			objIndex = collectionObj[i];
-			if(strcmp(objIndex.getIndexValue(),Index)==0)
-				return &collectionObj[i];
 		}		
 		return NULL;
-	}
+}
+	
+/****************************************************************************************************
+* Function Name: CIndexCollection::getNumberofIndexes
+* Description:
+* Return value: int
+****************************************************************************************************/
 int CIndexCollection::getNumberofIndexes()
-	{return m_IndexCount;}
+{
+		return m_IndexCount;
+}
 
 

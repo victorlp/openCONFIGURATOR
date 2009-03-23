@@ -92,11 +92,12 @@ class DllExport CIndexCollection
 	public:
 		void addIndex(CIndex objIndex);
 		void deleteIndex(int IndexID);
-		void DeleteIndexCollection();		
+		void DeleteIndexCollection();
+		void DeletePDOs() ;
+		void DeletePIObjects();
 		int getNumberofIndexes();
 		CIndex* getIndex(int Count);
 		CIndex* getIndexbyIndexValue(char* Index);		
-		void DeletePDOs();
-		void DeletePIObjects();
+		
 	};
 #endif // IndexCollection_h

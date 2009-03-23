@@ -2,13 +2,13 @@
 //
 //  $Header: $
 //
-// NAME:  ClassNAME
+// NAME:  Exception.cpp
 //
 // BASE  CLASSES: none
 //  
 // PURPOSE:  purpose description
 //
-// AUTHOR:  
+// AUTHOR:  Kalycito Powerlink Team
 //
 //  COPYRIGHT NOTICE:
 //
@@ -67,11 +67,14 @@
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-
+/****************************************************************************************************
+* Includes
+****************************************************************************************************/
 #include <iostream>
 #include <exception>
-#include "../Include/Exception.h"
 #include <libxml/xmlerror.h>
+#include "../Include/Exception.h"
+
 /*
 class ocfmException: public exception
 {
@@ -81,23 +84,39 @@ class ocfmException: public exception
   }
 } NodeEx;
 */
-ocfmException::ocfmException(void)
-	{
-				_ocfmRetCode.code = OCFM_ERR_SUCCESS;
-	}
 
-ocfmException::~ocfmException(void)
-	{
-		
-	}
+/****************************************************************************************************
+* FUNCTION DEFINITIONS
+****************************************************************************************************/
+
+/****************************************************************************************************
+* Constructor
+****************************************************************************************************/
+ocfmException::ocfmException(void)
+{
+	_ocfmRetCode.code = OCFM_ERR_SUCCESS;
+}
+
+/****************************************************************************************************
+* Destructor
+****************************************************************************************************/
+ocfmException::~ocfmException(void) throw()
+{
+	//Add destructor code here	
+}
+
+/****************************************************************************************************
+* Function Name: ocfmException::ocfm_Excpetion
+* Description:
+* Return value: void
+****************************************************************************************************/
+void ocfmException::ocfm_Excpetion(EConfiuguratorErrors enumErrcode)
+{
 	
-	void ocfmException::ocfm_Excpetion(EConfiuguratorErrors errcode)
-	{
-	
-		_ocfmRetCode.code = errcode;
-		_ocfmRetCode.errorString = new char[100];
+		_ocfmRetCode.code 		 = enumErrcode;
+		_ocfmRetCode.errorString = new char[ERR_STRING_LEN];
 		
-		switch(errcode)
+		switch(enumErrcode)
 		{
 			case OCFM_ERR_FILE_NOT_PRESENT:
 					strcpy(_ocfmRetCode.errorString,"File not present");
@@ -115,9 +134,8 @@ ocfmException::~ocfmException(void)
 					strcpy(_ocfmRetCode.errorString,"Invalid Node type");
 					break;
 			case OCFM_ERR_DATATYPE_NOT_FOUND:
-							strcpy(_ocfmRetCode.errorString, "DataType Not Found in the DataTypeList of XDC");
+					strcpy(_ocfmRetCode.errorString, "DataType Not Found in the DataTypeList of XDC");
 					break;
-
 			case OCFM_ERR_INVALID_INDEXID:
 					strcpy(_ocfmRetCode.errorString,"Invalid Index ID");
 					break;
@@ -182,23 +200,23 @@ ocfmException::~ocfmException(void)
 					strcpy(_ocfmRetCode.errorString,"PDO Mapped Module SubIndex Not Found");
 					break;						
 			case OCFM_ERR_UNIQUE_ID_REF_NOT_FOUND:
-						strcpy(_ocfmRetCode.errorString, "Unique ID reference not found");
-						break;
+					strcpy(_ocfmRetCode.errorString, "Unique ID reference not found");
+					break;
 			case OCFM_ERR_STRUCT_DATATYPE_NOT_FOUND:
-						strcpy(_ocfmRetCode.errorString, "Struct Datatype not found");
-						break;				
+					strcpy(_ocfmRetCode.errorString, "Struct Datatype not found");
+					break;				
 			case OCFM_ERR_NO_CN_NODES_FOUND:
 					strcpy(_ocfmRetCode.errorString, "NO CN Nodes are found");
 					break;
 			case OCFM_ERR_UNKNOWN:
-						strcpy(_ocfmRetCode.errorString, "Unknown error");
-						break;
+					strcpy(_ocfmRetCode.errorString, "Unknown error");
+					break;
 			case OCFM_ERR_VALUE_NOT_WITHIN_RANGE:
-						strcpy(_ocfmRetCode.errorString, "Value out of range");
-						break;
+					strcpy(_ocfmRetCode.errorString, "Value out of range");
+					break;
 			case OCFM_ERR_MN_NODE_DOESNT_EXIST:
 					strcpy(_ocfmRetCode.errorString, "MN Node doesnt exist");
-						break;					
+					break;					
 			case OCFM_ERR_CREATE_XML_WRITER_FAILED:
 					strcpy(_ocfmRetCode.errorString, "Error creating the xml writer");
 					break;
@@ -216,18 +234,25 @@ ocfmException::~ocfmException(void)
 					break;		
 			case OCFM_ERR_CANNOT_OPEN_PROJECT_VER_MISMATCH:
 					strcpy(_ocfmRetCode.errorString, "Cannot open project: Tool-Project version mismatch");
+					break;
 			case OCFM_ERR_INVALID_PJTXML:
-				strcpy(_ocfmRetCode.errorString, "Cannot open project: Invalid Project XML");		
+					strcpy(_ocfmRetCode.errorString, "Cannot open project: Invalid Project XML");		
+					break;
 			case OCFM_ERR_PROJECT_SETTINGS:
-						strcpy(_ocfmRetCode.errorString, "Project Settings are NULL");		
+					strcpy(_ocfmRetCode.errorString, "Project Settings are NULL");
+					break;
 			case OCFM_ERR_INVALID_DATATYPE_FOR_PDO:
-									strcpy(_ocfmRetCode.errorString, "Invalid Datatype for PDO");	
-		 case OCFM_ERR_XAP_FILE_NOT_WRITTEN:
-		 						strcpy(_ocfmRetCode.errorString, "XAP File Not Written");	
-		 case OCFM_ERR_MAX_PI_SIZE:
-									strcpy(_ocfmRetCode.errorString, "MAX PI Size(4064 bytes) crossed");	
+					strcpy(_ocfmRetCode.errorString, "Invalid Datatype for PDO");
+					break;
+			case OCFM_ERR_XAP_FILE_NOT_WRITTEN:
+					strcpy(_ocfmRetCode.errorString, "XAP File Not Written");	
+					break;
+			case OCFM_ERR_MAX_PI_SIZE:
+					strcpy(_ocfmRetCode.errorString, "MAX PI Size(4064 bytes) crossed");
+					break;
 			default:
-						break;			
+					strcpy(_ocfmRetCode.errorString, "Unhandled Error");
+					break;
 		}
 
 	}

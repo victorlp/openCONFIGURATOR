@@ -2,13 +2,13 @@
 //
 //  $Header: $
 //
-// NAME:  ClassNAME
+// NAME:  Index.xpp
 //
 // BASE  CLASSES: none
 //  
 // PURPOSE:  purpose description
 //
-// AUTHOR:  
+// AUTHOR:  Kalycito Powerlink Team
 //
 //  COPYRIGHT NOTICE:
 //
@@ -66,73 +66,126 @@
 //  REVISION HISTORY:
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
-#include "../Include/Index.h"
+
+/****************************************************************************************************
+* Includes
+****************************************************************************************************/
 #include <stdio.h>
+#include "../Include/Index.h"
 
+/****************************************************************************************************
+* FUNCTION DEFINITIONS
+****************************************************************************************************/
+
+/****************************************************************************************************
+* Constructor
+****************************************************************************************************/
 CIndex::CIndex(void)
-	{
+{
 		m_SubIndexCount = collectionObj.Count();
-	}
+}
 
+/****************************************************************************************************
+* Destructor
+****************************************************************************************************/
 CIndex::~CIndex(void)
-	{
-	}
+{
+	//Add destructor code here
+}
 
+/****************************************************************************************************
+* Function Name: CIndex::getPDOType
+* Description:
+* Return value: EPDOType
+****************************************************************************************************/
 EPDOType CIndex::getPDOType() 
-	{
+{
 		return m_PDOType;
-	}
-void CIndex::setPDOType(EPDOType PDOType)
-	{ m_PDOType = PDOType;}
+}
+	
+/****************************************************************************************************
+* Function Name: CIndex::setPDOType
+* Description:
+* Return value: void
+****************************************************************************************************/
+void CIndex::setPDOType(EPDOType enumPDOType)
+{ 
+		m_PDOType = enumPDOType;
+}
+	
 #pragma region MemberFunctions
 /****************************************************************************************************
-* Function Name: addSubIndex
+* Function Name: CIndex::addSubIndex
 * Description: add the SubIndex in the Index Object
+* Return value: void
 ****************************************************************************************************/
 
 void CIndex::addSubIndex(CSubIndex objSubIndex) 
-	{
-		int i = collectionObj.Add();
-		collectionObj[i] = objSubIndex ;
+{
+		int iItemPosition = collectionObj.Add();
+		collectionObj[iItemPosition] = objSubIndex ;
 		m_SubIndexCount= collectionObj.Count();
 		
-	}
+}
 	
 /****************************************************************************************************
-* Function Name: deleteSubIndex
+* Function Name: CIndex::deleteSubIndex
 * Description: delete the SubIndex in the Index Object
+* Return value: void
 ****************************************************************************************************/
 
-void CIndex::deleteSubIndex(int SubIndexID) 
-	{
-		collectionObj.Remove(SubIndexID);
+void CIndex::deleteSubIndex(int iSubIndexID) 
+{
+		collectionObj.Remove(iSubIndexID);
 		m_SubIndexCount = collectionObj.Count();
 		//printf("\n\nAfter Delete - SubIndexCount:%d\n\n", m_SubIndexCount);
-	}
+}
+
+/****************************************************************************************************
+* Function Name: CIndex::getNumberofSubIndexes
+* Description: delete the SubIndex in the Index Object
+* Return value: int
+****************************************************************************************************/
+INT32 CIndex::getNumberofSubIndexes()
+{
+		return collectionObj.Count();
+}
+
+/****************************************************************************************************
+* Function Name: CIndex::getSubIndex
+* Description: delete the SubIndex in the Index Object
+* Return value: CSubIndex*
+****************************************************************************************************/
+CSubIndex* CIndex::getSubIndex(int iSubIndexId)
+{
+		return &collectionObj[iSubIndexId];
+}
 	
-int CIndex::getNumberofSubIndexes()
-	{return collectionObj.Count();}
+/****************************************************************************************************
+* Function Name: CIndex::getSubIndexbyIndexValue
+* Description: delete the SubIndex in the Index Object
+* Return value: CSubIndex*
+****************************************************************************************************/
+CSubIndex* CIndex::getSubIndexbyIndexValue(char* pbIndex)
+{
+		INT32 iLoopCount;
+		CSubIndex* pobjSIndex;
 
-CSubIndex* CIndex::getSubIndex(int SubIndexId)
-	{
-		return &collectionObj[SubIndexId];
-	}
-	CSubIndex* CIndex::getSubIndexbyIndexValue(char* Index)
-	{
-		int i;
-		CSubIndex* objSIndex;
-
-		for(i =0; i<collectionObj.Count();i++)
+		for(iLoopCount =0; iLoopCount < collectionObj.Count(); iLoopCount++)
 		{			
-			objSIndex = &collectionObj[i];
-			if(strcmp(objSIndex->getIndexValue(),Index)==0)
-				return objSIndex;
+			pobjSIndex = &collectionObj[iLoopCount];
+			
+			if(strcmp(pobjSIndex->getIndexValue(),pbIndex) == 0)
+			{
+				return pobjSIndex;
+			}
 			else
 			{
-				objSIndex = NULL;
+				pobjSIndex = NULL;
 			}
 		}
-		objSIndex = NULL;
-		return objSIndex;
+		
+		pobjSIndex = NULL;
+		return pobjSIndex;
 	}
 #pragma endregion MemberFunctions

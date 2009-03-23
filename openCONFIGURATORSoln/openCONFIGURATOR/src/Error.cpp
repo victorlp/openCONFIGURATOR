@@ -2,13 +2,13 @@
 //
 //  $Header: $
 //
-// NAME:  ClassNAME
+// NAME:  Error.cpp
 //
 // BASE  CLASSES: none
 //  
 // PURPOSE:  purpose description
 //
-// AUTHOR:  
+// AUTHOR:  Kalycito Powerlink Team
 //
 //  COPYRIGHT NOTICE:
 //
@@ -66,14 +66,31 @@
 //  REVISION HISTORY:
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
-#include "../Include/Error.h"
 
-int ocfmRetValError_getRetValue(ocfmRetValError RetValError)
+/****************************************************************************************************
+* Includes
+****************************************************************************************************/
+#include "../Include/Declarations.h"
+
+/****************************************************************************************************
+* FUNCTION DEFINITIONS
+****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: ocfmRetValError_getRetValue
+* Description:
+* Return value: int
+****************************************************************************************************/
+INT32 ocfmRetValError_getRetValue(ocfmRetValError stRetValError)
 {
-	return RetValError.returnValue;
+	return stRetValError.returnValue;
 }
 
-int ocfmRetValError_getErrorCode(ocfmRetValError RetValError)
+/****************************************************************************************************
+* Function Name: ocfmRetValError_getErrorCode
+* Description:
+* Return value: int
+****************************************************************************************************/
+INT32 ocfmRetValError_getErrorCode(ocfmRetValError stRetValError)
 {
-	return RetValError.errCode.code;
+	return stRetValError.errCode.code;
 }

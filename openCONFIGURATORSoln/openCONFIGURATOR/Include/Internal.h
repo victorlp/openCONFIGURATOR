@@ -91,8 +91,9 @@
 #define INDEX_LEN 5
 #define SUBINDEX_LEN 3
 #define RANGE_INDEX 3
-#define PROJECT_FILE_NAME 500
+#define STR_ALLOC_BUFFER 1
 #define MAX_PI_SIZE 4064
+#define PROJECT_FILE_NAME 500
 
 /************************************************************************************************
 * Enumerations
@@ -105,8 +106,8 @@ DELETE
 /************************************************************************************************
 * Externs
 ************************************************************************************************/
-extern int ConfigDate;
-extern int ConfigTime;
+extern int iConfigDate;
+extern int iConfigTime;
 
 /************************************************************************************************
 * Global variables
@@ -178,5 +179,6 @@ bool checkIfStringDatatypes(char* datatypeValue);
 bool CheckIfDataTypeByNameExists(char* dtName, int NodeID);
 ocfmRetCode AddOtherMNIndexes(int NodeID);
 void AuotgenerateOtherIndexs(CNode* objNode);
+void UpdatedCNDateORTime(CIndex* pobjMNIndex, int iNodeId, EDateTime eDT);
 
 #endif // internal_h

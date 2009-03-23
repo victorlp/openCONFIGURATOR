@@ -2,13 +2,13 @@
 //
 //  $Header: $
 //
-// NAME:  DataTypeCollection
+// NAME:  DataTypeCollection.cpp
 //
 // BASE  CLASSES: none
 //  
 // PURPOSE:  purpose description
 //
-// AUTHOR:  
+// AUTHOR:  Kalycito Powerlink Team
 //
 //  COPYRIGHT NOTICE:
 //
@@ -67,59 +67,118 @@
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
+/****************************************************************************************************
+* Includes
+****************************************************************************************************/
 #include "../Include/DataTypeCollection.h"
 #include "../Include/Internal.h"
 
-CDataTypeCollection::CDataTypeCollection(void)
-	{
-		m_DataTypeCount = collectionObj.Count();
-	}
+/****************************************************************************************************
+* FUNCTION DEFINITIONS
+****************************************************************************************************/
 
+/****************************************************************************************************
+* Constructor
+****************************************************************************************************/
+CDataTypeCollection::CDataTypeCollection(void)
+{
+		m_DataTypeCount = collectionObj.Count();
+}
+
+	
+/****************************************************************************************************
+* Destructor
+****************************************************************************************************/
 CDataTypeCollection::~CDataTypeCollection(void)
-	{
-	}
+{
+		//Add destructor code here
+}
+
+/****************************************************************************************************
+* Function Name: CDataTypeCollection::addDataType
+* Description:
+* Return value: void
+****************************************************************************************************/
 void CDataTypeCollection::addDataType(DataType objDataType)
-	{
-		int i = collectionObj.Add();
-		collectionObj[i] = objDataType;
-		m_DataTypeCount= collectionObj.Count();
-	}
+{
+		INT32 iItemPosition 			= collectionObj.Add();
+		collectionObj[iItemPosition] 	= objDataType;
+		m_DataTypeCount					= collectionObj.Count();
+}
+	
+/****************************************************************************************************
+* Function Name: CDataTypeCollection::DeleteDataTypeCollection
+* Description:
+* Return value: void
+****************************************************************************************************/
 void CDataTypeCollection::DeleteDataTypeCollection() 
-	{
+{
 		collectionObj.Clear();
 		m_DataTypeCount = collectionObj.Count();
-	}
-int CDataTypeCollection::getNumberOfDataTypes()
-	{ return collectionObj.Count();}
-DataType* CDataTypeCollection::getDataTypeElement(int DataTypeId)
-	{
-	 return &collectionObj[DataTypeId];
-	}
-DataType* CDataTypeCollection::getDataType(char* DatatypeValue)
-	{
-		DataType* dt = NULL;
-		for(int i=0;i<this->getNumberOfDataTypes() ;i++)
-			{				
-				dt=this->getDataTypeElement(i);			
-				if(strcmp(dt->DataTypeValue,DatatypeValue)==0)
-					return dt;
+}
+	
+/****************************************************************************************************
+* Function Name: CDataTypeCollection::getNumberOfDataTypes
+* Description:
+* Return value: int
+****************************************************************************************************/
+INT32 CDataTypeCollection::getNumberOfDataTypes()
+{ 
+		return collectionObj.Count();
+}
 
-			}
-			dt = NULL;			
-			return dt;
-	}
-DataType* CDataTypeCollection::getDataTypeByName(char* DataTypeName)
-	{
-		DataType* dt = NULL;	
-		for(int i=0;i<this->getNumberOfDataTypes() ;i++)
-			{				
-				dt=this->getDataTypeElement(i);				
-				if(strcmp(StringToUpper(dt->getName()),StringToUpper(DataTypeName))==0)
-				{		
-					return dt;
+/****************************************************************************************************
+* Function Name: CDataTypeCollection::getDataTypeElement
+* Description:
+* Return value: DataType*
+****************************************************************************************************/
+DataType* CDataTypeCollection::getDataTypeElement(int iDataTypeId)
+{
+	 	return &collectionObj[iDataTypeId];
+}
+
+/****************************************************************************************************
+* Function Name: CDataTypeCollection::getDataType
+* Description:
+* Return value: DataType*
+****************************************************************************************************/
+DataType* CDataTypeCollection::getDataType(char* pbDataTypeValue)
+{
+		DataType* pobjDataType = NULL;
+
+		for(INT32 iLoopCount = 0; iLoopCount < this->getNumberOfDataTypes(); iLoopCount++)
+		{				
+				pobjDataType = this->getDataTypeElement(iLoopCount);			
+				
+				if(strcmp(pobjDataType->DataTypeValue, pbDataTypeValue) == 0)
+				{
+					return pobjDataType;
 				}
 
-			}
-			dt = NULL;			
-			return dt;
-	}
+		}
+		pobjDataType = NULL;			
+		return pobjDataType;
+}
+
+/****************************************************************************************************
+* Function Name: CDataTypeCollection::getDataTypeByName
+* Description:
+* Return value: DataType*
+****************************************************************************************************/
+DataType* CDataTypeCollection::getDataTypeByName(char* pbDataTypeValue)
+{
+		DataType* pobjDataType = NULL;	
+
+		for(INT32 iLoopCount = 0; iLoopCount < this->getNumberOfDataTypes(); iLoopCount++)
+		{				
+				pobjDataType = this->getDataTypeElement(iLoopCount);				
+				
+				if(strcmp(StringToUpper(pobjDataType->getName()), StringToUpper(pbDataTypeValue)) == 0)
+				{
+					return pobjDataType;
+				}
+
+		}
+		pobjDataType = NULL;			
+		return pobjDataType;
+}

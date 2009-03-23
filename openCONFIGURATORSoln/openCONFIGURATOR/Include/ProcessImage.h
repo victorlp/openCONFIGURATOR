@@ -166,8 +166,8 @@ struct ModuleCol
 /************************************************************************************************
 * Externs
 ************************************************************************************************/
-extern int InVars;
-extern int OutVars;
+extern int iInVars;
+extern int iOutVars;
 //extern ProcessImage PIInCol[4000];
 //extern ProcessImage PIOutCol[4000];
 

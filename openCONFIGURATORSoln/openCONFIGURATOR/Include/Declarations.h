@@ -293,6 +293,11 @@ typedef enum
 	FALSE =0,
 	TRUE
 }EFlag;
+typedef enum
+{
+	DATE =0,
+	TIME
+}EDateTime;
 
 typedef enum 
 {

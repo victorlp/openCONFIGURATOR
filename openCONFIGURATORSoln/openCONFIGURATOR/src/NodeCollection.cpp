@@ -2,13 +2,13 @@
 //
 //  $Header: $
 //
-// NAME:  ClassNAME
+// NAME:  NodeCollection.cpp
 //
 // BASE  CLASSES: none
 //  
 // PURPOSE:  purpose description
 //
-// AUTHOR:  
+// AUTHOR:  Kalycito Powerlink Team
 //
 //  COPYRIGHT NOTICE:
 //
@@ -66,119 +66,195 @@
 //  REVISION HISTORY:
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
+
+/****************************************************************************************************
+* Includes
+****************************************************************************************************/
+#include <stdio.h>
 #include "../Include/NodeCollection.h"
 #include "../Include/Node.h"
 //$S Only for testing
-#include <stdio.h>
 
+/****************************************************************************************************
+* Global Variables
+****************************************************************************************************/
+bool CNodeCollection::instanceFlag = false;
+CNodeCollection* CNodeCollection::objNodeCollection = NULL;
+
+/****************************************************************************************************
+* FUNCTION DEFINITIONS
+****************************************************************************************************/
+/****************************************************************************************************
+* Constructor
+****************************************************************************************************/
 CNodeCollection::CNodeCollection(void)
-	{
+{
 		m_NodeCount =  collectionObj.Count();
-	}
+}
 
+/****************************************************************************************************
+* Destructor
+****************************************************************************************************/
 CNodeCollection::~CNodeCollection(void)
-	{
+{
 		instanceFlag =false;
-	}
-bool CNodeCollection::instanceFlag=false;
-CNodeCollection* CNodeCollection::objNodeCollection=NULL;
+}
 
-int CNodeCollection::getNumberOfNodes()
-	{return m_NodeCount;}
+/****************************************************************************************************
+* Function Name: CNodeCollection::getNumberOfNodes
+* Description:
+* Return value: INT32
+****************************************************************************************************/
+INT32 CNodeCollection::getNumberOfNodes()
+{
+		return m_NodeCount;
+}
+
+/****************************************************************************************************
+* Function Name: CNodeCollection::addNode
+* Description:
+* Return value: void
+****************************************************************************************************/
 void CNodeCollection::addNode(CNode objNode)
-	{
-		int i = collectionObj.Add();
-		collectionObj[i] = objNode;
+{
+		INT32 iItemPosition = collectionObj.Add();
+		
+		collectionObj[iItemPosition] = objNode;
 		m_NodeCount= collectionObj.Count();
 	
-	}
+}
 	
-void CNodeCollection::deleteNode(int NodeID)
-	{
+/****************************************************************************************************
+* Function Name: CNodeCollection::deleteNode
+* Description:
+* Return value: void
+****************************************************************************************************/
+void CNodeCollection::deleteNode(int iNodeID)
+{
 		
-       collectionObj.Remove(NodeID);
+       collectionObj.Remove(iNodeID);
 	   m_NodeCount = collectionObj.Count();
 	   //printf("\n\nAfter Delete - Count:%d\n\n", m_NodeCount);
 
-	}	
-	
+}	
+
+/****************************************************************************************************
+* Function Name: CNodeCollection::getNodeColObjectPointer
+* Description:
+* Return value: CNodeCollection*
+****************************************************************************************************/
 CNodeCollection* CNodeCollection::getNodeColObjectPointer()
-	{
+{
 		if(!instanceFlag)
-			{
+		{
 				objNodeCollection = new CNodeCollection();
-				instanceFlag=true;
-			}
+				instanceFlag 	  = true;
+		}
 		return objNodeCollection;
 		
-	}
+}
+	
+/****************************************************************************************************
+* Function Name: CNodeCollection::getNodeColObject
+* Description:
+* Return value: CNodeCollection
+****************************************************************************************************/
 CNodeCollection CNodeCollection::getNodeColObject()
-	{
+{
 		if(!instanceFlag)
-			{
-				objNodeCollection = new CNodeCollection();
-				instanceFlag=true;
-			}
+		{
+				objNodeCollection 	= new CNodeCollection();
+				instanceFlag		= true;
+		}
 		return *objNodeCollection;
 		
-	}
-CNode CNodeCollection::getNode(ENodeType nodeType,int NodeID)
-	{
-		int count;
+}
+	
+/****************************************************************************************************
+* Function Name: CNodeCollection::getNode
+* Description:
+* Return value: CNode
+****************************************************************************************************/
+CNode CNodeCollection::getNode(ENodeType enumNodeType,int iNodeID)
+{
+		INT32 iLoopCount;
 		CNode objNode;
-		for(count=0; count<m_NodeCount ;count++)
-			{
-				
-				objNode = objNodeCollection->collectionObj[count];
-				if(objNode.getNodeType()==nodeType && objNode.getNodeId()==NodeID)
-				{
-					return objNode;
-				}
-				
-			}
-		return objNode;				
-	}
-	CNode* CNodeCollection::getNodePtr(ENodeType nodeType,int NodeID)
-	{
-		int count;
-		CNode* objNode;
-		for(count=0; count<m_NodeCount ;count++)
-			{
-				
-				objNode = &(objNodeCollection->collectionObj[count]);				
-				if(objNode->getNodeType()==nodeType && objNode->getNodeId()==NodeID)
-				{
-					return objNode;
-				}
-				
-			}
-		return NULL;				
-	}
-CNode CNodeCollection::getNode(int NodeID)
-	{
-		int count;
-		CNode objNode;
-		for(count=0; count<m_NodeCount ;count++)
-			{			
-				objNode = objNodeCollection->collectionObj[count];
-				if(objNode.getNodeId()==NodeID)
-				{
-					return objNode;
-				}
-				
-			}
-			return objNode;
 		
-	}
+		for(iLoopCount=0; iLoopCount < m_NodeCount ; iLoopCount++)
+		{		
+				objNode = objNodeCollection->collectionObj[iLoopCount];
+				
+				if(objNode.getNodeType() == enumNodeType && objNode.getNodeId() == iNodeID)
+				{
+					return objNode;
+				}
+				
+		}
+		return objNode;				
+}
+	
+/****************************************************************************************************
+* Function Name: CNodeCollection::getNodePtr
+* Description:
+* Return value: CNode*
+****************************************************************************************************/
+CNode* CNodeCollection::getNodePtr(ENodeType enumNodeType,int iNodeID)
+{
+		INT32 iLoopCount;
+		CNode* pobjNode;
+		
+		for(iLoopCount=0; iLoopCount < m_NodeCount ; iLoopCount++)
+		{		
+				pobjNode = &(objNodeCollection->collectionObj[iLoopCount]);				
+				
+				if(pobjNode->getNodeType() == enumNodeType && pobjNode->getNodeId() == iNodeID)
+				{
+					return pobjNode;
+				}
+				
+		}
+		return NULL;				
+}
+	
+/****************************************************************************************************
+* Function Name: CNodeCollection::getNode
+* Description:
+* Return value: CNode
+****************************************************************************************************/
+CNode CNodeCollection::getNode(int iNodeID)
+{
+		INT32 iLoopCount;
+		CNode objNode;
+		
+		for(iLoopCount=0; iLoopCount < m_NodeCount ; iLoopCount++)
+		{			
+				objNode = objNodeCollection->collectionObj[iLoopCount];
+				
+				if(objNode.getNodeId() == iNodeID)
+				{
+					return objNode;
+				}
+				
+		}
+		return objNode;
+		
+}
+	
+/****************************************************************************************************
+* Function Name: CNodeCollection::getMNNode
+* Description:
+* Return value: CNode
+****************************************************************************************************/
 CNode CNodeCollection::getMNNode()
-	{
-			int count;
+{
+			INT32 iLoopCount;
 			CNode objNode;
 			
-			for(count=0; count<m_NodeCount ;count++)
+			for(iLoopCount = 0; iLoopCount < m_NodeCount ; iLoopCount++)
 			{
 				
-				objNode = objNodeCollection->collectionObj[count];
+				objNode = objNodeCollection->collectionObj[iLoopCount];
+				
 				if(objNode.getNodeType() == MN )
 				{
 					return objNode;
@@ -186,22 +262,44 @@ CNode CNodeCollection::getMNNode()
 				
 			}
 			return objNode;				
-	}
-CNode CNodeCollection::getNodebyCollectionIndex(int ColIndex)
-{
-	return collectionObj[ColIndex];
 }
-CNode* CNodeCollection::getNodebyColIndex(int ColIndex)
+	
+/****************************************************************************************************
+* Function Name: CNodeCollection::getNodebyCollectionIndex
+* Description:
+* Return value: CNode
+****************************************************************************************************/
+CNode CNodeCollection::getNodebyCollectionIndex(int iColIndex)
 {
-	return &collectionObj[ColIndex];
+	//$Scout << "$S." << endl;
+	return collectionObj[iColIndex];
 }
-int CNodeCollection::getCNNodesCount() 
+
+/****************************************************************************************************
+* Function Name: CNodeCollection::getNodebyColIndex
+* Description:
+* Return value: CNode*
+****************************************************************************************************/
+CNode* CNodeCollection::getNodebyColIndex(int iColIndex)
 {
-	int CNNodecount = 0;
-	for(int count= 0; count<collectionObj.Count(); count++)
+	return &collectionObj[iColIndex];
+}
+
+/****************************************************************************************************
+* Function Name: CNodeCollection::getCNNodesCount
+* Description:
+* Return value: int
+****************************************************************************************************/
+INT32 CNodeCollection::getCNNodesCount() 
+{
+	INT32 iCNNodecount = 0;
+	
+	for(INT32 iLoopCount= 0; iLoopCount < collectionObj.Count(); iLoopCount++)
 	{
-		if(collectionObj[count].getNodeType() == CN)
-		CNNodecount++;
+		if(collectionObj[iLoopCount].getNodeType() == CN)
+		{
+			iCNNodecount++;
+		}
 	}
-	return CNNodecount;
+	return iCNNodecount;
 }

@@ -2,13 +2,13 @@
 //
 //  $Header: $
 //
-// NAME:  ClassNAME
+// NAME:  ObjectDictionary.cpp
 //
 // BASE  CLASSES: none
 //  
 // PURPOSE:  purpose description
 //
-// AUTHOR:  
+// AUTHOR:  Kalycito Powerlink Team
 //
 //  COPYRIGHT NOTICE:
 //
@@ -66,14 +66,34 @@
 //  REVISION HISTORY:
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
+
+/****************************************************************************************************
+* Includes
+****************************************************************************************************/
+#include <iostream>
 #include "../Include/ObjectDictionary.h"
 #include "../Include/Internal.h"
 #include "../Include/Exception.h"
-#include <iostream>
+
 using namespace std;
-int LastObjDictIndexParsed=0;
+
+/****************************************************************************************************
+* Global Variables
+****************************************************************************************************/
+INT32 iLastObjDictIndexParsed			 = 0;
+bool CObjectDictionary::instanceFlag	 = false;
+CObjectDictionary* CObjectDictionary::objectDictionary = NULL;
+CNode* CObjectDictionary::objDictNode = NULL;
+
+/****************************************************************************************************
+* FUNCTION DEFINITIONS
+****************************************************************************************************/
+
+/****************************************************************************************************
+* Constructor
+****************************************************************************************************/
 CObjectDictionary::CObjectDictionary(void)
-	{	
+{	
 			objDictNode = new CNode();		
 			objDictNode->setNodeId(-100);
 			objDictNode->CreateIndexCollection();
@@ -81,29 +101,37 @@ CObjectDictionary::CObjectDictionary(void)
 			objDictNode->CreateApplicationProcess();
 			//printf("\n Object collections Created");
 			m_s_attrIdx_SIdx = collectionObj.Count();
-		}
+}
 
+/****************************************************************************************************
+* Destructor
+****************************************************************************************************/
 CObjectDictionary::~CObjectDictionary(void)
-	{
-		
-	}
-bool CObjectDictionary::instanceFlag=false;
-CObjectDictionary* CObjectDictionary::objectDictionary = NULL;
-CNode* CObjectDictionary::objDictNode = NULL;
+{
+		//Add destructor code here
+}
+	
+/****************************************************************************************************
+* Function Name: CObjectDictionary::getObjDictPtr
+* Description:
+* Return value: CObjectDictionary*
+****************************************************************************************************/
 CObjectDictionary* CObjectDictionary::getObjDictPtr()
-	{
+{
 		if(!instanceFlag)
-			{
+		{
 				objectDictionary = new CObjectDictionary();
 				//printf("\n Object Created");
-				instanceFlag=true;
-			}
+				instanceFlag = true;
+		}
 		return objectDictionary;
 		
-	}
+}
+	
 /**************************************************************************************************
-* Function Name: ProcessObjectDictionary
+* Function Name: CObjectDictionary::ProcessObjectDictionary
 * Description: Process the Node value,Name and its attributes
+* Return value: void
 ****************************************************************************************************/
 void CObjectDictionary::ProcessObjectDictionary(xmlTextReaderPtr reader)
 {
@@ -181,7 +209,7 @@ void CObjectDictionary::ProcessObjectDictionary(xmlTextReaderPtr reader)
 						
 						//Add Index object to the IndexCollection
 						objIndexCollection->addIndex(objIndex);				
-						LastObjDictIndexParsed = objIndexCollection->getNumberofIndexes()-1;
+						iLastObjDictIndexParsed = objIndexCollection->getNumberofIndexes()-1;
 						//printf("\n index %s Indexes added",objIndex.getIndexValue());
 				}
 		else	if(strcmp(((char*)name),"SubObject")==0 )
@@ -191,7 +219,7 @@ void CObjectDictionary::ProcessObjectDictionary(xmlTextReaderPtr reader)
 					bool same = false;
 					CIndex* objIndexPtr;								
 					objIndexCollection =objDictNode->getIndexCollection();
-					objIndexPtr =objIndexCollection->getIndex(LastObjDictIndexParsed);
+					objIndexPtr =objIndexCollection->getIndex(iLastObjDictIndexParsed);
 						//Set the NodeID
 						objSubIndex.setNodeID(-100);
 			
@@ -241,178 +269,247 @@ void CObjectDictionary::ProcessObjectDictionary(xmlTextReaderPtr reader)
 		}	
 }
 /**************************************************************************************************
-* Function Name: addSubIndex
+* Function Name: CObjectDictionary::addSameAttributesObjects
 * Description: add the SubIndex in the Index Object
+* Return value: void
 ****************************************************************************************************/
 
-void CObjectDictionary::addSameAttributesObjects(s_attrIdx_SIdx object)
-	{
-		int i = collectionObj.Add();
-		collectionObj[i] = object ;
+void CObjectDictionary::addSameAttributesObjects(s_attrIdx_SIdx stAttrIdx)
+{
+		INT32 iItemPosition = collectionObj.Add();
+		
+		collectionObj[iItemPosition] = stAttrIdx ;
 		m_s_attrIdx_SIdx = collectionObj.Count();
 		
-	}
-void CObjectDictionary::createSameattrObject(char* value, ObjectType objType, char*Idx )
+}
+	
+/**************************************************************************************************
+* Function Name: CObjectDictionary::createSameattrObject
+* Description: 
+* Return value: void
+****************************************************************************************************/
+void CObjectDictionary::createSameattrObject(char* pbValue, ObjectType enumObjType, char* pbIdx )
 {
 		
-		s_attrIdx_SIdx object;											
-		char* s_idx = new char[RANGE_INDEX];
-		char* e_idx = NULL;
-		//= new char[RANGE_INDEX];
+		s_attrIdx_SIdx stAttrIdx;											
+		char* pbSubIdx = new char[RANGE_INDEX];
+		char *pbEIdx   = NULL;
 									
-		e_idx = strchr(value, '-');	
-		if(e_idx!= NULL)
+		pbEIdx = strchr(pbValue, '-');			
+		if(pbEIdx != NULL)
 		{
-		s_idx = subString(value, 0, strlen(e_idx)-1);
-		e_idx = subString(value, strlen(s_idx) + 1, strlen(value));
+		pbSubIdx = subString(pbValue, 0, strlen(pbEIdx)-1);
+		pbEIdx = subString(pbValue, strlen(pbSubIdx) + 1, strlen(pbValue));
 		
 		
-		object.objectType = objType;
-		object.Idx								= new char[INDEX_LEN];
+		stAttrIdx.objectType  = enumObjType;
+		stAttrIdx.Idx		  = new char[INDEX_LEN];
 		
-		if(objType == INDEX) 
+		if(enumObjType == INDEX) 
 		{
-			object.start_Index = new char[INDEX_LEN];
-			object.end_Index		 = new char[INDEX_LEN];
-			strcpy(object.end_Index, subString(Idx, 0, 4 - strlen(s_idx)));
-			strcat(object.end_Index, e_idx);
-			strcpy(object.start_Index, Idx);	
+			stAttrIdx.start_Index = new char[INDEX_LEN];
+			stAttrIdx.end_Index	  = new char[INDEX_LEN];
+			strcpy(stAttrIdx.end_Index, subString(pbIdx, 0, 4 - strlen(pbSubIdx)));
+			strcat(stAttrIdx.end_Index, pbEIdx);
+			strcpy(stAttrIdx.start_Index, pbIdx);	
 		}
 		else 
 		{
-			object.start_Index = new char[SUBINDEX_LEN];
-			object.end_Index		 = new char[SUBINDEX_LEN];
-			strcpy(object.start_Index, s_idx);
-			strcpy(object.end_Index, e_idx);
+			stAttrIdx.start_Index = new char[SUBINDEX_LEN];
+			stAttrIdx.end_Index		 = new char[SUBINDEX_LEN];
+			strcpy(stAttrIdx.start_Index, pbSubIdx);
+			strcpy(stAttrIdx.end_Index, pbEIdx);
 		}				
 			
-		strcpy(object.Idx, Idx);
-		addSameAttributesObjects(object); 
-	}
-		//delete [] e_idx;
-		delete [] s_idx;
+		strcpy(stAttrIdx.Idx, pbIdx);
+		addSameAttributesObjects(stAttrIdx); 
 }
-CIndex* CObjectDictionary::getObjectDictIndex(char* Idx)
+		//delete [] e_idx;
+		delete [] pbSubIdx;
+}
+/**************************************************************************************************
+* Function Name: CObjectDictionary::getObjectDictIndex
+* Description:
+* Return value: CIndex*
+****************************************************************************************************/
+CIndex* CObjectDictionary::getObjectDictIndex(char* pbIdx)
 {
-	CIndex* objIndex = NULL;
-	CIndexCollection* objIndexCol;
-	objIndexCol = objDictNode->getIndexCollection();
-	objIndex = objIndexCol->getIndexbyIndexValue(Idx);
-	if(objIndex != NULL)
+	CIndex* pobjIndex = NULL;
+	CIndexCollection* pobjIndexCol;
+	
+	pobjIndexCol = objDictNode->getIndexCollection();
+	pobjIndex 	 = pobjIndexCol->getIndexbyIndexValue(pbIdx);
+	
+	if(pobjIndex != NULL)
 	{
-		return objIndex;
+		return pobjIndex;
 	}
 	else
 	{
-		for(int i=0; i<collectionObj.Count(); i++)
+		for(INT32 iLoopCount=0; iLoopCount < collectionObj.Count(); iLoopCount++)
 		{
-			s_attrIdx_SIdx obj;
-			obj = collectionObj[i];
-			if(obj.objectType == INDEX)
+			s_attrIdx_SIdx stAttrIdx;
+			stAttrIdx = collectionObj[iLoopCount];
+			
+			if(stAttrIdx.objectType == INDEX)
 			{
-				if(checkInTheRange(Idx, obj.start_Index, obj.end_Index))
+				if(checkInTheRange(pbIdx, stAttrIdx.start_Index, stAttrIdx.end_Index))
 				{
-					objIndex = objIndexCol->getIndexbyIndexValue(obj.start_Index);
-				/*	name = strchr(objIndex->getName(), "X");
+					pobjIndex = pobjIndexCol->getIndexbyIndexValue(stAttrIdx.start_Index);
+				/*	name = strchr(pobjIndex->getName(), "X");
 					*/
-					return objIndex;
+					return pobjIndex;
 				}
 			}
 		}
 		return NULL;
 	}
 }
-CSubIndex* CObjectDictionary::getObjectDictSubIndex(char* Idx, char* SIdx)
+
+/**************************************************************************************************
+* Function Name: CObjectDictionary::getObjectDictSubIndex
+* Description:
+* Return value: CSubIndex*
+****************************************************************************************************/
+CSubIndex* CObjectDictionary::getObjectDictSubIndex(char* pbIdx, char* pbSIdx)
 {
- CSubIndex* objSIdx = NULL;
- CIndex* objIndex = NULL;
- CIndexCollection* objIndexCol;
-	objIndexCol = objDictNode->getIndexCollection();
-	objIndex = objIndexCol->getIndexbyIndexValue(Idx);
+	CSubIndex* pobjSIdx = NULL;
+	CIndex* pobjIndex   = NULL;
+	CIndexCollection* pobjIndexCol;
 	
-	if(objIndex == NULL)
+	pobjIndexCol = objDictNode->getIndexCollection();
+	pobjIndex = pobjIndexCol->getIndexbyIndexValue(pbIdx);
+	
+	if(pobjIndex == NULL)
 	{
-		objIndex = getObjectDictIndex(Idx);
-		if(objIndex!= NULL)
+		pobjIndex = getObjectDictIndex(pbIdx);
+		
+		if(pobjIndex != NULL)
 		{
-			Idx =  (char*)objIndex->getIndexValue();
+			pbIdx =  (char*)pobjIndex->getIndexValue();
 		}
 		else
-		return objSIdx;
+		{
+			return pobjSIdx;
+		}
 	}
-
 	
-	objSIdx = objIndex->getSubIndexbyIndexValue(SIdx);
-	if(objSIdx!=NULL)
-	return objSIdx;
- 
+	pobjSIdx = pobjIndex->getSubIndexbyIndexValue(pbSIdx);
+	
+	if(pobjSIdx!=NULL)
+	{
+		return pobjSIdx;
+	}
 	else
 	{
-		for(int i=0; i<collectionObj.Count(); i++)
+		for(INT32 iLoopCount = 0; iLoopCount < collectionObj.Count(); iLoopCount++)
 		{
-			s_attrIdx_SIdx obj;
-			obj = collectionObj[i];
-			if((obj.objectType == SUBINDEX) && (strcmp(obj.Idx, Idx)==0) )
+			s_attrIdx_SIdx stAttrIdx;
+			stAttrIdx = collectionObj[iLoopCount];
+			
+			if((stAttrIdx.objectType == SUBINDEX) && (strcmp(stAttrIdx.Idx, pbIdx)==0) )
 			{
-				if(checkInTheRange(SIdx, obj.start_Index, obj.end_Index))
+				if(checkInTheRange(pbSIdx, stAttrIdx.start_Index, stAttrIdx.end_Index))
 				{
-					objSIdx = objIndex->getSubIndexbyIndexValue(obj.start_Index);
-					if(objSIdx !=NULL)
-					return objSIdx;
+					pobjSIdx = pobjIndex->getSubIndexbyIndexValue(stAttrIdx.start_Index);
+					
+					if(pobjSIdx !=NULL)
+					{
+						return pobjSIdx;
+					}
 				}
 			}
 		}
 		return NULL;
 	}
 }
-bool CObjectDictionary::checkInTheRange(char* Idx, char* StartIdx, char* EndIdx)
+
+/**************************************************************************************************
+* Function Name: CObjectDictionary::checkInTheRange
+* Description: 
+* Return value: bool
+****************************************************************************************************/
+bool CObjectDictionary::checkInTheRange(char* pbIdx, char* pbStartIdx, char* pbEndIdx)
 {
-	if(hex2int(Idx) >= hex2int(StartIdx)&& (hex2int(Idx) <= hex2int(EndIdx)))
-	return true;
-	else return false;
+	if(hex2int(pbIdx) >= hex2int(pbStartIdx)&& (hex2int(pbIdx) <= hex2int(pbEndIdx)))
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
+
+/**************************************************************************************************
+* Function Name: CObjectDictionary::printall
+* Description:
+* Return value: void
+****************************************************************************************************/
 void CObjectDictionary::printall()
 {
 	//printf("\n Index		StartIndex		EndIndex		ObjectType\n");
 
-	for(int i=0; i<collectionObj.Count(); i++)
+	for(INT32 iLoopCount=0; iLoopCount < collectionObj.Count(); iLoopCount++)
 	{
-				s_attrIdx_SIdx obj;
-				obj = collectionObj[i];
-		//printf("\n %s  		%s  		%s	  	%d",obj.Idx, obj.start_Index, obj.end_Index, obj.objectType);
-}
+				s_attrIdx_SIdx stAttrIdx;
+				stAttrIdx = collectionObj[iLoopCount];
+				//printf("\n %s  		%s  		%s	  	%d",stAttrIdx.Idx, stAttrIdx.start_Index, stAttrIdx.end_Index, stAttrIdx.objectType);
+	}
 }
 
-int CObjectDictionary::ifObjectDictIndexExists(char* Idx)
+/**************************************************************************************************
+* Function Name: CObjectDictionary::ifObjectDictIndexExists
+* Description: 
+* Return value: int
+****************************************************************************************************/
+INT32 CObjectDictionary::ifObjectDictIndexExists(char* pbIdx)
 {
-	CIndex* objIndex = NULL;
-	CIndexCollection* objIndexCol;
-	objIndexCol = objDictNode->getIndexCollection();
-	objIndex = objIndexCol->getIndexbyIndexValue(Idx);
-	if(objIndex == NULL)
+	CIndex* pobjIndex = NULL;
+	CIndexCollection* pobjIndexCol;
+	
+	pobjIndexCol = objDictNode->getIndexCollection();
+	pobjIndex 	 = pobjIndexCol->getIndexbyIndexValue(pbIdx);
+	
+	if(pobjIndex == NULL)
 	{
-		return 1;		
+		return TRUE;		
 	}
 	else
-		return 0;
+	{
+		return FALSE;
+	}
 }
 
-int CObjectDictionary::ifObjectDictSubIndexExists(char* Idx, char* SIdx)
+/**************************************************************************************************
+* Function Name: CObjectDictionary::ifObjectDictSubIndexExists
+* Description:
+* Return value: int
+****************************************************************************************************/
+INT32 CObjectDictionary::ifObjectDictSubIndexExists(char* pbIdx, char* pbSIdx)
 {
-	CSubIndex* objSIdx = NULL;
-	CIndex* objIndex = NULL;
-	CIndexCollection* objIndexCol;
-	objIndexCol = objDictNode->getIndexCollection();
-	objIndex = objIndexCol->getIndexbyIndexValue(Idx);
+	CSubIndex* pobjSIdx = NULL;
+	CIndex* pobjIndex = NULL;
+	CIndexCollection* pobjIndexCol;
+	
+	pobjIndexCol = objDictNode->getIndexCollection();
+	pobjIndex 	 = pobjIndexCol->getIndexbyIndexValue(pbIdx);
 
-	if(objIndex == NULL)
-	return 1;
+	if(pobjIndex == NULL)
+	{
+		return TRUE;
+	}
 
-	objSIdx = objIndex->getSubIndexbyIndexValue(SIdx);
-	if(objSIdx == NULL)
-		return 1;
+	pobjSIdx = pobjIndex->getSubIndexbyIndexValue(pbSIdx);
+	
+	if(pobjSIdx == NULL)
+	{
+		return TRUE;
+	}
 	else
-		return 0;
+	{
+		return FALSE;
+	}
 }
 //char* setIndexName(char* ObjectIndex, char* ObjectName)
 //{
