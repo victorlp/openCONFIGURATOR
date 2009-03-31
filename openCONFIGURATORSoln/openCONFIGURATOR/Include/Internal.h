@@ -86,7 +86,7 @@
 /************************************************************************************************
 * Defines
 ************************************************************************************************/
-#define TOOL_VERSION "1.0.0"
+#define TOOL_VERSION "0.9"
 #define ALLOC_BUFFER 5
 #define INDEX_LEN 5
 #define SUBINDEX_LEN 3
@@ -94,6 +94,8 @@
 #define STR_ALLOC_BUFFER 1
 #define MAX_PI_SIZE 4064
 #define PROJECT_FILE_NAME 500
+#define LINUX_INSTALL_DIR "/usr/share/openCONFIGURATOR-"TOOL_VERSION
+#define LINUX_INSTALL_DIR_LEN 50
 
 /************************************************************************************************
 * Enumerations

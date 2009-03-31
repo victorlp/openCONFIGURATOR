@@ -371,6 +371,7 @@ DllExport void LoadObjectDictionary(char* fileName);
 DllExport ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType);
 DllExport ocfmRetCode SaveProject(char* ProjectPath, char* ProjectName);
 DllExport ocfmRetCode OpenProject(char* PjtPath, char* projectXmlFileName);
+DllExport ocfmRetCode FreeProjectMemory();
 DllExport ocfmRetCode GetProjectSettings(EAutoGenerate* autoGen, EAutoSave* autoSave);
 DllExport ocfmRetCode SetProjectSettings(EAutoGenerate autoGen, EAutoSave autoSave);
 

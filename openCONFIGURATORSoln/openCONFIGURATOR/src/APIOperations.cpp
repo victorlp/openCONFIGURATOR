@@ -367,12 +367,17 @@ ocfmRetCode CreateNode(INT32 iNodeID, ENodeType enumNodeType, char* pbNodeName)
 		{
 			//cout << "loading od.xml"<< endl;
 			//printf("\n ObjectDictLoaded %d", ObjectDictLoaded);
+			char tmpCmdBuffer[LINUX_INSTALL_DIR_LEN];
 			if(!ObjectDictLoaded)
 			{
 				#if defined(_WIN32) && defined(_MSC_VER)
 					LoadObjectDictionary((char*) "od.xml");
-				#else if
-				LoadObjectDictionary((char*) "/usr/share/openCONFIGURATOR-0.9/od.xml");
+				#else
+				{
+					sprintf(tmpCmdBuffer, "%s/od.xml", LINUX_INSTALL_DIR);
+					printf("\n command Buffer %s", tmpCmdBuffer);
+					LoadObjectDictionary(tmpCmdBuffer);
+				}
 				#endif
 				ObjectDictLoaded = true;
 			//cout << "loaded xml" << endl;
@@ -1921,7 +1926,7 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 							//cout << "Problem" <<endl;
 						}
 						
-							AddOtherRequiredCNIndexes(objNode.getNodeId());
+							//AddOtherRequiredCNIndexes(objNode.getNodeId());
 							objIndexCollection = objNode.getIndexCollection();
 							char* comment= (char*)malloc(50);
 							_IntToAscii(CNCount+1,c,10);
@@ -2663,8 +2668,8 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 			#else
 			char* cmdBuffer;
 			printf("\n./txt2cdc \"%s\" \"%s\"", tempFileName, tempOutputFileName);
-			cmdBuffer = new char[(2 * (strlen(CDCLocation) + 10 + 10)) + 25];		
-			sprintf(cmdBuffer, "./txt2cdc \"%s\" \"%s\"", tempFileName, tempOutputFileName);
+			cmdBuffer = new char[LINUX_INSTALL_DIR_LEN + (2 * (strlen(CDCLocation) + 10 + 10)) + 25];		
+			sprintf(cmdBuffer, "%s/txt2cdc \"%s\" \"%s\"", LINUX_INSTALL_DIR, tempFileName, tempOutputFileName);
 			printf("\n command Buffer %s",cmdBuffer);
 			system(cmdBuffer);
 			delete [] cmdBuffer;
@@ -2681,7 +2686,7 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 			return ex._ocfmRetCode;
 		}
 	}
-
+	
 /****************************************************************************************************
 * Function Name: GenerateMNOBD
 * Description: Generates the MN Object Dictionary
@@ -3223,6 +3228,8 @@ ocfmRetCode ProcessPDONodes()
 																		
 																/*	objProcessImage.Name = (char*)malloc(strlen(Name) + 6 + ALLOC_BUFFER);
 																	strcpy(objProcessImage.Name,getPIName(pobjNode->getNodeId()));*/
+																	objProcessImage.ModuleName = (char*)malloc(strlen(pbModuleName) + ALLOC_BUFFER);
+																	strcpy(objProcessImage.ModuleName, pbModuleName);		
 																	}
 																
 											
@@ -6521,6 +6528,18 @@ INT32 ComputeINOffset(INT32 iDataSize, EPDOType enumPdoType)
 	}*/
 
 /****************************************************************************************************
+* Function Name: FreeProjectMemory
+* Description: Close the current project and free the memory
+* Return value: ocfmRetCode
+****************************************************************************************************/
+ocfmRetCode FreeProjectMemory()
+{
+	CNodeCollection *pobjNodeCollection;
+	pobjNodeCollection = CNodeCollection::getNodeColObjectPointer();
+	delete pobjNodeCollection;
+}
+	
+/****************************************************************************************************
 * Function Name: OpenProject
 * Description: Saves all the Nodes into the Project location
 * Return value: ocfmRetCode
@@ -7740,10 +7759,7 @@ void UpdatedCNDateORTime(CIndex* pobjMNIndex, int iNodeId, EDateTime eDT)
 		
 		/* Add 1006*/
 			strcpy(Index, "1020");
-					#if defined DEBUG	
-				cout << "string copied" << endl;
-			
-			#endif
+				
 			stRetCode = AddIndex(pobjNode->getNodeId(), CN, Index);
 				#if defined DEBUG	
 				cout << "stRetCode" << stRetCode.code<<endl;
@@ -7757,24 +7773,24 @@ void UpdatedCNDateORTime(CIndex* pobjMNIndex, int iNodeId, EDateTime eDT)
 		*/
 			/* Set 5ms pxcValue*/
 				/* Set subindex pxcValue 40 or 0000028 */
-					
-				if(pobjSIdx->getActualValue() != NULL)
-				{	
-					if(eDT == DATE)
-					{
-						strcpy(Sidx, "01");
-						SetSIdxValue(Index, Sidx,(char*)pobjSIdx->getActualValue() , pobjIdxCol, pobjNode->getNodeId(), CN,  false);
-					}
-					else if(eDT == TIME)
-					{
-					
-
-			
-						strcpy(Sidx, "02");
-						SetSIdxValue(Index, Sidx,(char*) pobjSIdx->getActualValue(), pobjIdxCol, pobjNode->getNodeId(), CN, false);
+				
+				if(pobjSIdx != NULL)
+				{
+					if(pobjSIdx->getActualValue() != NULL)
+					{	
+						if(eDT == DATE)
+						{
+				
+							strcpy(Sidx, "01");
+							SetSIdxValue(Index, Sidx,(char*)pobjSIdx->getActualValue() , pobjIdxCol, pobjNode->getNodeId(), CN,  false);
+						}
+						else if(eDT == TIME)
+						{					
+						
+							strcpy(Sidx, "02");
+							SetSIdxValue(Index, Sidx,(char*) pobjSIdx->getActualValue(), pobjIdxCol, pobjNode->getNodeId(), CN, false);
+						}
 					}
 				}
-			
-	
-					
+								
 }
