@@ -5355,20 +5355,19 @@ void GetMNPDOSubIndex(MNPdoVariable stMNPdoVar, INT32& iPrevSubIndex, CIndex* po
 			pbIdx = _IntToAscii(iPrevSubIndex, pbIdx, 16);
 			pbIdx = padLeft(pbIdx, '0', 2);
 			
-				#if defined DEBUG	
-						cout<< " idx" << pbIdx << endl;
-						cout<< " prevsubindex" << iPrevSubIndex << endl;
-						#endif
+			#if defined DEBUG	
+				cout<< " idx" << pbIdx << endl;
+				cout<< " prevsubindex" << iPrevSubIndex << endl;
+			#endif			
 			if(CheckIfSubIndexExists(240, MN, pbMNIndex,pbIdx))
 			{
 				pobjSubIndex = pobjIdx->getSubIndexbyIndexValue(pbIdx);
-			}
+			}			
 			else
 			{
 				AddSubIndex(240, MN,  pbMNIndex,pbIdx);
 				pobjSubIndex = pobjIdx->getSubIndexbyIndexValue(pbIdx);
 			}
-			
 			
 			/* Calculate the actual value of MN PDO */
 			char* pbActValue = new char[20];
@@ -5385,13 +5384,10 @@ void GetMNPDOSubIndex(MNPdoVariable stMNPdoVar, INT32& iPrevSubIndex, CIndex* po
 			strcat(pbActValue, stMNPdoVar.SubIndex);
 			strcat(pbActValue, stMNPdoVar.Index);
 			
-			
 			pobjSubIndex->setActualValue(pbActValue);
 			delete[] pbActValue;
 			
-			
 			AddPDOIndexsToMN(stMNPdoVar.Index,stMNPdoVar.SubIndex, stMNPdoVar.pdoType);
-			
 		/*	return *pobjSubIndex;*/
 }
 
@@ -6534,7 +6530,7 @@ INT32 ComputeINOffset(INT32 iDataSize, EPDOType enumPdoType)
 ****************************************************************************************************/
 ocfmRetCode FreeProjectMemory()
 {
-	CNodeCollection *pobjNodeCollection;
+	CNodeCollection *pobjNodeCollection = NULL;
 	pobjNodeCollection = CNodeCollection::getNodeColObjectPointer();
 	delete pobjNodeCollection;
 }
@@ -7737,7 +7733,7 @@ void AuotgenerateOtherIndexs(CNode* objNode)
 					
 }
 
-void UpdatedCNDateORTime(CIndex* pobjMNIndex, int iNodeId, EDateTime eDT)
+void UpdatedCNDateORTime(CIndex* pobjMNIndex, int iNodeId, EDateTime enumDT)
 {
 
 	ocfmRetCode stRetCode;
@@ -7778,13 +7774,13 @@ void UpdatedCNDateORTime(CIndex* pobjMNIndex, int iNodeId, EDateTime eDT)
 				{
 					if(pobjSIdx->getActualValue() != NULL)
 					{	
-						if(eDT == DATE)
+						if(enumDT == DATE)
 						{
 				
 							strcpy(Sidx, "01");
 							SetSIdxValue(Index, Sidx,(char*)pobjSIdx->getActualValue() , pobjIdxCol, pobjNode->getNodeId(), CN,  false);
 						}
-						else if(eDT == TIME)
+						else if(enumDT == TIME)
 						{					
 						
 							strcpy(Sidx, "02");
@@ -7794,3 +7790,47 @@ void UpdatedCNDateORTime(CIndex* pobjMNIndex, int iNodeId, EDateTime eDT)
 				}
 								
 }
+/**************************************************************************************************
+* Function Name: CNode::Copy pdos default value to actual value
+* Description: 
+* Return value: void
+****************************************************************************************************/
+void copyPDODefToAct(int iNodeID, ENodeType enumNodeType)
+{
+	
+	CIndex* pobjIndex;
+	CSubIndex* pobjSIndex;
+	CIndexCollection* pobjIdxCol;
+			
+	CNode *pobjNode;
+	CNodeCollection *objNodeCollection = NULL;
+
+	
+	objNodeCollection = CNodeCollection::getNodeColObjectPointer();
+	pobjNode = objNodeCollection->getNodePtr(enumNodeType, iNodeID);
+	pobjIdxCol = pobjNode->getIndexCollection();
+	
+	for(INT32 iIndexLoopCount=0; iIndexLoopCount < pobjIdxCol->getNumberofIndexes(); iIndexLoopCount++)
+	{
+			CIndex* pobjIndex;
+			
+			pobjIndex = pobjIdxCol->getIndex(iIndexLoopCount);
+			
+			if(CheckIfMappingPDO((char*)pobjIndex->getIndexValue()))
+			{
+									
+				for(INT32 iSIdxLoopCount=0; iSIdxLoopCount < pobjIndex->getNumberofSubIndexes(); iSIdxLoopCount++)
+				{
+					pobjSIndex = pobjIndex->getSubIndex(iSIdxLoopCount);
+					if(pobjSIndex->getActualValue() == 		NULL)
+					{							
+						if(pobjSIndex->getDefaultValue() != NULL)
+						{							
+							pobjSIndex->setActualValue((char*)pobjSIndex->getDefaultValue());
+						}
+						
+					}
+				}
+			}
+	}
+	}

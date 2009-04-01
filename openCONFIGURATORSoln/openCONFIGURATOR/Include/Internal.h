@@ -182,5 +182,5 @@ bool CheckIfDataTypeByNameExists(char* dtName, int NodeID);
 ocfmRetCode AddOtherMNIndexes(int NodeID);
 void AuotgenerateOtherIndexs(CNode* objNode);
 void UpdatedCNDateORTime(CIndex* pobjMNIndex, int iNodeId, EDateTime eDT);
-
+void copyPDODefToAct(int iNodeID, ENodeType enumNodeType);
 #endif // internal_h

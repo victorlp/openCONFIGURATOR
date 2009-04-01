@@ -790,13 +790,18 @@ ocfmRetCode ImportXML(char *pbFileName, INT32 iNodeID, ENodeType enumNodeType)
 		if(enumNodeType == CN)
 		{
 			setFlagForRequiredIndexes(iNodeID);
-			AddOtherRequiredCNIndexes(iNodeID);
+			/* Not required only in case of autogenartion 1020 of CN should be updated else it shud be as it is imported*/
+			//AddOtherRequiredCNIndexes(iNodeID);
 		}
 		
 			if(enumNodeType == MN)
 			{
 				AddOtherMNIndexes(iNodeID);
 			}
+			
+			/* Copy default value of pdos to act value*/
+		copyPDODefToAct(iNodeID, enumNodeType);	
+		
 		stErrStruct.code = OCFM_ERR_SUCCESS;
 		return stErrStruct;
 	}
@@ -1084,8 +1089,13 @@ ocfmRetCode ReImportXML(char* pbFileName, INT32 iNodeID, ENodeType enumNodeType)
 			if(enumNodeType == CN)
 			{
 				setFlagForRequiredIndexes(iNodeID);
-				AddOtherRequiredCNIndexes(iNodeID);
+				/* Not required only in case of autogenartion 1020 of CN should be updated else it shud be as it is imported*/
+				//AddOtherRequiredCNIndexes(iNodeID);
 			}
+			
+				/* Copy default value of pdos to act value*/
+			copyPDODefToAct(iNodeID, enumNodeType);	
+		
 			ErrStruct.code = OCFM_ERR_SUCCESS;
 			return ErrStruct;
 		}
@@ -2067,7 +2077,10 @@ void setFlagForRequiredIndexes(INT32 iNodeId)
 		{
 			pobjIndex = pobjIdxCol->getIndex(iLoopCount);
 			
-			if(CheckAllowedCNIndexes((char*)pobjIndex->getIndexValue()))
+			if(CheckIfNotPDO((char*)pobjIndex->getIndexValue()) == false ||
+					strcmp((char*)pobjIndex->getIndexValue(),"1F98") == 0 ||
+					strcmp((char*)pobjIndex->getIndexValue(),"1020") == 0 ||
+					strcmp((char*)pobjIndex->getIndexValue(),"1006") == 0)
 			{
 				pobjIndex->setFlagIfIncludedCdc(TRUE);
 			}

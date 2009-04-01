@@ -761,6 +761,7 @@ void WriteXAPHeaderContents(ProcessImage objProcessImage[], INT32 iNumberOfVars,
 				
 				strcpy(pbBuffer1, "\n\n# define COMPUTED_PI_OUT_SIZE ");		
 				strcat(pbBuffer, " PI_OUT;");	
+				strcat(pbBuffer, "\n");
 			}
 		}
 		
@@ -840,9 +841,8 @@ void AddPDOIndexsToMN(char* pbIndex, char* pbSubIndex, EPDOType enumPdoType)
 	CIndexCollection 	*pobjIdxCol 	= NULL;
 	CDataTypeCollection *pobjDTCol 		= NULL;
 	CSubIndex 			*pobjSIdx 		= NULL;
-	char				*pbName 		= new char[50];
+	char				*pbName 		= NULL;
 	char				*pbPdoMap 		= new char[4 + ALLOC_BUFFER];
-	char				*pbObjectName 	= new char[14 + ALLOC_BUFFER];
 	
 	pobjNodeCol =  CNodeCollection::getNodeColObjectPointer();
 	objMNNode 	= pobjNodeCol->getNode(MN, MN_NODEID);
@@ -851,27 +851,31 @@ void AddPDOIndexsToMN(char* pbIndex, char* pbSubIndex, EPDOType enumPdoType)
 	
 	stRetCode 	= AddIndex(MN_NODEID, MN, pbIndex);	
 	pobjIdxCol 	= objMNNode.getIndexCollection();
-	
 	if(pobjIdxCol != NULL)
 	{
+		char abObjectName[14 + ALLOC_BUFFER];
 		pobjIndex = pobjIdxCol->getIndexbyIndexValue(pbIndex);
-		
 		if(pobjIndex != NULL && (stRetCode.code != OCFM_ERR_INDEX_ALREADY_EXISTS) )
 		{
 			pobjIndex->setObjectType((char*)"ARRAY");
 			if(enumPdoType == PDO_RPDO)
-			{				
-				strcpy(pbObjectName, "PI_OUTPUTS_A");
-				strcat(pbObjectName, getPIName(pbIndex));		
+			{			
+				strcpy(abObjectName, "PI_OUTPUTS_A");
+				strcat(abObjectName, getPIName(pbIndex));		
+				pobjIndex->setName(abObjectName);
 			}
 			else if(enumPdoType == PDO_TPDO)
 			{							
-				strcpy(pbObjectName, "PI_INPUTS_A");
-				strcat(pbObjectName, getPIName(pbIndex));	
+				strcpy(abObjectName, "PI_INPUTS_A");
+				strcat(abObjectName, getPIName(pbIndex));	
+				pobjIndex->setName(abObjectName);
 			}
-			pobjIndex->setName(pbObjectName);
+			else
+			{
+				cout << "enumPdoType is not TPDO or RPDO _1\n" << endl;
+			}
+			//$SpobjIndex->setName(pbObjectName);
 			/* Add subindex 00 */
-			
 			stRetCode = AddSubIndex(MN_NODEID, MN, pbIndex, (char*) "00");
 			if(stRetCode.code  ==  OCFM_ERR_SUCCESS)
 			{
@@ -882,51 +886,60 @@ void AddPDOIndexsToMN(char* pbIndex, char* pbSubIndex, EPDOType enumPdoType)
 	
 	//printf("\n after Add Index before subIndex : %s", pbIndex);
 	stRetCode = AddSubIndex(MN_NODEID, MN, pbIndex, pbSubIndex);
-	
 	if(pobjIndex != NULL)
 	{
 		pobjSIdx = pobjIndex->getSubIndexbyIndexValue(pbSubIndex);
 		if(pobjSIdx != NULL)
 		{
+			char abObjectName[14 + ALLOC_BUFFER];
 			pobjSIdx->setObjectType((char*)"VAR");			
 			/* Its reversed because CN's RPDO is MN's TPDO*/			
 			if(enumPdoType == PDO_RPDO)
-			{				
+			{								
 				strcpy(pbPdoMap, "TPDO");
-				strcpy(pbObjectName, "PI_OUTPUTS_");
-				strcat(pbObjectName, getPIName(pbIndex));								
+				strcpy(abObjectName, "PI_OUTPUTS_");
+				strcat(abObjectName, getPIName(pbIndex));								
 				pobjSIdx->setAccessType((char*)"wo");
+				
+				pobjSIdx->setName(abObjectName);
+				pobjSIdx->setPDOMapping(pbPdoMap);
 			}
 			else if(enumPdoType == PDO_TPDO)
 			{				
 				strcpy(pbPdoMap, "RPDO");				
-				strcpy(pbObjectName, "PI_INPUTS_");
-				strcat(pbObjectName, getPIName(pbIndex));	
-				
+				strcpy(abObjectName, "PI_INPUTS_");
+				strcat(abObjectName, getPIName(pbIndex));	
 				pobjSIdx->setAccessType((char*)"ro");
-			}
-				pobjSIdx->setName(pbObjectName);
+				
+				pobjSIdx->setName(abObjectName);
 				pobjSIdx->setPDOMapping(pbPdoMap);
-				delete[] pbPdoMap;
-				delete[] pbName;
+			}
+			else
+			{
+				cout << "enumPdoType is not TPDO or RPDO _2\n" << endl;
+			}
+				//$SpobjSIdx->setName(pbObjectName);
+				//$SpobjSIdx->setPDOMapping(pbPdoMap);
+				//$Sdelete[] pbPdoMap;
 		}
 	}
+	pbName 		 = getPIDataTypeName(pbIndex);	
 	
-	
-		
-	pbName 		 = getPIDataTypeName(pbIndex);		
-	pobjDataType = pobjDTCol->getDataTypeByName(pbName);
+	if(pbName != NULL)	
+	{
+		pobjDataType = pobjDTCol->getDataTypeByName(pbName);		
+	}
 	//pobjDataType->setName(pbName);
 	
-
-	SetSIdxDataType(pobjDataType, pbIndex, pbSubIndex);
-	
-	UpdateNumberOfEnteriesSIdx(pobjIndex, MN);
-	
-	//delete[] pbName;
-	//delete[] pbPdoMap;
-	//delete[] pbObjectName;
-	
+	if((pobjDataType != NULL) && (pbIndex != NULL) && (pbSubIndex != NULL))
+	{
+		SetSIdxDataType(pobjDataType, pbIndex, pbSubIndex);
+	}
+	if(pobjIndex != NULL)
+	{
+		UpdateNumberOfEnteriesSIdx(pobjIndex, MN);
+	}
+	delete [] pbPdoMap;
  }
  
 /****************************************************************************************************
@@ -1090,7 +1103,7 @@ char* getPIName(char* pbAddress)
 				{
 					//Handled error case and returned dummy value to avoid warning
 					//cout << "Error in returning getPIDataTypeName" << endl;
-					pbRetString = (char*) "Error";
+					pbRetString = (char*) "Err";
 					break;
 				}
 			}
