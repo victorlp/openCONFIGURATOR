@@ -121,5 +121,7 @@ char* lowLimit, char* objType, EFlag flagIfIncludedInCdc);
 
 ocfmRetCode GetProjectSettings(EAutoGenerate* autoGen, EAutoSave* autoSave);
 ocfmRetCode SetProjectSettings(EAutoGenerate autoGen, EAutoSave autoSave);
+ocfmRetCode FreeProjectMemory();
+
 %}
 

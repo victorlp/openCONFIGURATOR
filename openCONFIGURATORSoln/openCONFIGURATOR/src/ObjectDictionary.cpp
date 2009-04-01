@@ -336,12 +336,15 @@ CIndex* CObjectDictionary::getObjectDictIndex(char* pbIdx)
 {
 	CIndex* pobjIndex = NULL;
 	CIndexCollection* pobjIndexCol;
+	CIndex objIndex;
 	
 	pobjIndexCol = objDictNode->getIndexCollection();
 	pobjIndex 	 = pobjIndexCol->getIndexbyIndexValue(pbIdx);
 	
 	if(pobjIndex != NULL)
 	{
+		
+		//pobjIndex->setName(getIndexName(subString(pbIdx,2,4), (char*)pobjIndex->getName()));
 		return pobjIndex;
 	}
 	else
@@ -356,6 +359,7 @@ CIndex* CObjectDictionary::getObjectDictIndex(char* pbIdx)
 				if(checkInTheRange(pbIdx, stAttrIdx.start_Index, stAttrIdx.end_Index))
 				{
 					pobjIndex = pobjIndexCol->getIndexbyIndexValue(stAttrIdx.start_Index);
+					//pobjIndex->setName(getIndexName(subString(pbIdx,2,4), (char*)pobjIndex->getName()));
 				/*	name = strchr(pobjIndex->getName(), "X");
 					*/
 					return pobjIndex;
@@ -511,22 +515,43 @@ INT32 CObjectDictionary::ifObjectDictSubIndexExists(char* pbIdx, char* pbSIdx)
 		return FALSE;
 	}
 }
-//char* setIndexName(char* ObjectIndex, char* ObjectName)
-//{
-//	char* Name = new char[100];
-//	if(strlen(ObjectIndex) == 2)
-//	Name = strchr(ObjectName, 'X');
-//	int pos = strlen(Name);
-//	int i = 0;
-//	while(i < strlen(ObjectIndex))	
-//	{
-//		if(Name[0] == 'X')
-//		{
-//			Name = ObjectIndex;
-//		}
-//		Name++;
-//		ObjectIndex;		
-//	}
-//	ObjectName = subString(ObjectName, 0, strlen(ObjectName)-pos);
-//	strcat(ObjectName, Name);	
-//}
+char* CObjectDictionary::getIndexName(char* pbObjectIndex, char* pbObjectName)
+{
+	char* pbName = new char[40];
+	char* pbModifiedName = new char[strlen(pbObjectName)];
+	
+	cout << "FN called";
+	int iLen;
+	printf("\nObjectName %s", pbObjectName);
+	pbName = strchr(pbObjectName, 'X')	;
+	if(pbName != NULL)
+	{
+		iLen = 1;
+		if(strcmp(subString(pbName,1,1), "X") ==0)
+		iLen++;
+	
+		int pos = strlen(pbName);
+		int iCount = strlen(pbObjectIndex) - iLen;
+		int iLoopCount = 0;
+		while(iLoopCount < iLen)
+		{
+			//if(Name[0] == 'X' && len==2)
+			if(pbName[0] == 'X')
+			{
+				pbName[0] = *(pbObjectIndex + iCount);
+			}
+			pbName++;
+			iLoopCount++;	
+			iCount++;
+		}
+		pbName = pbName-iLoopCount;
+		strcpy(pbModifiedName, subString(pbObjectName, 0, strlen(pbObjectName)-pos));		
+		strcat(pbModifiedName, pbName);	
+		//printf("\n ModifiedName %s",ModifiedName);
+		delete[] pbObjectName ;
+		delete[] pbName;
+		return pbModifiedName;
+	}
+	else
+	{ return pbObjectName;}
+}

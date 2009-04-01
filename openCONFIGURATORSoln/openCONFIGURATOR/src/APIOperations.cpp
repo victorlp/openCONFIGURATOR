@@ -778,7 +778,7 @@ ocfmRetCode AddIndex(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID)
 						objSIdx = pobjDictIndex->getSubIndex(iLoopCount);
 						objIndex.addSubIndex(*objSIdx);
 					}
-					//setIndexName(subString(pbIndexID,2,4),(char*)objIndex->getName());
+				 objIndex.setName(pobjOBD->getIndexName(subString(pbIndexID,2,4),(char*)objIndex.getName()));
 					pobjIndexCollection->addIndex(objIndex);
 				}
 				else if((enumNodeType == MN) && CheckIfProcessImageIdx(pbIndexID))
@@ -6533,6 +6533,9 @@ ocfmRetCode FreeProjectMemory()
 	CNodeCollection *pobjNodeCollection = NULL;
 	pobjNodeCollection = CNodeCollection::getNodeColObjectPointer();
 	delete pobjNodeCollection;
+	ocfmRetCode stErrorInfo;		 
+	stErrorInfo.code = OCFM_ERR_SUCCESS;
+	return stErrorInfo;
 }
 	
 /****************************************************************************************************
