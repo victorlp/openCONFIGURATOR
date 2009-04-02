@@ -79,8 +79,7 @@
 
 using namespace std;
 class DllExport CIndexCollection
-//class CIndexCollection
-	{
+{
 	public:
 		CIndexCollection(void);
 		~CIndexCollection(void);
@@ -98,6 +97,5 @@ class DllExport CIndexCollection
 		int getNumberofIndexes();
 		CIndex* getIndex(int Count);
 		CIndex* getIndexbyIndexValue(char* Index);		
-		
-	};
+};
 #endif // IndexCollection_h

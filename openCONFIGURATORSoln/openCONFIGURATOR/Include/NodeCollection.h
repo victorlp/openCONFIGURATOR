@@ -78,8 +78,7 @@
 #include "Node.h"
 
 class DllExport CNodeCollection
-//class CNodeCollection
-	{
+{
 	public:
 		CNodeCollection(void);
 		~CNodeCollection(void);
@@ -101,9 +100,8 @@ class DllExport CNodeCollection
 		CNode* getNodePtr(ENodeType nodeType,int NodeId);
 		CNode* getNodebyColIndex(int ColIndex);		
 		int getCNNodesCount();
-		
-		
+				
 		//void addToIndexCollection(CIndex *objIndex);
 		static CNodeCollection getNodeColObject();		
-	};
+};
 #endif // NodeCollection_h

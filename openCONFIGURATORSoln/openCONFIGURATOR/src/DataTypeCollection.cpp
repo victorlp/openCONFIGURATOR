@@ -82,16 +82,15 @@
 ****************************************************************************************************/
 CDataTypeCollection::CDataTypeCollection(void)
 {
-		m_DataTypeCount = collectionObj.Count();
+	m_DataTypeCount = collectionObj.Count();
 }
-
 	
 /****************************************************************************************************
 * Destructor
 ****************************************************************************************************/
 CDataTypeCollection::~CDataTypeCollection(void)
 {
-		//Add destructor code here
+	//Add destructor code here
 }
 
 /****************************************************************************************************
@@ -101,9 +100,9 @@ CDataTypeCollection::~CDataTypeCollection(void)
 ****************************************************************************************************/
 void CDataTypeCollection::addDataType(DataType objDataType)
 {
-		INT32 iItemPosition 			= collectionObj.Add();
-		collectionObj[iItemPosition] 	= objDataType;
-		m_DataTypeCount					= collectionObj.Count();
+	INT32 iItemPosition 			= collectionObj.Add();
+	collectionObj[iItemPosition] 	= objDataType;
+	m_DataTypeCount					= collectionObj.Count();
 }
 	
 /****************************************************************************************************
@@ -113,8 +112,8 @@ void CDataTypeCollection::addDataType(DataType objDataType)
 ****************************************************************************************************/
 void CDataTypeCollection::DeleteDataTypeCollection() 
 {
-		collectionObj.Clear();
-		m_DataTypeCount = collectionObj.Count();
+	collectionObj.Clear();
+	m_DataTypeCount = collectionObj.Count();
 }
 	
 /****************************************************************************************************
@@ -124,7 +123,7 @@ void CDataTypeCollection::DeleteDataTypeCollection()
 ****************************************************************************************************/
 INT32 CDataTypeCollection::getNumberOfDataTypes()
 { 
-		return collectionObj.Count();
+	return collectionObj.Count();
 }
 
 /****************************************************************************************************
@@ -134,7 +133,7 @@ INT32 CDataTypeCollection::getNumberOfDataTypes()
 ****************************************************************************************************/
 DataType* CDataTypeCollection::getDataTypeElement(int iDataTypeId)
 {
-	 	return &collectionObj[iDataTypeId];
+	return &collectionObj[iDataTypeId];
 }
 
 /****************************************************************************************************
@@ -144,20 +143,19 @@ DataType* CDataTypeCollection::getDataTypeElement(int iDataTypeId)
 ****************************************************************************************************/
 DataType* CDataTypeCollection::getDataType(char* pbDataTypeValue)
 {
-		DataType* pobjDataType = NULL;
+	DataType* pobjDataType = NULL;
 
-		for(INT32 iLoopCount = 0; iLoopCount < this->getNumberOfDataTypes(); iLoopCount++)
-		{				
-				pobjDataType = this->getDataTypeElement(iLoopCount);			
-				
-				if(strcmp(pobjDataType->DataTypeValue, pbDataTypeValue) == 0)
-				{
-					return pobjDataType;
-				}
-
+	for(INT32 iLoopCount = 0; iLoopCount < this->getNumberOfDataTypes(); iLoopCount++)
+	{				
+		pobjDataType = this->getDataTypeElement(iLoopCount);			
+		
+		if(strcmp(pobjDataType->DataTypeValue, pbDataTypeValue) == 0)
+		{
+			return pobjDataType;
 		}
-		pobjDataType = NULL;			
-		return pobjDataType;
+	}
+	pobjDataType = NULL;			
+	return pobjDataType;
 }
 
 /****************************************************************************************************
@@ -167,18 +165,17 @@ DataType* CDataTypeCollection::getDataType(char* pbDataTypeValue)
 ****************************************************************************************************/
 DataType* CDataTypeCollection::getDataTypeByName(char* pbDataTypeValue)
 {
-		DataType* pobjDataType = NULL;	
+	DataType* pobjDataType = NULL;	
 
-		for(INT32 iLoopCount = 0; iLoopCount < this->getNumberOfDataTypes(); iLoopCount++)
-		{				
-				pobjDataType = this->getDataTypeElement(iLoopCount);				
-				
-				if(strcmp(StringToUpper(pobjDataType->getName()), StringToUpper(pbDataTypeValue)) == 0)
-				{
-					return pobjDataType;
-				}
-
+	for(INT32 iLoopCount = 0; iLoopCount < this->getNumberOfDataTypes(); iLoopCount++)
+	{				
+		pobjDataType = this->getDataTypeElement(iLoopCount);				
+		
+		if(strcmp(StringToUpper(pobjDataType->getName()), StringToUpper(pbDataTypeValue)) == 0)
+		{
+			return pobjDataType;
 		}
-		pobjDataType = NULL;			
-		return pobjDataType;
+	}
+	pobjDataType = NULL;			
+	return pobjDataType;
 }

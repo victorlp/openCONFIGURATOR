@@ -84,7 +84,7 @@
 #include "Internal.h"
 
 class CObjectDictionary
-	{
+{
 	public:
 		CObjectDictionary(void);
 		~CObjectDictionary(void);
@@ -92,12 +92,13 @@ class CObjectDictionary
 		static bool instanceFlag;
 		int m_s_attrIdx_SIdx;
 				
-			enum ObjectType
+		enum ObjectType
 		{
-			 INDEX =  0,
-				SUBINDEX
+			INDEX =  0,
+			SUBINDEX
 		};
-	 typedef struct s_attrIdx_SIdx
+		
+		typedef struct s_attrIdx_SIdx
 		{
 			char* Idx;
 			char* start_Index;
@@ -106,12 +107,12 @@ class CObjectDictionary
 		}s_attrIdx_SIdx;
 		
 		TCollection<s_attrIdx_SIdx> collectionObj;
-		public:
+		
+	public:
 		static CNode* objDictNode;
 		static CObjectDictionary* objectDictionary;
-
-	
-public:
+		
+	public:
 		void	CheckIfSameIndex(char* Index);
 		CIndex* getIndexDictAttribues(char* Index);
 		void ProcessObjectDictionary(xmlTextReaderPtr reader);
@@ -122,9 +123,8 @@ public:
 		CSubIndex* getObjectDictSubIndex(char* Idx, char* SIdx);
 		int ifObjectDictIndexExists(char* Index);
 		int ifObjectDictSubIndexExists(char* Idx, char* SIdx);
-	 bool checkInTheRange(char* Idx, char* StartIdx, char* EndIdx);
+		bool checkInTheRange(char* Idx, char* StartIdx, char* EndIdx);
 		void printall();
-		char* getIndexName(char* pbObjectIndex, char* pbObjectName);
-		
-	};
+		char* getIndexName(char* pbObjectIndex, char* pbObjectName);		
+};
 #endif // ObjectDictionary_h

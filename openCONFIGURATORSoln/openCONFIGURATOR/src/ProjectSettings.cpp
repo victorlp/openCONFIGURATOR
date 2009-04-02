@@ -90,7 +90,7 @@ CPjtSettings* CPjtSettings::objPjtSettings = NULL;
 * Constructor
 ****************************************************************************************************/
 CPjtSettings::CPjtSettings(void)
-	{		
+{		
 	#if defined DEBUG
 			cout << "\nPjtSettings Objects Initialized!\n" << endl;	
 	#endif
@@ -100,19 +100,18 @@ CPjtSettings::CPjtSettings(void)
 	#if defined DEBUG
 		//cout << "\n Returning m_saveMode:-" << m_saveMode <<endl;	
 	#endif
-		//getGenerateAttr();
-	}
+}
 
 /****************************************************************************************************
 * Destructor
 ****************************************************************************************************/
 CPjtSettings::~CPjtSettings(void)
-	{		
-		instanceFlag = false;
-		#if defined DEBUG
-			cout << "\n\n\n\nPjtSettings Object Deleted!\n" << endl;	
-		#endif
-	}
+{		
+	instanceFlag = false;
+	#if defined DEBUG
+		cout << "\n\n\n\nPjtSettings Object Deleted!\n" << endl;	
+	#endif
+}
 
 /****************************************************************************************************
 * Function Name: CPjtSettings::getPjtSettingsPtr
@@ -162,9 +161,7 @@ EAutoGenerate CPjtSettings::getGenerateAttr()
 	#if defined DEBUG
 		cout << "\n Returning m_generateMode:-" << m_generateMode <<endl;	
 	#endif	
-
-	return m_generateMode;
-		
+	return m_generateMode;		
 }
 
 /****************************************************************************************************

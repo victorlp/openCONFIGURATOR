@@ -117,151 +117,164 @@ Enumerations
 
 typedef enum 
 {	
-				DEFTYPE				= 5,
-				DEFSTRUCT		= 6,
-				VAR								= 7,
-				ARRAY						= 8,
-				RECORD					= 9	
+	DEFTYPE		= 5,
+	DEFSTRUCT	= 6,
+	VAR			= 7,
+	ARRAY		= 8,
+	RECORD		= 9	
 }EObjectType;
 
 DllExport typedef enum 
 {
-				NO,
-				DEFAULT,
-				OPTIONAL,
-				RPDO,
-				TPDO									
-	}EPDOMapping;
+	NO,
+	DEFAULT,
+	OPTIONAL,
+	RPDO,
+	TPDO
+}EPDOMapping;
+
 typedef EPDOMapping *e_PDOMapping;
+
 typedef enum 
 {
-				MN					= 0,
-				CN					= 1
+	MN			= 0,
+	CN			= 1
 }ENodeType;
 
 typedef enum
 {
-				PDO_TPDO				= 1,
-				PDO_RPDO				= 2
+	PDO_TPDO	= 1,
+	PDO_RPDO	= 2
 }EPDOType;
+
 typedef enum
-{
-	
-			 constant,
-			 ro,			 /* read access only (default value)*/
-			 wr,			 /* write access only */
-			 rw,	 /* both read and write access*/
-			 readWriteInput, /*both read and write access, but represents process input data*/
-			 readWriteOutput, /*both read and write, access, but represents process output data*/
-			 noAccess				 /*access denied				*/
+{	
+	 constant,
+	 ro,			 /* read access only (default value)*/
+	 wr,			 /* write access only */
+	 rw,	 /* both read and write access*/
+	 readWriteInput, /*both read and write access, but represents process input data*/
+	 readWriteOutput, /*both read and write, access, but represents process output data*/
+	 noAccess				 /*access denied				*/
 }EParameterAccess;
-	typedef enum IEC_Datatype
-	{
-		BITSTRING = 0,
-		BOOL,
-		BYTE,
-		_CHAR,
-		DWORD,
-		LWORD,
-		SINT,
-		INT,
-		DINT,
-		LINT,
-		USINT,
-		UINT,
-		UDINT,
-		ULINT,
-		REAL,
-		LREAL,
-		STRING,
-		WSTRING
-	}IEC_Datatype;
+
+typedef enum IEC_Datatype
+{
+	BITSTRING = 0,
+	BOOL,
+	BYTE,
+	_CHAR,
+	DWORD,
+	LWORD,
+	SINT,
+	INT,
+	DINT,
+	LINT,
+	USINT,
+	UINT,
+	UDINT,
+	ULINT,
+	REAL,
+	LREAL,
+	STRING,
+	WSTRING
+}IEC_Datatype;
+
 struct DataType
 {
-		char*		Name;
-		char*		DataTypeValue;
-		int				DataSize;
-		IEC_Datatype IEC_dt;
-		char* getName(){return Name;}
-		
-		void setName(char* DataTypeName)
-		{
-			Name = new char[strlen(DataTypeName) + 1];
-			strcpy(Name,DataTypeName);	
-		}
+	char*		Name;
+	char*		DataTypeValue;
+	int				DataSize;
+	IEC_Datatype IEC_dt;
+	char* getName()
+	{
+		return Name;
+	}
+	
+	void setName(char* DataTypeName)
+	{
+		Name = new char[strlen(DataTypeName) + 1];
+		strcpy(Name,DataTypeName);	
+	}
 };
+
 typedef struct appProcessCommon
 {
+	char*						m_Name;
+	char*						UniqueId;
+	char*						dataType;
+	char*						dataTypeUniqueIDRef;
 
-		char*						m_Name;
-		char*						UniqueId;
-		char*						dataType;
-		char*						dataTypeUniqueIDRef;
-		
-		
-		
-		char* getUniqueID()
-		{return UniqueId;}
-		void  setUniqueID(char* UniqueID)
-		{	
-			UniqueId = new char[strlen(UniqueID) + 1];
-			strcpy(UniqueId, UniqueID);
-		}
-		
-		char* getName()
-		{
-			return m_Name;
-		}
-		void  setName(char* attrname)
-		{
-				m_Name = new char[strlen(attrname) + 1];
-				strcpy(m_Name, attrname);
-		}
-		char* getDataType()
-		{return dataType;}
-		void setDataType(char* dt)
-		{
-			dataType = new char[strlen(dt) + 1];
-			strcpy(dataType, dt );
-		}
-		char* getDtUniqueRefId()
-		{return dataTypeUniqueIDRef; }
-		void setDtUniqueRefId(char* UniqueRefID)
-		{
-			dataTypeUniqueIDRef = new char[strlen(UniqueRefID) + 1];
-			strcpy(dataTypeUniqueIDRef, UniqueRefID);
-		}
+	char* getUniqueID()
+	{
+		return UniqueId;
+	}
+	
+	void  setUniqueID(char* UniqueID)
+	{	
+		UniqueId = new char[strlen(UniqueID) + 1];
+		strcpy(UniqueId, UniqueID);
+	}
+	
+	char* getName()
+	{
+		return m_Name;
+	}
+	
+	void  setName(char* attrname)
+	{
+		m_Name = new char[strlen(attrname) + 1];
+		strcpy(m_Name, attrname);
+	}
+	
+	char* getDataType()
+	{
+		return dataType;
+	}
+	
+	void setDataType(char* dt)
+	{
+		dataType = new char[strlen(dt) + 1];
+		strcpy(dataType, dt );
+	}
+	
+	char* getDtUniqueRefId()
+	{
+		return dataTypeUniqueIDRef; 
+	}
+	
+	void setDtUniqueRefId(char* UniqueRefID)
+	{
+		dataTypeUniqueIDRef = new char[strlen(UniqueRefID) + 1];
+		strcpy(dataTypeUniqueIDRef, UniqueRefID);
+	}
 }appProcessCommon;
 
 struct varDeclaration
 {
-  
-		appProcessCommon* nam_id_dt_attr;
-		char								size[5];
-		char*						InitialValue;
-		char*						StructUniqueId;
-		void Initialize()
-		{
-			nam_id_dt_attr = new appProcessCommon;	
-			nam_id_dt_attr->dataType = NULL;
-			nam_id_dt_attr->dataTypeUniqueIDRef = NULL;
-			nam_id_dt_attr->m_Name = NULL;
-			nam_id_dt_attr->UniqueId = NULL;
-			strcpy(size, "");
-	
-		}
-	
+	appProcessCommon* nam_id_dt_attr;
+	char		size[5];
+	char*		InitialValue;
+	char*		StructUniqueId;
+	void Initialize()
+	{
+		nam_id_dt_attr = new appProcessCommon;	
+		nam_id_dt_attr->dataType = NULL;
+		nam_id_dt_attr->dataTypeUniqueIDRef = NULL;
+		nam_id_dt_attr->m_Name = NULL;
+		nam_id_dt_attr->UniqueId = NULL;
+		strcpy(size, "");
+	}	
 };
 
 typedef struct Parameter
 {
 		appProcessCommon name_id_dt_attr;
-		char*												dataType;
-		int														StructIndex;
-		char*												access;
-		int														ParaIndex;
-		//char*						dataTypeUniqueIDRef;
-			
+		char*	dataType;
+		int		StructIndex;
+		char*	access;
+		int		ParaIndex;
+		//char*	dataTypeUniqueIDRef;			
 }Parameter;
 
 typedef struct MNPdoVariable
@@ -272,8 +285,8 @@ typedef struct MNPdoVariable
 	char*	 Value;
 	int			DataSize;
 	EPDOType pdoType;
-	
 }MNPdoVariable;
+
 typedef enum
 {
 	NAME	= 0,	// Name of the Attribute
@@ -290,12 +303,13 @@ typedef enum
 
 typedef enum
 {
-	FALSE =0,
+	FALSE = 0,
 	TRUE
 }EFlag;
+
 typedef enum
 {
-	DATE =0,
+	DATE = 0,
 	TIME
 }EDateTime;
 
@@ -311,17 +325,16 @@ typedef enum
 	PROMPT_AS,
 	DISCARD_AS
 }EAutoSave;
+
 typedef enum
 {
 	AUTOGENERATE = 0,
 	AUTOSAVE
 }EProjectSettings;
 
-
 /************************************************************************************************
 * Function Declarations
 ****************************************************************************************************/
-
 DllExport ocfmRetCode ImportXML(char* fileName, int NodeID, ENodeType NodeType);
 DllExport ocfmRetCode ReImportXML(char* fileName, int NodeID, ENodeType NodeType);
 

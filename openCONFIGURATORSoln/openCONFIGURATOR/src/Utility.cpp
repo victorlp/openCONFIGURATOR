@@ -129,7 +129,6 @@ char* StringToUpper(char* pbStrBuffer)
 	
 	pbStrUpp[uiLoopCount] = '\0';
 	return pbStrUpp;
-
 }
 	
 /****************************************************************************************************
@@ -143,7 +142,8 @@ char* reverse(char* pbStrBuffer)
     char* pbCharRight = pbCharLeft + strlen(pbStrBuffer) - 1;
     char  cTemp;
 	
-    while (pbCharLeft < pbCharRight) {
+    while (pbCharLeft < pbCharRight) 
+	{
         cTemp			= *pbCharLeft;
         *pbCharLeft++  	= *pbCharRight;
         *pbCharRight-- 	= cTemp;
@@ -158,25 +158,25 @@ char* reverse(char* pbStrBuffer)
 ****************************************************************************************************/
 char* padLeft(char* pbStrBuffer, char cPadChar, int iPadLength)
 {
-		char abTempBuff[50];
-		int iLoopCount = 0;
-		int iStringLen = strlen(pbStrBuffer);
-		
-		if (iStringLen < iPadLength)
+	char abTempBuff[50];
+	int iLoopCount = 0;
+	int iStringLen = strlen(pbStrBuffer);
+	
+	if (iStringLen < iPadLength)
+	{
+		//temp = new char[iPadLength-iStringLen+1];		
+		pbStrBuffer = reverse(pbStrBuffer);
+		while(iLoopCount < (iPadLength-iStringLen))
 		{
-			//temp = new char[iPadLength-iStringLen+1];		
-			pbStrBuffer = reverse(pbStrBuffer);
-			while(iLoopCount < (iPadLength-iStringLen))
-			{
-				abTempBuff[iLoopCount] = cPadChar;
-				iLoopCount++;
-			}
-			
-			abTempBuff[iLoopCount] = '\0';
-			strcat(pbStrBuffer, abTempBuff);				
-			pbStrBuffer = reverse(pbStrBuffer);
+			abTempBuff[iLoopCount] = cPadChar;
+			iLoopCount++;
 		}
-		return pbStrBuffer;
+		
+		abTempBuff[iLoopCount] = '\0';
+		strcat(pbStrBuffer, abTempBuff);				
+		pbStrBuffer = reverse(pbStrBuffer);
+	}
+	return pbStrBuffer;
 }
 
 /****************************************************************************************************
@@ -186,12 +186,12 @@ char* padLeft(char* pbStrBuffer, char cPadChar, int iPadLength)
 ****************************************************************************************************/
 char* subString(char* pbStrBuffer, int iStartPos, int iStringLen)
 {
-		char* pbSubStrBuffer;
-	
-		pbSubStrBuffer = new char[iStringLen + 1];
-		strncpy(pbSubStrBuffer, (const char*)(pbStrBuffer + iStartPos), iStringLen);
-		pbSubStrBuffer[iStringLen]='\0';
-		return pbSubStrBuffer;
+	char* pbSubStrBuffer;
+
+	pbSubStrBuffer = new char[iStringLen + 1];
+	strncpy(pbSubStrBuffer, (const char*)(pbStrBuffer + iStartPos), iStringLen);
+	pbSubStrBuffer[iStringLen]='\0';
+	return pbSubStrBuffer;
 }
 
 /****************************************************************************************************
@@ -262,7 +262,6 @@ char *_IntToAscii(int iValue, char *pbDigits, int iBaseValue)
 
     return pbDigits;
 }
-
 
 /**************************************************************************************************
 * Function Name: _IntToAscii
@@ -353,7 +352,7 @@ bool IsAscii(char cArg)
 ***************************************************************************************************/
 bool CheckIfNotPDO(char* pbIndex)
 {
-		if(strncmp(pbIndex, "14xx",2) == 0 || strncmp(pbIndex, "16xx",2) == 0 || strncmp(pbIndex, "18xx",2) == 0 ||
+	if(strncmp(pbIndex, "14xx",2) == 0 || strncmp(pbIndex, "16xx",2) == 0 || strncmp(pbIndex, "18xx",2) == 0 ||
 				strncmp(pbIndex,"1Axx",2) == 0)
 	{
 		return false;
@@ -371,17 +370,17 @@ bool CheckIfNotPDO(char* pbIndex)
 ***************************************************************************************************/
 bool CheckIfManufactureSpecificObject(char* pbIndex)
 {
-		UINT32 uiDeviceIndex;
-		
-		uiDeviceIndex = hex2int( (char *) "2000");
-		if(hex2int(pbIndex) >= uiDeviceIndex )
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+	UINT32 uiDeviceIndex;
+	
+	uiDeviceIndex = hex2int( (char *) "2000");
+	if(hex2int(pbIndex) >= uiDeviceIndex )
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 /**************************************************************************************************
@@ -391,14 +390,14 @@ bool CheckIfManufactureSpecificObject(char* pbIndex)
 ***************************************************************************************************/
 bool CheckIfMappingPDO(char* pbIndex)
 {
-		if(strncmp(pbIndex, "1A", 2) == 0 || strncmp(pbIndex, "16", 2) == 0)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+	if(strncmp(pbIndex, "1A", 2) == 0 || strncmp(pbIndex, "16", 2) == 0)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 /**************************************************************************************************
@@ -409,9 +408,9 @@ bool CheckIfMappingPDO(char* pbIndex)
 bool CheckAllowedCNIndexes(char* pbIndexValue)
 {
 	if((CheckIfNotPDO((char*)pbIndexValue) == false)  || CheckIfManufactureSpecificObject((char*)pbIndexValue) ||
-					strcmp(pbIndexValue,"1F98") == 0 
-					||	strcmp(pbIndexValue,"1020") == 0
-					||	strcmp(pbIndexValue,"1006") == 0)
+	strcmp(pbIndexValue,"1F98") == 0 
+	||	strcmp(pbIndexValue,"1020") == 0
+	||	strcmp(pbIndexValue,"1006") == 0)
 	{
 		return true;
 	}
@@ -500,14 +499,9 @@ int getConfigDate()
 
   time ( &rawtime );
   pstTimeInfo = localtime ( &rawtime );
-  //printf ( "Current local time and date: %s", asctime (pstTimeInfo) );
 
-  //cout << "\ntm_yday:" << pstTimeInfo->tm_yday << endl;
-  //cout << "\ntm_year Since 1900:" << pstTimeInfo->tm_year << endl;
   iYearSince = ((pstTimeInfo->tm_year)- 84);
-  //cout << "\ntm_year Since 1984:" << iYearSince << endl;
   iCurrentYear = ((pstTimeInfo->tm_year) + 1900);
-  //cout << "\nCurrent Year:" << iCurrentYear << endl;
   
   // Loops thru all the years except the curent year
   for(INT32 iLoopCount = 0; iLoopCount < iYearSince; iLoopCount++)
@@ -515,7 +509,6 @@ int getConfigDate()
   	INT32 iTmpYear = 0;
   	INT32 iTmpDays = 0;
   	iTmpYear = (1984 + iLoopCount);
-  	//cout << "\nYear:" << uiTmpYear << endl;
   	if (iTmpYear % 4 == 0 && !(iTmpYear % 100 == 0 && iTmpYear % 400 != 0))
 	{
   		iTmpDays = 366;
@@ -528,7 +521,6 @@ int getConfigDate()
   }
   // To calculate number of days since Jan 1 of current year
   iDays += pstTimeInfo->tm_yday;
-  //cout << "days:" << iDays << endl;
   return iDays;
 }
 

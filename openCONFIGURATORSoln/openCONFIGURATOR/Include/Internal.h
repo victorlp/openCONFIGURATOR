@@ -101,8 +101,8 @@
 * Enumerations
 ************************************************************************************************/
 typedef enum{
-ADD = 0,
-DELETE
+	ADD = 0,
+	DELETE
 }EOperation;
 
 /************************************************************************************************
@@ -119,8 +119,6 @@ static bool ObjectDictLoaded = false;
 /****************************************************************************************************
 * Function Declarations
 ****************************************************************************************************/
-
-//void LoadObjectDictionary(char* fileName);
 char* ConvertToUpper(char* str);
 char* _IntToAscii( int value, char* result, int base );
 bool CheckIfNotPDO(char* Index);
@@ -164,8 +162,8 @@ int getConfigTime();
 bool getandCreateNode(xmlTextReaderPtr reader, char* PjtPath);
 bool saveProjectXML(char* ProjectPath, char* ProjectName);
 void SetSIdxValue(char* Idx, char* SIdx,
-																	 char* value, CIndexCollection * objIdxCol,
-																		int NodeId, ENodeType NodeType, bool setDefaultValue);
+char* value, CIndexCollection * objIdxCol,
+int NodeId, ENodeType NodeType, bool setDefaultValue);
 ocfmRetCode AddOtherRequiredCNIndexes(int NodeId);
 void CreateMNPDOVar(int Offset, int dataSize,IEC_Datatype dtenum, EPDOType pdoType, CNode *objNode);
 int getCNsTotalIndexSubIndex(int NodeID);

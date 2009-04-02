@@ -78,8 +78,7 @@
 #include "TCollection.h"
 
 class DllExport CDataTypeCollection
-//class CDataTypeCollection
-	{
+{
 	public:
 		CDataTypeCollection(void);
 		~CDataTypeCollection(void);
@@ -95,6 +94,5 @@ class DllExport CDataTypeCollection
 		DataType* getDataTypeElement(int DataTypeId);
 		DataType* getDataType(char* DataTypevalue);
 		DataType* getDataTypeByName(char* DataTypeName);
-
-	};
+};
 #endif // DataTypeCollection_h

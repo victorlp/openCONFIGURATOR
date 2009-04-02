@@ -82,14 +82,13 @@
 ****************************************************************************************************/
 CComplexDataType::CComplexDataType(void)
 {
-			name_id_attr = new appProcessCommon;
-			name_id_attr->dataType = NULL;
-			name_id_attr->dataTypeUniqueIDRef = NULL;
-			name_id_attr->m_Name = NULL;
-			name_id_attr->UniqueId = NULL;
-			VarIndex = -1;
-			previousCDT_UId = NULL;
-			
+	name_id_attr = new appProcessCommon;
+	name_id_attr->dataType = NULL;
+	name_id_attr->dataTypeUniqueIDRef = NULL;
+	name_id_attr->m_Name = NULL;
+	name_id_attr->UniqueId = NULL;
+	VarIndex = -1;
+	previousCDT_UId = NULL;			
 }
 
 /****************************************************************************************************
@@ -107,7 +106,7 @@ CComplexDataType::~CComplexDataType(void)
 ****************************************************************************************************/
 void CComplexDataType::addVarDeclaration(varDeclaration objVarDecl)
 {
-		INT32 iItemPosition 				= varCollection.Add();
-		varCollection[iItemPosition] 	= objVarDecl;
-		m_varCount 						= varCollection.Count();
+	INT32 iItemPosition 				= varCollection.Add();
+	varCollection[iItemPosition] 		= objVarDecl;
+	m_varCount 							= varCollection.Count();
 }

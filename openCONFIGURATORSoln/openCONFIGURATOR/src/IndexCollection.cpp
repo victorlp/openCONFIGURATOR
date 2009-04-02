@@ -83,8 +83,8 @@
 ****************************************************************************************************/
 CIndexCollection::CIndexCollection(void)
 {
-		//IndexList.size =0;
-		m_IndexCount = 0;
+	//IndexList.size =0;
+	m_IndexCount = 0;
 }
 
 /****************************************************************************************************
@@ -101,24 +101,20 @@ CIndexCollection::~CIndexCollection(void)
 * Return value: void
 ****************************************************************************************************/
 void CIndexCollection::addIndex(CIndex objIndex)
-{
-		
-		INT32 iItemPosition = collectionObj.Add();
-		char* substr= new char[3];
-			substr = subString((char*)objIndex.getIndexValue(), 0, 2);
-		if(strcmp(substr,"14")==0 ||strcmp(substr,"16") ==0)
-		{
-						objIndex.setPDOType(PDO_RPDO);				
-					
-		}
-		else if(strcmp(substr,"18")==0 ||strcmp(substr,"1A") ==0)
-			{
-				objIndex.setPDOType(PDO_TPDO);
-				
-			}
-		collectionObj[iItemPosition] = objIndex;
-		m_IndexCount= collectionObj.Count();
-
+{		
+	INT32 iItemPosition = collectionObj.Add();
+	char* substr= new char[3];
+	substr = subString((char*)objIndex.getIndexValue(), 0, 2);
+	if(strcmp(substr,"14")==0 ||strcmp(substr,"16") ==0)
+	{
+		objIndex.setPDOType(PDO_RPDO);			
+	}
+	else if(strcmp(substr,"18")==0 ||strcmp(substr,"1A") ==0)
+	{
+		objIndex.setPDOType(PDO_TPDO);		
+	}
+	collectionObj[iItemPosition] = objIndex;
+	m_IndexCount= collectionObj.Count();
 }
 	
 /****************************************************************************************************
@@ -128,10 +124,9 @@ void CIndexCollection::addIndex(CIndex objIndex)
 ****************************************************************************************************/
 void CIndexCollection::deleteIndex(int iIndexID)
 {
-	   collectionObj.Remove(iIndexID);
-	   m_IndexCount = collectionObj.Count();
-	   //printf("\n\nAfter Delete - Count:%d\n\n", m_IndexCount);
-
+   collectionObj.Remove(iIndexID);
+   m_IndexCount = collectionObj.Count();
+   //printf("\n\nAfter Delete - Count:%d\n\n", m_IndexCount);
 }
 	
 /****************************************************************************************************
@@ -141,8 +136,8 @@ void CIndexCollection::deleteIndex(int iIndexID)
 ****************************************************************************************************/
 void CIndexCollection::DeleteIndexCollection() 
 {
-		collectionObj.Clear();
-		m_IndexCount = collectionObj.Count();
+	collectionObj.Clear();
+	m_IndexCount = collectionObj.Count();
 }
 
 /****************************************************************************************************
@@ -150,29 +145,24 @@ void CIndexCollection::DeleteIndexCollection()
 * Description:
 * Return value: void
 ****************************************************************************************************/
-
 void CIndexCollection::DeletePDOs() 
 {
-	int i;
+	int iLoopCount;
 	char* substr= new char[3];
 	
-	for(i =0; i<m_IndexCount;i++)
+	for(iLoopCount =0; iLoopCount < m_IndexCount; iLoopCount++)
 	{
 		CIndex objIndex;
-		objIndex = collectionObj[i];
+		objIndex = collectionObj[iLoopCount];
 		substr = subString((char*)objIndex.getIndexValue(), 0, 2);
 		if(strcmp(substr, "1A")==0 || strcmp(substr, "1a")==0 ||
-				strcmp(substr, "14")==0 || strcmp(substr, "16")==0   ||
-				strcmp(substr, "18")==0 )
-		{
-		/*if(!(CheckIfNotPDO((char*)objIndex.getIndexValue())));
-		{*/
-	
-			collectionObj.Remove(i);
-   m_IndexCount = collectionObj.Count();
-   i = 0;
-		}
-		
+		strcmp(substr, "14")==0 || strcmp(substr, "16")==0   ||
+		strcmp(substr, "18")==0 )
+		{	
+			collectionObj.Remove(iLoopCount);
+			m_IndexCount = collectionObj.Count();
+			iLoopCount = 0;
+		}		
 	}		
 }
 
@@ -181,24 +171,22 @@ void CIndexCollection::DeletePDOs()
 * Description:
 * Return value: void
 ****************************************************************************************************/
-
 void CIndexCollection::DeletePIObjects()
 {
-	int i;
+	int iLoopCount;
 	char* substr= new char[2];
 	
-	for(i =0; i<m_IndexCount;i++)
+	for(iLoopCount =0; iLoopCount < m_IndexCount; iLoopCount++)
 	{
 		CIndex objIndex;
-		objIndex = collectionObj[i];
+		objIndex = collectionObj[iLoopCount];
 			substr = subString((char*)objIndex.getIndexValue(), 0, 1);
 		if(strcmp(substr,"A")==0  ||  strcmp(substr,"a")==0 )
 		{
-			collectionObj.Remove(i);
+			collectionObj.Remove(iLoopCount);
 			m_IndexCount = collectionObj.Count();
-			i= 0;
-		}
-		
+			iLoopCount = 0;
+		}		
 	}		
 }
 	
@@ -209,7 +197,7 @@ void CIndexCollection::DeletePIObjects()
 ****************************************************************************************************/
 CIndex* CIndexCollection::getIndex(int iCount)
 {
-		return &collectionObj[iCount];
+	return &collectionObj[iCount];
 }
 	
 /****************************************************************************************************
@@ -219,19 +207,19 @@ CIndex* CIndexCollection::getIndex(int iCount)
 ****************************************************************************************************/
 CIndex* CIndexCollection::getIndexbyIndexValue(char* pbIndex)
 {
-		INT32 iLoopCount;
+	INT32 iLoopCount;
+	
+	for(iLoopCount =0; iLoopCount < m_IndexCount; iLoopCount++)
+	{
+		CIndex objIndex;
 		
-		for(iLoopCount =0; iLoopCount < m_IndexCount; iLoopCount++)
+		objIndex = collectionObj[iLoopCount];
+		if(strcmp(objIndex.getIndexValue(),pbIndex) == 0)
 		{
-			CIndex objIndex;
-			
-			objIndex = collectionObj[iLoopCount];
-			if(strcmp(objIndex.getIndexValue(),pbIndex) == 0)
-			{
-				return &collectionObj[iLoopCount];
-			}
-		}		
-		return NULL;
+			return &collectionObj[iLoopCount];
+		}
+	}		
+	return NULL;
 }
 	
 /****************************************************************************************************
@@ -241,7 +229,7 @@ CIndex* CIndexCollection::getIndexbyIndexValue(char* pbIndex)
 ****************************************************************************************************/
 int CIndexCollection::getNumberofIndexes()
 {
-		return m_IndexCount;
+	return m_IndexCount;
 }
 
 

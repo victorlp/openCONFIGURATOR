@@ -77,9 +77,9 @@
 #include "BaseIndex.h"
 
 class DllExport CSubIndex : public CBaseIndex
-	{
+{
 	public:
 		CSubIndex(void);
 		~CSubIndex(void);
-	};
+};
 #endif // SubIndex_h

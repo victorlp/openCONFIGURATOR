@@ -82,7 +82,7 @@
 using namespace std;
 
 class DllExport CApplicationProcess
-	{
+{
 	public:
 		CApplicationProcess(void);
 		~CApplicationProcess(void);
@@ -107,7 +107,7 @@ class DllExport CApplicationProcess
 		Parameter get_UniqueIDRef_by_ParameterIndex(int ParameterIndex);
 		int getCDTCount();
 		CComplexDataType* getCDTbyCount(int count);
-	};
+};
 
 #endif // ApplicationProcess_h
 

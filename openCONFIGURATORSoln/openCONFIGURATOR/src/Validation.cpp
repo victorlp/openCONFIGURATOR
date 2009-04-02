@@ -87,26 +87,18 @@
 ****************************************************************************************************/
 ocfmRetCode IfNodeExists(INT32 iNodeID, ENodeType iNodeType, INT32 *piNodePos, bool& ExistfFlag)
 {	
-	//cout << "NodeType:" << iNodeType << endl;
 	CNode objNode;		
 	CNodeCollection *pobjNodeCollection = NULL;
 	ocfmRetCode stErrStruct;
 	
 	try
-	{
-		//if(NodeType != CN || iNodeType != MN)
-		//{
-		//	ocfmException* objException = new ocfmException;
-		//	objException->ocfm_Excpetion(OCFM_ERR_INVALID_NODETYPE);
-		//	throw objException;	
-		//}
-				
+	{				
 		pobjNodeCollection = CNodeCollection::getNodeColObjectPointer();	
 		if(pobjNodeCollection == NULL)
 		{
-			//cout<< "objNodeCollection is NULL!!!" << endl;
+			cout<< "objNodeCollection is NULL!" << endl;
 		}
-		//cout<< "getNumberOfNodes: \n" <<pobjNodeCollection->getNumberOfNodes()<<endl;
+		
 		if( pobjNodeCollection->getNumberOfNodes() > 0)
 		{
 			for(INT32 iLoopCount = 0; iLoopCount < pobjNodeCollection->getNumberOfNodes(); iLoopCount++)
@@ -131,8 +123,7 @@ ocfmRetCode IfNodeExists(INT32 iNodeID, ENodeType iNodeType, INT32 *piNodePos, b
 			return stErrStruct;*/
 			ocfmException objException;
 			objException.ocfm_Excpetion(OCFM_ERR_NODEID_NOT_FOUND);
-			throw &objException;	
-			
+			throw &objException;			
 		}
 		else
 		{
@@ -162,7 +153,6 @@ ocfmRetCode IfIndexExists(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID
 	bool bFlag = false;
 	CNodeCollection *pobjNodeCollection		= NULL;
 	CIndexCollection *pobjIndexCollection	= NULL;
-
 	
 	try
 	{
@@ -174,38 +164,20 @@ ocfmRetCode IfIndexExists(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID
 		}
 		else
 		{	
-			//cout << "\n\nErrStruct.errCode.code:" << stErrStruct.code << "\n\n!!!" << endl;
-			// Node Doesn't Exist
-			//stErrStruct.code = OCFM_ERR_INVALID_NODEID;
-			//return stErrStruct;
 			ocfmException objException;				
 			objException.ocfm_Excpetion(OCFM_ERR_INVALID_NODEID);
 			throw objException;
 		}
 		pobjNodeCollection = CNodeCollection::getNodeColObjectPointer();
 		objNode = pobjNodeCollection->getNode(enumNodeType, iNodeID);
-		pobjIndexCollection = objNode.getIndexCollection();
-		
-		//cout <<"Node Exists: pobjIndexCollection->getNumberofIndexes()" << objIndexCollection->getNumberofIndexes() <<endl;
+		pobjIndexCollection = objNode.getIndexCollection();		
 
 		if(pobjIndexCollection->getNumberofIndexes() == 0)
 		{
-			//AddIndexAttributes(pbIndexID, &objIndex);
-			//pobjIndexCollection->addIndex(objIndex);	
-			//printf("Index Doesn't exist!!\n\n");
-			// Index Doesn't Exist
-			//return -2;
-			//stErrStruct.code = OCFM_ERR_NO_INDEX_FOUND;
-			//stErrStruct.errorString = NULL;
 			*piIndexPos = 0;
-			//return stErrStruct;
-			//ocfmException objException;			
 			stErrStruct.code = OCFM_ERR_NO_INDEX_FOUND;	
-			return stErrStruct;
-			//objException.ocfm_Excpetion(OCFM_ERR_NO_INDEX_FOUND);
-			//throw objException;
-		}
-		
+			return stErrStruct;		
+		}		
 		else if(pobjIndexCollection->getNumberofIndexes() > 0)
 		{
 			//Check for existance of the Index
@@ -214,19 +186,15 @@ ocfmRetCode IfIndexExists(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID
 				CIndex* objIndexPtr = NULL;
 				char *pbIndexValue  = NULL;
 				
-				objIndexPtr = pobjIndexCollection->getIndex(iIndexCount);						
-				//printf("IndexValue:%s-%s\n", objIndexPtr->getIndexValue(), pbIndexID);
+				objIndexPtr = pobjIndexCollection->getIndex(iIndexCount);										
 				pbIndexValue = new char[strlen((char*)objIndexPtr->getIndexValue()) + ALLOC_BUFFER];				
 				strcpy(pbIndexValue, (char*)objIndexPtr->getIndexValue());
-								
-		
+										
 				if((strcmp(ConvertToUpper(pbIndexValue), ConvertToUpper(pbIndexID)) == 0))
 				{
-					//printf("Index Already Exists tmpIndexcount:%d!\n",tmpIndexcount);
 					CIndex* objIndexPtr = NULL;
 					
-					objIndexPtr = pobjIndexCollection->getIndex(iIndexCount);
-					//cout<< "objIndex.getName():" << objIndexPtr->getName() << endl;
+					objIndexPtr = pobjIndexCollection->getIndex(iIndexCount);				
 					if(objIndexPtr->getActualValue() == NULL)
 					{
 						//cout<< "objIndex.getActualValue():NULL" << endl;
@@ -243,24 +211,17 @@ ocfmRetCode IfIndexExists(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID
 				else if(iIndexCount == (pobjIndexCollection->getNumberofIndexes() - 1))
 				{
 					//delete[] pbIndexValue;
-					//printf("Index Doesn't exist.. \n\n");
 					// Index Doesn't Exist
 					stErrStruct.code = OCFM_ERR_INDEXID_NOT_FOUND;
 					return stErrStruct;
-					//ocfmException objException;				
-					//objException.ocfm_Excpetion(OCFM_ERR_INDEXID_NOT_FOUND);
-					//throw objException;
 				}
 				else
 				{
-//					delete[] pbIndexValue;
+					//delete[] pbIndexValue;
 				}
 			}
 		}
 		// Index Doesn't Exist
-		//printf("\n\n$S Index Doesn't Exist\n\n\n");
-		//stErrStruct.code = OCFM_ERR_UNKNOWN;
-		//return stErrStruct;
 		ocfmException objException;				
 		objException.ocfm_Excpetion(OCFM_ERR_UNKNOWN);
 		throw objException;
@@ -278,86 +239,63 @@ ocfmRetCode IfIndexExists(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID
 ****************************************************************************************************/
 ocfmRetCode IfSubIndexExists(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID, char* pbSubIndexID, INT32* piSubIndexPos, INT32* piIndexPos)
 {
-		CNode objNode;	
-		CIndex objIndex;
-		CNodeCollection *pobjNodeCollection		= NULL;
-		CIndexCollection *pobjIndexCollection	= NULL;
-		CIndex* pobjSubIndex					= NULL;
-		ocfmRetCode stErrStruct;
+	CNode objNode;	
+	CIndex objIndex;
+	CNodeCollection *pobjNodeCollection		= NULL;
+	CIndexCollection *pobjIndexCollection	= NULL;
+	CIndex* pobjSubIndex					= NULL;
+	ocfmRetCode stErrStruct;
+	
+	try
+	{
+		stErrStruct = IfIndexExists(iNodeID, enumNodeType, pbIndexID, piIndexPos);
 		
-		try
-		{
-			stErrStruct = IfIndexExists(iNodeID, enumNodeType, pbIndexID, piIndexPos);
-			
-			if (stErrStruct.code == 0)
-			{				
-				//piIndexPos = stErrStruct.returnValue;
-			}
-			else
-			{	
-				//cout << "\n\nErrStruct.errCode.code:" << stErrStruct.code << "\n\n!!!" << endl;
-				// Node Doesn't Exist
-				stErrStruct.code = OCFM_ERR_INDEXID_NOT_FOUND;
-				return stErrStruct;
-				//ocfmException objException;				
-				//objException.ocfm_Excpetion(OCFM_ERR_INDEXID_NOT_FOUND);
-				//throw objException;
-			}
-				//cout <<"Index Exists"<<endl;
-				objIndex.setNodeID(objNode.getNodeId());
-				pobjNodeCollection 	= CNodeCollection::getNodeColObjectPointer();
-				objNode 			= pobjNodeCollection->getNode(enumNodeType, iNodeID);
+		if (stErrStruct.code == 0)
+		{				
+			//piIndexPos = stErrStruct.returnValue;
+		}
+		else
+		{	
+			// Node Doesn't Exist
+			stErrStruct.code = OCFM_ERR_INDEXID_NOT_FOUND;
+			return stErrStruct;			
+		}
+		objIndex.setNodeID(objNode.getNodeId());
+		pobjNodeCollection 	= CNodeCollection::getNodeColObjectPointer();
+		objNode 			= pobjNodeCollection->getNode(enumNodeType, iNodeID);
 
-				pobjIndexCollection = objNode.getIndexCollection();
-				pobjSubIndex 		= pobjIndexCollection->getIndex(*piIndexPos);
-				//cout << "NumberofSubIndexes:" << pobjSubIndex->getNumberofSubIndexes()<< endl;
-				if(pobjSubIndex->getNumberofSubIndexes() == 0)
-				{
-					//cout << "SubIndex Doesn't Exist" << endl;
-					//ocfmException objException;				
-					//objException.ocfm_Excpetion(OCFM_ERR_NO_SUBINDEXS_FOUND);
-					//throw objException;
-					stErrStruct.code = OCFM_ERR_NO_SUBINDEXS_FOUND;
+		pobjIndexCollection = objNode.getIndexCollection();
+		pobjSubIndex 		= pobjIndexCollection->getIndex(*piIndexPos);
+		if(pobjSubIndex->getNumberofSubIndexes() == 0)
+		{
+			stErrStruct.code = OCFM_ERR_NO_SUBINDEXS_FOUND;
+			return stErrStruct;
+		}
+		else if(pobjSubIndex->getNumberofSubIndexes() > 0)
+		{
+			//Check for existance of the SubIndex
+			for(INT32 iSubIndexcount = 0; iSubIndexcount < pobjSubIndex->getNumberofSubIndexes(); iSubIndexcount++)
+			{
+				CSubIndex* objSubIndexPtr = NULL;
+				
+				objSubIndexPtr = pobjSubIndex->getSubIndex(iSubIndexcount);						
+				if((strcmp(ConvertToUpper((char*) objSubIndexPtr->getIndexValue()), ConvertToUpper(pbSubIndexID)) == 0))
+				{			
+					stErrStruct.code 	= OCFM_ERR_SUCCESS;
+					*piSubIndexPos 		= iSubIndexcount;
 					return stErrStruct;
-					//return -3;
 				}
-				else if(pobjSubIndex->getNumberofSubIndexes() > 0)
+				else if(iSubIndexcount == (pobjSubIndex->getNumberofSubIndexes() - 1))
 				{
-					//Check for existance of the SubIndex
-					for(INT32 iSubIndexcount = 0; iSubIndexcount < pobjSubIndex->getNumberofSubIndexes(); iSubIndexcount++)
-					{
-						CSubIndex* objSubIndexPtr = NULL;
-						
-						objSubIndexPtr = pobjSubIndex->getSubIndex(iSubIndexcount);						
-						//printf("SubIndexValue:%s-%s\n", objSubIndexPtr->getIndexValue(), pbSubIndexID);
-						if((strcmp(ConvertToUpper((char*) objSubIndexPtr->getIndexValue()), ConvertToUpper(pbSubIndexID)) == 0))
-						{
-							//printf("SubIndex Already Exists tmpIndexcount:%d!\n",tmpSubIndexcount);				
-							stErrStruct.code 	= OCFM_ERR_SUCCESS;
-							*piSubIndexPos 		= iSubIndexcount;
-							return stErrStruct;
-							//return tmpSubIndexcount;
-						}
-						else if(iSubIndexcount == (pobjSubIndex->getNumberofSubIndexes() - 1))
-						{
-							//printf("SubIndex Doesn't exist \n\n");
-							// SubIndex Doesn't Exist
-							stErrStruct.code = OCFM_ERR_SUBINDEXID_NOT_FOUND;
-							return stErrStruct;
-							//ocfmException objException;				
-							//objException.ocfm_Excpetion(OCFM_ERR_SUBINDEXID_NOT_FOUND);
-							//throw objException;
-							//return -3;
-						}
-					}
+					// SubIndex Doesn't Exist
+					stErrStruct.code = OCFM_ERR_SUBINDEXID_NOT_FOUND;
+					return stErrStruct;
 				}
-			
-		//stErrStruct.code = OCFM_ERR_UNKNOWN;
-		//return stErrStruct;
+			}
+		}
 		ocfmException objException;				
 		objException.ocfm_Excpetion(OCFM_ERR_UNKNOWN);
-		throw objException;
-		
+		throw objException;		
 	}
 	catch(ocfmException* ex)
 	{
@@ -392,6 +330,11 @@ bool CheckIfDataTypeExists(char* pbDataValue, INT32 iNodeID)
 	}
 }
 
+/**************************************************************************************************
+* Function Name: CheckIfDataTypeByNameExists
+* Description:	
+* Return value: bool
+****************************************************************************************************/
 bool CheckIfDataTypeByNameExists(char* dtName, int NodeID)
 {
 	CNodeCollection* objNodeCol;
@@ -401,9 +344,10 @@ bool CheckIfDataTypeByNameExists(char* dtName, int NodeID)
 	dtcol=objNode.getDataTypeCollection();
 	DataType* dt;
 	dt = dtcol->getDataTypeByName(dtName); 
-	if (dt== NULL)
-	return false;
-	else return true;
+	if (dt == NULL)
+		return false;
+	else 
+		return true;
 }
 
 /**************************************************************************************************
@@ -413,42 +357,42 @@ bool CheckIfDataTypeByNameExists(char* dtName, int NodeID)
 ****************************************************************************************************/
 bool CheckIfSubIndexExists(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID, char* pbSubIndexID)
 {
-		CNode objNode;		
-		CIndex objIndex;
-		CNodeCollection *pobjNodeCollection 	= NULL;
-		CIndexCollection *pobjIndexCollection	= NULL;
-		CIndex			 *pobjIdx				= NULL;				
-		
-		objIndex.setNodeID(objNode.getNodeId());
-		pobjNodeCollection	= CNodeCollection::getNodeColObjectPointer();
-		objNode				= pobjNodeCollection->getNode(enumNodeType, iNodeID);
+	CNode objNode;		
+	CIndex objIndex;
+	CNodeCollection *pobjNodeCollection 	= NULL;
+	CIndexCollection *pobjIndexCollection	= NULL;
+	CIndex			 *pobjIdx				= NULL;				
+	
+	objIndex.setNodeID(objNode.getNodeId());
+	pobjNodeCollection	= CNodeCollection::getNodeColObjectPointer();
+	objNode				= pobjNodeCollection->getNode(enumNodeType, iNodeID);
 
-		pobjIndexCollection = objNode.getIndexCollection();
-		pobjIdx 			= pobjIndexCollection->getIndexbyIndexValue(pbIndexID);
-		//cout << "NumberofSubIndexes:" << objSubIndex->getNumberofSubIndexes()<< endl;
-		if(pobjIdx->getNumberofSubIndexes() == 0)
-		{
-			return false;
-		}
-		else if(pobjIdx->getNumberofSubIndexes() > 0)
-		{
-			//Check for existance of the SubIndex
-			for(INT32 iSubIndexCount = 0; iSubIndexCount < pobjIdx->getNumberofSubIndexes(); iSubIndexCount++)
-			{
-				CSubIndex* objSubIndexPtr;
-				objSubIndexPtr = pobjIdx->getSubIndex(iSubIndexCount);						
-				//printf("SubIndexValue:%s-%s\n", objSubIndexPtr->getIndexValue(), pbSubIndexID);
-				if((strcmp(ConvertToUpper((char*) objSubIndexPtr->getIndexValue()), ConvertToUpper(pbSubIndexID)) == 0))
-				{
-					return true;
-				}
-				else if(iSubIndexCount == (pobjIdx->getNumberofSubIndexes() - 1))
-				{
-					return false;
-				}
-			}
-		}	
+	pobjIndexCollection = objNode.getIndexCollection();
+	pobjIdx 			= pobjIndexCollection->getIndexbyIndexValue(pbIndexID);
+	//cout << "NumberofSubIndexes:" << objSubIndex->getNumberofSubIndexes()<< endl;
+	if(pobjIdx->getNumberofSubIndexes() == 0)
+	{
 		return false;
+	}
+	else if(pobjIdx->getNumberofSubIndexes() > 0)
+	{
+		//Check for existance of the SubIndex
+		for(INT32 iSubIndexCount = 0; iSubIndexCount < pobjIdx->getNumberofSubIndexes(); iSubIndexCount++)
+		{
+			CSubIndex* objSubIndexPtr;
+			objSubIndexPtr = pobjIdx->getSubIndex(iSubIndexCount);						
+			//printf("SubIndexValue:%s-%s\n", objSubIndexPtr->getIndexValue(), pbSubIndexID);
+			if((strcmp(ConvertToUpper((char*) objSubIndexPtr->getIndexValue()), ConvertToUpper(pbSubIndexID)) == 0))
+			{
+				return true;
+			}
+			else if(iSubIndexCount == (pobjIdx->getNumberofSubIndexes() - 1))
+			{
+				return false;
+			}
+		}
+	}	
+	return false;
 }
 
 /**************************************************************************************************

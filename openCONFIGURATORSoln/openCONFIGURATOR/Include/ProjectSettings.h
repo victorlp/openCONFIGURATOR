@@ -77,7 +77,7 @@
 #include "Declarations.h"
 
 class DllExport CPjtSettings
-	{
+{
 	public:
 		CPjtSettings(void);
 		~CPjtSettings(void);		
@@ -95,5 +95,5 @@ class DllExport CPjtSettings
 		void setGenerateAttr(EAutoGenerate);
 		void setPOWERLINK_IP(char*);
 		const char* getPOWERLINK_IP();
-	};
+};
 #endif // ProjectSettings_h

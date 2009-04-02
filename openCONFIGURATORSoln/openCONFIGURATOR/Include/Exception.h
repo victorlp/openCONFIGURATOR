@@ -79,10 +79,10 @@ Includes
 class ocfmException : public std::exception
 {
 		public:
-		ocfmException(void);
-		~ocfmException(void);	
+			ocfmException(void);
+			~ocfmException(void) throw();	
 		public:
-		ocfmRetCode _ocfmRetCode;
+			ocfmRetCode _ocfmRetCode;
 		public:
 			void ocfm_Excpetion(EConfiuguratorErrors errcode);
 };

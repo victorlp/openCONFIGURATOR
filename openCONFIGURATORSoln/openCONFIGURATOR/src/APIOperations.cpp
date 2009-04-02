@@ -778,7 +778,7 @@ ocfmRetCode AddIndex(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID)
 						objSIdx = pobjDictIndex->getSubIndex(iLoopCount);
 						objIndex.addSubIndex(*objSIdx);
 					}
-				 objIndex.setName(pobjOBD->getIndexName(subString(pbIndexID,2,4),(char*)objIndex.getName()));
+					objIndex.setName(pobjOBD->getIndexName(subString(pbIndexID,2,4),(char*)objIndex.getName()));
 					pobjIndexCollection->addIndex(objIndex);
 				}
 				else if((enumNodeType == MN) && CheckIfProcessImageIdx(pbIndexID))

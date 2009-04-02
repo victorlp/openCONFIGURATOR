@@ -93,31 +93,26 @@ INT32 iInVars =0;
 INT32 iOutVars = 0;
 
 static tADDRESSTABLE AddressTable[NO_OF_PI_ENTERIES] = {
-																												{"A000", INTEGER8,		INPUT},
-																												{"A040", UNSIGNED8,			INPUT},
-																												{"A0C0", INTEGER16, INPUT},
-																												{"A100", UNSIGNED16,		INPUT},
-																												{"A1C0", INTEGER32, INPUT},
-																												{"A200", UNSIGNED32,		INPUT},
-																												{"A480", INTEGER8,		OUTPUT},
-																												{"A4C0", UNSIGNED8,			OUTPUT},
-																												{"A540", INTEGER16, OUTPUT},
-																												{"A580", UNSIGNED16,		OUTPUT},
-																												{"A640", INTEGER32, OUTPUT},
-																												{"A680", UNSIGNED32,			OUTPUT},
+														{"A000", INTEGER8,		INPUT},
+														{"A040", UNSIGNED8,			INPUT},
+														{"A0C0", INTEGER16, INPUT},
+														{"A100", UNSIGNED16,		INPUT},
+														{"A1C0", INTEGER32, INPUT},
+														{"A200", UNSIGNED32,		INPUT},
+														{"A480", INTEGER8,		OUTPUT},
+														{"A4C0", UNSIGNED8,			OUTPUT},
+														{"A540", INTEGER16, OUTPUT},
+														{"A580", UNSIGNED16,		OUTPUT},
+														{"A640", INTEGER32, OUTPUT},
+														{"A680", UNSIGNED32,			OUTPUT},
 																												
-																												};	
-
-
+													   };
 ModuleCol astModuleInfo[TOTAL_MODULES]; 
-
-
-//extern ProcessImage PIInCol[4000] = {};
-//extern ProcessImage PIOutCol[4000]= {};
 
 /****************************************************************************************************
 * FUNCTION DEFINITIONS
 ***************************************************************************************************/
+
 /****************************************************************************************************
 * Function Name: SetPIOffsets
 * Description:
@@ -129,9 +124,8 @@ void SetPIOffsets(ProcessImage* pobjProcessImage, INT32& iStartByteOffset, INT32
 	{
 		if(iStartBitOffset  == -1)
 		{		
-		//	StartByteOffset = StartByteOffset + 1;
-			pobjProcessImage->ByteOffset = iStartByteOffset;
-		
+			//StartByteOffset = StartByteOffset + 1;
+			pobjProcessImage->ByteOffset = iStartByteOffset;		
 		}
 		iStartBitOffset				 	= iStartBitOffset + 1;
 		pobjProcessImage->BitOffset 	= iStartBitOffset;
@@ -140,12 +134,10 @@ void SetPIOffsets(ProcessImage* pobjProcessImage, INT32& iStartByteOffset, INT32
 		if(iStartBitOffset == 7)
 		{
 			iStartByteOffset = iStartByteOffset + 1;
-		}
-	
+		}	
 	}
 	else
-	{
-		
+	{		
 		//StartByteOffset = StartByteOffset + iPosition*(pobjProcessImage->DataInfo.DataSize);
 		pobjProcessImage->ByteOffset 	= iStartByteOffset;
 		iStartByteOffset 				=  iStartByteOffset + (pobjProcessImage->DataInfo.DataSize) / 8;
@@ -220,7 +212,6 @@ void SetPIOffsets(ProcessImage* pobjProcessImage, INT32& iStartByteOffset, INT32
 ****************************************************************************************************/
 void GroupInOutPIVariables(ProcessImage aobjPIInCol[], ProcessImage aobjPIOutCol[])
 {
-
 	//INT32 count =  TotalPIVarsCount();
 
 	//aobjPIInCol = (ProcessImage*)malloc(1*sizeof(ProcessImage));
@@ -238,8 +229,7 @@ void GroupInOutPIVariables(ProcessImage aobjPIInCol[], ProcessImage aobjPIOutCol
 		objNode = pobjNodeCol->getNodebyColIndex(iOutLoopCount);	
 		
 		for(INT32 iInLoopCount=0; iInLoopCount < objNode->ProcessImageCollection.Count(); iInLoopCount++)
-		{
-			
+		{			
 			if(objNode->ProcessImageCollection[iInLoopCount].DirectionType == INPUT)
 			{
 				aobjPIInCol[iInVars]  = objNode->ProcessImageCollection[iInLoopCount];
@@ -477,86 +467,72 @@ PIDataInfo* getIECDT(char* pbDataStr, INT32 iDataSize)
 		{
 			pstDataInfo->DataSize = iDataSize;
 			pstDataInfo->_dt_enum = DWORD;
-		}
-	
+		}	
 		else if(!strcmp(pbDataStr, "LWORD"))
 		{
 			pstDataInfo->DataSize = iDataSize;
 			pstDataInfo->_dt_enum = LWORD;
-		}
-		
+		}		
 		else if(!strcmp(pbDataStr, "SINT"))
 		{
 			pstDataInfo->DataSize = iDataSize;
 			pstDataInfo->_dt_enum = SINT;
-		}
-	
+		}	
 		else if(!strcmp(pbDataStr, "INT"))
 		{
 			pstDataInfo->DataSize = iDataSize;
 			pstDataInfo->_dt_enum = INT;
-		}
-	
+		}	
 		else if(!strcmp(pbDataStr, "DINT"))
 		{
 			pstDataInfo->DataSize = iDataSize;
 			pstDataInfo->_dt_enum = DINT;
-		}
-		
+		}		
 		else if(!strcmp(pbDataStr, "LINT"))
 		{
 			pstDataInfo->DataSize = iDataSize;
 			pstDataInfo->_dt_enum = LINT;
-		}
-		
+		}		
 		else if(!strcmp(pbDataStr, "USINT"))
 		{
 			pstDataInfo->DataSize = iDataSize;
 			pstDataInfo->_dt_enum = USINT;
-		}
-		
+		}		
 		else if(!strcmp(pbDataStr, "UINT"))
 		{
 			pstDataInfo->DataSize = iDataSize;
 			pstDataInfo->_dt_enum = UINT;
-		}
-	
+		}	
 		else if(strcmp(pbDataStr, "UDINT")==0)
 		{
 			pstDataInfo->DataSize = iDataSize;
 			pstDataInfo->_dt_enum = UDINT;
-		}
-	
+		}	
 		else if(!strcmp(pbDataStr, "ULINT"))
 		{
 			pstDataInfo->DataSize = iDataSize;
 			pstDataInfo->_dt_enum = ULINT;
-		}
-		
+		}		
 		else if(!strcmp(pbDataStr, "REAL"))
 		{
 			pstDataInfo->DataSize = iDataSize;
 			pstDataInfo->_dt_enum = REAL;
-		}
-	
+		}	
 		else if(!strcmp(pbDataStr, "LREAL"))
 		{
 			pstDataInfo->DataSize = iDataSize;
 			pstDataInfo->_dt_enum = LREAL;
-		}
-	
+		}	
 		else if(!strcmp(pbDataStr, "STRING"))
 		{
 			pstDataInfo->DataSize = iDataSize;
 			pstDataInfo->_dt_enum = STRING;
-		}
-		
+		}		
 		else if(!strcmp(pbDataStr, "WSTRING"))
 		{
 			pstDataInfo->DataSize = iDataSize;
 			pstDataInfo->_dt_enum = WSTRING;
-		}
-	
+		}	
 	}
 	return pstDataInfo;
 }
@@ -574,8 +550,7 @@ bool CheckIfModuleExists(char* pbModuleName, INT32 & ModuleNo, INT32 iNoOfModule
 		{
 			ModuleNo = astModCol[iLoopCount].ModuleNo;
 			return true;
-		}
-			
+		}		
 	}
 	return false;
 }
@@ -587,42 +562,41 @@ bool CheckIfModuleExists(char* pbModuleName, INT32 & ModuleNo, INT32 iNoOfModule
 ****************************************************************************************************/
 void GenerateXAPHeaderFile(char* pbFileName, ProcessImage objPIInCol[], ProcessImage objPIOutCol[], INT32 iInVar, INT32 iOutVar)
 {
+	char* pbXapFileName  = new char[strlen(pbFileName) + ALLOC_BUFFER];
+	FILE* fpXapFile 	 = new FILE();
 
-		char* pbXapFileName  = new char[strlen(pbFileName) + ALLOC_BUFFER];
-		FILE* fpXapFile 	 = new FILE();
+	strcpy(pbXapFileName, pbFileName);
+	strcat(pbXapFileName, ".h");
 	
-		strcpy(pbXapFileName, pbFileName);
-		strcat(pbXapFileName, ".h");
-		
-		/* write Input structure */
-		if (( fpXapFile = fopen(pbXapFileName,"w+")) == NULL)
-		{
-					ocfmException ex;
-					ex.ocfm_Excpetion(OCFM_ERR_CANNOT_OPEN_FILE);
-					delete [] pbXapFileName;
-					throw ex;						
-		}			
-		if(iInVar !=0)
-		{			
-			WriteXAPHeaderContents(objPIInCol, iInVar, INPUT, fpXapFile);			
-		}
+	/* write Input structure */
+	if (( fpXapFile = fopen(pbXapFileName,"w+")) == NULL)
+	{
+		ocfmException ex;
+		ex.ocfm_Excpetion(OCFM_ERR_CANNOT_OPEN_FILE);
+		delete [] pbXapFileName;
+		throw ex;
+	}			
+	if(iInVar !=0)
+	{			
+		WriteXAPHeaderContents(objPIInCol, iInVar, INPUT, fpXapFile);			
+	}
+
+	fclose(fpXapFile);
 	
-		fclose(fpXapFile);
-		
-			/* write Output structure */
-		if(iOutVar !=0)
-		{
+	/* write Output structure */
+	if(iOutVar !=0)
+	{
 		if (( fpXapFile = fopen(pbXapFileName,"a+")) == NULL)
 		{
-					ocfmException ex;
-					ex.ocfm_Excpetion(OCFM_ERR_CANNOT_OPEN_FILE);
-					delete [] pbXapFileName;
-					throw ex;						
+			ocfmException ex;
+			ex.ocfm_Excpetion(OCFM_ERR_CANNOT_OPEN_FILE);
+			delete [] pbXapFileName;
+			throw ex;
 		}
-			WriteXAPHeaderContents(objPIOutCol, iOutVar, OUTPUT, fpXapFile );
-				
-		fclose(fpXapFile); }
-		delete [] pbXapFileName;
+		WriteXAPHeaderContents(objPIOutCol, iOutVar, OUTPUT, fpXapFile );			
+		fclose(fpXapFile); 
+	}
+	delete [] pbXapFileName;
 }
 
 /****************************************************************************************************
@@ -632,110 +606,39 @@ void GenerateXAPHeaderFile(char* pbFileName, ProcessImage objPIInCol[], ProcessI
 ****************************************************************************************************/
 void WriteXAPHeaderContents(ProcessImage objProcessImage[], INT32 iNumberOfVars, EPIDirectionType enumDirType, FILE* fpXapHeader)
 {
-		char* pbBuffer 		= new char[HEADER_FILE_BUFFER];
-		char* pbBuffer1 	= new char[200];		
-		//char* strCNID = new char[NODE_ID + ALLOC_BUFFER];
-		INT32 iModuleNo 		= 0;
-		//INT32 LastModuleNo = 0;
-		INT32 iTotalsize 		= 0;
-		INT32 iDataSize  		= 0;
-		INT32 iHoleFilledIdNo 	= 1;									
-		
-		
-		if(iNumberOfVars != 0 )
-		{
-				strcpy(pbBuffer, "\ntypedef struct { \n");	
-				iModuleNo = 0;
-				for(INT32 iLoopCount = 0; iLoopCount<iNumberOfVars ; iLoopCount++)
-				{					
-					INT32 iNodeId;
-					char* pbStrCNID 	= new char[50];
-					char* pbModName		= new char[50];
-					char* pbStrModuleNo = new char[20];
-					//char* varNo = new char[10];				
-					
-					iDataSize  = objProcessImage[iLoopCount].DataInfo.DataSize;
-						/* Check if 8, 16, 32 bit aligned*/
-					if((iDataSize % 32 == 0 ) || 
-								(iDataSize % 16 == 0 ) ||
-								(iDataSize % 8 == 0 ))
-					{
-						
-						if(iTotalsize % iDataSize !=0)
-						{
-							char abHoleid[20];
-							char* pbFbits  = new char[2 + ALLOC_BUFFER];
-							INT32 iFilledBits = iDataSize - (iTotalsize % iDataSize);
-							
-							iTotalsize =  iTotalsize + iFilledBits;
-							strcat(pbBuffer,"unsigned");
-							strcat(pbBuffer," ");
-							strcat(pbBuffer,"PADDING_VAR_");		
-							strcat(pbBuffer,_IntToAscii(iHoleFilledIdNo, abHoleid, 10));												
-							strcat(pbBuffer,":");
-							pbFbits =  _IntToAscii(iFilledBits, pbFbits, 10);							
-							strcat(pbBuffer,pbFbits);
-							strcat(pbBuffer,";\n");
-							iHoleFilledIdNo =  iHoleFilledIdNo + 1;
-							delete[] pbFbits;
-						}
-						
-					}
-					
-					iNodeId = objProcessImage[iLoopCount].CNNodeID;
-				
-					pbStrCNID = _IntToAscii(objProcessImage[iLoopCount].CNNodeID, pbStrCNID, 10); 
-					strcpy(pbStrModuleNo, subString( objProcessImage[iLoopCount].ModuleIndex, 2, 2));
-					strcpy(pbModName, objProcessImage[iLoopCount].ModuleName);
-					
+	char* pbBuffer 		= new char[HEADER_FILE_BUFFER];
+	char* pbBuffer1 	= new char[200];		
+	//char* strCNID = new char[NODE_ID + ALLOC_BUFFER];
+	INT32 iModuleNo 		= 0;
+	//INT32 LastModuleNo = 0;
+	INT32 iTotalsize 		= 0;
+	INT32 iDataSize  		= 0;
+	INT32 iHoleFilledIdNo 	= 1;									
+
+
+	if(iNumberOfVars != 0 )
+	{
+		strcpy(pbBuffer, "\ntypedef struct { \n");	
+		iModuleNo = 0;
+		for(INT32 iLoopCount = 0; iLoopCount<iNumberOfVars ; iLoopCount++)
+		{					
+			INT32 iNodeId;
+			char* pbStrCNID 	= new char[50];
+			char* pbModName		= new char[50];
+			char* pbStrModuleNo = new char[20];
+			//char* varNo = new char[10];				
 			
-					//printf("\n Module Name: %s",pbModName);
-					strcat(pbBuffer,"unsigned");
-					strcat(pbBuffer," ");
-					char* pbVarName = new char[100];
-					strcpy(pbVarName, "CN");
-					pbStrCNID = _IntToAscii(objProcessImage[iLoopCount].CNNodeID, pbStrCNID, 10); 
-					strcat(pbVarName, pbStrCNID);
-					strcat(pbVarName, "_");
-					
-					/* Add Mod NO*/
-					strcat(pbVarName, "M");
-					strcat(pbVarName, pbStrModuleNo);
-					strcat(pbVarName, "_");
-					
-					strcat(pbVarName, pbModName);
-					strcat(pbVarName, "_");
-					strcat(pbVarName, objProcessImage[iLoopCount].VarName);
-						
-			/*		if(strcmp(subString(objProcessImage[iLoopCount].VarName,0, 8), "Reserved")== 0)
-					{
-						varNo =  _IntToAscii(iLoopCount, varNo, 10);
-						strcat(pbVarName, "_");
-						strcat(pbVarName, varNo);
-					}*/
-					 
-					strcat(pbBuffer, pbVarName);									
-					strcat(pbBuffer, ":");
-					
-					char* pbBuff 	= new char[50];												
-					pbBuff 			= _IntToAscii(iDataSize, pbBuff, 10); 
-					iTotalsize 		= iDataSize  + iTotalsize;
-					strcat(pbBuffer, pbBuff);
-					strcat(pbBuffer, ";");
-					
-					strcat(pbBuffer, "\n");
-					delete[] pbVarName;				
-					delete[] pbModName;
-					delete[] pbStrModuleNo;
-					delete[] pbStrCNID;	
-										
-			}
-			/* Check if the whole struct is 32 bit aligned*/
-			if(iTotalsize % 32 !=0)
-			{
+			iDataSize  = objProcessImage[iLoopCount].DataInfo.DataSize;
+			/* Check if 8, 16, 32 bit aligned*/
+			if((iDataSize % 32 == 0 ) || 
+			(iDataSize % 16 == 0 ) ||
+			(iDataSize % 8 == 0 ))
+			{				
+				if(iTotalsize % iDataSize !=0)
+				{
 					char abHoleid[20];
 					char* pbFbits  = new char[2 + ALLOC_BUFFER];
-					INT32 iFilledBits = 32 - (iTotalsize % 32);
+					INT32 iFilledBits = iDataSize - (iTotalsize % iDataSize);
 					
 					iTotalsize =  iTotalsize + iFilledBits;
 					strcat(pbBuffer,"unsigned");
@@ -748,56 +651,119 @@ void WriteXAPHeaderContents(ProcessImage objProcessImage[], INT32 iNumberOfVars,
 					strcat(pbBuffer,";\n");
 					iHoleFilledIdNo =  iHoleFilledIdNo + 1;
 					delete[] pbFbits;
-			}
-			strcat(pbBuffer, "}");
-			if(enumDirType == INPUT)
-			{
-				strcpy(pbBuffer1, "# define COMPUTED_PI_IN_SIZE ");			
-				strcat(pbBuffer, " PI_IN;");	
+				}				
 			}
 			
-			else if(enumDirType == OUTPUT)
-			{				
+			iNodeId = objProcessImage[iLoopCount].CNNodeID;
+		
+			pbStrCNID = _IntToAscii(objProcessImage[iLoopCount].CNNodeID, pbStrCNID, 10); 
+			strcpy(pbStrModuleNo, subString( objProcessImage[iLoopCount].ModuleIndex, 2, 2));
+			strcpy(pbModName, objProcessImage[iLoopCount].ModuleName);
 				
-				strcpy(pbBuffer1, "\n\n# define COMPUTED_PI_OUT_SIZE ");		
-				strcat(pbBuffer, " PI_OUT;");	
-				strcat(pbBuffer, "\n");
-			}
+			//printf("\n Module Name: %s",pbModName);
+			strcat(pbBuffer,"unsigned");
+			strcat(pbBuffer," ");
+			char* pbVarName = new char[100];
+			strcpy(pbVarName, "CN");
+			pbStrCNID = _IntToAscii(objProcessImage[iLoopCount].CNNodeID, pbStrCNID, 10); 
+			strcat(pbVarName, pbStrCNID);
+			strcat(pbVarName, "_");
+			
+			/* Add Mod NO*/
+			strcat(pbVarName, "M");
+			strcat(pbVarName, pbStrModuleNo);
+			strcat(pbVarName, "_");
+			
+			strcat(pbVarName, pbModName);
+			strcat(pbVarName, "_");
+			strcat(pbVarName, objProcessImage[iLoopCount].VarName);
+				
+			//if(strcmp(subString(objProcessImage[iLoopCount].VarName,0, 8), "Reserved")== 0)
+			//{
+			//	varNo =  _IntToAscii(iLoopCount, varNo, 10);
+			//	strcat(pbVarName, "_");
+			//	strcat(pbVarName, varNo);
+			//}
+			 
+			strcat(pbBuffer, pbVarName);									
+			strcat(pbBuffer, ":");
+			
+			char* pbBuff 	= new char[50];												
+			pbBuff 			= _IntToAscii(iDataSize, pbBuff, 10); 
+			iTotalsize 		= iDataSize  + iTotalsize;
+			strcat(pbBuffer, pbBuff);
+			strcat(pbBuffer, ";");
+			
+			strcat(pbBuffer, "\n");
+			delete[] pbVarName;				
+			delete[] pbModName;
+			delete[] pbStrModuleNo;
+			delete[] pbStrCNID;									
 		}
+		/* Check if the whole struct is 32 bit aligned*/
+		if(iTotalsize % 32 !=0)
+		{
+			char abHoleid[20];
+			char* pbFbits  = new char[2 + ALLOC_BUFFER];
+			INT32 iFilledBits = 32 - (iTotalsize % 32);
+			
+			iTotalsize =  iTotalsize + iFilledBits;
+			strcat(pbBuffer,"unsigned");
+			strcat(pbBuffer," ");
+			strcat(pbBuffer,"PADDING_VAR_");		
+			strcat(pbBuffer,_IntToAscii(iHoleFilledIdNo, abHoleid, 10));												
+			strcat(pbBuffer,":");
+			pbFbits =  _IntToAscii(iFilledBits, pbFbits, 10);							
+			strcat(pbBuffer,pbFbits);
+			strcat(pbBuffer,";\n");
+			iHoleFilledIdNo =  iHoleFilledIdNo + 1;
+			delete[] pbFbits;
+		}
+		strcat(pbBuffer, "}");
 		
-		
-			char* pbStrSize = new char[50];
+		if(enumDirType == INPUT)
+		{
+			strcpy(pbBuffer1, "# define COMPUTED_PI_IN_SIZE ");			
+			strcat(pbBuffer, " PI_IN;");	
+		}	
+		else if(enumDirType == OUTPUT)
+		{				
 			
-			/* write the size in bytes*/
-			iTotalsize 	=  iTotalsize / 8;	
-			pbStrSize 	=  _IntToAscii(iTotalsize, pbStrSize, 10);
-			strcat(pbBuffer1, pbStrSize);
-			
-			UINT32 uiStrLength =  strlen(pbBuffer1);
-			
-			
-			if((uiStrLength != fwrite(pbBuffer1, sizeof(char),uiStrLength,fpXapHeader)))
-			{	
-				ocfmException ex;
-				ex.ocfm_Excpetion(OCFM_ERR_FILE_CANNOT_OPEN);
-				delete[] pbBuffer;
-				delete[] pbBuffer1;
-				throw ex;
-			}
-		
-			uiStrLength  =  strlen(pbBuffer);
+			strcpy(pbBuffer1, "\n\n# define COMPUTED_PI_OUT_SIZE ");		
+			strcat(pbBuffer, " PI_OUT;");	
+			strcat(pbBuffer, "\n");
+		}
+	}
 
-			if((uiStrLength != fwrite(pbBuffer, sizeof(char), uiStrLength, fpXapHeader)))
-			{	
-				ocfmException ex;
-				ex.ocfm_Excpetion(OCFM_ERR_FILE_CANNOT_OPEN);
-				throw ex;
-			}
-			
-			delete[] pbBuffer;
-			delete[] pbBuffer1;
+	char* pbStrSize = new char[50];
 	
+	/* write the size in bytes*/
+	iTotalsize 	=  iTotalsize / 8;	
+	pbStrSize 	=  _IntToAscii(iTotalsize, pbStrSize, 10);
+	strcat(pbBuffer1, pbStrSize);
 	
+	UINT32 uiStrLength =  strlen(pbBuffer1);
+	
+	if((uiStrLength != fwrite(pbBuffer1, sizeof(char),uiStrLength,fpXapHeader)))
+	{	
+		ocfmException ex;
+		ex.ocfm_Excpetion(OCFM_ERR_FILE_CANNOT_OPEN);
+		delete[] pbBuffer;
+		delete[] pbBuffer1;
+		throw ex;
+	}
+
+	uiStrLength  =  strlen(pbBuffer);
+
+	if((uiStrLength != fwrite(pbBuffer, sizeof(char), uiStrLength, fpXapHeader)))
+	{	
+		ocfmException ex;
+		ex.ocfm_Excpetion(OCFM_ERR_FILE_CANNOT_OPEN);
+		throw ex;
+	}
+	
+	delete[] pbBuffer;
+	delete[] pbBuffer1;	
 }
 
 /****************************************************************************************************
@@ -807,23 +773,21 @@ void WriteXAPHeaderContents(ProcessImage objProcessImage[], INT32 iNumberOfVars,
 ****************************************************************************************************/
 void SetSIdxDataType(DataType *pobjDataType, char* pbIdx, char* pbSIdx)
 {
-		CNodeCollection *pobjNodeCollection = NULL;
-		CIndexCollection *pobjIndexCol      = NULL;
-		CIndex *pobjIndex					= NULL;
-		CSubIndex *pobjSIdx					= NULL;
-		CNode objNode;
-		
-		pobjNodeCollection = CNodeCollection::getNodeColObjectPointer();				
-				
-		objNode = pobjNodeCollection->getMNNode();
-		pobjIndexCol = objNode.getIndexCollection();
-		
-		pobjIndex = pobjIndexCol->getIndexbyIndexValue(pbIdx);
-		pobjSIdx = pobjIndex->getSubIndexbyIndexValue(pbSIdx);
-		
-		pobjSIdx->setDataTypeST(*pobjDataType);
-		
+	CNodeCollection *pobjNodeCollection = NULL;
+	CIndexCollection *pobjIndexCol      = NULL;
+	CIndex *pobjIndex					= NULL;
+	CSubIndex *pobjSIdx					= NULL;
+	CNode objNode;
 	
+	pobjNodeCollection = CNodeCollection::getNodeColObjectPointer();				
+			
+	objNode = pobjNodeCollection->getMNNode();
+	pobjIndexCol = objNode.getIndexCollection();
+	
+	pobjIndex = pobjIndexCol->getIndexbyIndexValue(pbIdx);
+	pobjSIdx = pobjIndex->getSubIndexbyIndexValue(pbSIdx);
+	
+	pobjSIdx->setDataTypeST(*pobjDataType);	
 }
 
 /****************************************************************************************************
@@ -847,8 +811,7 @@ void AddPDOIndexsToMN(char* pbIndex, char* pbSubIndex, EPDOType enumPdoType)
 	pobjNodeCol =  CNodeCollection::getNodeColObjectPointer();
 	objMNNode 	= pobjNodeCol->getNode(MN, MN_NODEID);
 	pobjDTCol 	= objMNNode.getDataTypeCollection();
-	
-	
+		
 	stRetCode 	= AddIndex(MN_NODEID, MN, pbIndex);	
 	pobjIdxCol 	= objMNNode.getIndexCollection();
 	if(pobjIdxCol != NULL)
@@ -918,23 +881,20 @@ void AddPDOIndexsToMN(char* pbIndex, char* pbSubIndex, EPDOType enumPdoType)
 			{
 				cout << "enumPdoType is not TPDO or RPDO _2\n" << endl;
 			}
-				//$SpobjSIdx->setName(pbObjectName);
-				//$SpobjSIdx->setPDOMapping(pbPdoMap);
-				//$Sdelete[] pbPdoMap;
 		}
 	}
-	pbName 		 = getPIDataTypeName(pbIndex);	
+	pbName = getPIDataTypeName(pbIndex);	
 	
 	if(pbName != NULL)	
 	{
 		pobjDataType = pobjDTCol->getDataTypeByName(pbName);		
 	}
-	//pobjDataType->setName(pbName);
 	
 	if((pobjDataType != NULL) && (pbIndex != NULL) && (pbSubIndex != NULL))
 	{
 		SetSIdxDataType(pobjDataType, pbIndex, pbSubIndex);
 	}
+	
 	if(pobjIndex != NULL)
 	{
 		UpdateNumberOfEnteriesSIdx(pobjIndex, MN);
@@ -955,9 +915,7 @@ PIObject getPIAddress(PDODataType dt,  EPIDirectionType dirType, int iOffset, in
 	
 	stPIObject.Index = new char[INDEX_LEN];
 	stPIObject.SubIndex = new char[SUBINDEX_LEN];
-	
-	
-	
+
 	for(i = 0; i< NO_OF_PI_ENTERIES; i++)
 	{
 		if((AddressTable[i].dt == dt) && (AddressTable[i].Direction == dirType))
@@ -978,19 +936,13 @@ PIObject getPIAddress(PDODataType dt,  EPIDirectionType dirType, int iOffset, in
 				return stPIObject;
 			}
 			else
-			{		
-				
-					strcpy(stPIObject.Index, AddressTable[i].Address);
-					//printf("\n adress %s",stPIObject.Index);
-					stPIObject.SubIndex =  _IntToAscii(subIndex, 	stPIObject.SubIndex, 16);
-					stPIObject.SubIndex = padLeft(	stPIObject.SubIndex, '0', 2);
-					return stPIObject;
-			
-			}
-			
-		}
-		
-	
+			{			
+				strcpy(stPIObject.Index, AddressTable[i].Address);
+				stPIObject.SubIndex =  _IntToAscii(subIndex, 	stPIObject.SubIndex, 16);
+				stPIObject.SubIndex = padLeft(	stPIObject.SubIndex, '0', 2);
+				return stPIObject;			
+			}			
+		}		
 	}
 	//Handled error case and returned dummy value to avoid warning
 	//cout << "Error in returning getPIAddress" << endl;
@@ -1054,6 +1006,7 @@ char* getPIDataTypeName(char* pbAddress)
 	}
 	return pbRetString;	
 }
+
 /****************************************************************************************************
 * Function Name: getPIName
 * Description:
@@ -1112,6 +1065,7 @@ char* getPIName(char* pbAddress)
 	
 	return pbRetString;
 }
+
 /****************************************************************************************************
 * Function Name: CheckIfProcessImageIdx
 * Description:

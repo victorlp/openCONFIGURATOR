@@ -73,9 +73,6 @@
 /************************************************************************************************
 * Includes
 ************************************************************************************************/
-//#include <libxml/xmlreader.h>
-//#include <libxml/xmlwriter.h>
-//#include <libxml/encoding.h>
 #include <iostream>
 #include <fstream>
 #include "Declarations.h"
@@ -83,66 +80,62 @@
 /************************************************************************************************
 * Enumerations
 ************************************************************************************************/
-	typedef enum EPIDirectionType
-	{
-		INPUT = 0,
-		OUTPUT
-	}EPIDirectionType;
+typedef enum EPIDirectionType
+{
+	INPUT 		= 0,
+	OUTPUT
+}EPIDirectionType;
 
-	typedef enum ePDODataType
-	{
-		UNSIGNED8 = 0,
-		INTEGER8,
-		UNSIGNED16,
-		INTEGER16,
-		UNSIGNED32,
-		INTEGER32
-	}PDODataType;
-	
-
+typedef enum ePDODataType
+{
+	UNSIGNED8	= 0,
+	INTEGER8,
+	UNSIGNED16,
+	INTEGER16,
+	UNSIGNED32,
+	INTEGER32
+}PDODataType;
 
 typedef struct PIDataInfo
 {
 	IEC_Datatype _dt_enum;
-	int										DataSize;
-	char*								_dt_Name;
+	int			DataSize;
+	char*		_dt_Name;
 }PIDataInfo;
-
 
 /************************************************************************************************
 * Structures
 ************************************************************************************************/
 struct ProcessImage
 {
-		char*					Name;
-		char					Direction[5];
-	/*	char*					DataType;
-		char					DataSize[5];*/
-		PIDataInfo DataInfo;
-		int								ByteOffset;
-		char*					Value;
-		char*					subindex;
-		char*					Index;
-		int							BitOffset;
-		int							ParametrIndex;
-		char*					ValueFromPDO;
-		char*					ModuleName;
-		int							CNNodeID;
-		char*					VarName;
-		char*					ModuleIndex;
-		void Initialize()
-		{
-			ParametrIndex = 0;
-		}
-		EPIDirectionType			DirectionType;
+	char*					Name;
+	char					Direction[5];
+	/*char*					DataType;
+	char					DataSize[5];*/
+	PIDataInfo DataInfo;
+	int								ByteOffset;
+	char*					Value;
+	char*					subindex;
+	char*					Index;
+	int							BitOffset;
+	int							ParametrIndex;
+	char*					ValueFromPDO;
+	char*					ModuleName;
+	int							CNNodeID;
+	char*					VarName;
+	char*					ModuleIndex;
+	void Initialize()
+	{
+		ParametrIndex = 0;
+	}
+	EPIDirectionType			DirectionType;
 };
 
 typedef struct tAddressTable
 {
 	char Address[10];
 	PDODataType dt;
-	EPIDirectionType Direction;
-	
+	EPIDirectionType Direction;	
 }tADDRESSTABLE;
 
 struct stOffsets
@@ -168,20 +161,15 @@ struct ModuleCol
 ************************************************************************************************/
 extern int iInVars;
 extern int iOutVars;
-//extern ProcessImage PIInCol[4000];
-//extern ProcessImage PIOutCol[4000];
 
 /************************************************************************************************
 * Constants
 ************************************************************************************************/
 static const int NO_OF_PI_ENTERIES = 12;
 
-
 /****************************************************************************************************
 * Function Declarations
 ****************************************************************************************************/
-
-//void GroupInOutPIVariables();
 void GroupInOutPIVariables(ProcessImage PIInCol[], ProcessImage PIOutCol[]);
 void CalculateOffsets(int VarCount,  EPIDirectionType type);
 PIDataInfo* getIECDT(char* dtStr, int dataSize);

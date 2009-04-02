@@ -72,7 +72,7 @@
 #pragma once
 
 /************************************************************************************************
-* Defines
+* Includes
 ************************************************************************************************/
 #include "TCollection.h"
 #include "Declarations.h"
@@ -80,12 +80,10 @@
 #include "SubIndex.h"
 
 class DllExport CIndex  : public CBaseIndex 
-	{
+{
 	public:
 		CIndex(void);
-		~CIndex(void);
-
-		
+		~CIndex(void);		
 	private:		
 		int m_SubIndexCount;
 		EPDOType m_PDOType;
@@ -98,8 +96,6 @@ class DllExport CIndex  : public CBaseIndex
 		CSubIndex* getSubIndex(int SubIndexId);
 		EPDOType getPDOType();
 		void setPDOType(EPDOType PDOType);
-		CSubIndex* getSubIndexbyIndexValue(char* Index);		
-			
-	};
+		CSubIndex* getSubIndexbyIndexValue(char* Index);			
+};
 #endif // Index_h
-

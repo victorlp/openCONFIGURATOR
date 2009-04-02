@@ -2,7 +2,7 @@
 //
 //  $Header: $
 //
-// NAME:  Index.xpp
+// NAME:  Index.cpp
 //
 // BASE  CLASSES: none
 //  
@@ -82,7 +82,7 @@
 ****************************************************************************************************/
 CIndex::CIndex(void)
 {
-		m_SubIndexCount = collectionObj.Count();
+	m_SubIndexCount = collectionObj.Count();
 }
 
 /****************************************************************************************************
@@ -100,7 +100,7 @@ CIndex::~CIndex(void)
 ****************************************************************************************************/
 EPDOType CIndex::getPDOType() 
 {
-		return m_PDOType;
+	return m_PDOType;
 }
 	
 /****************************************************************************************************
@@ -110,7 +110,7 @@ EPDOType CIndex::getPDOType()
 ****************************************************************************************************/
 void CIndex::setPDOType(EPDOType enumPDOType)
 { 
-		m_PDOType = enumPDOType;
+	m_PDOType = enumPDOType;
 }
 	
 #pragma region MemberFunctions
@@ -119,13 +119,11 @@ void CIndex::setPDOType(EPDOType enumPDOType)
 * Description: add the SubIndex in the Index Object
 * Return value: void
 ****************************************************************************************************/
-
 void CIndex::addSubIndex(CSubIndex objSubIndex) 
 {
-		int iItemPosition = collectionObj.Add();
-		collectionObj[iItemPosition] = objSubIndex ;
-		m_SubIndexCount= collectionObj.Count();
-		
+	int iItemPosition = collectionObj.Add();
+	collectionObj[iItemPosition] = objSubIndex ;
+	m_SubIndexCount= collectionObj.Count();		
 }
 	
 /****************************************************************************************************
@@ -133,12 +131,11 @@ void CIndex::addSubIndex(CSubIndex objSubIndex)
 * Description: delete the SubIndex in the Index Object
 * Return value: void
 ****************************************************************************************************/
-
 void CIndex::deleteSubIndex(int iSubIndexID) 
 {
-		collectionObj.Remove(iSubIndexID);
-		m_SubIndexCount = collectionObj.Count();
-		//printf("\n\nAfter Delete - SubIndexCount:%d\n\n", m_SubIndexCount);
+	collectionObj.Remove(iSubIndexID);
+	m_SubIndexCount = collectionObj.Count();
+	//printf("\n\nAfter Delete - SubIndexCount:%d\n\n", m_SubIndexCount);
 }
 
 /****************************************************************************************************
@@ -148,7 +145,7 @@ void CIndex::deleteSubIndex(int iSubIndexID)
 ****************************************************************************************************/
 INT32 CIndex::getNumberofSubIndexes()
 {
-		return collectionObj.Count();
+	return collectionObj.Count();
 }
 
 /****************************************************************************************************
@@ -158,7 +155,7 @@ INT32 CIndex::getNumberofSubIndexes()
 ****************************************************************************************************/
 CSubIndex* CIndex::getSubIndex(int iSubIndexId)
 {
-		return &collectionObj[iSubIndexId];
+	return &collectionObj[iSubIndexId];
 }
 	
 /****************************************************************************************************
@@ -168,24 +165,24 @@ CSubIndex* CIndex::getSubIndex(int iSubIndexId)
 ****************************************************************************************************/
 CSubIndex* CIndex::getSubIndexbyIndexValue(char* pbIndex)
 {
-		INT32 iLoopCount;
-		CSubIndex* pobjSIndex;
+	INT32 iLoopCount;
+	CSubIndex* pobjSIndex;
 
-		for(iLoopCount =0; iLoopCount < collectionObj.Count(); iLoopCount++)
-		{			
-			pobjSIndex = &collectionObj[iLoopCount];
-			
-			if(strcmp(pobjSIndex->getIndexValue(),pbIndex) == 0)
-			{
-				return pobjSIndex;
-			}
-			else
-			{
-				pobjSIndex = NULL;
-			}
-		}
+	for(iLoopCount =0; iLoopCount < collectionObj.Count(); iLoopCount++)
+	{			
+		pobjSIndex = &collectionObj[iLoopCount];
 		
-		pobjSIndex = NULL;
-		return pobjSIndex;
+		if(strcmp(pobjSIndex->getIndexValue(),pbIndex) == 0)
+		{
+			return pobjSIndex;
+		}
+		else
+		{
+			pobjSIndex = NULL;
+		}
 	}
+	
+	pobjSIndex = NULL;
+	return pobjSIndex;
+}
 #pragma endregion MemberFunctions

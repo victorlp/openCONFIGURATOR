@@ -79,29 +79,27 @@
 #pragma once
 
 class DllExport CBaseIndex
-	{
+{
 	public:
 		CBaseIndex(void);
 		~CBaseIndex(void);
 
 	private:
-		const char*					m_Name;
-		const char*					m_Index;		
-		const char*					m_LowLimit;
-		const char*					m_HighLimit;
-		EObjectType					m_objectType;
-		DataType								m_dataType;		
-		const char*					m_accessType;
-		const char*					m_DefaultValue;
-		char*											m_ActualValue;
-		EPDOMapping 				m_pdoMapping;
-		int													m_NodeID;
-		char*											m_UniqueIDRef;
-		int													m_ParameterIndex;
-		char*											m_dataTypeValue;					/* Only used for ObjectDictionary*/
-		EFlag											m_IsIncludedInCDC;
-
-
+		const char*		m_Name;
+		const char*		m_Index;		
+		const char*		m_LowLimit;
+		const char*		m_HighLimit;
+		EObjectType		m_objectType;
+		DataType		m_dataType;		
+		const char*		m_accessType;
+		const char*		m_DefaultValue;
+		char*			m_ActualValue;
+		EPDOMapping 	m_pdoMapping;
+		int				m_NodeID;
+		char*			m_UniqueIDRef;
+		int				m_ParameterIndex;
+		char*			m_dataTypeValue;					/* Only used for ObjectDictionary*/
+		EFlag			m_IsIncludedInCDC;
 
 	public :
 		const char* getName(); 		
@@ -137,28 +135,22 @@ class DllExport CBaseIndex
 		//void setObjectType(int objectTypeValue);
 		void setObjectType(char* objectType);
 
-	
 		int getNodeID();
 		void setNodeID(int NodeID);
 
 		bool IsIndexVaueValid(char* value);
 		void SaveChanges(char* Name, char* Value);
-		
-	
+			
 		char* getUniqueIDRef();
 		void setUniqueIDRef(char* UniqueID);
 		
 		char* getDataTypeValue();
 		void setDataTypeValue(char* value);
 
-
 	 	EFlag getFlagIfIncludedCdc();
 		void setFlagIfIncludedCdc(EFlag flag);
 		
 		void setDataTypeST(DataType  dt);
-
-
-		
-	};
+};
 #endif //BaseIndex_h
 
