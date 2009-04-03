@@ -103,7 +103,8 @@ CIndexCollection::~CIndexCollection(void)
 void CIndexCollection::addIndex(CIndex objIndex)
 {		
 	INT32 iItemPosition = collectionObj.Add();
-	char* substr= new char[3];
+	char* substr = NULL;
+	//new char[3];
 	substr = subString((char*)objIndex.getIndexValue(), 0, 2);
 	if(strcmp(substr,"14")==0 ||strcmp(substr,"16") ==0)
 	{

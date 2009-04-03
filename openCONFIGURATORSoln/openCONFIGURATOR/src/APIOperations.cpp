@@ -977,11 +977,19 @@ ocfmRetCode SetSubIndexAttributes(INT32 iNodeID, ENodeType enumNodeType, char* p
 * Description:
 * Return value: ocfmRetCode
 ****************************************************************************************************/
-ocfmRetCode SetALLIndexAttributes(INT32 iNodeID, ENodeType enumNodeType, 
-																																		char* pbIndexID, char* pbActualValue,
-																																		char* pbIndexName, char* pbAccess, char* pbDataTypeName,
-																																		char* pdoMappingVal, char* defaultValue, char* highLimit,
-																																		char* lowLimit, char* objType, EFlag enumIsIncludedInCdc)
+ocfmRetCode SetAllIndexAttributes(INT32 iNodeID, 
+									ENodeType enumNodeType, 
+									char* pbIndexID, 
+									char* pbActualValue,
+									char* pbIndexName, 
+									char* pbAccess, 
+									char* pbDataTypeName,
+									char* pdoMappingVal, 
+									char* defaultValue, 
+									char* highLimit,
+									char* lowLimit, 
+									char* objType, 
+									EFlag enumIsIncludedInCdc)
 {
 	INT32 iIndexPos;
 	ocfmRetCode stErrorInfo;
@@ -1097,12 +1105,20 @@ ocfmRetCode SetALLIndexAttributes(INT32 iNodeID, ENodeType enumNodeType,
     * Description:
 	* Return value: ocfmRetCode
 ****************************************************************************************************/
-ocfmRetCode SetALLSubIndexAttributes(INT32 iNodeID, ENodeType enumNodeType, 
-																																					char* pbIndexID, char* pbSubIndexID,
-																																					char* pbActualValue, char* pbIndexName,
-																																					char* pbAccess, char* pbDataTypeName,
-																																					char* pbPdoMappingVal, char* pbDefaultValue, char* pbHighLimit,
-																																					char* pbLowLimit, char* pbObjType, EFlag enumIsIncludedInCdc)
+ocfmRetCode SetAllSubIndexAttributes(INT32 iNodeID, 
+									ENodeType enumNodeType, 
+									char* pbIndexID, 
+									char* pbSubIndexID,
+									char* pbActualValue, 
+									char* pbIndexName,
+									char* pbAccess, 
+									char* pbDataTypeName,
+									char* pbPdoMappingVal, 
+									char* pbDefaultValue, 
+									char* pbHighLimit,
+									char* pbLowLimit, 
+									char* pbObjType, 
+									EFlag enumIsIncludedInCdc)
 {
 		CNode objNode;		
 		CNodeCollection *pobjNodeCollection;
@@ -5844,8 +5860,8 @@ ocfmRetCode GenerateMNOBD()
 				{
 					return stRetInfo;
 				}
-				char* pbTempCycleTime;
-				pbTempCycleTime = new char[20];
+				//char* pbTempCycleTime;
+				//pbTempCycleTime = new char[20];
 				
 				CNode objNode;		
 				CNodeCollection *pobjNodeCollection;
@@ -7620,8 +7636,9 @@ void AuotgenerateOtherIndexs(CNode* objNode)
 {
 
 			ocfmRetCode retCode;
-			char* MNIndex = new char[INDEX_LEN];		
-			char* Sidx =  new char[SUBINDEX_LEN];
+			//char* MNIndex = new char[INDEX_LEN];		
+			char MNIndex[INDEX_LEN];		
+			//char* Sidx =  new char[SUBINDEX_LEN];
 			CIndex* objIndex;
 			CIndexCollection* objIdxCol;
 			INT32 iConfigDate;
@@ -7741,8 +7758,10 @@ void UpdatedCNDateORTime(CIndex* pobjMNIndex, int iNodeId, EDateTime enumDT)
 
 	ocfmRetCode stRetCode;
 	CSubIndex *pobjSIdx;
-	char* Index 	= new char[INDEX_LEN];		
-	char* Sidx 		=  new char[SUBINDEX_LEN];
+	//char* Index 	= new char[INDEX_LEN];		
+	char Index[INDEX_LEN];
+	//char* Sidx 		=  new char[SUBINDEX_LEN];
+	char Sidx[SUBINDEX_LEN];
 	CIndexCollection* pobjIdxCol;
 	CNodeCollection* pobjNodeCol;
 	CNode* pobjNode;
