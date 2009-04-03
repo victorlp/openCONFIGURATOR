@@ -492,9 +492,9 @@ INT32 CObjectDictionary::ifObjectDictSubIndexExists(char* pbIdx, char* pbSIdx)
 ****************************************************************************************************/
 char* CObjectDictionary::getIndexName(char* pbObjectIndex, char* pbObjectName)
 {
-	char* pbName = new char[strlen(pbObjectName) +  ALLOC_BUFFER];
-	char* pbModifiedName = new char[strlen(pbObjectName) +  ALLOC_BUFFER];
-	
+	//char* pbName = new char[strlen(pbObjectName) +  ALLOC_BUFFER];
+	char* pbName = NULL;
+	char* pbModifiedName = new char[strlen(pbObjectName) +  ALLOC_BUFFER];		
 	
 	int iLen;
 	if(pbObjectName == NULL)
@@ -512,7 +512,6 @@ char* CObjectDictionary::getIndexName(char* pbObjectIndex, char* pbObjectName)
 		//int iLoopCount = 0;
 		strcpy(pbModifiedName, subString(pbObjectName, 0, strlen(pbObjectName)-pos));	
 		strcat(pbModifiedName, subString(pbObjectIndex, iCount, iLen ));
-		cout << "Trace_1";
 		//while(iLoopCount < iLen)
 		//{
 		//	//if(Name[0] == 'X' && len==2)
@@ -525,21 +524,8 @@ char* CObjectDictionary::getIndexName(char* pbObjectIndex, char* pbObjectName)
 		//	iLoopCount++;	
 		//	iCount++;
 		//}
-		cout << "\nTrace_2";
-		cout << "\nTrace_2_1"<<pbName;
-		
-		cout << "\nTrace_2_1 len"<<strlen(pbName);
-		//pbName = pbName-iLoopCount;
-	cout << "\nTrace_2_2 length"<<strlen(pbName);
-			
-		cout << "\nTrace_3"<<pbModifiedName ;
 		strcat(pbModifiedName, subString(pbName, iLen, strlen(pbName) - iLen));	
-			//cout << "\nTrace_4"<<pbModifiedName ;
-		printf("\n ModifiedName %s",pbModifiedName);
-		delete[] pbObjectName ;
-		cout << "\nTrace_5";
-		delete[] pbName;
-		cout << "\nTrace_6";
+		//printf("\n ModifiedName %s",pbModifiedName);
 		return pbModifiedName;
 	}
 	else
