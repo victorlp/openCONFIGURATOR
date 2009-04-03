@@ -4,7 +4,7 @@
 //
 // $Header: $
 //
-// NAME:  ClassNAME
+// NAME:  Node.h
 //
 // BASE  CLASSES: none
 //  
@@ -80,6 +80,9 @@
 #include "ApplicationProcess.h"
 #include "ProcessImage.h"
 
+/************************************************************************************************
+* Classes
+************************************************************************************************/
 class DllExport CNode
 {
 	public:

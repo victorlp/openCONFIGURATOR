@@ -4,7 +4,7 @@
 //
 //  $Header: $
 //
-// NAME:  ClassNAME
+// NAME:  openCONFIGURATOR.h
 //
 // BASE  CLASSES: none
 //  

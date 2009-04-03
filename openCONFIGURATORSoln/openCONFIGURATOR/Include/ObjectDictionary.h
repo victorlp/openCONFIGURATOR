@@ -4,7 +4,7 @@
 //
 // $Header: $
 //
-// NAME:  ClassNAME
+// NAME:  ObjectDictionary.h
 //
 // BASE  CLASSES: none
 //  
@@ -83,6 +83,9 @@
 #include "TCollection.h"
 #include "Internal.h"
 
+/************************************************************************************************
+* Classes
+************************************************************************************************/
 class CObjectDictionary
 {
 	public:

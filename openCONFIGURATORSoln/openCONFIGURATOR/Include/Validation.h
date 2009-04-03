@@ -1,8 +1,10 @@
+#ifndef Validation_h
+#define Validation_h
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //
 //  $Header: $
 //
-// NAME:  ClassNAME
+// NAME:  Validation.h
 //
 // BASE  CLASSES: none
 //  
@@ -73,3 +75,4 @@
 #include "../Include/openCONFIGURATOR.h"
 #include "../Include/Internal.h"
 
+#endif // Validation_h

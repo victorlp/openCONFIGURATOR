@@ -4,7 +4,7 @@
 //
 //  $Header: $
 //
-// NAME:  Application Process
+// NAME:  ApplicationProcess.h
 //
 // BASE  CLASSES: none
 //  
@@ -81,6 +81,9 @@
 
 using namespace std;
 
+/****************************************************************************************************
+* Classes
+****************************************************************************************************/
 class DllExport CApplicationProcess
 {
 	public:

@@ -4,7 +4,7 @@
 //
 //  $Header: $
 //
-// NAME:  CComplexDataType
+// NAME:  ComplexDataType.h
 //
 // BASE  CLASSES: none
 //  
@@ -79,6 +79,9 @@
 #include "Declarations.h"
 #include "TCollection.h"
 
+/****************************************************************************************************
+* Classes
+****************************************************************************************************/
 class DllExport CComplexDataType
 {
  public:

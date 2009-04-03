@@ -4,7 +4,7 @@
 //
 //  $Header: $
 //
-// NAME:  ClassNAME
+// NAME:  ProcessImage.h
 //
 // BASE  CLASSES: none
 //  

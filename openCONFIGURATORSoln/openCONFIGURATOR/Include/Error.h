@@ -4,7 +4,7 @@
 //
 //  $Header: $
 //
-// NAME:  ClassNAME
+// NAME:  Error.h
 //
 // BASE  CLASSES: none
 //  

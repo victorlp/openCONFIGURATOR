@@ -4,7 +4,7 @@
 //
 //  $Header: $
 //
-// NAME:  ClassNAME
+// NAME:  NodeCollection.h
 //
 // BASE  CLASSES: none
 //  
@@ -77,6 +77,9 @@
 #include "Declarations.h"
 #include "Node.h"
 
+/************************************************************************************************
+* Classes
+************************************************************************************************/
 class DllExport CNodeCollection
 {
 	public:

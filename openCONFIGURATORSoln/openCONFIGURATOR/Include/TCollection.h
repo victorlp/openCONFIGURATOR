@@ -4,7 +4,7 @@
 //
 //  $Header: $
 //
-// NAME:  ClassNAME
+// NAME:  TCollection.h
 //
 // BASE  CLASSES: none
 //  
@@ -78,6 +78,9 @@ using namespace std;
 
 template <class TBase> 
 
+/****************************************************************************************************
+* Classes
+****************************************************************************************************/
 class TCollection
 {
 	protected:

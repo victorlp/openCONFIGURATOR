@@ -4,7 +4,7 @@
 //
 // $Header: $
 //
-// NAME:  CDataTypeCollection
+// NAME:  DataTypeCollection.h
 //
 // BASE  CLASSES: none
 //  
@@ -77,6 +77,9 @@
 #include "Declarations.h"
 #include "TCollection.h"
 
+/****************************************************************************************************
+* Classes
+****************************************************************************************************/
 class DllExport CDataTypeCollection
 {
 	public:

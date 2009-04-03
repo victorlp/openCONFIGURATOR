@@ -4,7 +4,7 @@
 //
 //  $Header: $
 //
-// NAME:  ClassNAME
+// NAME:  Exports.h
 //
 // BASE  CLASSES: none
 //  

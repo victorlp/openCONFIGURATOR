@@ -4,7 +4,7 @@
 //
 //  $Header: $
 //
-// NAME:  CIndex
+// NAME:  Index.h
 //
 // BASE  CLASSES: none
 //  
@@ -79,6 +79,9 @@
 #include "BaseIndex.h"
 #include "SubIndex.h"
 
+/************************************************************************************************
+* Classes
+************************************************************************************************/
 class DllExport CIndex  : public CBaseIndex 
 {
 	public:
