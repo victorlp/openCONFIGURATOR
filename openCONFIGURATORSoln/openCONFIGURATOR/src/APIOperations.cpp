@@ -4776,7 +4776,7 @@ ocfmRetCode GetNodeAttributesbyNodePos(
 	try
 	{
 		// We do not have support for multiple MNs in this version.
-		GetNodeCount( 240, &iTempNodeCount);
+		GetNodeCount( MN_NODEID, &iTempNodeCount);
 		
 		if(iNodePos > iTempNodeCount)
 		{
@@ -5359,13 +5359,13 @@ void GetMNPDOSubIndex(MNPdoVariable stMNPdoVar, INT32& iPrevSubIndex, CIndex* po
 				cout<< " idx" << pbIdx << endl;
 				cout<< " prevsubindex" << iPrevSubIndex << endl;
 			#endif			
-			if(CheckIfSubIndexExists(240, MN, pbMNIndex,pbIdx))
+			if(CheckIfSubIndexExists(MN_NODEID, MN, pbMNIndex,pbIdx))
 			{
 				pobjSubIndex = pobjIdx->getSubIndexbyIndexValue(pbIdx);
 			}			
 			else
 			{
-				AddSubIndex(240, MN,  pbMNIndex,pbIdx);
+				AddSubIndex(MN_NODEID, MN,  pbMNIndex,pbIdx);
 				pobjSubIndex = pobjIdx->getSubIndexbyIndexValue(pbIdx);
 			}
 			
@@ -5560,29 +5560,29 @@ ocfmRetCode AddOtherMNIndexes(int NodeID)
 						cout << "string copied" << endl;
 					
 					#endif
-					stRetInfo = AddIndex(240, MN, pbMNIndex);
+					stRetInfo = AddIndex(MN_NODEID, MN, pbMNIndex);
 						#if defined DEBUG	
 						cout << "retcode" << stRetInfo.code<<endl;
 						cout<< "1006 added"<<endl;
 					#endif
 					
 					/* Set 5ms value*/	
-					SetIndexAttributes(240, MN, pbMNIndex, (char*)"50000",(char*)"NMT_CycleLen_U32", TRUE);				
+					SetIndexAttributes(MN_NODEID, MN, pbMNIndex, (char*)"50000",(char*)"NMT_CycleLen_U32", TRUE);				
 					
 						/* Add 1020*/
 					strcpy(pbMNIndex, "1020");
-					stRetInfo = AddIndex(240, MN, pbMNIndex);
+					stRetInfo = AddIndex(MN_NODEID, MN, pbMNIndex);
 					
 							/* Add 1020*/
 					strcpy(pbMNIndex, "1300");
-					stRetInfo = AddIndex(240, MN, pbMNIndex);
+					stRetInfo = AddIndex(MN_NODEID, MN, pbMNIndex);
 					/* $:To do by M hard coded*/
-					SetIndexAttributes(240, MN, pbMNIndex, (char*)"5000",(char*)"SDO_SequLayerTimeout_U32", TRUE);
+					SetIndexAttributes(MN_NODEID, MN, pbMNIndex, (char*)"5000",(char*)"SDO_SequLayerTimeout_U32", TRUE);
 					
 					
 					/* Add 1C02*/
 					strcpy(pbMNIndex, "1C02");
-					stRetInfo = AddIndex(240, MN, pbMNIndex);
+					stRetInfo = AddIndex(MN_NODEID, MN, pbMNIndex);
 				
 					if(stRetInfo.code == OCFM_ERR_SUCCESS || stRetInfo.code == OCFM_ERR_INDEX_ALREADY_EXISTS)
 					{				
@@ -5611,7 +5611,7 @@ ocfmRetCode AddOtherMNIndexes(int NodeID)
 					
 					/* Add 1C09*/
 					strcpy(pbMNIndex, "1C09");
-					stRetInfo = AddIndex(240, MN, pbMNIndex);
+					stRetInfo = AddIndex(MN_NODEID, MN, pbMNIndex);
 					if(stRetInfo.code == OCFM_ERR_SUCCESS || stRetInfo.code == OCFM_ERR_INDEX_ALREADY_EXISTS)
 					{				
 						pobjIndex = pobjIdxCol->getIndexbyIndexValue(pbMNIndex);
@@ -5624,7 +5624,7 @@ ocfmRetCode AddOtherMNIndexes(int NodeID)
 					
 							/* Add 1F26*/
 					strcpy(pbMNIndex, "1F26");
-					stRetInfo = AddIndex(240, MN, pbMNIndex);
+					stRetInfo = AddIndex(MN_NODEID, MN, pbMNIndex);
 					if(stRetInfo.code == OCFM_ERR_SUCCESS || stRetInfo.code == OCFM_ERR_INDEX_ALREADY_EXISTS)
 					{				
 						pobjIndex = pobjIdxCol->getIndexbyIndexValue(pbMNIndex);
@@ -5646,7 +5646,7 @@ ocfmRetCode AddOtherMNIndexes(int NodeID)
 					#endif
 							/* Add 1F27*/
 					strcpy(pbMNIndex, "1F27");
-					stRetInfo = AddIndex(240, MN, pbMNIndex);
+					stRetInfo = AddIndex(MN_NODEID, MN, pbMNIndex);
 					if(stRetInfo.code == OCFM_ERR_SUCCESS || stRetInfo.code == OCFM_ERR_INDEX_ALREADY_EXISTS)
 					{				
 						pobjIndex = pobjIdxCol->getIndexbyIndexValue(pbMNIndex);		
@@ -5665,7 +5665,7 @@ ocfmRetCode AddOtherMNIndexes(int NodeID)
 					
 					/* Add 1F84*/
 					strcpy(pbMNIndex, "1F84");
-					stRetInfo = AddIndex(240, MN, pbMNIndex);
+					stRetInfo = AddIndex(MN_NODEID, MN, pbMNIndex);
 					if(stRetInfo.code == OCFM_ERR_SUCCESS || stRetInfo.code == OCFM_ERR_INDEX_ALREADY_EXISTS)
 					{				
 						pobjIndex = pobjIdxCol->getIndexbyIndexValue(pbMNIndex);
@@ -5678,7 +5678,7 @@ ocfmRetCode AddOtherMNIndexes(int NodeID)
 					
 							/* Add 1F89*/
 					strcpy(pbMNIndex, "1F89");
-					stRetInfo = AddIndex(240, MN, pbMNIndex);
+					stRetInfo = AddIndex(MN_NODEID, MN, pbMNIndex);
 					if(stRetInfo.code == OCFM_ERR_SUCCESS || stRetInfo.code == OCFM_ERR_INDEX_ALREADY_EXISTS)
 					{
 						pobjIndex = pobjIdxCol->getIndexbyIndexValue(pbMNIndex);
@@ -5718,7 +5718,7 @@ ocfmRetCode AddOtherMNIndexes(int NodeID)
 			
 					/* Add 1F8A*/
 					strcpy(pbMNIndex, "1F8A");
-					stRetInfo = AddIndex(240, MN, pbMNIndex);
+					stRetInfo = AddIndex(MN_NODEID, MN, pbMNIndex);
 					if(stRetInfo.code == OCFM_ERR_SUCCESS || stRetInfo.code == OCFM_ERR_INDEX_ALREADY_EXISTS)
 					{				
 						pobjIndex = pobjIdxCol->getIndexbyIndexValue(pbMNIndex);
@@ -5760,7 +5760,7 @@ ocfmRetCode AddOtherMNIndexes(int NodeID)
 							/* Add 1F98*/
 					strcpy(pbMNIndex, "1F98");
 					
-					stRetInfo = AddIndex(240, MN, pbMNIndex);
+					stRetInfo = AddIndex(MN_NODEID, MN, pbMNIndex);
 					if(stRetInfo.code == OCFM_ERR_SUCCESS)
 					{				
 					
@@ -5827,7 +5827,7 @@ ocfmRetCode GenerateMNOBD()
 		try
 		{		
 			pobjNodeCollection = CNodeCollection::getNodeColObjectPointer();	
-			pobjMNNode  = pobjNodeCollection->getNodePtr(MN, 240);
+			pobjMNNode  = pobjNodeCollection->getNodePtr(MN, MN_NODEID);
 			if(pobjMNNode == NULL)
 			{			
 				objocfmException.ocfm_Excpetion(OCFM_ERR_MN_NODE_DOESNT_EXIST);
@@ -5853,7 +5853,7 @@ ocfmRetCode GenerateMNOBD()
 				CIndex objIndex;
 				
 				pobjNodeCollection = CNodeCollection::getNodeColObjectPointer();
-				objNode = pobjNodeCollection->getNode(MN, 240);
+				objNode = pobjNodeCollection->getNode(MN, MN_NODEID);
 				pobjIndexCollection = objNode.getIndexCollection();
 				//Check for existance of the Index
 				
@@ -5910,7 +5910,7 @@ ocfmRetCode GenerateMNOBD()
 						pbIdx = padLeft(pbIdx, '0', 2);
 						pbMNIndex =strcat(pbMNIndex, pbIdx);
 					
-						stRetInfo = AddIndex(240, MN, pbMNIndex);
+						stRetInfo = AddIndex(MN_NODEID, MN, pbMNIndex);
 							/* set bFlag to true for 1800*/
 						pobjIndex = objMNIndexCol->getIndexbyIndexValue(pbMNIndex);
 						if(pobjIndex != NULL)
@@ -5925,14 +5925,14 @@ ocfmRetCode GenerateMNOBD()
 						pbIdx = _IntToAscii(objNode.getNodeId(), pbIdx, 10);
 						char* pbSidx =  new char[SUBINDEX_LEN];
 						strcpy(pbSidx, "01");
-						SetSubIndexAttributes(240, MN, pbMNIndex, pbSidx, pbIdx,(char*)"NodeID_U8");
+						SetSubIndexAttributes(MN_NODEID, MN, pbMNIndex, pbSidx, pbIdx,(char*)"NodeID_U8");
 									
 						strcpy(pbMNIndex, "1A");
 						pbIdx = _IntToAscii((objNode.getNodeId()-1), pbIdx, 16);
 						pbIdx = padLeft(pbIdx, '0', 2);
 						pbMNIndex =strcat(pbMNIndex, pbIdx);
 						/* Set the MN's PDO Index*/
-						stRetInfo = AddIndex(240, MN, pbMNIndex);
+						stRetInfo = AddIndex(MN_NODEID, MN, pbMNIndex);
 						
 					
 						pobjIndex->setFlagIfIncludedCdc(TRUE);
@@ -5975,7 +5975,7 @@ ocfmRetCode GenerateMNOBD()
 						pbIdx = padLeft(pbIdx, '0', 2);
 						pbMNIndex =strcat(pbMNIndex, pbIdx);
 										
-						stRetInfo = AddIndex(240, MN, pbMNIndex);
+						stRetInfo = AddIndex(MN_NODEID, MN, pbMNIndex);
 						/* set bFlag to true for 1800*/
 						pobjIndex = objMNIndexCol->getIndexbyIndexValue(pbMNIndex);
 						if(pobjIndex != NULL)
@@ -5992,7 +5992,7 @@ ocfmRetCode GenerateMNOBD()
 						pbIdx = _IntToAscii(objNode.getNodeId(), pbIdx, 10);
 						char* pbSidx =  new char[SUBINDEX_LEN];
 						strcpy(pbSidx, "01");
-						SetSubIndexAttributes(240, MN, pbMNIndex, pbSidx, pbIdx,(char*)"NodeID_U8");
+						SetSubIndexAttributes(MN_NODEID, MN, pbMNIndex, pbSidx, pbIdx,(char*)"NodeID_U8");
 				
 							
 						strcpy(pbMNIndex, "16");
@@ -6000,7 +6000,7 @@ ocfmRetCode GenerateMNOBD()
 						pbIdx = padLeft(pbIdx, '0', 2);
 						pbMNIndex =strcat(pbMNIndex, pbIdx);
 						/* Set the MN's PDO Index*/
-						stRetInfo = AddIndex(240, MN, pbMNIndex);
+						stRetInfo = AddIndex(MN_NODEID, MN, pbMNIndex);
 						
 						
 						if(stRetInfo.code != OCFM_ERR_SUCCESS)
@@ -7630,7 +7630,7 @@ void AuotgenerateOtherIndexs(CNode* objNode)
 			objIdxCol = objNode->getIndexCollection();
 		/* Add 1C09*/
 					strcpy(MNIndex, "1C09");
-					retCode = AddIndex(240, MN, MNIndex);
+					retCode = AddIndex(MN_NODEID, MN, MNIndex);
 					if(retCode.code == OCFM_ERR_SUCCESS || retCode.code == OCFM_ERR_INDEX_ALREADY_EXISTS)
 					{				
 						objIndex = objIdxCol->getIndexbyIndexValue(MNIndex);
@@ -7643,7 +7643,7 @@ void AuotgenerateOtherIndexs(CNode* objNode)
 					
 							/* Add 1F26*/
 					strcpy(MNIndex, "1F26");
-					retCode = AddIndex(240, MN, MNIndex);
+					retCode = AddIndex(MN_NODEID, MN, MNIndex);
 					if(retCode.code == OCFM_ERR_SUCCESS || retCode.code == OCFM_ERR_INDEX_ALREADY_EXISTS)
 					{				
 						objIndex = objIdxCol->getIndexbyIndexValue(MNIndex);
@@ -7665,7 +7665,7 @@ void AuotgenerateOtherIndexs(CNode* objNode)
 					#endif
 							/* Add 1F27*/
 					strcpy(MNIndex, "1F27");
-					retCode = AddIndex(240, MN, MNIndex);
+					retCode = AddIndex(MN_NODEID, MN, MNIndex);
 					if(retCode.code == OCFM_ERR_SUCCESS || retCode.code == OCFM_ERR_INDEX_ALREADY_EXISTS)
 					{				
 						objIndex = objIdxCol->getIndexbyIndexValue(MNIndex);		
@@ -7684,7 +7684,7 @@ void AuotgenerateOtherIndexs(CNode* objNode)
 					
 					/* Add 1F84*/
 					strcpy(MNIndex, "1F84");
-					retCode = AddIndex(240, MN, MNIndex);
+					retCode = AddIndex(MN_NODEID, MN, MNIndex);
 					if(retCode.code == OCFM_ERR_SUCCESS || retCode.code == OCFM_ERR_INDEX_ALREADY_EXISTS)
 					{				
 						objIndex = objIdxCol->getIndexbyIndexValue(MNIndex);
@@ -7696,7 +7696,7 @@ void AuotgenerateOtherIndexs(CNode* objNode)
 					}
 								/* Add 1F8B*/
 					strcpy(MNIndex, "1F8B");
-					retCode = AddIndex(240, MN, MNIndex);
+					retCode = AddIndex(MN_NODEID, MN, MNIndex);
 					if(retCode.code == OCFM_ERR_SUCCESS || retCode.code == OCFM_ERR_INDEX_ALREADY_EXISTS)
 					{				
 						objIndex = objIdxCol->getIndexbyIndexValue(MNIndex);
@@ -7709,7 +7709,7 @@ void AuotgenerateOtherIndexs(CNode* objNode)
 					}
 							/* Add 1F8D*/
 					strcpy(MNIndex, "1F8D");
-					retCode = AddIndex(240, MN, MNIndex);
+					retCode = AddIndex(MN_NODEID, MN, MNIndex);
 					if(retCode.code == OCFM_ERR_SUCCESS || retCode.code == OCFM_ERR_INDEX_ALREADY_EXISTS)
 					{				
 						objIndex = objIdxCol->getIndexbyIndexValue(MNIndex);
@@ -7722,7 +7722,7 @@ void AuotgenerateOtherIndexs(CNode* objNode)
 					}
 							/* Add 1F92*/
 					strcpy(MNIndex, "1F92");
-					retCode = AddIndex(240, MN, MNIndex);
+					retCode = AddIndex(MN_NODEID, MN, MNIndex);
 					if(retCode.code == OCFM_ERR_SUCCESS || retCode.code == OCFM_ERR_INDEX_ALREADY_EXISTS)
 					{				
 						objIndex = objIdxCol->getIndexbyIndexValue(MNIndex);
