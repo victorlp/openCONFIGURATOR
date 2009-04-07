@@ -6573,9 +6573,13 @@ ocfmRetCode FreeProjectMemory()
 {
 	CNodeCollection *pobjNodeCollection = NULL;
 	pobjNodeCollection = CNodeCollection::getNodeColObjectPointer();
+	cout << "\n\n$S_Trace_1\n\n" << endl;
 	delete pobjNodeCollection;
+	cout << "\n\n$S_Trace_2\n\n" << endl;
 	ocfmRetCode stErrorInfo;		 
+	cout << "\n\n$S_Trace_3\n\n" << endl;
 	stErrorInfo.code = OCFM_ERR_SUCCESS;
+	cout << "\n\n$S_Trace_1\n\n" << endl;
 	return stErrorInfo;
 }
 	
@@ -6593,7 +6597,7 @@ ocfmRetCode OpenProject(char* pbPjtPath, char* pbProjectXmlFileName)
     	INT32 iRetVal;
 	char *pbFileName;	
 
-	delete pobjNodeCollection;
+	//delete pobjNodeCollection;
 	
 	#if defined DEBUG
 	cout << "\nStrLen for FileName:" << (strlen(pbPjtPath) + strlen(pbProjectXmlFileName) + 1) << endl;
@@ -6821,8 +6825,8 @@ ocfmRetCode processProjectXML(xmlTextReaderPtr pxReader, char* pbPjtPath)
 		 return objocfmException->_ocfmRetCode;
 	}	
 	#if defined DEBUG
-		cout << "\nstPjtSettings.getGenerateAttr():" << pobjPjtSettings->getGenerateAttr() << endl;
-		cout << "\nstPjtSettings.getSaveAttr():" << pobjPjtSettings->getSaveAttr() << endl;
+		//cout << "\nstPjtSettings.getGenerateAttr():" << pobjPjtSettings->getGenerateAttr() << endl;
+		//cout << "\nstPjtSettings.getSaveAttr():" << pobjPjtSettings->getSaveAttr() << endl;
 		//if(pobjPjtSettings->getPOWERLINK_IP() != NULL)
 		//	cout << "\nstPjtSettings.getPOWERLINK_IP():" << pobjPjtSettings->getPOWERLINK_IP() << endl;
 	#endif

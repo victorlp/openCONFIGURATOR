@@ -159,7 +159,7 @@ void CPjtSettings::setSaveAttr(EAutoSave enumAutoSaveMode)
 EAutoGenerate CPjtSettings::getGenerateAttr()
 {
 	#if defined DEBUG
-		cout << "\n Returning m_generateMode:-" << m_generateMode <<endl;	
+		//cout << "\n Returning m_generateMode:-" << m_generateMode <<endl;	
 	#endif	
 	return m_generateMode;		
 }
