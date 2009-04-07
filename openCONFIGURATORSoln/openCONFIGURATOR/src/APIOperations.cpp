@@ -902,7 +902,13 @@ ocfmRetCode SetIndexAttributes(INT32 iNodeID, ENodeType enumNodeType,
 * Description:
 * Return value: ocfmRetCode
 ****************************************************************************************************/
-ocfmRetCode SetSubIndexAttributes(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID, char* pbSubIndexID, char* pbIndexValue, char* pbIndexName)
+ocfmRetCode SetSubIndexAttributes(INT32 iNodeID, 
+								  ENodeType enumNodeType, 
+								  char* pbIndexID, 
+								  char* pbSubIndexID, 
+								  char* pbIndexValue, 
+								  char* pbIndexName, 
+								  EFlag enumIsIncludedInCdc)
 {
 		CNode objNode;		
 		CNodeCollection *pobjNodeCollection;
@@ -946,6 +952,9 @@ ocfmRetCode SetSubIndexAttributes(INT32 iNodeID, ENodeType enumNodeType, char* p
 			{
 				pobjSubIndexPtr->setName(pbIndexName);
 			}
+			
+			pobjSubIndexPtr->setFlagIfIncludedCdc(enumIsIncludedInCdc);
+			
 			if(pbIndexValue != NULL)
 			{
 			if(pobjSubIndexPtr->IsIndexVaueValid(pbIndexValue))		
@@ -1193,6 +1202,8 @@ ocfmRetCode SetAllSubIndexAttributes(INT32 iNodeID,
 			{
 				pobjSubIndexPtr->setObjectType(pbObjType);
 			}
+			
+			pobjSubIndexPtr->setFlagIfIncludedCdc(enumIsIncludedInCdc);
 			
 			if(pbActualValue != NULL)
 			{
@@ -1619,8 +1630,9 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 					objSubIndex = objIndex->getSubIndex(i);
 				
 					/*if(strcmp(objSubIndex->getIndexValue(),"00")!=0 && objSubIndex->getActualValue() != NULL)*/
-					if(objSubIndex->getActualValue() != NULL)
-			
+					//$S_:TODO
+					//if((objSubIndex->getActualValue() != NULL) && (objSubIndex->getFlagIfIncludedCdc() == TRUE))			
+					if((objSubIndex->getActualValue() != NULL))
 					{
 						if (Indexadded)
 						strcat(Buffer,objIndex->getIndexValue());
@@ -4052,19 +4064,19 @@ ocfmRetCode GetIndexAttributes(
 		
 		switch(enumAttributeType)
 		{
-			case 0:									
+			case NAME:									
 					if(pobjIndexPtr->getName() != NULL)
 						strcpy(pbOutAttributeValue, (char *)pobjIndexPtr->getName());
 					else
 						strcpy(pbOutAttributeValue, "");
 					break;
-			case 1:
+			case OBJECTTYPE:
 					if(pobjIndexPtr->getObjectType() != NULL)
 						strcpy(pbOutAttributeValue, (char *)pobjIndexPtr->getObjectType());
 					else
 						strcpy(pbOutAttributeValue, "");
 					break;
-			case 2:
+			case DATATYPE:
 					DataType objTmpDataType;
 					objTmpDataType = pobjIndexPtr->getDataType();
 					if(objTmpDataType.Name != NULL)
@@ -4072,44 +4084,44 @@ ocfmRetCode GetIndexAttributes(
 					else
 						strcpy(pbOutAttributeValue, "");					
 					break;		
-			case 3:
+			case ACCESSTYPE:
 					if(pobjIndexPtr->getAccessType() != NULL)
 						strcpy(pbOutAttributeValue, (char *)pobjIndexPtr->getAccessType());
 					else
 						strcpy(pbOutAttributeValue, "");
 					break;
-			case 4:
+			case DEFAULTVALUE:
 					if(pobjIndexPtr->getDefaultValue() != NULL)
 						strcpy(pbOutAttributeValue, (char *) pobjIndexPtr->getDefaultValue());
 					else
 						strcpy(pbOutAttributeValue, "");
 					break;
-			case 5:
+			case ACTUALVALUE:
 					if(pobjIndexPtr->getActualValue() != NULL)
 						strcpy(pbOutAttributeValue, (char *) pobjIndexPtr->getActualValue());
 					else
 						strcpy(pbOutAttributeValue, "");
 					break;
-			case 6:
+			case PDOMAPPING:
 					if(pobjIndexPtr->getPDOMapping() != NULL)
 						strcpy(pbOutAttributeValue, (char *) pobjIndexPtr->getPDOMapping());
 					else
 						strcpy(pbOutAttributeValue, "");
 					break;
-			case 7:
+			case LOWLIMIT:
 					if(pobjIndexPtr->getLowLimit() != NULL)
 						strcpy(pbOutAttributeValue, (char *) pobjIndexPtr->getLowLimit());
 					else
 						strcpy(pbOutAttributeValue, "");
 					break;
-			case 8:
+			case HIGHLIMIT:
 					if(pobjIndexPtr->getHighLimit() != NULL)
 						strcpy(pbOutAttributeValue, (char *) pobjIndexPtr->getHighLimit());
 					else
 						strcpy(pbOutAttributeValue, "");
 					break;
 			/* Flag if it should be included in cdc*/
-			case 9:
+			case FLAGIFINCDC:
 					if(pobjIndexPtr->getFlagIfIncludedCdc() == TRUE)
 					strcpy(pbOutAttributeValue, "1");
 					else
@@ -4194,19 +4206,19 @@ ocfmRetCode GetIndexAttributesbyPositions(
 		
 			switch(enumAttributeType)
 			{
-				case 0:									
+				case NAME:									
 						if(pobjIndexPtr->getName() != NULL)
 							strcpy(pbOutAttributeValue, (char *)pobjIndexPtr->getName());
 						else
 							strcpy(pbOutAttributeValue, "");
 						break;
-				case 1:
+				case OBJECTTYPE:
 						if(pobjIndexPtr->getObjectType() != NULL)
 							strcpy(pbOutAttributeValue, (char *)pobjIndexPtr->getObjectType());
 						else
 							strcpy(pbOutAttributeValue, "");
 						break;
-				case 2:
+				case DATATYPE:
 						DataType objTmpDataType;
 						objTmpDataType = pobjIndexPtr->getDataType();
 						if(objTmpDataType.Name != NULL)
@@ -4218,49 +4230,49 @@ ocfmRetCode GetIndexAttributesbyPositions(
 							strcpy(pbOutAttributeValue, "");					
 						}
 						break;		
-				case 3:
+				case ACCESSTYPE:
 						if(pobjIndexPtr->getAccessType() != NULL)
 							strcpy(pbOutAttributeValue, (char *)pobjIndexPtr->getAccessType());
 						else
 							strcpy(pbOutAttributeValue, "");
 						break;
-				case 4:
+				case DEFAULTVALUE:
 						if(pobjIndexPtr->getDefaultValue() != NULL)
 							strcpy(pbOutAttributeValue, (char *) pobjIndexPtr->getDefaultValue());
 						else
 							strcpy(pbOutAttributeValue, "");
 						break;
-				case 5:
+				case ACTUALVALUE:
 						if(pobjIndexPtr->getActualValue() != NULL)
 							strcpy(pbOutAttributeValue, (char *) pobjIndexPtr->getActualValue());
 						else
 							strcpy(pbOutAttributeValue, "");
 						break;
-				case 6:
+				case PDOMAPPING:
 						if(pobjIndexPtr->getPDOMapping() != NULL)
 							strcpy(pbOutAttributeValue, (char *) pobjIndexPtr->getPDOMapping());
 						else
 							strcpy(pbOutAttributeValue, "");
 						break;
-				case 7:
+				case LOWLIMIT:
 						if(pobjIndexPtr->getLowLimit() != NULL)
 							strcpy(pbOutAttributeValue, (char *) pobjIndexPtr->getLowLimit());
 						else
 							strcpy(pbOutAttributeValue, "");
 						break;
-				case 8:
+				case HIGHLIMIT:
 						if(pobjIndexPtr->getHighLimit() != NULL)
 							strcpy(pbOutAttributeValue, (char *) pobjIndexPtr->getHighLimit());
 						else
 							strcpy(pbOutAttributeValue, "");
 						break;			
 				/* Flag if it should be included in cdc*/
-			case 9:
-					if(pobjIndexPtr->getFlagIfIncludedCdc() ==  TRUE)
-					strcpy(pbOutAttributeValue, "1");
-					else
-					strcpy(pbOutAttributeValue, "0");	
-					break;					
+				case FLAGIFINCDC:
+						if(pobjIndexPtr->getFlagIfIncludedCdc() ==  TRUE)
+							strcpy(pbOutAttributeValue, "1");
+						else
+							strcpy(pbOutAttributeValue, "0");	
+						break;					
 				default:
 						//cout << "invalid Attribute Type" << endl;
 						stErrorInfo.code = OCFM_ERR_INVALID_ATTRIBUTETYPE;
@@ -4330,19 +4342,19 @@ ocfmRetCode GetSubIndexAttributes(
 			
 			switch(enumAttributeType)
 			{
-				case 0:						
+				case NAME:						
 						if(pobjSubIndexPtr->getName() != NULL)
 							strcpy(pbOutAttributeValue, (char *)pobjSubIndexPtr->getName());
 						else
 							strcpy(pbOutAttributeValue, "");
 						break;
-				case 1:
+				case OBJECTTYPE:
 						if(pobjSubIndexPtr->getObjectType() != NULL)
 							strcpy(pbOutAttributeValue, (char *)pobjSubIndexPtr->getObjectType());
 						else
 							strcpy(pbOutAttributeValue, "");
 						break;
-				case 2:
+				case DATATYPE:
 						DataType objTmpDataType;
 						objTmpDataType = pobjSubIndexPtr->getDataType();										
 						if(objTmpDataType.Name != NULL)
@@ -4350,42 +4362,48 @@ ocfmRetCode GetSubIndexAttributes(
 						else
 							strcpy(pbOutAttributeValue, "");					
 						break;		
-				case 3:
+				case ACCESSTYPE:
 						if(pobjSubIndexPtr->getAccessType() != NULL)
 							strcpy(pbOutAttributeValue, (char *)pobjSubIndexPtr->getAccessType());
 						else
 							strcpy(pbOutAttributeValue, "");
 						break;
-				case 4:
+				case DEFAULTVALUE:
 						if(pobjSubIndexPtr->getDefaultValue() != NULL)
 							strcpy(pbOutAttributeValue, (char *) pobjSubIndexPtr->getDefaultValue());
 						else
 							strcpy(pbOutAttributeValue, "");
 						break;
-				case 5:
+				case ACTUALVALUE:
 						if(pobjSubIndexPtr->getActualValue() != NULL)
 							strcpy(pbOutAttributeValue, (char *) pobjSubIndexPtr->getActualValue());
 						else
 							strcpy(pbOutAttributeValue, "");
 						break;
-				case 6:
+				case PDOMAPPING:
 						if(pobjSubIndexPtr->getPDOMapping() != NULL)
 							strcpy(pbOutAttributeValue, (char *) pobjSubIndexPtr->getPDOMapping());
 						else
 							strcpy(pbOutAttributeValue, "");
 						break;
-				case 7:
+				case LOWLIMIT:
 						if(pobjSubIndexPtr->getLowLimit() != NULL)
 							strcpy(pbOutAttributeValue, (char *) pobjSubIndexPtr->getLowLimit());
 						else
 							strcpy(pbOutAttributeValue, "");
 						break;
-				case 8:
+				case HIGHLIMIT:
 						if(pobjSubIndexPtr->getHighLimit() != NULL)
 							strcpy(pbOutAttributeValue, (char *) pobjSubIndexPtr->getHighLimit());
 						else
 							strcpy(pbOutAttributeValue, "");
 						break;
+				case FLAGIFINCDC:
+						if(pobjSubIndexPtr->getFlagIfIncludedCdc() == TRUE)
+							strcpy(pbOutAttributeValue, "1");
+						else
+							strcpy(pbOutAttributeValue, "0");			
+						break;							
 				default:
 						//cout << "invalid Attribute Type" << endl;
 						//stErrorInfo.code = OCFM_ERR_INVALID_ATTRIBUTETYPE;
@@ -4485,19 +4503,19 @@ ocfmRetCode GetSubIndexAttributesbyPositions(
 		
 		switch(enumAttributeType)
 		{
-			case 0:						
+			case NAME:						
 					if(pobjSubIndexPtr->getName() != NULL)
 						strcpy(pbOutAttributeValue, (char *)pobjSubIndexPtr->getName());
 					else
 						strcpy(pbOutAttributeValue, "");
 					break;
-			case 1:
+			case OBJECTTYPE:
 					if(pobjSubIndexPtr->getObjectType() != NULL)
 						strcpy(pbOutAttributeValue, (char *)pobjSubIndexPtr->getObjectType());
 					else
 						strcpy(pbOutAttributeValue, "");
 					break;
-			case 2:
+			case DATATYPE:
 					DataType objTmpDataType;
 					objTmpDataType = pobjSubIndexPtr->getDataType();										
 					if(objTmpDataType.Name != NULL)
@@ -4505,42 +4523,49 @@ ocfmRetCode GetSubIndexAttributesbyPositions(
 					else
 						strcpy(pbOutAttributeValue, "");					
 					break;		
-			case 3:
+			case ACCESSTYPE:
 					if(pobjSubIndexPtr->getAccessType() != NULL)
 						strcpy(pbOutAttributeValue, (char *)pobjSubIndexPtr->getAccessType());
 					else
 						strcpy(pbOutAttributeValue, "");
 					break;
-			case 4:
+			case DEFAULTVALUE:
 					if(pobjSubIndexPtr->getDefaultValue() != NULL)
 						strcpy(pbOutAttributeValue, (char *) pobjSubIndexPtr->getDefaultValue());
 					else
 						strcpy(pbOutAttributeValue, "");
 					break;
-			case 5:
+			case ACTUALVALUE:
 					if(pobjSubIndexPtr->getActualValue() != NULL)
 						strcpy(pbOutAttributeValue, (char *) pobjSubIndexPtr->getActualValue());
 					else
 						strcpy(pbOutAttributeValue, "");
 					break;
-			case 6:
+			case PDOMAPPING:
 					if(pobjSubIndexPtr->getPDOMapping() != NULL)
 						strcpy(pbOutAttributeValue, (char *) pobjSubIndexPtr->getPDOMapping());
 					else
 						strcpy(pbOutAttributeValue, "");
 					break;
-			case 7:
+			case LOWLIMIT:
 					if(pobjSubIndexPtr->getLowLimit() != NULL)
 						strcpy(pbOutAttributeValue, (char *) pobjSubIndexPtr->getLowLimit());
 					else
 						strcpy(pbOutAttributeValue, "");
 					break;
-			case 8:
+			case HIGHLIMIT:
 					if(pobjSubIndexPtr->getHighLimit() != NULL)
 						strcpy(pbOutAttributeValue, (char *) pobjSubIndexPtr->getHighLimit());
 					else
 						strcpy(pbOutAttributeValue, "");
 					break;
+			case FLAGIFINCDC:
+					if(pobjSubIndexPtr->getFlagIfIncludedCdc() == TRUE)
+						strcpy(pbOutAttributeValue, "1");
+					else
+						strcpy(pbOutAttributeValue, "0");			
+					break;	
+					
 			default:
 					//cout << "invalid Attribute Type" << endl;
 					stErrorInfo.code = OCFM_ERR_INVALID_ATTRIBUTETYPE;
@@ -5941,7 +5966,7 @@ ocfmRetCode GenerateMNOBD()
 						pbIdx = _IntToAscii(objNode.getNodeId(), pbIdx, 10);
 						char* pbSidx =  new char[SUBINDEX_LEN];
 						strcpy(pbSidx, "01");
-						SetSubIndexAttributes(MN_NODEID, MN, pbMNIndex, pbSidx, pbIdx,(char*)"NodeID_U8");
+						SetSubIndexAttributes(MN_NODEID, MN, pbMNIndex, pbSidx, pbIdx,(char*)"NodeID_U8", TRUE);
 									
 						strcpy(pbMNIndex, "1A");
 						pbIdx = _IntToAscii((objNode.getNodeId()-1), pbIdx, 16);
@@ -6008,7 +6033,7 @@ ocfmRetCode GenerateMNOBD()
 						pbIdx = _IntToAscii(objNode.getNodeId(), pbIdx, 10);
 						char* pbSidx =  new char[SUBINDEX_LEN];
 						strcpy(pbSidx, "01");
-						SetSubIndexAttributes(MN_NODEID, MN, pbMNIndex, pbSidx, pbIdx,(char*)"NodeID_U8");
+						SetSubIndexAttributes(MN_NODEID, MN, pbMNIndex, pbSidx, pbIdx,(char*)"NodeID_U8", TRUE);
 				
 							
 						strcpy(pbMNIndex, "16");
