@@ -419,7 +419,8 @@ bool IfVersionNumberMatches(xmlTextReaderPtr pxReader)
 	// Check for Version Tool-Project Version
 	if(strcmp(ConvertToUpper((char*)pxcName), "VERSION") == FALSE)
 	{
-		if(strcmp(ConvertToUpper((char*)pxcValue), TOOL_VERSION) == FALSE)
+		if( (strcmp(ConvertToUpper((char*)pxcValue), TOOL_VERSION) == FALSE) ||
+			(strcmp(ConvertToUpper((char*)pxcValue), PREV_TOOL_VERSION) == FALSE) )
 		{
 			#if defined DEBUG
 				cout << "\nVersion number matched" << endl;

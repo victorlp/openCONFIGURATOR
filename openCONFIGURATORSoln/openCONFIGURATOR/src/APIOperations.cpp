@@ -95,7 +95,7 @@
 * Defines
 ****************************************************************************************************/
 
-#define MY_ENCODING "ISO-8859-1"
+#define MY_ENCODING "UTF-8"
 #define CDC_BUFFER 5000
 #define PI_VAR_COUNT 4000
 #define MAX_FILE_PATH_SIZE 500
@@ -3897,7 +3897,7 @@ void StartXAPxml(xmlTextWriterPtr& pxtwWriter,  xmlDocPtr& pxdDoc)
     }
 
     /* Start the document with the xml default for the version,
-     * encoding ISO 8859-1 and the default for the standalone
+     * encoding UTF-8 and the default for the standalone
      * declaration. */
     iBytesWritten = xmlTextWriterStartDocument(pxtwWriter, NULL, MY_ENCODING, NULL);
     if (iBytesWritten < 0) {
@@ -7145,7 +7145,7 @@ if (pxtwWriter == NULL)
 	throw &objException;
 }
 /* Start the document with the xml default for the version,
-* encoding ISO 8859-1 and the default for the standalone
+* encoding UTF-8 and the default for the standalone
 * declaration. */
 iBytesWritten = xmlTextWriterStartDocument(pxtwWriter, NULL, MY_ENCODING, NULL);
 if (iBytesWritten < 0) 

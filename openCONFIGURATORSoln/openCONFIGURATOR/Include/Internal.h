@@ -86,7 +86,8 @@
 /************************************************************************************************
 * Defines
 ************************************************************************************************/
-#define TOOL_VERSION "0.9"
+#define TOOL_VERSION "0.9.1"
+#define PREV_TOOL_VERSION "0.9"
 #define ALLOC_BUFFER 5
 #define INDEX_LEN 5
 #define SUBINDEX_LEN 3

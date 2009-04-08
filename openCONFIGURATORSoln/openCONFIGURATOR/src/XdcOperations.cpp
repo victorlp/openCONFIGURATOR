@@ -1342,7 +1342,7 @@ ocfmRetCode SaveNode(const char* pbFileName, INT32 NodeID, ENodeType enumNodeTyp
 			throw &objException;
 		}
 		/* Start the document with the xml default for the version,
-		* encoding ISO 8859-1 and the default for the standalone
+		* encoding UTF-8 and the default for the standalone
 		* declaration. */
 		iBytesWritten = xmlTextWriterStartDocument(pxtwWriter, NULL, MY_ENCODING, NULL);
 		if (iBytesWritten < 0) 
