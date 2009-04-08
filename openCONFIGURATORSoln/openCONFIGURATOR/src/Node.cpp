@@ -344,7 +344,7 @@ CIndexCollection* CNode::getPDOIndexCollection()
 		if(pobjIndex->getPDOType() ==  PDO_TPDO || pobjIndex->getPDOType() ==  PDO_RPDO)
 		{
 			pobjPdoIndexCollection->addIndex(*pobjIndex);					
-			printf("\nIndex:%s", pobjIndex->getIndexValue());
+			//printf("\nIndex:%s", pobjIndex->getIndexValue());
 		}
 	}
 	return pobjPdoIndexCollection;

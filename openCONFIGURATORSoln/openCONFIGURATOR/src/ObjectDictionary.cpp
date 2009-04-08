@@ -140,7 +140,7 @@ void CObjectDictionary::ProcessObjectDictionary(xmlTextReaderPtr reader)
 	{
 		if((name == NULL) || (value == NULL))
 		{
-			cout << "Got NULL for name or value\n" << endl;
+			//cout << "Got NULL for name or value\n" << endl;
 		}		
 		
 		//If the NodeTYPE is ELEMENT

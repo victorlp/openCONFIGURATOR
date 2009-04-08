@@ -1400,7 +1400,7 @@ ocfmRetCode SaveNode(const char* pbFileName, INT32 NodeID, ENodeType enumNodeTyp
 								
 		if(pobjAppProc->getCDTCount() > 0)
 		{
-			cout << "\nobjAppProc->getCDTCount():" << pobjAppProc->getCDTCount() << endl;
+			//cout << "\nobjAppProc->getCDTCount():" << pobjAppProc->getCDTCount() << endl;
 			for(INT32 iLoopCount = 0; iLoopCount < pobjAppProc->getCDTCount(); iLoopCount++)
 			{
 				// Start struct Tag
@@ -1417,7 +1417,7 @@ ocfmRetCode SaveNode(const char* pbFileName, INT32 NodeID, ENodeType enumNodeTyp
 				iBytesWritten = xmlTextWriterWriteAttribute(pxtwWriter, BAD_CAST "name", BAD_CAST objCDT->name_id_attr->getName());
 				iBytesWritten = xmlTextWriterWriteAttribute(pxtwWriter, BAD_CAST "uniqueID", BAD_CAST objCDT->name_id_attr->UniqueId);
 				
-				cout << "objCDT->getVarDeclarationCount():" << objCDT->varCollection.Count() << endl;
+				//cout << "objCDT->getVarDeclarationCount():" << objCDT->varCollection.Count() << endl;
 				for(INT32 tempVarCount = 0; tempVarCount < objCDT->varCollection.Count(); tempVarCount++)
 				{
 					varDeclaration vd;
@@ -1464,7 +1464,7 @@ ocfmRetCode SaveNode(const char* pbFileName, INT32 NodeID, ENodeType enumNodeTyp
 					}
 					else if(vd.nam_id_dt_attr->getDtUniqueRefId() != NULL)
 					{
-						cout << "\nvd.nam_id_dt_attr->getDtUniqueRefId():" << vd.nam_id_dt_attr->getDtUniqueRefId() << endl;
+						//cout << "\nvd.nam_id_dt_attr->getDtUniqueRefId():" << vd.nam_id_dt_attr->getDtUniqueRefId() << endl;
 						// Start dataTypeIDRef Tag
 						iBytesWritten = xmlTextWriterStartElement(pxtwWriter, BAD_CAST "dataTypeIDRef");							
 						if (iBytesWritten < 0) 
@@ -1776,13 +1776,13 @@ ocfmRetCode SaveNode(const char* pbFileName, INT32 NodeID, ENodeType enumNodeTyp
 			if(pobjIndexPtr->getLowLimit() != NULL)
 			if(strlen(pobjIndexPtr->getLowLimit()) != 0)
 			{
-				cout << "\nWhen saving pobjIndexPtr->getLowLimit():" << pobjIndexPtr->getLowLimit() << endl;
+				//cout << "\nWhen saving pobjIndexPtr->getLowLimit():" << pobjIndexPtr->getLowLimit() << endl;
 				iBytesWritten = xmlTextWriterWriteAttribute(pxtwWriter, BAD_CAST "lowLimit", BAD_CAST pobjIndexPtr->getLowLimit());
 			}
 			if(pobjIndexPtr->getHighLimit() != NULL)
 			if(strlen(pobjIndexPtr->getHighLimit()) != 0)
 			{
-				cout << "\nWhen saving pobjIndexPtr->getHighLimit():" << pobjIndexPtr->getHighLimit() << endl;
+				//cout << "\nWhen saving pobjIndexPtr->getHighLimit():" << pobjIndexPtr->getHighLimit() << endl;
 				iBytesWritten = xmlTextWriterWriteAttribute(pxtwWriter, BAD_CAST "highLimit", BAD_CAST pobjIndexPtr->getHighLimit());
 			}
 			if((pobjIndexPtr->getPDOMapping() != NULL))
@@ -1925,7 +1925,7 @@ ocfmRetCode SaveNode(const char* pbFileName, INT32 NodeID, ENodeType enumNodeTyp
 			throw &objException;
 		}
 				
-		cout << "\nEnd Write Doc\n" <<endl;
+		//cout << "\nEnd Write Doc\n" <<endl;
 		iBytesWritten = xmlTextWriterEndDocument(pxtwWriter);
 		if (iBytesWritten < 0) 
 		{

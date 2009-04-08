@@ -375,7 +375,7 @@ ocfmRetCode CreateNode(INT32 iNodeID, ENodeType enumNodeType, char* pbNodeName)
 				#else
 				{
 					sprintf(tmpCmdBuffer, "%s/od.xml", LINUX_INSTALL_DIR);
-					printf("\n command Buffer %s", tmpCmdBuffer);
+					//printf("\n command Buffer %s", tmpCmdBuffer);
 					LoadObjectDictionary(tmpCmdBuffer);
 				}
 				#endif
@@ -959,7 +959,7 @@ ocfmRetCode SetSubIndexAttributes(INT32 iNodeID,
 			{
 			if(pobjSubIndexPtr->IsIndexVaueValid(pbIndexValue))		
 				{
-				printf("\nIndex value%s",pbIndexValue);
+				//printf("\nIndex value%s",pbIndexValue);
 				pobjSubIndexPtr->setActualValue(pbIndexValue);
 				stErrorInfo.code = OCFM_ERR_SUCCESS;
 				}
@@ -1073,7 +1073,7 @@ ocfmRetCode SetAllIndexAttributes(INT32 iNodeID,
 					pobjIndexPtr->setDataType(pbDataTypeName, iNodeID);
 					DataType objDataType;
 					objDataType = pobjIndexPtr->getDataType();
-					printf("\n name %s", objDataType.getName());
+					//printf("\n name %s", objDataType.getName());
 				}
 				else
 				{
@@ -1966,7 +1966,7 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 							len = strlen(comment);
 							if((fwrite(comment, sizeof(char),len,fileptr))!=NULL)
 							{
-								printf("\nComments for CN-%d",count);
+								//printf("\nComments for CN-%d",count);
 								fclose(fileptr);
 							}
 							
@@ -2474,8 +2474,8 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 		sprintf(tempOutputFileName, "%s/%s.cdc", CDCLocation, "mnobd");		
 
 		//sprintf(tempFileName, "../%s.txt", "mnobd");
-		cout << "\n\ntempFileName:" << tempFileName << endl;
-		cout << "\n\ntempOutputFileName:" << tempOutputFileName << endl;
+		//cout << "\n\ntempFileName:" << tempFileName << endl;
+		//cout << "\n\ntempOutputFileName:" << tempOutputFileName << endl;
 		//printf("Inside GenerateCDC");
 		
 		try
@@ -2516,7 +2516,7 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 		
 			if(stPjtSettings->getGenerateAttr() == YES_AG)
 			{	
-				cout << "\n\n\n\n Generating MN OBD\n\n\n\n" << endl;
+				//cout << "\n\n\n\n Generating MN OBD\n\n\n\n" << endl;
 				retCode = GenerateMNOBD();
 				if(retCode.code != OCFM_ERR_SUCCESS)
 					return retCode;
@@ -2687,18 +2687,18 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 				
 			#if defined(_WIN32) && defined(_MSC_VER)
 			char* cmdBuffer;
-			printf("\ntxt2cdc.exe \"%s\" \"%s\"", tempFileName, tempOutputFileName);
+			//printf("\ntxt2cdc.exe \"%s\" \"%s\"", tempFileName, tempOutputFileName);
 			cmdBuffer = new char[(2 * (strlen(CDCLocation) + 10 + 10)) + 25];		
 			sprintf(cmdBuffer, "txt2cdc.exe \"%s\" \"%s\"", tempFileName, tempOutputFileName);
-			printf("\n command Buffer %s",cmdBuffer);
+			//printf("\n command Buffer %s",cmdBuffer);
 			system(cmdBuffer);
 			delete [] cmdBuffer;
 			#else
 			char* cmdBuffer;
-			printf("\n./txt2cdc \"%s\" \"%s\"", tempFileName, tempOutputFileName);
+			//printf("\n./txt2cdc \"%s\" \"%s\"", tempFileName, tempOutputFileName);
 			cmdBuffer = new char[LINUX_INSTALL_DIR_LEN + (2 * (strlen(CDCLocation) + 10 + 10)) + 25];		
 			sprintf(cmdBuffer, "%s/txt2cdc \"%s\" \"%s\"", LINUX_INSTALL_DIR, tempFileName, tempOutputFileName);
-			printf("\n command Buffer %s",cmdBuffer);
+			//printf("\n command Buffer %s",cmdBuffer);
 			system(cmdBuffer);
 			delete [] cmdBuffer;
 			#endif
@@ -3488,14 +3488,14 @@ INT32 ConvertCdcToBinary(char* cdcfileName,char* temptxtFileName)
 
 					//Data should also be reversed correctly
 					reversedata(&acOddEntries[u32Ctr1 + OFFSET_DATA], &acOddEntriesTemp[u32Ctr1 + OFFSET_DATA], u32LengthObj);
-					printf("\tIndex: %x SubIndex: %x Size %x\n", * (UINT16*) &acOddEntries[u32Ctr1 + OFFSET_INDEX], * (UINT8 *) &acOddEntries[u32Ctr1 + OFFSET_SUBINDEX], * (UINT32 *) &acOddEntries[u32Ctr1 + OFFSET_SIZE] );
+					//printf("\tIndex: %x SubIndex: %x Size %x\n", * (UINT16*) &acOddEntries[u32Ctr1 + OFFSET_INDEX], * (UINT8 *) &acOddEntries[u32Ctr1 + OFFSET_SUBINDEX], * (UINT32 *) &acOddEntries[u32Ctr1 + OFFSET_SIZE] );
 					u32Ctr1 = u32Ctr1 + OFFSET_DATA + u32LengthObj;
 				}				
 
 			}
 			else
 			{
-				printf("Index: %x SubIndex: %x Size %x\n", * (UINT16*) &acOddEntries[u32Ctr + OFFSET_INDEX], * (UINT8 *) &acOddEntries[u32Ctr + OFFSET_SUBINDEX], u32LengthMNObj );
+				//printf("Index: %x SubIndex: %x Size %x\n", * (UINT16*) &acOddEntries[u32Ctr + OFFSET_INDEX], * (UINT8 *) &acOddEntries[u32Ctr + OFFSET_SUBINDEX], u32LengthMNObj );
 				//Get the length of the data to be reversed				
 				reversedata(&acOddEntries[u32Ctr + OFFSET_DATA], &acOddEntriesTemp[u32Ctr + OFFSET_DATA], u32LengthMNObj);
 			}
@@ -4002,10 +4002,10 @@ ocfmRetCode GenerateXAP(char* pbFileName)
 			WriteXAPElements(aobjPiOutCol, pxtwWriter, iOutVars, OUTPUT);
 
 
-			printf("\n pbFileName%s",pbFileName); 
+			//printf("\n pbFileName%s",pbFileName); 
 			strcpy(xapFileName, pbFileName);
 			strcat(xapFileName, ".xml");
-			printf("\n xapFileName%s",xapFileName); 
+			//printf("\n xapFileName%s",xapFileName); 
 			EndWrtitingXAP(pxtwWriter, xapFileName, pxdDoc);
 			
 			/*Generate Header file */			
@@ -5246,7 +5246,7 @@ ocfmRetCode SaveProject(char* pbProjectPath, char* pbProjectName)
 		//sprintf(pbTempPjtName, "%s/%s/%s.oct", pbProjectPath, pbProjectName, pbProjectName);
 		sprintf(pbTempPjtName, "%s%s/%s.oct", pbProjectPath, pbProjectName, pbProjectName);
 		//sprintf(pbTempPjtName, "%s/%s.oct", pbProjectPath, pbProjectName);
-		cout << "\n\ntmp_PjtName:" << pbTempPjtName << endl;
+		//cout << "\n\ntmp_PjtName:" << pbTempPjtName << endl;
 
 		iIntStat = stat(pbTempPjtName,&stFileInfo);
 		if(iIntStat == 0) {
@@ -5256,13 +5256,13 @@ ocfmRetCode SaveProject(char* pbProjectPath, char* pbProjectName)
 		} 
 		else 
 		{ 				
-  			cout << "\n\ntmp_PjtName:" << pbTempPjtName << endl;
+  			//cout << "\n\ntmp_PjtName:" << pbTempPjtName << endl;
 			#if defined(_WIN32) && defined(_MSC_VER)
 			{
 				sprintf(pbTempPath, "%s\\%s", pbProjectPath, pbProjectName);
-				cout << "\npath:" << pbTempPath <<endl;
+				//cout << "\npath:" << pbTempPath <<endl;
 				mkdir(pbTempPath);	
-				cout << "mkdir success"<<endl;
+				//cout << "mkdir success"<<endl;
 			}
 			#else
 			{
@@ -5277,7 +5277,7 @@ ocfmRetCode SaveProject(char* pbProjectPath, char* pbProjectName)
 			sprintf(pbTempPath, "%s\\%s\\%s", pbProjectPath, pbProjectName, "cdc_xap");
 			//cout << "\npath:" << path <<endl;
 			mkdir(pbTempPath);	
-			cout << "mkdir success"<<endl;
+			//cout << "mkdir success"<<endl;
 		}
 		#else
 		{
@@ -5287,31 +5287,23 @@ ocfmRetCode SaveProject(char* pbProjectPath, char* pbProjectName)
 		#endif
 		
 		saveProjectXML(pbProjectPath, pbProjectName);
-		//cout << "Trace_1" <<endl;
 		pobjNodeCollection = CNodeCollection::getNodeColObjectPointer();	
-		//cout << "Trace_2" <<endl;
 		if(pobjNodeCollection == NULL)
 		{
-			ocfmException objException;// = new ocfmException;
+			ocfmException objException;
 			objException.ocfm_Excpetion(OCFM_ERR_NO_NODES_FOUND);
 			throw &objException;
 		}
-		//cout << "Trace_3" <<endl;
 		if( pobjNodeCollection->getNumberOfNodes() > 0)
 		{
-			//cout << "Trace_4" <<endl;
 			for(INT32 iLoopCount = 0; iLoopCount < pobjNodeCollection->getNumberOfNodes(); iLoopCount++)
 			{				
-				//cout << "Trace_4_1" <<endl;
 				objNode = pobjNodeCollection->getNodebyCollectionIndex(iLoopCount);
-				//cout << "Trace_4_2" <<endl;
 				//char *pbFileName;	
 				//pbFileName = new char[80];
 				char* pbFileName;
-				//cout << "Trace_4_3" <<endl;
 				//pbFileName = new char[(strlen(pbTempPath) + 4 + 5)];
 				pbFileName  =  new char[MAX_FILE_PATH_SIZE];
-						//cout << "Trace_5" <<endl;
 				#if defined(_WIN32) && defined(_MSC_VER)
 				{
 					sprintf(pbTempPath, "%s\\%s\\octx", pbProjectPath, pbProjectName);				
@@ -5333,7 +5325,6 @@ ocfmRetCode SaveProject(char* pbProjectPath, char* pbProjectName)
 					sprintf(pbFileName, "%s\\%d.octx", pbTempPath, objNode.getNodeId());
 					//cout << "\nSave Pjt FileName:" << pbFileName << endl;
 				}
-				cout << "Trace_6" <<endl;
 				#else
 				{
 					struct stat stFileInfo;
@@ -5353,10 +5344,9 @@ ocfmRetCode SaveProject(char* pbProjectPath, char* pbProjectName)
 					// Saves the nodes with their nodeId as the name
 					sprintf(pbFileName, "%s/%d.octx", pbTempPath, objNode.getNodeId());
 				}
-				#endif
-					//cout << "Trace_7" <<endl;					
-				cout << "\nfileName:" << pbFileName << endl;
-				cout << "\ngetNodeId-getNodeType:" << objNode.getNodeId() << objNode.getNodeType() << endl;
+				#endif				
+				//cout << "\nfileName:" << pbFileName << endl;
+				//cout << "\ngetNodeId-getNodeType:" << objNode.getNodeId() << objNode.getNodeType() << endl;
 				SaveNode(pbFileName, objNode.getNodeId(), objNode.getNodeType());	
 				//cout << "After savenode"<<endl;
 				//cout << "Trace_8" <<endl;
@@ -5563,7 +5553,7 @@ void AddForEachSIdx(char* pbIdx,CIndexCollection * pobjIdxCol, INT32 iMNNodeID, 
 				}
 				else
 				{
-					cout << "\nVal:" << pbValue <<endl;
+					//cout << "\nVal:" << pbValue <<endl;
 					SetSIdxValue(pbIdx,pbSIdx,pbValue, pobjIdxCol, iMNNodeID, MN, bIsDefaultValueSet);
 				}
 		
@@ -6573,13 +6563,9 @@ ocfmRetCode FreeProjectMemory()
 {
 	CNodeCollection *pobjNodeCollection = NULL;
 	pobjNodeCollection = CNodeCollection::getNodeColObjectPointer();
-	cout << "\n\n$S_Trace_1\n\n" << endl;
 	delete pobjNodeCollection;
-	cout << "\n\n$S_Trace_2\n\n" << endl;
 	ocfmRetCode stErrorInfo;		 
-	cout << "\n\n$S_Trace_3\n\n" << endl;
 	stErrorInfo.code = OCFM_ERR_SUCCESS;
-	cout << "\n\n$S_Trace_1\n\n" << endl;
 	return stErrorInfo;
 }
 	
@@ -6607,7 +6593,6 @@ ocfmRetCode OpenProject(char* pbPjtPath, char* pbProjectXmlFileName)
 	#if defined(_WIN32) && defined(_MSC_VER)
 	{		
 		sprintf(pbFileName, "%s\\%s", pbPjtPath, pbProjectXmlFileName);	
-		cout << "\nSave Pjt FileName:" << pbFileName << endl;
 	}
 	#else
 	{
@@ -7113,7 +7098,6 @@ pobjPjtSettings = CPjtSettings::getPjtSettingsPtr();
 xmlTextWriterPtr pxtwWriter;
 xmlDocPtr pxdDoc;
 INT32 iBytesWritten;
-cout << "\n\nInside Save Project XML:" << endl;
 char* pbFileName;
 //pbFileName = new char[strlen(pbProjectPath) + strlen(pbProjectName) + strlen(pbProjectName) + 10];
 pbFileName = new char[MAX_FILE_PATH_SIZE];
@@ -7394,7 +7378,6 @@ xmlSaveFileEnc(pbFileName, pxdDoc, MY_ENCODING);
 
 xmlFreeDoc(pxdDoc);	
 
-cout << "\nsaveProjectXML:\n" << pbFileName <<endl;
 delete [] pbFileName;
 return true;
 }
