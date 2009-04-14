@@ -732,8 +732,13 @@ ocfmRetCode ImportXML(char *pbFileName, INT32 iNodeID, ENodeType enumNodeType)
 		}		
 		if(enumNodeType == MN)
 		{
+			setFlagForRequiredMNIndexes(iNodeID);
+			
+		}		
+		/*if(enumNodeType == MN)
+		{
 			AddOtherMNIndexes(iNodeID);
-		}
+		}*/
 		
 		/* Copy default value of pdos to act value*/
 		copyPDODefToAct(iNodeID, enumNodeType);	
@@ -1001,6 +1006,10 @@ ocfmRetCode ReImportXML(char* pbFileName, INT32 iNodeID, ENodeType enumNodeType)
 				/* Not required only in case of autogenartion 1020 of CN should be updated else it shud be as it is imported*/
 				//AddOtherRequiredCNIndexes(iNodeID);
 			}			
+			if(enumNodeType == MN)
+			{
+				setFlagForRequiredMNIndexes(iNodeID);			
+		}		
 			/* Copy default value of pdos to act value*/
 			copyPDODefToAct(iNodeID, enumNodeType);	
 		
@@ -1978,6 +1987,57 @@ void setFlagForRequiredIndexes(INT32 iNodeId)
 		strcmp((char*)pobjIndex->getIndexValue(),"1006") == 0)
 		{
 			pobjIndex->setFlagIfIncludedCdc(TRUE);
+			for(INT32 iSIDxCount = 0; iSIDxCount < pobjIndex->getNumberofSubIndexes(); iSIDxCount++)
+			{
+				CSubIndex* pobjSIdx;
+				pobjSIdx = pobjIndex->getSubIndex(iSIDxCount);
+				pobjSIdx->setFlagIfIncludedCdc(TRUE);				
+			}
+		}
+	}				
+}
+/**************************************************************************************************
+* Function Name: setFlagForRequiredIndexes
+* Description: 
+* Return Value: void
+****************************************************************************************************/
+void setFlagForRequiredMNIndexes(INT32 iNodeId)
+{
+	CIndex* pobjIndex;
+	CIndexCollection* pobjIdxCol;
+	CNodeCollection* pobjNodeCol;
+	CNode* pobjNode;
+	
+	pobjNodeCol =  CNodeCollection::getNodeColObjectPointer();
+	pobjNode 	=  pobjNodeCol->getNodePtr(MN, iNodeId);
+	pobjIdxCol	= pobjNode->getIndexCollection();
+	
+	INT32 iIndexCount = pobjIdxCol->getNumberofIndexes();
+	
+	for(INT32 iLoopCount = 0; iLoopCount < iIndexCount; iLoopCount++)
+	{
+		pobjIndex = pobjIdxCol->getIndex(iLoopCount);
+		
+		if(CheckIfNotPDO((char*)pobjIndex->getIndexValue()) == false ||
+		strcmp((char*)pobjIndex->getIndexValue(),"1006") == 0 ||
+		strcmp((char*)pobjIndex->getIndexValue(),"1020") == 0 ||
+		strcmp((char*)pobjIndex->getIndexValue(),"1300") == 0 ||
+		strcmp((char*)pobjIndex->getIndexValue(),"1C02") == 0 ||
+		strcmp((char*)pobjIndex->getIndexValue(),"1C09") == 0 ||
+		strcmp((char*)pobjIndex->getIndexValue(),"1F26") == 0 ||
+		strcmp((char*)pobjIndex->getIndexValue(),"1F27") == 0 ||
+		strcmp((char*)pobjIndex->getIndexValue(),"1F84") == 0 ||
+		strcmp((char*)pobjIndex->getIndexValue(),"1F8B") == 0 ||
+		strcmp((char*)pobjIndex->getIndexValue(),"1F8D") == 0 ||
+		strcmp((char*)pobjIndex->getIndexValue(),"1F92") == 0)
+		{
+			pobjIndex->setFlagIfIncludedCdc(TRUE);
+			for(INT32 iSIDxCount = 0; iSIDxCount < pobjIndex->getNumberofSubIndexes(); iSIDxCount++)
+			{
+				CSubIndex* pobjSIdx;
+				pobjSIdx = pobjIndex->getSubIndex(iSIDxCount);
+				pobjSIdx->setFlagIfIncludedCdc(TRUE);				
+			}
 		}
 	}				
 }

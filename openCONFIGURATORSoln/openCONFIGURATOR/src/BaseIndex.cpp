@@ -579,32 +579,47 @@ bool CBaseIndex::IsIndexVaueValid(char* pbHexValue)
 	unsigned long ulHighLimit;
 	bool bFlag = true;
 
-	if(strcmp(pbHexValue, "") == 0)
-		return true;
 	
-	ulValue = hex2int(pbHexValue);
+	if(strcmp(pbHexValue, "") == 0)
+	return true;
+	
+	if(CheckIfHex(pbHexValue))
+	{		
+		ulValue = hex2int(subString(pbHexValue, 2, strlen(pbHexValue) - 2));		
+	}
+	else
+	return true;
+	
+	
 	if(this->m_LowLimit != NULL)
 	{		
 		if(strcmp(this->m_LowLimit,"") != 0)
 		{
-			ulLowlimit = hex2int((char *)m_LowLimit);	
-			
+			if(CheckIfHex((char*)this->m_LowLimit))
+			{
+				ulLowlimit = hex2int(subString((char*)m_LowLimit, 2, strlen(m_LowLimit) -2));		
+			}
 			if(ulValue>= ulLowlimit)
 			{
 				bFlag = true;
 			}
 			else
 			{
-				bFlag = false;	 
+				bFlag = false;
+				return bFlag;	 
 			}
 		}
 	}
+	
 	if(this->m_HighLimit!= NULL)
 	{
 		if(strcmp(this->m_HighLimit,"")!=0)
 		{
-			ulHighLimit = hex2int((char *)m_HighLimit);
-			
+			if(CheckIfHex((char*)this->m_HighLimit))
+			{
+				ulHighLimit = hex2int(subString((char*)m_HighLimit, 2, strlen(m_HighLimit) -2));			
+			}			
+		
 			if(ulValue<= ulHighLimit)
 			{
 				bFlag = true;

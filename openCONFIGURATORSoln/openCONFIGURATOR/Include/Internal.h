@@ -183,4 +183,5 @@ ocfmRetCode AddOtherMNIndexes(int NodeID);
 void AuotgenerateOtherIndexs(CNode* objNode);
 void UpdatedCNDateORTime(CIndex* pobjMNIndex, int iNodeId, EDateTime eDT);
 void copyPDODefToAct(int iNodeID, ENodeType enumNodeType);
+void setFlagForRequiredMNIndexes(INT32 iNodeId);
 #endif // internal_h
