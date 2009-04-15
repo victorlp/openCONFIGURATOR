@@ -7704,16 +7704,31 @@ void AuotgenerateOtherIndexs(CNode* objNode)
 
 			ocfmRetCode retCode;
 			//char* MNIndex = new char[INDEX_LEN];		
-			char pbMNIndex[INDEX_LEN];		
+			char pbMNIndex[INDEX_LEN + ALLOC_BUFFER];		
 			//char* Sidx =  new char[SUBINDEX_LEN];
 			CIndex* pobjIndex;
 			CNode* pobjNode;
-			char pbSidx[SUBINDEX_LEN];
+			char pbSidx[SUBINDEX_LEN + ALLOC_BUFFER];
 			CIndexCollection* pobjIdxCol;
 			INT32 iConfigDate;
 			INT32 iConfigTime;
 			
 			pobjIdxCol = objNode->getIndexCollection();
+			/* Add 1006*/
+					strcpy(pbMNIndex, "1006");
+							#if defined DEBUG	
+						cout << "string copied" << endl;
+					
+					#endif
+					retCode = AddIndex(MN_NODEID, MN, pbMNIndex);
+						#if defined DEBUG	
+						cout << "retcode" << retCode.code<<endl;
+						cout<< "1006 added"<<endl;
+					#endif
+					
+					/* Set 5ms value*/	
+					SetIndexAttributes(MN_NODEID, MN, pbMNIndex, (char*)"50000",(char*)"NMT_CycleLen_U32", TRUE);				
+					
 			/* Add 1020*/
 				strcpy(pbMNIndex, "1020");
 				retCode = AddIndex(MN_NODEID, MN, pbMNIndex);
@@ -7855,6 +7870,41 @@ void AuotgenerateOtherIndexs(CNode* objNode)
 						AddForEachSIdx(pbMNIndex, pobjIdxCol, objNode->getNodeId(), (char*)"2000000",false);			
 											
 					
+					}
+					
+					
+							/* Add 1F98*/
+					strcpy(pbMNIndex, "1F98");
+					
+					retCode = AddIndex(MN_NODEID, MN, pbMNIndex);
+					if(retCode.code == OCFM_ERR_SUCCESS)
+					{				
+					
+						pobjIndex = pobjIdxCol->getIndexbyIndexValue(pbMNIndex);
+								/* $:set Flag to true*/
+						pobjIndex->setFlagIfIncludedCdc(TRUE);
+						
+						strcpy(pbSidx, "05");
+						SetSIdxValue(pbMNIndex, pbSidx, abC_DLL_ISOCHR_MAX_PAYL, pobjIdxCol, pobjNode->getNodeId(), MN, false);
+						
+						/*strcpy(Sidx, "00");
+						SetSIdxValue(pbMNIndex, pbSidx, "", pobjIdxCol, pobjNode->getNodeId(),true);
+										
+						strcpy(pbSidx, "01");
+						SetSIdxValue(pbMNIndex, pbSidx, abC_DLL_ISOCHR_MAX_PAYL, pobjIdxCol, pobjNode->getNodeId(), false);
+					
+						strcpy(pbSidx, "02");
+						SetSIdxValue(pbMNIndex, pbSidx, abC_DLL_ISOCHR_MAX_PAYL, pobjIdxCol, pobjNode->getNodeId(), false);
+						
+						
+						strcpy(pbSidx, "07");
+						SetSIdxValue(pbMNIndex, pbSidx, "", pobjIdxCol, pobjNode->getNodeId(), true);
+						
+						strcpy(pbSidx, "08");
+						SetSIdxValue(pbMNIndex, pbSidx, abC_DLL_MIN_ASYNC_MTU, pobjIdxCol, pobjNode->getNodeId(), false);
+						
+						strcpy(pbSidx, "09");
+						SetSIdxValue(pbMNIndex, pbSidx, "", pobjIdxCol, pobjNode->getNodeId(), true);*/
 					}
 					
 }

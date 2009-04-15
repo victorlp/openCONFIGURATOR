@@ -2029,7 +2029,8 @@ void setFlagForRequiredMNIndexes(INT32 iNodeId)
 		strcmp((char*)pobjIndex->getIndexValue(),"1F84") == 0 ||
 		strcmp((char*)pobjIndex->getIndexValue(),"1F8B") == 0 ||
 		strcmp((char*)pobjIndex->getIndexValue(),"1F8D") == 0 ||
-		strcmp((char*)pobjIndex->getIndexValue(),"1F92") == 0)
+		strcmp((char*)pobjIndex->getIndexValue(),"1F92") == 0 ||
+		strcmp((char*)pobjIndex->getIndexValue(),"1F98") == 0)
 		{
 			pobjIndex->setFlagIfIncludedCdc(TRUE);
 			for(INT32 iSIDxCount = 0; iSIDxCount < pobjIndex->getNumberofSubIndexes(); iSIDxCount++)
