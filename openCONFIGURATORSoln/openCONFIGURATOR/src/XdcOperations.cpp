@@ -2139,7 +2139,7 @@ int getDataSize(char* dataTypeVal)
 		else if(strcmp(StringToUpper(dataTypeVal),"INTEGER56")==0 || 
 		strcmp(StringToUpper(dataTypeVal),"UNSIGNED56")==0)
 		{
-			return 5;			
+			return 7;			
 		}	
 		else if(strcmp(StringToUpper(dataTypeVal),"UNSIGNED64")==0 || 
 		strcmp(StringToUpper(dataTypeVal),"INTEGER64")==0 ||
