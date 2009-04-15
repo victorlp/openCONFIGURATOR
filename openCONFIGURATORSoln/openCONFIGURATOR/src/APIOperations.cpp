@@ -3247,7 +3247,11 @@ ocfmRetCode ProcessPDONodes()
 															{
 																ProcessImage objProcessImage;
 																
-																	
+																if(dt.getName() == NULL)
+																{																
+																	objocfmException.ocfm_Excpetion(OCFM_ERR_INVALID_DATATYPE_FOR_PDO);
+																	throw objocfmException;
+																}
 																	objProcessImage.CNNodeID = pobjNode->getNodeId();
 																		/* Name of the Process Image variable*/
 																	objProcessImage.Name = (char*)malloc(6 + ALLOC_BUFFER);
@@ -3342,11 +3346,7 @@ ocfmRetCode ProcessPDONodes()
 															/*	objProcessImage.DataSize = (char*)malloc(strlen(dt.DataSize+1));*/
 																//strcpy(objProcessImage.DataSize, dt.DataSize);
 																//printf("\n Datasize %d", dt.DataSize);
-																if(dt.getName() == NULL)
-																{																
-																	objocfmException.ocfm_Excpetion(OCFM_ERR_INVALID_DATATYPE_FOR_PDO);
-																	throw objocfmException;
-																}
+																
 																
 																//pi.DataInfo.DataSize = atoi(dt.DataSize);
 																objProcessImage.DataInfo.DataSize = dt.DataSize *8;
@@ -3378,6 +3378,8 @@ ocfmRetCode ProcessPDONodes()
 				
 																CreateMNPDOVar(objProcessImage.ByteOffset, objProcessImage.DataInfo.DataSize, objProcessImage.DataInfo._dt_enum, pdoType, pobjNode);
 																pobjNode->addProcessImage(objProcessImage);
+																delete[] pbModuleName ;
+																delete[] pbSIdxName;
 															}															
 													}
 													iSiCount++;
@@ -6113,7 +6115,9 @@ ocfmRetCode GenerateMNOBD()
 				
 			}
 		}
+		setFlagForRequiredMNIndexes(MN_NODEID);
 	}
+	
 	catch(ocfmException& objocfmException)
 	{
 		return objocfmException._ocfmRetCode;

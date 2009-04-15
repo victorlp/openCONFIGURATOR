@@ -363,7 +363,7 @@ bool CheckIfSubIndexExists(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexI
 	CIndexCollection *pobjIndexCollection	= NULL;
 	CIndex			 *pobjIdx				= NULL;				
 	
-	objIndex.setNodeID(objNode.getNodeId());
+	
 	pobjNodeCollection	= CNodeCollection::getNodeColObjectPointer();
 	objNode				= pobjNodeCollection->getNode(enumNodeType, iNodeID);
 
