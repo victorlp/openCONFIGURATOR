@@ -275,6 +275,17 @@ void setSubIndexAttributes(xmlTextReaderPtr pxtrReader, CSubIndex *pobjSubIndex)
 	{
 		pobjSubIndex->setUniqueIDRef((char*)pxcValue);
 	}
+	else if(!strcmp(ConvertToUpper((char*)pxcName), "CDCFLAG"))
+	{
+		if(!strcmp(ConvertToUpper((char*)pxcValue), "FALSE"))
+		{
+			pobjSubIndex->setFlagIfIncludedCdc(FALSE);
+		}
+		else if(!strcmp(ConvertToUpper((char*)pxcValue), "TRUE"))
+		{
+			pobjSubIndex->setFlagIfIncludedCdc(TRUE);
+		}
+	}
 	else
 	{
 		#ifdef DEBUF
@@ -1865,6 +1876,10 @@ ocfmRetCode SaveNode(const char* pbFileName, INT32 NodeID, ENodeType enumNodeTyp
 						iBytesWritten = xmlTextWriterWriteAttribute(pxtwWriter, BAD_CAST "PDOmapping", BAD_CAST objSubIndexPtr->getPDOMapping());
 					if(objSubIndexPtr->getUniqueIDRef() != NULL)
 						iBytesWritten = xmlTextWriterWriteAttribute(pxtwWriter, BAD_CAST "uniqueIDRef", BAD_CAST objSubIndexPtr->getUniqueIDRef());
+					if(objSubIndexPtr->getFlagIfIncludedCdc() == 0)
+						iBytesWritten = xmlTextWriterWriteAttribute(pxtwWriter, BAD_CAST "CDCFlag", BAD_CAST "FALSE");
+					else if(objSubIndexPtr->getFlagIfIncludedCdc() == 1)
+						iBytesWritten = xmlTextWriterWriteAttribute(pxtwWriter, BAD_CAST "CDCFlag", BAD_CAST "TRUE");
 					// End SubObject Tag
 					iBytesWritten = xmlTextWriterEndElement(pxtwWriter);
 					if (iBytesWritten < 0)
