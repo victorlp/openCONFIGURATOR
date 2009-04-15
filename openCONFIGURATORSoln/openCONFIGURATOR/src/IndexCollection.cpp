@@ -215,7 +215,7 @@ CIndex* CIndexCollection::getIndexbyIndexValue(char* pbIndex)
 		CIndex objIndex;
 		
 		objIndex = collectionObj[iLoopCount];
-		if(strcmp(objIndex.getIndexValue(),pbIndex) == 0)
+		if(strcmp(StringToUpper((char*)objIndex.getIndexValue()),StringToUpper(pbIndex)) == 0)
 		{
 			return &collectionObj[iLoopCount];
 		}

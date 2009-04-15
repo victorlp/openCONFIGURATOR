@@ -5900,8 +5900,8 @@ ocfmRetCode GenerateMNOBD()
 		CIndexCollection * objMNIndexCol;
 		CSubIndex * objSubIdex;
 		CIndex* pobjIndex;			
-		char* pbMNIndex = new char[5];								
-		char* pbIdx =  new char[3];
+		char* pbMNIndex = new char[INDEX_LEN];								
+		char* pbIdx =  new char[SUBINDEX_LEN];
 		ocfmRetCode stRetInfo;
 		
 		ocfmException objocfmException;
@@ -7699,21 +7699,21 @@ void	UpdateNumberOfEnteriesSIdx(CIndex *pobjIndex, ENodeType enumNodeType)
 	pobjSIdx->setActualValue(_IntToAscii(iTotalSIdxs, pbAsciBuff, 16)); 
 }
 
-void AuotgenerateOtherIndexs(CNode* objNode)
+void AuotgenerateOtherIndexs(CNode* pobjNode)
 {
 
 			ocfmRetCode retCode;
-			//char* MNIndex = new char[INDEX_LEN];		
-			char pbMNIndex[INDEX_LEN + ALLOC_BUFFER];		
-			//char* Sidx =  new char[SUBINDEX_LEN];
+			char* pbMNIndex = new char[INDEX_LEN + ALLOC_BUFFER];		
+			//char pbMNIndex[INDEX_LEN + ALLOC_BUFFER];		
+			char* pbSidx =  new char[SUBINDEX_LEN + ALLOC_BUFFER];
 			CIndex* pobjIndex;
-			CNode* pobjNode;
-			char pbSidx[SUBINDEX_LEN + ALLOC_BUFFER];
+			//CNode* pobjNode;
+			//char pbSidx[SUBINDEX_LEN + ALLOC_BUFFER];
 			CIndexCollection* pobjIdxCol;
 			INT32 iConfigDate;
 			INT32 iConfigTime;
 			
-			pobjIdxCol = objNode->getIndexCollection();
+			pobjIdxCol = pobjNode->getIndexCollection();
 			/* Add 1006*/
 					strcpy(pbMNIndex, "1006");
 							#if defined DEBUG	
@@ -7792,7 +7792,7 @@ void AuotgenerateOtherIndexs(CNode* objNode)
 						iConfigDate = getConfigDate();
 						Val = _IntToAscii(iConfigDate, Val, 10);
 						//hexVal = padLeft(hexVal, '0' , 8);
-						AddForEachSIdx(pbMNIndex, pobjIdxCol, objNode->getNodeId(), Val, false);		
+						AddForEachSIdx(pbMNIndex, pobjIdxCol, pobjNode->getNodeId(), Val, false);		
 											
 										//AddForEachSIdx(MNIndex, pobjIdxCol, objNode->getNodeId(), hexVal, false);		
 	
@@ -7816,7 +7816,7 @@ void AuotgenerateOtherIndexs(CNode* objNode)
 						Val = _IntToAscii(iConfigTime,Val, 10);
 						//Val = padLeft(hexVal, '0' , 8);
 
-						AddForEachSIdx(pbMNIndex, pobjIdxCol, objNode->getNodeId(), Val, false);										
+						AddForEachSIdx(pbMNIndex, pobjIdxCol, pobjNode->getNodeId(), Val, false);										
 					}
 					
 					
@@ -7829,7 +7829,7 @@ void AuotgenerateOtherIndexs(CNode* objNode)
 								/* $:set Flag to true*/
 						pobjIndex->setFlagIfIncludedCdc(TRUE);
 						
-						AddForEachSIdx(pbMNIndex, pobjIdxCol, objNode->getNodeId(), (char*)"", true);			
+						AddForEachSIdx(pbMNIndex, pobjIdxCol, pobjNode->getNodeId(), (char*)"", true);			
 			
 					}
 								/* Add 1F8B*/
@@ -7841,7 +7841,7 @@ void AuotgenerateOtherIndexs(CNode* objNode)
 								/* $:set Flag to true*/
 						pobjIndex->setFlagIfIncludedCdc(TRUE);
 			
-						AddForEachSIdx(pbMNIndex, pobjIdxCol, objNode->getNodeId(), (char*)"1490", false);			
+						AddForEachSIdx(pbMNIndex, pobjIdxCol, pobjNode->getNodeId(), (char*)"1490", false);			
 											
 					
 					}
@@ -7854,7 +7854,7 @@ void AuotgenerateOtherIndexs(CNode* objNode)
 								/* $:set Flag to true*/
 						pobjIndex->setFlagIfIncludedCdc(TRUE);
 			
-						AddForEachSIdx(pbMNIndex, pobjIdxCol, objNode->getNodeId(), (char*)"1490", false);			
+						AddForEachSIdx(pbMNIndex, pobjIdxCol, pobjNode->getNodeId(), (char*)"1490", false);			
 											
 					
 					}
@@ -7867,7 +7867,7 @@ void AuotgenerateOtherIndexs(CNode* objNode)
 								/* $:set Flag to true*/
 						pobjIndex->setFlagIfIncludedCdc(TRUE);
 			
-						AddForEachSIdx(pbMNIndex, pobjIdxCol, objNode->getNodeId(), (char*)"2000000",false);			
+						AddForEachSIdx(pbMNIndex, pobjIdxCol, pobjNode->getNodeId(), (char*)"2000000",false);			
 											
 					
 					}
@@ -7906,7 +7906,8 @@ void AuotgenerateOtherIndexs(CNode* objNode)
 						strcpy(pbSidx, "09");
 						SetSIdxValue(pbMNIndex, pbSidx, "", pobjIdxCol, pobjNode->getNodeId(), true);*/
 					}
-					
+					delete [] pbMNIndex;
+					delete [] pbSidx;
 }
 
 void UpdatedCNDateORTime(CIndex* pobjMNIndex, int iNodeId, EDateTime enumDT)

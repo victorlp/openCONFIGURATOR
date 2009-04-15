@@ -72,6 +72,7 @@
 ****************************************************************************************************/
 #include <stdio.h>
 #include "../Include/Index.h"
+#include "../Include/Internal.h"
 
 /****************************************************************************************************
 * FUNCTION DEFINITIONS
@@ -172,7 +173,7 @@ CSubIndex* CIndex::getSubIndexbyIndexValue(char* pbIndex)
 	{			
 		pobjSIndex = &collectionObj[iLoopCount];
 		
-		if(strcmp(pobjSIndex->getIndexValue(),pbIndex) == 0)
+		if(strcmp(StringToUpper((char*)pobjSIndex->getIndexValue()), StringToUpper(pbIndex)) == 0)
 		{
 			return pobjSIndex;
 		}
