@@ -1616,7 +1616,7 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 					
 									strcat(Buffer,"\n");
 				}	
-			
+			/* If Subobjects present*/
 			else
 			{
 				int noOfSubIndexes = objIndex->getNumberofSubIndexes();
@@ -1740,7 +1740,7 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 								{
 									i = noOfSubIndexes-1;								
 								}
-								if(i == noOfSubIndexes-1 && (CheckIfMappingPDO((char*)objIndex->getIndexValue()) && (flag_No_of_enteriesAdded==false)))
+								if(i == noOfSubIndexes-1 && (CheckIfMappingPDO((char*)objIndex->getIndexValue()) && (flag_No_of_enteriesAdded==false) && resetValueAdded == true))
 								{
 									i = -1;	
 									flag_No_of_enteriesAdded = true;							
