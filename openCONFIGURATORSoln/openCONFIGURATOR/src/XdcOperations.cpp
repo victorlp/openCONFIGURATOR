@@ -726,7 +726,7 @@ ocfmRetCode ImportXML(char *pbFileName, INT32 iNodeID, ENodeType enumNodeType)
 		/* Add other required index*/		
 		if(enumNodeType == CN)
 		{
-			setFlagForRequiredIndexes(iNodeID);
+			setFlagForRequiredCNIndexes(iNodeID);
 			/* Not required only in case of autogenartion 1020 of CN should be updated else it shud be as it is imported*/
 			//AddOtherRequiredCNIndexes(iNodeID);
 		}		
@@ -1002,7 +1002,7 @@ ocfmRetCode ReImportXML(char* pbFileName, INT32 iNodeID, ENodeType enumNodeType)
 			/* Add other required index*/		
 			if(enumNodeType == CN)
 			{
-				setFlagForRequiredIndexes(iNodeID);
+				setFlagForRequiredCNIndexes(iNodeID);
 				/* Not required only in case of autogenartion 1020 of CN should be updated else it shud be as it is imported*/
 				//AddOtherRequiredCNIndexes(iNodeID);
 			}			
@@ -1960,11 +1960,11 @@ ocfmRetCode SaveNode(const char* pbFileName, INT32 NodeID, ENodeType enumNodeTyp
 }
 
 /**************************************************************************************************
-* Function Name: setFlagForRequiredIndexes
+* Function Name: setFlagForRequiredCNIndexes
 * Description: 
 * Return Value: void
 ****************************************************************************************************/
-void setFlagForRequiredIndexes(INT32 iNodeId)
+void setFlagForRequiredCNIndexes(INT32 iNodeId)
 {
 	CIndex* pobjIndex;
 	CIndexCollection* pobjIdxCol;
@@ -1997,7 +1997,7 @@ void setFlagForRequiredIndexes(INT32 iNodeId)
 	}				
 }
 /**************************************************************************************************
-* Function Name: setFlagForRequiredIndexes
+* Function Name: setFlagForRequiredMNIndexes
 * Description: 
 * Return Value: void
 ****************************************************************************************************/

@@ -1631,8 +1631,8 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 				
 					/*if(strcmp(objSubIndex->getIndexValue(),"00")!=0 && objSubIndex->getActualValue() != NULL)*/
 					//$S_:TODO
-					//if((objSubIndex->getActualValue() != NULL) && (objSubIndex->getFlagIfIncludedCdc() == TRUE))			
-					if((objSubIndex->getActualValue() != NULL))
+					if((objSubIndex->getActualValue() != NULL) && (objSubIndex->getFlagIfIncludedCdc() == TRUE))			
+					//if((objSubIndex->getActualValue() != NULL))
 					{
 						if (Indexadded)
 						strcat(Buffer,objIndex->getIndexValue());
@@ -3156,12 +3156,14 @@ ocfmRetCode ProcessPDONodes()
 													
 												
 														CIndex* pobjModuleIndex;
-														CSubIndex* pobjSIndex;
+														CSubIndex* pobjModuleSIndex;
 														char* uniqueidRefID = NULL;			
 														char* pbSIdxName = NULL;
 														char* Access = NULL;
 														char *pbModuleName = NULL;
-														DataType dt;						
+														DataType dt;	
+														dt.Name =  NULL;				
+														bool bObjectMapped = false;	
 												
 																		
 															pobjModuleIndex = pobjIndexCollection->getIndexbyIndexValue(pbModuleIndex);
@@ -3179,6 +3181,7 @@ ocfmRetCode ProcessPDONodes()
 															}
 															if(pobjModuleIndex->getNumberofSubIndexes() == 0 && (strcmp(pbSubIndex, "00")==0))
 															{
+																bObjectMapped = true;
 																if(pobjModuleIndex->getUniqueIDRef()!= NULL)
 																{
 																	uniqueidRefID =  new char[strlen(pobjModuleIndex->getUniqueIDRef()) +  ALLOC_BUFFER];
@@ -3188,41 +3191,41 @@ ocfmRetCode ProcessPDONodes()
 																{
 																		if(pobjModuleIndex->getAccessType() != NULL)
 																		{
-																	Access = new char[strlen(pobjModuleIndex->getAccessType()) + ALLOC_BUFFER];
-																	strcpy(Access, pobjModuleIndex->getAccessType());
-																	dt = pobjModuleIndex->getDataType();
+																			Access = new char[strlen(pobjModuleIndex->getAccessType()) + ALLOC_BUFFER];
+																			strcpy(Access, pobjModuleIndex->getAccessType());
+																			dt = pobjModuleIndex->getDataType();
 																		}
 																	
 																}											
 															}
 															else
 															{
- 															pobjSIndex = pobjModuleIndex->getSubIndexbyIndexValue(pbSubIndex);
-															if(pobjSIndex==NULL)
+ 															pobjModuleSIndex = pobjModuleIndex->getSubIndexbyIndexValue(pbSubIndex);
+															if(pobjModuleSIndex==NULL)
 															{								
 																objocfmException.ocfm_Excpetion(OCFM_ERR_MODULE_SUBINDEX_NOT_FOUND);
 																throw objocfmException;
 																}
 																else
 																{
-																	if(pobjSIndex->getUniqueIDRef() != NULL)
+																	if(pobjModuleSIndex->getUniqueIDRef() != NULL)
 																	{
-																		uniqueidRefID =  new char[strlen(pobjSIndex->getUniqueIDRef()) +  ALLOC_BUFFER];
-																		strcpy(uniqueidRefID, pobjSIndex->getUniqueIDRef());
+																		uniqueidRefID =  new char[strlen(pobjModuleSIndex->getUniqueIDRef()) +  ALLOC_BUFFER];
+																		strcpy(uniqueidRefID, pobjModuleSIndex->getUniqueIDRef());
 																	}
 																	else
 																	{
-																		if(pobjSIndex->getName() != NULL)
+																		if(pobjModuleSIndex->getName() != NULL)
 																		{
-																		pbSIdxName = new char[strlen(pobjSIndex->getName()) + ALLOC_BUFFER];
-																		strcpy(pbSIdxName, pobjSIndex->getName());
+																		pbSIdxName = new char[strlen(pobjModuleSIndex->getName()) + ALLOC_BUFFER];
+																		strcpy(pbSIdxName, pobjModuleSIndex->getName());
 																	
-																			if(pobjSIndex->getAccessType() != NULL)
+																			if(pobjModuleSIndex->getAccessType() != NULL)
 																			{
-																		Access = new char[strlen(pobjSIndex->getAccessType()) + ALLOC_BUFFER];
-																		strcpy(Access, pobjSIndex->getAccessType());
+																		Access = new char[strlen(pobjModuleSIndex->getAccessType()) + ALLOC_BUFFER];
+																		strcpy(Access, pobjModuleSIndex->getAccessType());
 																			}
-																		dt = pobjSIndex->getDataType();
+																		dt = pobjModuleSIndex->getDataType();
 																		}
 																	}
 																}
@@ -3249,7 +3252,7 @@ ocfmRetCode ProcessPDONodes()
 																		/* Name of the Process Image variable*/
 																	objProcessImage.Name = (char*)malloc(6 + ALLOC_BUFFER);
 																	strcpy(objProcessImage.Name, getPIName(pobjNode->getNodeId()));
-																	
+																																	
 																	if(pbModuleName != NULL)
 																	{
 																		objProcessImage.Name = (char*)realloc(objProcessImage.Name, strlen(objProcessImage.Name)+ strlen(pbModuleName) + ALLOC_BUFFER);																		
@@ -3260,7 +3263,21 @@ ocfmRetCode ProcessPDONodes()
 																	objProcessImage.ModuleName = (char*)malloc(strlen(pbModuleName) + ALLOC_BUFFER);
 																	strcpy(objProcessImage.ModuleName, pbModuleName);		
 																	}
-																
+																	else
+																	{
+																		/*If the object name is empty, Ixxxx (xxxx is the index number in hex) */
+																	//	cout << "\nObjectName empty" << endl;
+																		pbModuleName = new char[INDEX_LEN + 1 + ALLOC_BUFFER];
+																		strcpy(pbModuleName, "I");
+																		strcat(pbModuleName, pobjIndex->getIndexValue());
+																		
+																		//cout << "pbModuleName" << pbModuleName;
+																		objProcessImage.Name = (char*)realloc(objProcessImage.Name, strlen(objProcessImage.Name)+ strlen(pbModuleName) + ALLOC_BUFFER);																		
+																		strcat(objProcessImage.Name, pbModuleName);
+																	
+																		objProcessImage.ModuleName = (char*)malloc(strlen(pbModuleName) + ALLOC_BUFFER);
+																		strcpy(objProcessImage.ModuleName, pbModuleName);		
+																	}
 																
 											
 																	//strcat(pi.Name, ModuleName);
@@ -3274,15 +3291,44 @@ ocfmRetCode ProcessPDONodes()
 																	
 																				
 																	//pi.VarName = (char*)malloc(strlen(objSIndex->getName()) + ALLOC_BUFFER);
-																	if(pbSIdxName != NULL)
+																	if(bObjectMapped)
 																	{
-																		objProcessImage.VarName = (char*)malloc(strlen(pbSIdxName) + ALLOC_BUFFER);
-																		strcpy(objProcessImage.VarName, pbSIdxName);		
+																	//	cout << "\n objectmapped";																			
+																		objProcessImage.VarName = (char*)malloc(strlen(pbModuleName) + ALLOC_BUFFER);
+																		strcpy(objProcessImage.VarName, pbModuleName);
+																	}
+																	else
+																	{
+																		if(pbSIdxName != NULL)
+																		{
+																			objProcessImage.VarName = (char*)malloc(strlen(pbSIdxName) + ALLOC_BUFFER);
+																			strcpy(objProcessImage.VarName, pbSIdxName);		
+																//			cout << "\n SubObjectName" << pbSIdxName;
 																		
-																	
-																		objProcessImage.Name = (char*)realloc(objProcessImage.Name,(strlen(objProcessImage.Name) + strlen(pbSIdxName) + 1+ ALLOC_BUFFER));
-																		strcat(objProcessImage.Name, ".");
-																		strcat(objProcessImage.Name, pbSIdxName);
+																			objProcessImage.Name = (char*)realloc(objProcessImage.Name,(strlen(objProcessImage.Name) + strlen(pbSIdxName) + 1+ ALLOC_BUFFER));
+																			strcat(objProcessImage.Name, ".");
+																			strcat(objProcessImage.Name, pbSIdxName);
+																		}
+																		else
+																		{
+																				
+																			/*If the subobject name is empty, use Sxx (xx is the subindex number in hex) */
+																			pbSIdxName = new char[SUBINDEX_LEN + 1 + ALLOC_BUFFER];
+																			
+																			strcpy(pbSIdxName, "S");
+																			strcat(pbSIdxName, pobjModuleSIndex->getIndexValue());
+																			
+																		
+																			objProcessImage.VarName = (char*)malloc(strlen(pbSIdxName) + ALLOC_BUFFER);
+																			strcpy(objProcessImage.VarName, pbSIdxName);		
+																			
+																			objProcessImage.Name = (char*)realloc(objProcessImage.Name,(strlen(objProcessImage.Name) + strlen(pbSIdxName) + 1+ ALLOC_BUFFER));
+																			strcat(objProcessImage.Name, ".");
+																			strcat(objProcessImage.Name, pbSIdxName);
+																			
+															
+																		
+																		}
 																	}
 															 
 													
@@ -3297,10 +3343,11 @@ ocfmRetCode ProcessPDONodes()
 																//strcpy(objProcessImage.DataSize, dt.DataSize);
 																//printf("\n Datasize %d", dt.DataSize);
 																if(dt.getName() == NULL)
-																{
+																{																
 																	objocfmException.ocfm_Excpetion(OCFM_ERR_INVALID_DATATYPE_FOR_PDO);
 																	throw objocfmException;
 																}
+																
 																//pi.DataInfo.DataSize = atoi(dt.DataSize);
 																objProcessImage.DataInfo.DataSize = dt.DataSize *8;
 																
