@@ -599,6 +599,10 @@ bool CBaseIndex::IsIndexVaueValid(char* pbHexValue)
 			{
 				ulLowlimit = hex2int(subString((char*)m_LowLimit, 2, strlen(m_LowLimit) -2));		
 			}
+			else
+			{
+				ulLowlimit = atoi(m_LowLimit);
+			}
 			if(ulValue>= ulLowlimit)
 			{
 				bFlag = true;
@@ -619,7 +623,10 @@ bool CBaseIndex::IsIndexVaueValid(char* pbHexValue)
 			{
 				ulHighLimit = hex2int(subString((char*)m_HighLimit, 2, strlen(m_HighLimit) -2));			
 			}			
-		
+			else
+			{
+				ulHighLimit = atoi(m_HighLimit);
+			}
 			if(ulValue<= ulHighLimit)
 			{
 				bFlag = true;
