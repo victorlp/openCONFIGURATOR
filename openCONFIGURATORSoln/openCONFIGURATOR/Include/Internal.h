@@ -184,4 +184,5 @@ void AuotgenerateOtherIndexs(CNode* objNode);
 void UpdatedCNDateORTime(CIndex* pobjMNIndex, int iNodeId, EDateTime eDT);
 void copyPDODefToAct(int iNodeID, ENodeType enumNodeType);
 void setFlagForRequiredMNIndexes(INT32 iNodeId);
+bool CheckAllowedDTForMapping(char* dtName);
 #endif // internal_h

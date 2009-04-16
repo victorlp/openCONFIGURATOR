@@ -3193,10 +3193,11 @@ ocfmRetCode ProcessPDONodes()
 																		{
 																			Access = new char[strlen(pobjModuleIndex->getAccessType()) + ALLOC_BUFFER];
 																			strcpy(Access, pobjModuleIndex->getAccessType());
-																			dt = pobjModuleIndex->getDataType();
+																			
 																		}
-																	
-																}											
+																	dt = pobjModuleIndex->getDataType();
+																}				
+																					
 															}
 															else
 															{
@@ -3247,12 +3248,17 @@ ocfmRetCode ProcessPDONodes()
 															{
 																ProcessImage objProcessImage;
 																
-																if(dt.getName() == NULL)
+																if(dt.getName() == NULL )
 																{																
 																	objocfmException.ocfm_Excpetion(OCFM_ERR_INVALID_DATATYPE_FOR_PDO);
 																	throw objocfmException;
 																}
-																	objProcessImage.CNNodeID = pobjNode->getNodeId();
+																else if(!CheckAllowedDTForMapping(dt.getName()))
+																{
+																		objocfmException.ocfm_Excpetion(OCFM_ERR_INVALID_DATATYPE_FOR_PDO);
+																		throw objocfmException;
+																}
+																		objProcessImage.CNNodeID = pobjNode->getNodeId();
 																		/* Name of the Process Image variable*/
 																	objProcessImage.Name = (char*)malloc(6 + ALLOC_BUFFER);
 																	strcpy(objProcessImage.Name, getPIName(pobjNode->getNodeId()));

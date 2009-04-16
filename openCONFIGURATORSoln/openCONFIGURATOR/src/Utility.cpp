@@ -598,3 +598,17 @@ int reversedata(UINT8 *pbArg1, UINT8 *pbArg2, UINT32 uiSize)
 		
 	return 0;
 }
+bool CheckAllowedDTForMapping(char* dtName)
+{
+	if(strcmp(StringToUpper(dtName), "INTEGER8") == 0 ||
+				strcmp(StringToUpper(dtName), "INTEGER16") == 0 ||
+				strcmp(StringToUpper(dtName), "INTEGER32") == 0 ||							
+				strcmp(StringToUpper(dtName), "UNSIGNED8") == 0 ||
+				strcmp(StringToUpper(dtName), "UNSIGNED16") == 0 ||
+				strcmp(StringToUpper(dtName), "UNSIGNED32") == 0)
+				
+				
+				return true;
+	else
+		return false;
+}
