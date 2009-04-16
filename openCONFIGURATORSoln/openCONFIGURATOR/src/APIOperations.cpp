@@ -7733,8 +7733,16 @@ void AuotgenerateOtherIndexs(CNode* pobjNode)
 					#endif
 					
 					/* Set 5ms value*/	
-					SetIndexAttributes(MN_NODEID, MN, pbMNIndex, (char*)"50000",(char*)"NMT_CycleLen_U32", TRUE);				
-					
+					if(retCode.code ==  OCFM_ERR_INDEX_ALREADY_EXISTS)
+					{
+						pobjIndex = pobjIdxCol->getIndexbyIndexValue(pbMNIndex);
+						if(pobjIndex->getActualValue() ==NULL)
+						SetIndexAttributes(MN_NODEID, MN, pbMNIndex, (char*)"50000",(char*)"NMT_CycleLen_U32", TRUE);				
+					}
+					else
+					{
+							SetIndexAttributes(MN_NODEID, MN, pbMNIndex, (char*)"50000",(char*)"NMT_CycleLen_U32", TRUE);				
+					}
 			/* Add 1020*/
 				strcpy(pbMNIndex, "1020");
 				retCode = AddIndex(MN_NODEID, MN, pbMNIndex);
