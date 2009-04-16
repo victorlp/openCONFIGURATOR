@@ -5566,14 +5566,15 @@ void AddForEachSIdx(char* pbIdx,CIndexCollection * pobjIdxCol, INT32 iMNNodeID, 
 	}
 	else
 	{
-			if(objNodeCol->getNumberOfNodes() !=0)
+			if(objNodeCol->getCNNodesCount() !=0)
 			{
 				strcpy(pbSIdx, "00");
-			}
-			pbIndexNo = _IntToAscii(objNodeCol->getCNNodesCount(), pbIndexNo, 16);
-			pbIndexNo = padLeft(pbIndexNo, '0', 2);
 			
-			SetSIdxValue(pbIdx, pbSIdx, pbIndexNo , pobjIdxCol, iMNNodeID, MN, false);
+				pbIndexNo = _IntToAscii(objNodeCol->getCNNodesCount(), pbIndexNo, 16);
+				pbIndexNo = padLeft(pbIndexNo, '0', 2);
+				
+				SetSIdxValue(pbIdx, pbSIdx, pbIndexNo , pobjIdxCol, iMNNodeID, MN, false);
+			}
 	}
 				
 		for(INT32 iLoopCount = 0; iLoopCount < objNodeCol->getNumberOfNodes(); iLoopCount++)
