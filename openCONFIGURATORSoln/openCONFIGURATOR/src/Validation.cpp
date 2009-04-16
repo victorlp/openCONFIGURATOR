@@ -423,7 +423,8 @@ bool IfVersionNumberMatches(xmlTextReaderPtr pxReader)
 	if(strcmp(ConvertToUpper((char*)pxcName), "VERSION") == FALSE)
 	{
 		if( (strcmp(ConvertToUpper((char*)pxcValue), TOOL_VERSION) == FALSE) ||
-			(strcmp(ConvertToUpper((char*)pxcValue), PREV_TOOL_VERSION) == FALSE) )
+			(strcmp(ConvertToUpper((char*)pxcValue), PREV_TOOL_VERSION) == FALSE)  ||
+			(strcmp(ConvertToUpper((char*)pxcValue), LAST_TOOL_VERSION) == FALSE) )
 		{
 			#if defined DEBUG
 				cout << "\nVersion number matched" << endl;
