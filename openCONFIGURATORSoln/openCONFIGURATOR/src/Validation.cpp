@@ -363,22 +363,17 @@ bool CheckIfSubIndexExists(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexI
 	CIndexCollection *pobjIndexCollection	= NULL;
 	CIndex			 *pobjIdx				= NULL;				
 	
-	cout << "\n inside CheckIfSubIndexExists\n\n";
+	
 	pobjNodeCollection	= CNodeCollection::getNodeColObjectPointer();
-	cout << "\n\n\n Nodeid\n\n" << iNodeID;
 	objNode				= pobjNodeCollection->getNode(enumNodeType, iNodeID);
-	cout << "\n\n\n 1\n\n" << endl;
 	pobjIndexCollection = objNode.getIndexCollection();
-	cout << "\n\n\n 2\n\n" << endl;
 	pobjIdx 			= pobjIndexCollection->getIndexbyIndexValue(pbIndexID);
 	/*if(pobjIdx == NULL)
 	{
 		cout << "\n\nGOT NULL!!!!!!!!\n\n" << endl;
 		return false;	
 	}	*/	
-	cout << "\n\n\n 3\n\n" << endl;
-	//cout << "\n\n\nNumberofSubIndexes:" << pobjIdx->getNumberofSubIndexes()<< endl;
-	cout << "\n\n\n 4\n\n" << endl;
+	
 	if(pobjIdx->getNumberofSubIndexes() == 0)
 	{
 		return false;
@@ -390,7 +385,6 @@ bool CheckIfSubIndexExists(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexI
 		{
 			CSubIndex* objSubIndexPtr;
 			objSubIndexPtr = pobjIdx->getSubIndex(iSubIndexCount);						
-			printf("SubIndexValue:%s-%s\n", objSubIndexPtr->getIndexValue(), pbSubIndexID);
 			if((strcmp(StringToUpper((char*) objSubIndexPtr->getIndexValue()), StringToUpper(pbSubIndexID)) == 0))
 			{
 				return true;

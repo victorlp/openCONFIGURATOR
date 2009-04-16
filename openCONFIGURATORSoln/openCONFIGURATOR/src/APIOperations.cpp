@@ -2585,7 +2585,7 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 				fclose(fileptr);
 			if (( fileptr = fopen(tempFileName,"a+")) == NULL)
 				{
-					printf ( "Cannot open file you have named...!\n" );
+					//printf ( "Cannot open file you have named...!\n" );
 					ocfmException ex;
 					ex.ocfm_Excpetion(OCFM_ERR_CANNOT_OPEN_FILE);
 					throw ex;							
