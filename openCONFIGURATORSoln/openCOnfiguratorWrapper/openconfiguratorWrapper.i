@@ -22,8 +22,8 @@
 #include "../openCONFIGURATOR/Include/NodeCollection.h"
 #include "../openCONFIGURATOR/Include/Node.h"
 #include "../openCONFIGURATOR/Include/SubIndex.h"
-#include "../openCONFIGURATOR/Include/TCollection.h"
-#include "../openCONFIGURATOR/Include/template.h"
+
+
 %}
 
 %include cpointer.i
@@ -59,8 +59,7 @@
 %include "../openCONFIGURATOR/Include/NodeCollection.h"
 %include "../openCONFIGURATOR/Include/Node.h"
 %include "../openCONFIGURATOR/Include/SubIndex.h"
-%include "../openCONFIGURATOR/Include/TCollection.h"
-%include "../openCONFIGURATOR/Include/template.h"
+
 
 using namespace std; 
 
