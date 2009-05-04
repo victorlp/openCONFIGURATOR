@@ -3085,7 +3085,9 @@ ocfmRetCode ProcessPDONodes()
 							/* Empty ProcessImage collection*/
 							pobjNode->DeleteCollectionsForPI();
 							
+							
 							objPDOCollection = pobjNode->getPDOIndexCollection();
+						
 							if(objPDOCollection!= NULL)
 							{
 									
@@ -3093,9 +3095,10 @@ ocfmRetCode ProcessPDONodes()
 								
 								for(INT32 iLoopCount = 0; iLoopCount<objPDOCollection->getNumberofIndexes(); iLoopCount++)
 								{
-										CIndex* pobjIndex;
-										pobjIndex = objPDOCollection->getIndex(iLoopCount);
-										if(!(CheckIfMappingPDO((char*)pobjIndex->getIndexValue())))
+										CIndex* pobjBforeSortIndex;
+										CIndex objIndex;
+										pobjBforeSortIndex = objPDOCollection->getIndex(iLoopCount);
+										if(!(CheckIfMappingPDO((char*)pobjBforeSortIndex->getIndexValue())))
 										{
 											continue;
 										}
@@ -3105,10 +3108,14 @@ ocfmRetCode ProcessPDONodes()
 									cout<< "index:"<<(char*)pobjIndex->getIndexValue() << endl;
 								#endif
 										}
-										if(pobjIndex->getNumberofSubIndexes() > 0)
+										if(pobjBforeSortIndex->getNumberofSubIndexes() > 0)
 										{
+										
+													/* Sort the pdo collection */
+											objIndex = getPDOIndexByOffset(pobjBforeSortIndex);
+											
 											INT32 iSiCount = 1;
-											INT32 iSiTotal = pobjIndex->getNumberofSubIndexes();
+											INT32 iSiTotal = objIndex.getNumberofSubIndexes();
 									
 												#if defined DEBUG	
 									cout<< "iSiTotal:"<<iSiTotal << endl;
@@ -3116,10 +3123,10 @@ ocfmRetCode ProcessPDONodes()
 											while(iSiCount< iSiTotal)
 											{
 												CSubIndex* pobjSubIdx;
-												pobjSubIdx = pobjIndex->getSubIndex(iSiCount);
+												pobjSubIdx = objIndex.getSubIndex(iSiCount);
 													#if defined DEBUG	
-									cout<< "pobjSubIdx->getIndexValue():"<<pobjSubIdx->getIndexValue() << endl;
-										cout<< "pobjSubIdx->getName():"<<pobjSubIdx->getName() << endl;
+									cout<< "\n pobjSubIdx->getIndexValue():"<<pobjSubIdx->getIndexValue() << endl;
+										cout<< "\n pobjSubIdx->getName():"<<pobjSubIdx->getName() << endl;
 									
 								
 
@@ -3234,7 +3241,7 @@ ocfmRetCode ProcessPDONodes()
 															}
 															
 															
-															EPDOType pdoType = pobjIndex->getPDOType();							
+															EPDOType pdoType = objIndex.getPDOType();							
 															
 														//printf("\n NodeID %d",objNode->getNodeId());
 															if(uniqueidRefID != NULL)
@@ -3279,7 +3286,7 @@ ocfmRetCode ProcessPDONodes()
 																	//	cout << "\nObjectName empty" << endl;
 																		pbModuleName = new char[INDEX_LEN + 1 + ALLOC_BUFFER];
 																		strcpy(pbModuleName, "I");
-																		strcat(pbModuleName, pobjIndex->getIndexValue());
+																		strcat(pbModuleName, objIndex.getIndexValue());
 																		
 																		//cout << "pbModuleName" << pbModuleName;
 																		objProcessImage.Name = (char*)realloc(objProcessImage.Name, strlen(objProcessImage.Name)+ strlen(pbModuleName) + ALLOC_BUFFER);																		
@@ -3381,7 +3388,7 @@ ocfmRetCode ProcessPDONodes()
 																		objProcessImage.DirectionType = OUTPUT;
 																	}
 		
-				
+																objProcessImage.BitOffset = 0;
 																CreateMNPDOVar(objProcessImage.ByteOffset, objProcessImage.DataInfo.DataSize, objProcessImage.DataInfo._dt_enum, pdoType, pobjNode);
 																pobjNode->addProcessImage(objProcessImage);
 																delete[] pbModuleName ;
@@ -5541,7 +5548,7 @@ void SetSIdxValue(char* pbIdx, char* pbSIdx,
 * Description: 
 * Return value: void
 ****************************************************************************************************/
-void AddForEachSIdx(char* pbIdx,CIndexCollection * pobjIdxCol, INT32 iMNNodeID, char* pbValue, bool bIsDefaultValueSet)
+void AddForEachSIdx (char* pbIdx,CIndexCollection * pobjIdxCol, INT32 iMNNodeID, char* pbValue, bool bIsDefaultValueSet)
 {
 		CNodeCollection* objNodeCol;
 		CNode objCNNode;
@@ -8028,3 +8035,62 @@ void copyPDODefToAct(int iNodeID, ENodeType enumNodeType)
 			}
 	}
 	}
+/**************************************************************************************************
+* Function Name: getPDOIndexByOffset
+* Description: Sort the pdos by offset
+* Return value: Object of CIndex class
+****************************************************************************************************/
+
+CIndex getPDOIndexByOffset(CIndex* pobjIndex)
+{
+	//CIndexCollection* pPdoColByOffset;
+	CIndex objIndex; 
+	objIndex = *pobjIndex;
+	CSubIndex* pObjSIdx1, *pObjSIdx2;
+			
+	for(INT32 iIndexLoopCount=1; iIndexLoopCount <= objIndex.getNumberofSubIndexes() - 1; iIndexLoopCount++)
+	{
+		for(INT32 iIdxLoopCount=1; iIdxLoopCount <= objIndex.getNumberofSubIndexes() -1 -iIndexLoopCount ; iIdxLoopCount++)
+		{
+					
+			pObjSIdx1 = objIndex.getSubIndex(iIdxLoopCount);
+			if(pObjSIdx1->getActualValue()!= NULL)
+			{
+				const char* pbActualVal1 = pObjSIdx1->getActualValue();
+				INT32 iLength1 = strlen(pbActualVal1);
+				char* pbOffset1 = NULL;
+				INT32 iOffset1 = 0;
+				//cout << "\n pbActualVal1" << pbActualVal1;
+				
+				pbOffset1 = subString((char*)pbActualVal1, iLength1-12,4);
+				iOffset1 = hex2int(pbOffset1);
+				//cout << "\n iOffset1" << iOffset1;
+				pObjSIdx2 = objIndex.getSubIndex(iIdxLoopCount + 1);
+				if(pObjSIdx2->getActualValue()!= NULL)
+				{
+					const char* pbActualVal2 = pObjSIdx2->getActualValue();
+					
+				
+					
+					INT32 iLength2 = strlen(pbActualVal2);
+					char* pbOffset2 = NULL;
+					INT32 iOffset2 = 0;
+					
+					pbOffset2 = subString((char*)pbActualVal2, iLength1-12,4);
+					iOffset2  = hex2int(pbOffset2);
+					CSubIndex* pbTempIdx = 0;
+					if(iOffset1 >  iOffset2)
+					{					
+						/*pbTempIdx = pObjSIdx1;
+						pObjSIdx1  = pObjSIdx2;
+						pObjSIdx2 = pbTempIdx;	*/
+						objIndex.SwapSubObjects(iIdxLoopCount, iIdxLoopCount + 1);
+				
+					}
+				}
+			}
+		}
+	}
+
+	return objIndex;
+}

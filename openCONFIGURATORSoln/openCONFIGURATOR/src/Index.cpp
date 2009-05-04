@@ -186,4 +186,11 @@ CSubIndex* CIndex::getSubIndexbyIndexValue(char* pbIndex)
 	pobjSIndex = NULL;
 	return pobjSIndex;
 }
+void CIndex::SwapSubObjects(int pos1, int pos2)
+{
+
+	swap(collectionObj[pos1], collectionObj[pos2]);
+  
+}
+
 #pragma endregion MemberFunctions
