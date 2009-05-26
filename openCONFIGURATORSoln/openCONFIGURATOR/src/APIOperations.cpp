@@ -1619,12 +1619,29 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 			/* If Subobjects present*/
 			else
 			{
-				int noOfSubIndexes = objIndex->getNumberofSubIndexes();
+				int noOfSubIndexes = 0; //= objIndex->getNumberofSubIndexes();				
 				bool Indexadded  = false;				
 				bool resetValueAdded = false;
 				bool flag_No_of_enteriesAdded = false;
 				int i;
 				CSubIndex* objSubIndex;
+				objSubIndex = objIndex->getSubIndexbyIndexValue("00");
+				if(objSubIndex != NULL)
+				{
+					if(objSubIndex->getActualValue() != NULL)
+					{
+						if(CheckIfHex((char*)objSubIndex->getActualValue()))
+						{
+						//	cout << "hex value" << objSubIndex->getActualValue();
+							noOfSubIndexes = hex2int(subString((char*)objSubIndex->getActualValue(), 2, strlen(objSubIndex->getActualValue()) -2));
+							
+						}
+						else
+							noOfSubIndexes = atoi(objSubIndex->getActualValue());
+							noOfSubIndexes = noOfSubIndexes + 1;
+						}
+				}
+			
 				for(i=0; i<noOfSubIndexes ; i++)
 				{
 					objSubIndex = objIndex->getSubIndex(i);
@@ -2583,6 +2600,7 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 					}
 					/*	}*/
 				fclose(fileptr);
+				
 			if (( fileptr = fopen(tempFileName,"a+")) == NULL)
 				{
 					//printf ( "Cannot open file you have named...!\n" );
@@ -2605,7 +2623,7 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 					{
 							//Buffer1 = (char*)malloc(CDC_BUFFER);
 							Buffer1 = new char[CDC_BUFFER];
-							len = strlen(Buffer1);							
+							len = strlen(Buffer1);		
 							GetIndexData(objIndex,Buffer1);
 							len = strlen(Buffer1);
 							if((len != (fwrite(Buffer1, sizeof(char),len,fileptr))))
@@ -2619,7 +2637,7 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 							
 				}
 				fclose(fileptr);
-				
+	
 			/*************************Write CN's Data in Buffer2***************************************************/
 			WriteCNsData((char*)tempFileName);
 			int ret;
