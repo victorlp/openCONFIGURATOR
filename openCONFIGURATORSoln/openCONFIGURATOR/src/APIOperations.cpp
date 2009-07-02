@@ -556,8 +556,19 @@ ocfmRetCode DeleteSubIndex(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexI
 				/* Update subindex "00"*/
 			if(pobjSIDx != NULL)
 			{
-				if(strcmp(pobjSIDx->getIndexValue(), "00")!=0)
-				UpdateNumberOfEnteriesSIdx(pobjIndex, enumNodeType);
+				int iTotalSIdxs = 0;
+				/* subindexes excluding "00"*/
+				iTotalSIdxs = pobjIndex->getNumberofSubIndexes() - 1;
+				char pbAsciBuff[10];
+	
+					
+	
+				/*if(strcmp(pobjSIDx->getIndexValue(), "00")!=0)
+				{
+					pobjSIDx = pobjIndex->getSubIndexbyIndexValue((char*)"00");
+					SetSubIndexAttributes(iNodeID, CN, (char*)pobjIndex->getIndexValue(), (char*)pobjSIDx->getIndexValue(), _IntToAscii(iTotalSIdxs, pbAsciBuff, 16), (char*)pobjSIDx->getName(), TRUE);
+				}*/
+				//UpdateNumberOfEnteriesSIdx(pobjIndex, enumNodeType);
 			}
 		
 			stErrorInfo.code = OCFM_ERR_SUCCESS;
@@ -657,6 +668,7 @@ ocfmRetCode AddSubIndex(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID, 
 						pobjSubIndex->setIndexValue(pbSubIndexID);
 						if(pobjIndexPtr != NULL)
 						{
+							pobjSubIndex->setFlagIfIncludedCdc(TRUE);
 							//printf(pobjIndexPtr->getIndexValue());
 							pobjIndexPtr->addSubIndex(*pobjSubIndex);
 						}
@@ -796,6 +808,7 @@ ocfmRetCode AddIndex(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID)
 						CIndex objIndex;
 						objIndex.setNodeID(iNodeID);
 						objIndex.setIndexValue(pbIndexID);
+						objIndex.setFlagIfIncludedCdc(TRUE);
 						pobjIndexCollection->addIndex(objIndex);
 					 
 				}
@@ -1619,7 +1632,9 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 			/* If Subobjects present*/
 			else
 			{
-				int noOfSubIndexes = 0; //= objIndex->getNumberofSubIndexes();				
+				int noOfSubIndexes = 0; //= objIndex->getNumberofSubIndexes();	
+				int noOfTotalSubIndexes = objIndex->getNumberofSubIndexes();
+			
 				bool Indexadded  = false;				
 				bool resetValueAdded = false;
 				bool flag_No_of_enteriesAdded = false;
@@ -1639,11 +1654,13 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 						else
 							noOfSubIndexes = atoi(objSubIndex->getActualValue());
 							noOfSubIndexes = noOfSubIndexes + 1;
-						}
+					}
 				}
-			
-				for(i=0; i<noOfSubIndexes ; i++)
+				int noOfValidSubIndexes = 0;
+				
+				for(i=0; i<noOfTotalSubIndexes ; i++)
 				{
+					
 					objSubIndex = objIndex->getSubIndex(i);
 				
 					/*if(strcmp(objSubIndex->getIndexValue(),"00")!=0 && objSubIndex->getActualValue() != NULL)*/
@@ -1651,6 +1668,13 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 					if((objSubIndex->getActualValue() != NULL) && (objSubIndex->getFlagIfIncludedCdc() == TRUE))			
 					//if((objSubIndex->getActualValue() != NULL))
 					{
+						noOfValidSubIndexes = noOfValidSubIndexes + 1;
+						
+						if(noOfValidSubIndexes == noOfSubIndexes)
+						{
+							i= noOfTotalSubIndexes -1;
+						
+						}
 						if (Indexadded)
 						strcat(Buffer,objIndex->getIndexValue());
 						else

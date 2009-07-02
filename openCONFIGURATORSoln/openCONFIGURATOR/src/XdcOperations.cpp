@@ -1999,7 +1999,8 @@ void setFlagForRequiredCNIndexes(INT32 iNodeId)
 		if(CheckIfNotPDO((char*)pobjIndex->getIndexValue()) == false ||
 		strcmp((char*)pobjIndex->getIndexValue(),"1F98") == 0 ||
 		strcmp((char*)pobjIndex->getIndexValue(),"1020") == 0 ||
-		strcmp((char*)pobjIndex->getIndexValue(),"1006") == 0)
+		strcmp((char*)pobjIndex->getIndexValue(),"1006") == 0 ||
+		CheckIfManufactureSpecificObject((char*)pobjIndex->getIndexValue()))
 		{
 			pobjIndex->setFlagIfIncludedCdc(TRUE);
 			for(INT32 iSIDxCount = 0; iSIDxCount < pobjIndex->getNumberofSubIndexes(); iSIDxCount++)
