@@ -90,6 +90,7 @@ CNode::CNode(void)
 	m_ApplicationProcess	= NULL;
 	m_NetworkManagement		= NULL;
 	m_HasPdoObjects 		= false;
+	m_StationType			= NORMAL;
 }
 
 /****************************************************************************************************

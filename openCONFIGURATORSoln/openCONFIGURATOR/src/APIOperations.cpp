@@ -367,7 +367,7 @@ ocfmRetCode CreateNode(INT32 iNodeID, ENodeType enumNodeType, char* pbNodeName)
 		{
 			//cout << "loading od.xml"<< endl;
 			//printf("\n ObjectDictLoaded %d", ObjectDictLoaded);
-			//char tmpCmdBuffer[LINUX_INSTALL_DIR_LEN];
+			char tmpCmdBuffer[LINUX_INSTALL_DIR_LEN];
 			if(!ObjectDictLoaded)
 			{
 				#if defined(_WIN32) && defined(_MSC_VER)
@@ -8212,7 +8212,7 @@ ocfmRetCode GetFeatureValue(
 		if(pbRetString != NULL)
 		{
 			Out_FeatureValue = new char[strlen(pbRetString) + STR_ALLOC_BUFFER];
-			strcpy_s(Out_FeatureValue, strlen(pbRetString), pbRetString);
+			strcpy(Out_FeatureValue, pbRetString);
 		}
 		else
 			Out_FeatureValue = NULL;
@@ -8320,17 +8320,17 @@ ocfmRetCode GetNodeDataTypes(INT32 iNodeId, ENodeType eNodeType, char* pbDataTyp
 			dt = pobjDtCol->getDataTypeElement(uiLoopCount);
 			strdtName = new char[strlen(dt->getName()) + STR_ALLOC_BUFFER];
 			strcpy(strdtName, dt->getName());
-
-			pbDataTypes = new char[strlen(strdtName) + STR_ALLOC_BUFFER];
+			printf("\n data type name %s\n",strdtName);
 			if(pbDataTypes == NULL)
 			{
-				pbDataTypes = (char*)realloc(pbDataTypes, strlen(strdtName + STR_ALLOC_BUFFER +  2));
+				pbDataTypes = (char*)malloc(strlen(strdtName) + ALLOC_BUFFER +  2);
 				strcpy(pbDataTypes, strdtName);
 			}
 			else 
 			{
-				pbDataTypes = (char*)realloc(pbDataTypes, strlen(strdtName + STR_ALLOC_BUFFER +  2));
+				pbDataTypes = (char*)realloc(pbDataTypes, strlen(strdtName) + ALLOC_BUFFER +  2);
 				strcat(pbDataTypes, strdtName);
+				printf("\n pbDataTypes data type name %s\n",pbDataTypes);
 			}
 			
 			strcat(pbDataTypes, "\n");

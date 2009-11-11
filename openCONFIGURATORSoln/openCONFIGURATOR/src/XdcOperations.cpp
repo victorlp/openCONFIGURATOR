@@ -2396,7 +2396,7 @@ bool checkIfStringDatatypes(char* datatypeValue)
 * Description:	
 * Return pxcValue: void
 ***************************************************************e*************************************/
-static void setFeatures(xmlTextReaderPtr pxtrReader, Feature *pstFeature)
+void setFeatures(xmlTextReaderPtr pxtrReader, Feature *pstFeature)
 {
 	const xmlChar *pxcName  = NULL;
 	const xmlChar *pxcValue = NULL;
