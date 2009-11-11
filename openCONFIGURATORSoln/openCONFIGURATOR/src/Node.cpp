@@ -230,9 +230,7 @@ CApplicationProcess* CNode::getApplicationProcess()
 * Return value: CNetworkManagement*
 ****************************************************************************************************/
 CNetworkManagement* CNode::getNetworkManagement()
-{
-	if(m_NetworkManagement != NULL)
-		printf("\n NOt null");
+{	
 	return m_NetworkManagement;
 }
 

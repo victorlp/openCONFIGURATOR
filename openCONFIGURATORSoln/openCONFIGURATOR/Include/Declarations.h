@@ -288,7 +288,7 @@ typedef struct Feature
 {
 	char*			m_Name;
 	//DataType		m_dataType;
-	char*			Value;	
+	char*			m_Value;	
 	EFeatureType	m_featureType;
 			//char*	dataTypeUniqueIDRef;			
 }Feature;

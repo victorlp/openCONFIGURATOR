@@ -8208,15 +8208,18 @@ ocfmRetCode GetFeatureValue(
 		objNode = pobjNodeCollection->getNode(iNodeID);
 		
 		pobjNwManagement = objNode.getNetworkManagement();
-		pbRetString = pobjNwManagement->getFeatureValue(eFeatureType, FeatureName);
+		strcpy(Out_FeatureValue, pobjNwManagement->getFeatureValue(eFeatureType, FeatureName));
+		/*pbRetString = pobjNwManagement->getFeatureValue(eFeatureType, FeatureName);
 		if(pbRetString != NULL)
 		{
-			Out_FeatureValue = new char[strlen(pbRetString) + STR_ALLOC_BUFFER];
+			Out_FeatureValue = new char[strlen(pbRetString) + STR_ALLOC_BUFFER + 1];
 			strcpy(Out_FeatureValue, pbRetString);
+			strcat(Out_FeatureValue, "\0");
+			printf("\n Out_FeatureValue %s\n", Out_FeatureValue);			
 		}
 		else
-			Out_FeatureValue = NULL;
-				
+			Out_FeatureValue = NULL;*/
+			
 		stErrorInfo.code = OCFM_ERR_SUCCESS;
 		return stErrorInfo;
 	}
@@ -8280,7 +8283,7 @@ ocfmRetCode UpdateNodeParams(INT32 iCurrNodeId, INT32 iNewNodeID, ENodeType eNod
 * Return value: ocfmRetCode
 ****************************************************************************************************/
 
-ocfmRetCode GetNodeDataTypes(INT32 iNodeId, ENodeType eNodeType, char* pbDataTypes)
+ocfmRetCode GetNodeDataTypes(INT32 iNodeId, ENodeType eNodeType, char* pbOutDataTypes)
 {
 	//cout<< "Inside GetNodeIDbyNodeCount" << endl;
 	ocfmRetCode stErrorInfo;
@@ -8308,34 +8311,47 @@ ocfmRetCode GetNodeDataTypes(INT32 iNodeId, ENodeType eNodeType, char* pbDataTyp
 		
 
 		pobjNodeCollection= CNodeCollection::getNodeColObjectPointer();
-		pobjNode = pobjNodeCollection->getNodePtr(CN, iNodeId);
+		pobjNode = pobjNodeCollection->getNodePtr(eNodeType, iNodeId);
 		pobjDtCol = pobjNode->getDataTypeCollection();
-		pbDataTypes = NULL;
-
+		
 		for(UINT16 uiLoopCount = 0; uiLoopCount<pobjDtCol->getNumberOfDataTypes() ; uiLoopCount++)
 		{
 			DataType *dt = NULL;
 			char* strdtName = NULL;
 
-			dt = pobjDtCol->getDataTypeElement(uiLoopCount);
+			dt = pobjDtCol->getDataTypeElement(uiLoopCount);			
 			strdtName = new char[strlen(dt->getName()) + STR_ALLOC_BUFFER];
+			
 			strcpy(strdtName, dt->getName());
-			printf("\n data type name %s\n",strdtName);
-			if(pbDataTypes == NULL)
+			printf("\n strdtname 1111 %s\n", strdtName);
+			if(uiLoopCount == 0)
 			{
-				pbDataTypes = (char*)malloc(strlen(strdtName) + ALLOC_BUFFER +  2);
-				strcpy(pbDataTypes, strdtName);
+				//pbOutDataTypes = (char*)realloc(pbOutDataTypes,  strlen(strdtName) + STR_ALLOC_BUFFER +  2);						
+				strcpy(pbOutDataTypes, strdtName);				
 			}
 			else 
 			{
-				pbDataTypes = (char*)realloc(pbDataTypes, strlen(strdtName) + ALLOC_BUFFER +  2);
-				strcat(pbDataTypes, strdtName);
-				printf("\n pbDataTypes data type name %s\n",pbDataTypes);
-			}
-			
-			strcat(pbDataTypes, "\n");
-		}
+				//printf("%d Datatypes string length %d", strlen(pbOutDataTypes));
+				//pbOutDataTypes = (char*)realloc(pbOutDataTypes, strlen(pbOutDataTypes) + strlen(strdtName) + STR_ALLOC_BUFFER +  2);				
+				strcat(pbOutDataTypes, strdtName);
 				
+			}
+
+			/*if(pbOutDataTypes == NULL)
+			{
+				pbOutDataTypes = (char*)malloc(strlen(strdtName) + STR_ALLOC_BUFFER +  2);
+				strcpy(pbOutDataTypes, strdtName);				
+			}
+			else 
+			{
+				pbOutDataTypes = (char*)realloc(pbOutDataTypes, strlen(pbOutDataTypes) + strlen(strdtName) + STR_ALLOC_BUFFER +  3);				
+				strcat(pbOutDataTypes, strdtName);				
+				
+			}*/
+			
+			strcat(pbOutDataTypes, "\n");					
+		}	
+		printf("\n Out_DataTypes %s\n",pbOutDataTypes);
 		stErrorInfo.code = OCFM_ERR_SUCCESS;
 		return stErrorInfo;
 	}

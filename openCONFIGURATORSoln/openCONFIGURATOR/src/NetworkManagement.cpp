@@ -86,7 +86,7 @@ void CNetworkManagement::addFeature(Feature stfeature)
 {
 	
 	INT32 iItemPosition = FeatureCollection.Add();
-	FeatureCollection[iItemPosition] = stfeature;			
+	FeatureCollection[iItemPosition] = stfeature;		
 }
 /****************************************************************************************************
 * Function Name: CNetworkManagement::getNodeID
@@ -117,17 +117,20 @@ char* CNetworkManagement::getFeatureValue(EFeatureType featureType, char *featur
 	int iLoopCount;
 	char *pbRetString = NULL;
 	
+
 	for(iLoopCount =0; iLoopCount < FeatureCollection.Count() ; iLoopCount++)
 	{
 		Feature stFeature;		
 		stFeature = FeatureCollection[iLoopCount];
-		if( stFeature.m_featureType == featureType && !strcmp(featureName, stFeature.m_Name) == 0)
+		if( stFeature.m_featureType == featureType && (!strcmp(featureName, stFeature.m_Name)))
 		{
-			pbRetString = new char[strlen(stFeature.Value) + STR_ALLOC_BUFFER];
-			strcpy(pbRetString, stFeature.Value);
+			pbRetString = new char[strlen(stFeature.m_Value) + STR_ALLOC_BUFFER];
+			strcpy(pbRetString, stFeature.m_Value);
 			return pbRetString;
 		}
 	}
+	pbRetString = new char[1 + ALLOC_BUFFER];
+	strcpy((char*)pbRetString,"");
 	return pbRetString;
 }
 /****************************************************************************************************
