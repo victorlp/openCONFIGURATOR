@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //
-//  $Header: $
+//  $Source: $
 //
 // NAME:  ObjectDictionary.cpp
 //
@@ -99,6 +99,7 @@ CObjectDictionary::CObjectDictionary(void)
 	objDictNode->CreateIndexCollection();
 	objDictNode->CreateDataTypeCollection();
 	objDictNode->CreateApplicationProcess();
+	objDictNode->CreateNetworkManagament();
 	m_s_attrIdx_SIdx = collectionObj.Count();
 }
 

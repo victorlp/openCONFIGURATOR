@@ -90,6 +90,7 @@ class DllExport CPjtSettings
 		EAutoGenerate m_generateMode;
 		EAutoSave m_saveMode;
 		char* m_IP_openPOWERLINK;
+		EViewMode m_viewMode;
 	public :
 		static CPjtSettings* getPjtSettingsPtr();
 		EAutoSave getSaveAttr();
@@ -98,5 +99,7 @@ class DllExport CPjtSettings
 		void setGenerateAttr(EAutoGenerate);
 		void setPOWERLINK_IP(char*);
 		const char* getPOWERLINK_IP();
+		EViewMode getViewMode();
+		void setViewMode(EViewMode);
 };
 #endif // ProjectSettings_h

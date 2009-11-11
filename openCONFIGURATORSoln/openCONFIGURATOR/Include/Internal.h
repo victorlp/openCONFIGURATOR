@@ -187,5 +187,6 @@ void UpdatedCNDateORTime(CIndex* pobjMNIndex, int iNodeId, EDateTime eDT);
 void copyPDODefToAct(int iNodeID, ENodeType enumNodeType);
 void setFlagForRequiredMNIndexes(INT32 iNodeId);
 bool CheckAllowedDTForMapping(char* dtName);
+void setFeatures(xmlTextReaderPtr reader, Feature* stFeature);
 CIndex getPDOIndexByOffset(CIndex* objIndex);
 #endif // internal_h

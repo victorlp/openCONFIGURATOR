@@ -1,14 +1,14 @@
-#ifndef IndexCollection_h
-#define IndexCollection_h
+#ifndef NetworkManagement_h
+#define NetworkManagement_h
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //
 //  $Header: $
 //
-// NAME:  IndexCollection.h
+// NAME:  NetworkManagement.h
 //
 // BASE  CLASSES: none
 //  
-// PURPOSE:  purpose description
+// PURPOSE:  This class has the network Managment data present in xdd file
 //
 // AUTHOR:  Kalycito Powerlink Team
 //
@@ -71,32 +71,39 @@
 
 #pragma once
 
-/************************************************************************************************
-* Defines
-************************************************************************************************/
-#include "Index.h"
+/****************************************************************************************************
+* Includes
+****************************************************************************************************/
+#include <string>
+#include "ComplexDataType.h"
+#include "TCollection.h"
 
 using namespace std;
 
-/************************************************************************************************
+/****************************************************************************************************
 * Classes
-************************************************************************************************/
-class DllExport CIndexCollection
+****************************************************************************************************/
+class DllExport CNetworkManagement
 {
 	public:
-		CIndexCollection(void);
-		~CIndexCollection(void);
+		CNetworkManagement(void);
+		~CNetworkManagement(void);
+
+	public:		
+		TCollection<Feature> FeatureCollection;	
+		/*UINT32				 m_NoOfMNFeatures;
+		UINT32				 m_NoOfCNFeatures;*/
 	private:
-		int m_IndexCount;
-		TCollection<CIndex> collectionObj;
+		int			m_NodeID;
 	public:
-		void addIndex(CIndex objIndex);
-		void deleteIndex(int IndexID);
-		void DeleteIndexCollection();
-		void DeletePDOs() ;
-		void DeletePIObjects();
-		int getNumberofIndexes();
-		CIndex* getIndex(int Count);
-		CIndex* getIndexbyIndexValue(char* Index);		
+		void addFeature(Feature  stfeature);
+		int getNodeID();
+		void setNodeID(int NodeID);
+		char* getFeatureValue(EFeatureType featureType, char* featureName);
+		Feature* getFeature(UINT32 iCount);
+		UINT32 getNumberOfFeatures();
+		/*UINT32 getNumberOfMNFeatures();
+		UINT32 getNumberOfCNFeatures();*/
 };
-#endif // IndexCollection_h
+
+#endif // NetworkManagement_h

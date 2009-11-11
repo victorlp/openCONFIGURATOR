@@ -2,7 +2,7 @@
 //
 //  $Source: $
 //
-// NAME:  SubIndex.cpp
+// NAME:  NetworkManagement.cpp
 //
 // BASE  CLASSES: none
 //  
@@ -67,28 +67,84 @@
 // $Log:      $
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-/****************************************************************************************************
-* Includes
-****************************************************************************************************/
-#include "../Include/SubIndex.h"
+#include "../Include/NetworkManagement.h"
+#include "../Include/Internal.h"
 
-/****************************************************************************************************
-* FUNCTION DEFINITIONS
-****************************************************************************************************/
+CNetworkManagement::CNetworkManagement(void)
+{	
+}
 
-/****************************************************************************************************
-* Constructor
-****************************************************************************************************/
-CSubIndex::CSubIndex(void)
+CNetworkManagement::~CNetworkManagement(void)
 {
-	//Add constructor code here
+}
+/****************************************************************************************************
+* Function Name: CApplicationProcess::addParameter
+* Description:
+* Return value: void
+****************************************************************************************************/
+void CNetworkManagement::addFeature(Feature stfeature)
+{
+	
+	INT32 iItemPosition = FeatureCollection.Add();
+	FeatureCollection[iItemPosition] = stfeature;			
+}
+/****************************************************************************************************
+* Function Name: CNetworkManagement::getNodeID
+* Description: Returns the NodeID of the Node of the NetworkManagement Object
+* Return value: int
+****************************************************************************************************/
+INT32 CNetworkManagement::getNodeID()
+{
+	return m_NodeID;
 }
 
 /****************************************************************************************************
-* Destructor
+* Function Name: CNetworkManagement::setNodeID
+* Description: sets the NodeID of the NetworkManagement Object
+* Return value: void
 ****************************************************************************************************/
-CSubIndex::~CSubIndex(void)
+void CNetworkManagement::setNodeID(int NodeID)
 {
-	//Add destructor code here
+	m_NodeID = NodeID;
 }
-
+/****************************************************************************************************
+* Function Name: CNetworkManagement::getFeatureValue
+* Description: gets the network Management feature value
+* Return value: char*
+****************************************************************************************************/
+char* CNetworkManagement::getFeatureValue(EFeatureType featureType, char *featureName)
+{
+	int iLoopCount;
+	char *pbRetString = NULL;
+	
+	for(iLoopCount =0; iLoopCount < FeatureCollection.Count() ; iLoopCount++)
+	{
+		Feature stFeature;		
+		stFeature = FeatureCollection[iLoopCount];
+		if( stFeature.m_featureType == featureType && !strcmp(featureName, stFeature.m_Name) == 0)
+		{
+			pbRetString = new char[strlen(stFeature.Value) + STR_ALLOC_BUFFER];
+			strcpy(pbRetString, stFeature.Value);
+			return pbRetString;
+		}
+	}
+	return pbRetString;
+}
+/****************************************************************************************************
+* Function Name: CNetworkManagement::getNumberOfFeatures
+* Description: returns the Number of Features
+* Return value: UINT32
+****************************************************************************************************/
+UINT32 CNetworkManagement::getNumberOfFeatures()
+{	
+	return FeatureCollection.Count();
+}
+/****************************************************************************************************
+* Function Name: CNetworkManagement::getNumberOfFeatures
+* Description: returns the Number of Features
+* Return value: UINT32
+****************************************************************************************************/
+Feature* CNetworkManagement::getFeature(UINT32 uiCount)
+{	
+	return &FeatureCollection[uiCount];
+}

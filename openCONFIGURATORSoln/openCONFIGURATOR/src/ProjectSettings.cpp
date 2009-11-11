@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //
-//  $Header: $
+//  $Source: $
 //
 // NAME:  ProjectSettings.cpp
 //
@@ -200,5 +200,24 @@ const char* CPjtSettings::getPOWERLINK_IP()
 	{
 		return NULL;
 	}
+}
+/****************************************************************************************************
+* Function Name: CPjtSettings::getViewMode
+* Description:
+* Return value: EViewMode
+****************************************************************************************************/
+EViewMode CPjtSettings::getViewMode()
+{
+	return m_viewMode;
+}
+
+/****************************************************************************************************
+* Function Name: CPjtSettings::setViewMode
+* Description:
+* Return value: void
+****************************************************************************************************/
+void CPjtSettings::setViewMode(EViewMode enumViewMode)
+{
+	m_viewMode = enumViewMode;
 }
 

@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //
-//  $Header: $
+//  $Source: $
 //
 // NAME:  Node.cpp
 //
@@ -88,6 +88,7 @@ CNode::CNode(void)
 	m_DataTypeCollection 	=  NULL;	 
 	m_IndexCollection 		= NULL;
 	m_ApplicationProcess	= NULL;
+	m_NetworkManagement		= NULL;
 	m_HasPdoObjects 		= false;
 }
 
@@ -222,6 +223,17 @@ CApplicationProcess* CNode::getApplicationProcess()
 {
 	return m_ApplicationProcess;
 }
+/**************************************************************************************************
+* Function Name: CNode::getNetworkManagement
+* Description: Returns the NetworkManagement of the Node
+* Return value: CNetworkManagement*
+****************************************************************************************************/
+CNetworkManagement* CNode::getNetworkManagement()
+{
+	if(m_NetworkManagement != NULL)
+		printf("\n NOt null");
+	return m_NetworkManagement;
+}
 
 /**************************************************************************************************
 * Function Name: CNode::getDataTypeCollection
@@ -302,6 +314,18 @@ void CNode::CreateApplicationProcess()
 	
 	pobjAppliProcess 	 = new CApplicationProcess();
 	m_ApplicationProcess =  pobjAppliProcess;
+}
+/**************************************************************************************************
+* Function Name: CNode::CreateApplicationProcess
+* Description: 
+* Return value: void
+****************************************************************************************************/
+void CNode::CreateNetworkManagament()
+{
+	CNetworkManagement* pobjNwManagement;
+	
+	pobjNwManagement 	 = new CNetworkManagement();
+	m_NetworkManagement =  pobjNwManagement;
 }
 
 /**************************************************************************************************
@@ -437,5 +461,44 @@ void CNode::DeleteCollectionsForPI()
 	{
 		ProcessImageCollection.Clear();
 	}
+}
+/**************************************************************************************************
+* Function Name: CNode::getStationType
+* Description: Returns the stattion type of the Node
+* Return value: EStationType
+****************************************************************************************************/
+EStationType CNode::getStationType()
+{
+	return m_StationType;
+}
+
+/**************************************************************************************************
+* Function Name: CNode::setNodeType
+* Description: sets the Node Type of the Node.Value can be either CN or MN
+* Return value: void
+****************************************************************************************************/
+void CNode::setStationType(EStationType StationType)
+{
+	m_StationType = StationType; 
+}
+/**************************************************************************************************
+* Function Name: CNode::getForcedCycle
+* Description: Returns the forced cycle of the Node
+* Return value:
+****************************************************************************************************/
+char* CNode::getForcedCycle()
+{
+	return m_ForcedCycle;
+}
+
+/**************************************************************************************************
+* Function Name: CNode::setForcedCycle
+* Description: sets the cycle of the Node
+* Return value: void
+****************************************************************************************************/
+void CNode::setForcedCycle(char* pbForcedCycle)
+{	
+	m_ForcedCycle = new char[strlen(pbForcedCycle) + ALLOC_BUFFER];
+	strcpy((char*)m_ForcedCycle, pbForcedCycle);
 }
 #pragma endregion Properties

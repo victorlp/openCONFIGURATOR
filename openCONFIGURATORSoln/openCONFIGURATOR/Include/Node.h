@@ -79,6 +79,7 @@
 #include "Declarations.h"
 #include "ApplicationProcess.h"
 #include "ProcessImage.h"
+#include "NetworkManagement.h"
 
 /************************************************************************************************
 * Classes
@@ -92,21 +93,27 @@ class DllExport CNode
 		CDataTypeCollection *m_DataTypeCollection;
 		CIndexCollection *m_IndexCollection;
 		CApplicationProcess* m_ApplicationProcess;
+		CNetworkManagement *m_NetworkManagement;
 				
 		int				m_NodeId;
 		ENodeType		m_NodeType;
 		int				m_NodeIndex;
 		bool			m_HasPdoObjects;
 		char*			m_NodeName;
+		EStationType	m_StationType;
+		char*			m_ForcedCycle;
 		/*	typedef TCollection<ProcessImage> PICollection;*/
 	public:
 		/*typedef _PICollection PICollection;*/
+		//template class DllExport TCollection<ProcessImage>;
 		TCollection<ProcessImage> ProcessImageCollection;
+		//template class DllExport TCollection<MNPdoVariable>;
 		TCollection<MNPdoVariable> MNPDOINVarCollection, MNPDOOUTVarCollection ;
 	public:
 		CDataTypeCollection* getDataTypeCollection();
 		CIndexCollection* getIndexCollection();
 		CApplicationProcess* getApplicationProcess();
+		CNetworkManagement *getNetworkManagement();
 		
 		int getNodeId();
 		void setNodeId(int NodeId);
@@ -126,6 +133,7 @@ class DllExport CNode
 		void CreateIndexCollection();
 		void CreateDataTypeCollection();
 		void CreateApplicationProcess();
+		void CreateNetworkManagament();
 		
 		void addProcessImage(ProcessImage processImage);
 		void addMNPDOvar(MNPdoVariable variable, EPDOType pdoType);
@@ -136,7 +144,13 @@ class DllExport CNode
 		
 		ProcessImage* getPIbyParaIndex(int paraIndex);
 		void DeleteCollectionsForPI();
-		/*void UpdatePIOffset(char* ByteOffset);*/				
+		/*void UpdatePIOffset(char* ByteOffset);*/	
+		EStationType getStationType();
+		void setStationType(EStationType StationType);
+
+		char* getForcedCycle();
+		void setForcedCycle(char* ForcedCycle);
+
 		bool isNull();			
 };
 #endif // Node_h

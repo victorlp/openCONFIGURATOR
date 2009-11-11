@@ -1,7 +1,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //
-//  $Header: $
+//  $Source: $
 //
 // NAME:  XdcOperations.cpp
 //
@@ -907,7 +907,62 @@ void processNode(xmlTextReaderPtr pxtrReader, ENodeType enumNodeType, INT32 iNod
 				//delete objIndexPtr;
 				/*printf("subindex deleted:%s",objIndexPtr->getIndexValue());*/
 				//printf("Index added\n");			
-			}	
+			}
+			else if((!strcmp(((char*)pxcName),"GeneralFeatures")) || 
+					(!strcmp(((char*)pxcName),"MNFeatures")) || 
+					(!strcmp(((char*)pxcName),"CNFeatures")))
+			{
+				pobjNodeCollection= CNodeCollection::getNodeColObjectPointer();	
+				CNetworkManagement* pobjNwManagement;									
+				Feature stFeature;
+
+				pobjNode = pobjNodeCollection->getNodePtr(enumNodeType, iNodeIndex);	
+				
+				if (xmlTextReaderHasAttributes(pxtrReader) == 1)
+				{						
+					while(xmlTextReaderMoveToNextAttribute(pxtrReader))
+					{
+						setFeatures(pxtrReader, &stFeature);																															
+					}
+				}
+				if(!strcmp(((char*)pxcName),"GeneralFeatures"))
+				{
+					stFeature.m_featureType = GENERAL_FEATURES;
+					printf("General Features\n");	
+				}
+				else if(!strcmp(((char*)pxcName),"MNFeatures"))
+				{
+					stFeature.m_featureType = MN_FEATURES;
+					if((!strcmp(stFeature.m_Name, "DLLMNFeatureMultiplex")) && (!strcmp(stFeature.m_Name, "true")))
+					{
+						pobjNode->setStationType(MULTIPLEXED);
+					}
+					if((!strcmp(stFeature.m_Name, "DLLMNFeatureChaining")) && (!strcmp(stFeature.m_Name, "true")))
+					{
+						pobjNode->setStationType(MULTIPLEXED);
+					}
+					printf("MN Features\n");	
+				}
+				else if(!strcmp(((char*)pxcName),"CNFeatures"))
+				{
+					stFeature.m_featureType = CN_FEATURES;
+					if((!strcmp(stFeature.m_Name, "DLLCNFeatureMultiplex")) && (!strcmp(stFeature.m_Name, "true")))
+					{
+						pobjNode->setStationType(MULTIPLEXED);
+					}
+					if((!strcmp(stFeature.m_Name, "DLLCNFeatureChaining")) && (!strcmp(stFeature.m_Name, "true")))
+					{
+						pobjNode->setStationType(CHAINED);
+					}
+					printf("CN Features\n");	
+				}
+				// Add parameter to the parameter collection of a node
+				pobjNwManagement = pobjNode->getNetworkManagement();
+
+				printf("\n Noded %d", pobjNode->getNodeId());
+				pobjNwManagement->addFeature(stFeature);
+				printf("\n feature added %d", pobjNode->getNodeId());
+			}
 		}		
 	}
 	catch(ocfmException* ex)
@@ -1820,7 +1875,7 @@ ocfmRetCode SaveNode(const char* pbFileName, INT32 NodeID, ENodeType enumNodeTyp
 								
 			INT32 SubIndexPos = 0;
 			
-			if(!pobjIndexPtr->getNumberofSubIndexes() <= 0)
+			if(!(pobjIndexPtr->getNumberofSubIndexes() <= 0))
 			{					
 				for(SubIndexPos = 0; SubIndexPos < pobjIndexPtr->getNumberofSubIndexes(); SubIndexPos++)
 				{					
@@ -1926,7 +1981,128 @@ ocfmRetCode SaveNode(const char* pbFileName, INT32 NodeID, ENodeType enumNodeTyp
 			objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
 			throw &objException;
 		}
+		// Start Network Management Tag
+		iBytesWritten = xmlTextWriterStartElement(pxtwWriter, BAD_CAST "NetworkManagement");		
+		if (iBytesWritten < 0) 
+		{
+			printf("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
+			ocfmException objException;// = new ocfmException;
+			objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
+			throw &objException;
+		}
+
+		xmlTextWriterSetIndent(pxtwWriter, 1);
+					
+		// Start General Features Tag
+		iBytesWritten = xmlTextWriterStartElement(pxtwWriter, BAD_CAST "General Features");
+		if (iBytesWritten < 0) 
+		{
+			printf("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
+			ocfmException objException;// = new ocfmException;
+			objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
+			throw &objException;
+		}
+		CNetworkManagement *pobjNwManagement;
+		pobjNwManagement = objNode.getNetworkManagement();
 		
+		for(UINT32 uiLoopCount = 0; uiLoopCount < pobjNwManagement->getNumberOfFeatures(); uiLoopCount++)
+		{		
+			Feature* feature = NULL;
+			feature = pobjNwManagement->getFeature(uiLoopCount);
+			
+			if(feature->m_featureType == GENERAL_FEATURES)
+			{
+				iBytesWritten = xmlTextWriterWriteAttribute(pxtwWriter, BAD_CAST feature->m_Name, BAD_CAST feature->Value);		
+				if (iBytesWritten < 0) 
+				{
+					printf("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
+					ocfmException objException;// = new ocfmException;
+					objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
+					throw &objException;
+				}
+			}
+		}
+		xmlTextWriterSetIndent(pxtwWriter, 1);
+		// End General Features Tag
+		iBytesWritten = xmlTextWriterEndElement(pxtwWriter);
+
+		//////////////Write MN Features for MN Node////////////////////////////////
+		if(objNode.getNodeType() == MN)
+		{
+			//Start MN Features Tag			
+			iBytesWritten = xmlTextWriterStartElement(pxtwWriter, BAD_CAST "MNFeatures");
+			if (iBytesWritten < 0) 
+			{
+				printf("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
+				ocfmException objException;// = new ocfmException;
+				objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
+				throw &objException;
+			}
+			CNetworkManagement *pobjNwManagement;
+			pobjNwManagement = objNode.getNetworkManagement();
+			
+			for(UINT32 uiLoopCount = 0; uiLoopCount < pobjNwManagement->getNumberOfFeatures(); uiLoopCount++)	
+			{		
+				Feature* feature = NULL;
+				feature = pobjNwManagement->getFeature(uiLoopCount);
+			
+				if(feature->m_featureType == MN_FEATURES)
+				{
+					iBytesWritten = xmlTextWriterWriteAttribute(pxtwWriter, BAD_CAST feature->m_Name, BAD_CAST feature->Value);		
+					if (iBytesWritten < 0) 
+					{
+						printf("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
+						ocfmException objException;// = new ocfmException;
+						objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
+						throw &objException;
+					}
+				}
+			}
+			xmlTextWriterSetIndent(pxtwWriter, 1);
+			// End MN Features Tag
+			iBytesWritten = xmlTextWriterEndElement(pxtwWriter);
+				
+
+		}
+		//////////////Write CN Features for CN Node////////////////////////////////
+		else if(objNode.getNodeType() == CN)
+		{
+			//Start CN Features Tag
+			//Start MN Features Tag			
+			iBytesWritten = xmlTextWriterStartElement(pxtwWriter, BAD_CAST "CNFeatures");
+			if (iBytesWritten < 0) 
+			{
+				printf("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
+				ocfmException objException;// = new ocfmException;
+				objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
+				throw &objException;
+			}
+			CNetworkManagement *pobjNwManagement;
+			pobjNwManagement = objNode.getNetworkManagement();
+			
+			for(UINT32 uiLoopCount = 0; uiLoopCount < pobjNwManagement->getNumberOfFeatures(); uiLoopCount++)	
+			{		
+				Feature* feature = NULL;
+				feature = pobjNwManagement->getFeature(uiLoopCount);
+			
+				if(feature->m_featureType == CN_FEATURES)
+				{
+					iBytesWritten = xmlTextWriterWriteAttribute(pxtwWriter, BAD_CAST feature->m_Name, BAD_CAST feature->Value);		
+					if (iBytesWritten < 0) 
+					{
+						printf("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
+						ocfmException objException;// = new ocfmException;
+						objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
+						throw &objException;
+					}
+				}
+			}
+			xmlTextWriterSetIndent(pxtwWriter, 1);
+			//End CN Features Tag
+			iBytesWritten = xmlTextWriterEndElement(pxtwWriter);			
+		}
+
+		//End Network Management Tag
 		xmlTextWriterSetIndent(pxtwWriter, 1);
 		// End ProfileBody Tag
 		iBytesWritten = xmlTextWriterEndElement(pxtwWriter);
@@ -2197,7 +2373,8 @@ int getDataSize(char* dataTypeVal)
 		else if(strcmp(StringToUpper(dataTypeVal),"TIME_OF_DAY")==0)
 		{
 			return 6;			
-		}					
+		}	
+	return 1; //by default
 }
 
 /**************************************************************************************************
@@ -2213,4 +2390,27 @@ bool checkIfStringDatatypes(char* datatypeValue)
 		return true;
 	else 
 		return false;
+}
+/**************************************************************************************************
+* Function Name: setFeature
+* Description:	
+* Return pxcValue: void
+***************************************************************e*************************************/
+static void setFeatures(xmlTextReaderPtr pxtrReader, Feature *pstFeature)
+{
+	const xmlChar *pxcName  = NULL;
+	const xmlChar *pxcValue = NULL;
+
+	
+	//Retrieve the pxcName and Value of an attribute
+	pxcValue = xmlTextReaderConstValue(pxtrReader);
+	pxcName  = xmlTextReaderConstName(pxtrReader);							
+
+	pstFeature->m_Name = new char[strlen((char*)pxcName) + STR_ALLOC_BUFFER];
+	strcpy((char*)pstFeature->m_Name, (char*)pxcName);
+
+	pstFeature->m_Name = new char[strlen((char*)pxcName) + STR_ALLOC_BUFFER];
+	strcpy((char*)pstFeature->Value, (char*)pxcValue);
+
+
 }

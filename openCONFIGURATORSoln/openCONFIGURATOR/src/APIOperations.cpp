@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //
-//  $Header: $
+//  $Source: $
 //
 // NAME:  APIOperations.cpp
 //
@@ -367,7 +367,7 @@ ocfmRetCode CreateNode(INT32 iNodeID, ENodeType enumNodeType, char* pbNodeName)
 		{
 			//cout << "loading od.xml"<< endl;
 			//printf("\n ObjectDictLoaded %d", ObjectDictLoaded);
-			char tmpCmdBuffer[LINUX_INSTALL_DIR_LEN];
+			//char tmpCmdBuffer[LINUX_INSTALL_DIR_LEN];
 			if(!ObjectDictLoaded)
 			{
 				#if defined(_WIN32) && defined(_MSC_VER)
@@ -409,6 +409,7 @@ ocfmRetCode CreateNode(INT32 iNodeID, ENodeType enumNodeType, char* pbNodeName)
 		objNode.CreateIndexCollection();
 		objNode.CreateDataTypeCollection();
 		objNode.CreateApplicationProcess();
+		objNode.CreateNetworkManagament();
 
 		pobjNodeCollection = CNodeCollection::getNodeColObjectPointer();
 		pobjNodeCollection->addNode(objNode);
@@ -559,8 +560,7 @@ ocfmRetCode DeleteSubIndex(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexI
 				int iTotalSIdxs = 0;
 				/* subindexes excluding "00"*/
 				iTotalSIdxs = pobjIndex->getNumberofSubIndexes() - 1;
-				char pbAsciBuff[10];
-	
+
 					
 	
 				/*if(strcmp(pobjSIDx->getIndexValue(), "00")!=0)
@@ -4251,6 +4251,8 @@ ocfmRetCode GetIndexAttributes(
 	}
 }
 
+
+
 /**************************************************************************************************
 * Function Name: GetIndexAttributesbyPositions
 * Description:
@@ -4914,7 +4916,8 @@ void LoadObjectDictionary(char* pbFileName)
 ocfmRetCode GetNodeAttributesbyNodePos(
 	INT32 iNodePos,
 	INT32* piOutNodeID,
-	char* piOutNodeName)
+	char* piOutNodeName,
+	EStationType* eOutStationType)
 {
 	//cout<< "Inside GetNodeIDbyNodeCount" << endl;
 	ocfmRetCode stErrorInfo;
@@ -4959,6 +4962,8 @@ ocfmRetCode GetNodeAttributesbyNodePos(
 			strcpy(piOutNodeName, objNode.getNodeName());
 		else
 			piOutNodeName = NULL;
+
+		*eOutStationType = objNode.getStationType();
 				
 		stErrorInfo.code = OCFM_ERR_SUCCESS;
 		return stErrorInfo;
@@ -6985,6 +6990,20 @@ bool setProjectSettings_Auto(xmlTextReaderPtr pxReader)
 				return false;
 			}
 		}
+		else if (strcmp(((char*)pxcName),"View") == 0)
+		{
+			if(strcmp(((char*)pxcValue),"General") == 0)
+				pobjPjtSettings->setViewMode(SIMPLE);
+			else if(strcmp(((char*)pxcValue),"Advanced") == 0)
+				pobjPjtSettings->setViewMode(EXPERT);			
+			else
+			{
+				#if defined DEBUG
+					cout << "\nsetProjectSettings_Auto returning false" << endl;
+				#endif
+				return false;
+			}
+		}
 		else
 		{
 			#if defined DEBUG
@@ -7293,23 +7312,33 @@ if (iBytesWritten < 0)
 	//if(0 != strlen(pobjPjtSettings->getGenerateAttr()))
 	{
 		//cout << "\n\n\nstPjtSettings->getGenerateAttr():" << pobjPjtSettings->getGenerateAttr() << endl;
-		if(pobjPjtSettings->getGenerateAttr() == 0)
+		if(pobjPjtSettings->getGenerateAttr() == AUTOGENERATE)
 		{
 			iBytesWritten = xmlTextWriterWriteAttribute(pxtwWriter, BAD_CAST "Generate", BAD_CAST "NO");
 		}
-		else if(pobjPjtSettings->getGenerateAttr() == 1)
+		else if(pobjPjtSettings->getGenerateAttr() == AUTOSAVE)
 		{
 			iBytesWritten = xmlTextWriterWriteAttribute(pxtwWriter, BAD_CAST "Generate", BAD_CAST "YES");
 		}
 	}
 	
 	//cout << "\n\n\nstPjtSettings->getSaveAttr():" << pobjPjtSettings->getSaveAttr() << endl;
-	if(pobjPjtSettings->getSaveAttr() == 0)
+	if(pobjPjtSettings->getSaveAttr() == YES_AS)
 		iBytesWritten = xmlTextWriterWriteAttribute(pxtwWriter, BAD_CAST "Save", BAD_CAST "YES");
-	else if(pobjPjtSettings->getSaveAttr() == 1)
+	else if(pobjPjtSettings->getSaveAttr() == PROMPT_AS)
 		iBytesWritten = xmlTextWriterWriteAttribute(pxtwWriter, BAD_CAST "Save", BAD_CAST "PROMPT");
-	else if(pobjPjtSettings->getSaveAttr() == 2)
+	else if(pobjPjtSettings->getSaveAttr() == DISCARD_AS)
 		iBytesWritten = xmlTextWriterWriteAttribute(pxtwWriter, BAD_CAST "Save", BAD_CAST "DISCARD");
+
+	if(pobjPjtSettings->getViewMode() == SIMPLE)
+	{
+		iBytesWritten = xmlTextWriterWriteAttribute(pxtwWriter, BAD_CAST "View", BAD_CAST "General");
+	}
+	else if(pobjPjtSettings->getViewMode()== EXPERT)
+	{
+		iBytesWritten = xmlTextWriterWriteAttribute(pxtwWriter, BAD_CAST "View", BAD_CAST "Advanced");
+	}
+
 
 	//cout << "\n1" << endl;
 	// End Auto Tag
@@ -7667,7 +7696,7 @@ void CreateMNPDOVar(INT32 iOffset, INT32 iDataSize, IEC_Datatype enumDataType, E
 * Return value: ocfmRetCode
 ****************************************************************************************************/
 
-ocfmRetCode GetProjectSettings(EAutoGenerate *enumAutoGen, EAutoSave *enumAutoSave)
+ocfmRetCode GetProjectSettings(EAutoGenerate *enumAutoGen, EAutoSave *enumAutoSave, EViewMode *enumviewMode)
 {
  
 		ocfmRetCode stRetInfo;
@@ -7685,6 +7714,7 @@ ocfmRetCode GetProjectSettings(EAutoGenerate *enumAutoGen, EAutoSave *enumAutoSa
 			
 			*enumAutoGen = pobjPrjtSettings->getGenerateAttr();
 			*enumAutoSave = pobjPrjtSettings->getSaveAttr();
+			*enumviewMode = pobjPrjtSettings->getViewMode();
 			stRetInfo.code =  OCFM_ERR_SUCCESS;
 			return stRetInfo;
 		}
@@ -7701,7 +7731,7 @@ ocfmRetCode GetProjectSettings(EAutoGenerate *enumAutoGen, EAutoSave *enumAutoSa
 * Return value: ocfmRetCode
 ****************************************************************************************************/
 
-ocfmRetCode SetProjectSettings(EAutoGenerate enumAutoGen, EAutoSave enumAutoSave)
+ocfmRetCode SetProjectSettings(EAutoGenerate enumAutoGen, EAutoSave enumAutoSave, EViewMode enumViewMode)
 {
  
 		ocfmRetCode stRetInfo;
@@ -7720,6 +7750,7 @@ ocfmRetCode SetProjectSettings(EAutoGenerate enumAutoGen, EAutoSave enumAutoSave
 			//printf("\n autogenerate %d",enumAutoGen);
 			pobjPrjtSettings->setGenerateAttr(enumAutoGen);
 			pobjPrjtSettings->setSaveAttr(enumAutoSave);
+			pobjPrjtSettings->setViewMode(enumViewMode);
 			stRetInfo.code =  OCFM_ERR_SUCCESS;
 			return stRetInfo;
 		}
@@ -7771,28 +7802,28 @@ void AuotgenerateOtherIndexs(CNode* pobjNode)
 			
 			pobjIdxCol = pobjNode->getIndexCollection();
 			/* Add 1006*/
-					strcpy(pbMNIndex, "1006");
-							#if defined DEBUG	
-						cout << "string copied" << endl;
-					
-					#endif
-					retCode = AddIndex(MN_NODEID, MN, pbMNIndex);
+				strcpy(pbMNIndex, "1006");
 						#if defined DEBUG	
-						cout << "retcode" << retCode.code<<endl;
-						cout<< "1006 added"<<endl;
-					#endif
-					
-					/* Set 5ms value*/	
-					if(retCode.code ==  OCFM_ERR_INDEX_ALREADY_EXISTS)
-					{
-						pobjIndex = pobjIdxCol->getIndexbyIndexValue(pbMNIndex);
-						if(pobjIndex->getActualValue() ==NULL)
+					cout << "string copied" << endl;
+				
+				#endif
+				retCode = AddIndex(MN_NODEID, MN, pbMNIndex);
+					#if defined DEBUG	
+					cout << "retcode" << retCode.code<<endl;
+					cout<< "1006 added"<<endl;
+				#endif
+				
+				/* Set 5ms value*/	
+				if(retCode.code ==  OCFM_ERR_INDEX_ALREADY_EXISTS)
+				{
+					pobjIndex = pobjIdxCol->getIndexbyIndexValue(pbMNIndex);
+					if(pobjIndex->getActualValue() ==NULL)
+					SetIndexAttributes(MN_NODEID, MN, pbMNIndex, (char*)"50000",(char*)"NMT_CycleLen_U32", TRUE);				
+				}
+				else
+				{
 						SetIndexAttributes(MN_NODEID, MN, pbMNIndex, (char*)"50000",(char*)"NMT_CycleLen_U32", TRUE);				
-					}
-					else
-					{
-							SetIndexAttributes(MN_NODEID, MN, pbMNIndex, (char*)"50000",(char*)"NMT_CycleLen_U32", TRUE);				
-					}
+				}
 			/* Add 1020*/
 				strcpy(pbMNIndex, "1020");
 				retCode = AddIndex(MN_NODEID, MN, pbMNIndex);
@@ -8040,8 +8071,8 @@ void UpdatedCNDateORTime(CIndex* pobjMNIndex, int iNodeId, EDateTime enumDT)
 ****************************************************************************************************/
 void copyPDODefToAct(int iNodeID, ENodeType enumNodeType)
 {
-	
-	CIndex* pobjIndex;
+
+
 	CSubIndex* pobjSIndex;
 	CIndexCollection* pobjIdxCol;
 			
@@ -8135,4 +8166,181 @@ CIndex getPDOIndexByOffset(CIndex* pobjIndex)
 	}
 
 	return objIndex;
+}
+/****************************************************************************************************
+* Function Name: GetFeatureValue
+* Description:
+* Return value: ocfmRetCode
+****************************************************************************************************/
+
+ocfmRetCode GetFeatureValue(							
+							INT32 iNodeID,
+							ENodeType eNodeType, 
+							EFeatureType eFeatureType,
+							char* FeatureName, 
+							char* Out_FeatureValue)
+{
+	ocfmRetCode stErrorInfo;
+	INT32 iNodePos;
+	char* pbRetString = NULL;
+	try
+	{
+		bool bFlag = false;
+		stErrorInfo = IfNodeExists(iNodeID, eNodeType, &iNodePos, bFlag);
+		if (stErrorInfo.code == 0 && bFlag==true) 
+		{		
+			//retPos = stErrorInfo.returnValue;
+		}
+		else
+		{	
+			//cout << "$S\n\nErrStruct.errCode.code:" << stErrorInfo.code << "\n\n!!!" << endl;
+			// Node Doesn't Exist
+			ocfmException objException;// = new ocfmException;
+			objException.ocfm_Excpetion(OCFM_ERR_INVALID_NODEID);
+			throw &objException;
+		}
+
+		CNode objNode;		
+		CNodeCollection *pobjNodeCollection;
+		CNetworkManagement *pobjNwManagement;
+
+		pobjNodeCollection= CNodeCollection::getNodeColObjectPointer();		
+		objNode = pobjNodeCollection->getNode(iNodeID);
+		
+		pobjNwManagement = objNode.getNetworkManagement();
+		pbRetString = pobjNwManagement->getFeatureValue(eFeatureType, FeatureName);
+		if(pbRetString != NULL)
+		{
+			Out_FeatureValue = new char[strlen(pbRetString) + STR_ALLOC_BUFFER];
+			strcpy_s(Out_FeatureValue, strlen(pbRetString), pbRetString);
+		}
+		else
+			Out_FeatureValue = NULL;
+				
+		stErrorInfo.code = OCFM_ERR_SUCCESS;
+		return stErrorInfo;
+	}
+	catch(ocfmException* ex)
+	{
+		return ex->_ocfmRetCode;
+	}
+}
+/****************************************************************************************************
+* Function Name: GetNodeIDbyNodePos
+* Description: Fills the NodeID and NodeType for the NodeCount
+* Return value: ocfmRetCode
+****************************************************************************************************/
+
+ocfmRetCode UpdateNodeParams(INT32 iCurrNodeId, INT32 iNewNodeID, ENodeType eNodeType, 
+							 char* NodeName, EStationType eStationType, char* ForcedCycle)
+{
+	//cout<< "Inside GetNodeIDbyNodeCount" << endl;
+	ocfmRetCode stErrorInfo;
+	INT32 iNodePos;
+	try
+	{
+		bool bFlag = false;
+		stErrorInfo = IfNodeExists(iNewNodeID, eNodeType, &iNodePos, bFlag);
+		if (stErrorInfo.code == 0 && bFlag==true) 
+		{		
+			
+		}
+		else
+		{	
+			//cout << "$S\n\nErrStruct.errCode.code:" << stErrorInfo.code << "\n\n!!!" << endl;
+			// Node Doesn't Exist
+			ocfmException objException;// = new ocfmException;
+			objException.ocfm_Excpetion(OCFM_ERR_NODE_ALREADY_EXISTS);
+			throw &objException;
+		}
+
+		CNode* pobjNode;		
+		CNodeCollection *pobjNodeCollection;
+		
+		
+
+		pobjNodeCollection= CNodeCollection::getNodeColObjectPointer();
+		pobjNode = pobjNodeCollection->getNodePtr(eNodeType, iCurrNodeId);
+		pobjNode->setNodeId(iNewNodeID);
+		pobjNode->setNodeName(NodeName);
+		pobjNode->setStationType(eStationType);
+		pobjNode->setForcedCycle(ForcedCycle);
+				
+		stErrorInfo.code = OCFM_ERR_SUCCESS;
+		return stErrorInfo;
+	}
+	catch(ocfmException* ex)
+	{
+		return ex->_ocfmRetCode;
+	}
+}
+/****************************************************************************************************
+* Function Name: GetNodeDataTypes
+* Description:Returns the Data Type Available for a prticular node
+* Return value: ocfmRetCode
+****************************************************************************************************/
+
+ocfmRetCode GetNodeDataTypes(INT32 iNodeId, ENodeType eNodeType, char* pbDataTypes)
+{
+	//cout<< "Inside GetNodeIDbyNodeCount" << endl;
+	ocfmRetCode stErrorInfo;
+	INT32 iNodePos;
+	try
+	{
+		bool bFlag = false;
+		stErrorInfo = IfNodeExists(iNodeId, eNodeType, &iNodePos, bFlag);
+		if (stErrorInfo.code == 0 && bFlag==true) 
+		{		
+			
+		}
+		else
+		{	
+			//cout << "$S\n\nErrStruct.errCode.code:" << stErrorInfo.code << "\n\n!!!" << endl;
+			// Node Doesn't Exist
+			ocfmException objException;// = new ocfmException;
+			objException.ocfm_Excpetion(OCFM_ERR_NODE_ALREADY_EXISTS);
+			throw &objException;
+		}
+
+		CNode* pobjNode;		
+		CNodeCollection *pobjNodeCollection;
+		CDataTypeCollection *pobjDtCol;
+		
+
+		pobjNodeCollection= CNodeCollection::getNodeColObjectPointer();
+		pobjNode = pobjNodeCollection->getNodePtr(CN, iNodeId);
+		pobjDtCol = pobjNode->getDataTypeCollection();
+		pbDataTypes = NULL;
+
+		for(UINT16 uiLoopCount = 0; uiLoopCount<pobjDtCol->getNumberOfDataTypes() ; uiLoopCount++)
+		{
+			DataType *dt = NULL;
+			char* strdtName = NULL;
+
+			dt = pobjDtCol->getDataTypeElement(uiLoopCount);
+			strdtName = new char[strlen(dt->getName()) + STR_ALLOC_BUFFER];
+			strcpy(strdtName, dt->getName());
+
+			pbDataTypes = new char[strlen(strdtName) + STR_ALLOC_BUFFER];
+			if(pbDataTypes == NULL)
+			{
+				pbDataTypes = (char*)realloc(pbDataTypes, strlen(strdtName + STR_ALLOC_BUFFER +  2));
+				strcpy(pbDataTypes, strdtName);
+			}
+			else 
+			{
+				pbDataTypes = (char*)realloc(pbDataTypes, strlen(strdtName + STR_ALLOC_BUFFER +  2));
+				strcat(pbDataTypes, strdtName);
+			}
+			
+			strcat(pbDataTypes, "\n");
+		}
+				
+		stErrorInfo.code = OCFM_ERR_SUCCESS;
+		return stErrorInfo;
+	}
+	catch(ocfmException* ex)
+	{
+		return ex->_ocfmRetCode;
+	}
 }

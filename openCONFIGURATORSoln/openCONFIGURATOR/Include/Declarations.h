@@ -147,6 +147,13 @@ typedef enum
 	PDO_RPDO	= 2
 }EPDOType;
 
+typedef enum 
+{
+	GENERAL_FEATURES = 0,
+	MN_FEATURES,
+	CN_FEATURES
+}EFeatureType;
+
 typedef enum
 {	
 	 constant,
@@ -277,6 +284,15 @@ typedef struct Parameter
 		//char*	dataTypeUniqueIDRef;			
 }Parameter;
 
+typedef struct Feature
+{
+	char*			m_Name;
+	//DataType		m_dataType;
+	char*			Value;	
+	EFeatureType	m_featureType;
+			//char*	dataTypeUniqueIDRef;			
+}Feature;
+
 typedef struct MNPdoVariable
 {
 	char* Index;
@@ -298,7 +314,7 @@ typedef enum
 	PDOMAPPING,		// PDO Mapping of the Attribute
 	LOWLIMIT,
 	HIGHLIMIT,
-	FLAGIFINCDC
+	FLAGIFINCDC,	
 }EAttributeType;
 
 typedef enum
@@ -325,13 +341,24 @@ typedef enum
 	PROMPT_AS,
 	DISCARD_AS
 }EAutoSave;
+typedef enum 
+{
+	SIMPLE = 0,
+	EXPERT
+	
+}EViewMode;
 
 typedef enum
 {
 	AUTOGENERATE = 0,
 	AUTOSAVE
 }EProjectSettings;
-
+typedef enum
+{
+	NORMAL = 0,
+	MULTIPLEXED,
+	CHAINED
+}EStationType;
 /************************************************************************************************
 * Function Declarations
 ****************************************************************************************************/
@@ -369,7 +396,7 @@ DllExport ocfmRetCode GetNodeCount(int MNID, int* Out_NodeCount);
 DllExport ocfmRetCode GetIndexCount(int NodeID, ENodeType NodeType, int* Out_IndexCount);
 DllExport ocfmRetCode GetSubIndexCount(int NodeID, ENodeType NodeType, char* IndexID, int* Out_SubIndexCount);
 
-DllExport ocfmRetCode GetNodeAttributesbyNodePos(int NodePos, int* Out_NodeID, char* Out_NodeName);
+DllExport ocfmRetCode GetNodeAttributesbyNodePos(int NodePos, int* Out_NodeID, char* Out_NodeName, EStationType *Out_eStationType);
 DllExport ocfmRetCode GetIndexIDbyIndexPos(int NodeID, ENodeType NodeType, int IndexPos, char* Out_IndexID);
 DllExport ocfmRetCode GetSubIndexIDbySubIndexPos(int NodeID, ENodeType NodeType, char* IndexID, int SubIndexPos, char* Out_SubIndexID);
 
@@ -386,20 +413,24 @@ DllExport ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeT
 DllExport ocfmRetCode SaveProject(char* ProjectPath, char* ProjectName);
 DllExport ocfmRetCode OpenProject(char* PjtPath, char* projectXmlFileName);
 DllExport ocfmRetCode FreeProjectMemory();
-DllExport ocfmRetCode GetProjectSettings(EAutoGenerate* autoGen, EAutoSave* autoSave);
-DllExport ocfmRetCode SetProjectSettings(EAutoGenerate autoGen, EAutoSave autoSave);
+DllExport ocfmRetCode GetProjectSettings(EAutoGenerate* autoGen, EAutoSave* autoSave, EViewMode* viewMode);
+DllExport ocfmRetCode SetProjectSettings(EAutoGenerate autoGen, EAutoSave autoSave, EViewMode viewMode);
 
 //DllExport ocfmRetCode GetSubIndexCount(char* IndexID, int* IndexCount);
 DllExport ocfmRetCode GenerateMNOBD();
 DllExport ocfmRetCode SetAllIndexAttributes(int NodeID, ENodeType NodeType, 
-char* IndexID, char* ActualValue,
-char* IndexName, char* Access, char* dataTypeValue,
-char* pdoMappingVal, char* defaultValue, char* highLimit,
-char* lowLimit, char* objType, EFlag flagIfIncludedInCdc);
+											char* IndexID, char* ActualValue,
+											char* IndexName, char* Access, char* dataTypeValue,
+											char* pdoMappingVal, char* defaultValue, char* highLimit,
+											char* lowLimit, char* objType, EFlag flagIfIncludedInCdc);
 DllExport ocfmRetCode SetAllSubIndexAttributes(int NodeID, ENodeType NodeType, 
-char* IndexID, char* SubIndexID, char* ActualValue,
-char* IndexName, char* Access, char* dataTypeValue,
-char* pdoMappingVal, char* defaultValue, char* highLimit,
-char* lowLimit, char* objType, EFlag flagIfIncludedInCdc);
+												char* IndexID, char* SubIndexID, char* ActualValue,
+												char* IndexName, char* Access, char* dataTypeValue,
+												char* pdoMappingVal, char* defaultValue, char* highLimit,
+												char* lowLimit, char* objType, EFlag flagIfIncludedInCdc);
+DllExport ocfmRetCode GetFeatureValue(INT32 iNodeId, ENodeType eNodeType, EFeatureType eFeatureType, char* FeatureName, char* Out_FeatureValue);
+DllExport ocfmRetCode UpdateNodeParams(INT32 iCurrNodeId, INT32 iNewNodeID, ENodeType eNodeType, char* NodeName, EStationType eStationType, char* ForcedCycle); 
+DllExport ocfmRetCode GetNodeDataTypes(INT32 iNodeId, ENodeType eNodeType, char* Out_DataTypes);
 
+#pragma warning( disable: 4251 )
 #endif // declarations_h

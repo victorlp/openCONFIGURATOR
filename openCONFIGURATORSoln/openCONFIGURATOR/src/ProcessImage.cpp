@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //
-//  $Header: $
+//  $Source: $
 //
 // NAME:  ProcessImage.cpp
 //
@@ -933,20 +933,21 @@ PIObject getPIAddress(PDODataType dt,  EPIDirectionType dirType, int iOffset, in
 				stPIObject.Index  = _IntToAscii(iAddress, stPIObject.Index, 16);								
 				stPIObject.SubIndex =  _IntToAscii(mod, 	stPIObject.SubIndex, 16);
 				stPIObject.SubIndex = padLeft(	stPIObject.SubIndex, '0', 2);
-				return stPIObject;
+				
 			}
 			else
 			{			
 				strcpy(stPIObject.Index, AddressTable[i].Address);
 				stPIObject.SubIndex =  _IntToAscii(subIndex, 	stPIObject.SubIndex, 16);
 				stPIObject.SubIndex = padLeft(	stPIObject.SubIndex, '0', 2);
-				return stPIObject;			
+						
 			}			
 		}		
 	}
 	//Handled error case and returned dummy value to avoid warning
 	//cout << "Error in returning getPIAddress" << endl;
 	//return (char*) "Error";
+	return stPIObject;
 }
 
 /****************************************************************************************************

@@ -207,6 +207,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\NetworkManagement.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\Node.cpp"
 				>
 			</File>
@@ -232,10 +236,6 @@
 			</File>
 			<File
 				RelativePath=".\src\SubIndex.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\Test.cpp"
 				>
 			</File>
 			<File
@@ -304,6 +304,10 @@
 			</File>
 			<File
 				RelativePath=".\Include\Internal.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Include\NetworkManagement.h"
 				>
 			</File>
 			<File

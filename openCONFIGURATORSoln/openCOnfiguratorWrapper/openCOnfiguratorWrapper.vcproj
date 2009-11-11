@@ -112,7 +112,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="$(TCL_PATH)\include"
+				AdditionalIncludeDirectories="C:\TCL\include"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				WarningLevel="3"
@@ -201,7 +201,7 @@
 				>
 				<Tool
 					Name="VCCustomBuildTool"
-					CommandLine="echo In order to function correctly, please ensure the following environment variables are correctly set:&#x0D;&#x0A;echo TCL_INCLUDE: %TCL_INCLUDE%&#x0D;&#x0A;echo TCL_LIB: %TCL_LIB%&#x0D;&#x0A;echo on&#x0D;&#x0A;$(SWIG_PATH)\swig -c++ -tcl8 &quot;$(InputPath)&quot;&#x0D;&#x0A;"
+					CommandLine="echo In order to function correctly, please ensure the following environment variables are correctly set:&#x0D;&#x0A;echo TCL_INCLUDE: %TCL_INCLUDE%&#x0D;&#x0A;echo TCL_LIB: %TCL_LIB%&#x0D;&#x0A;echo on&#x0D;&#x0A;D:\Kalycito\windows_swig\swigwin-1.3.37-rc1\swig -c++ -tcl8 &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 					Outputs="$(InputName)_wrap.cxx"
 				/>
 			</FileConfiguration>

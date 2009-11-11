@@ -34,10 +34,14 @@
 %pointer_functions(bool, boolp)
 %pointer_functions(EAutoGenerate, EAutoGeneratep)
 %pointer_functions(EAutoSave, EAutoSavep)
+%pointer_functions(EViewMode, EViewModep)
+%pointer_functions(EStationType, EStationTypep)
 %cstring_bounded_output(char *Out_AttributeValue, 512);
 %cstring_bounded_output(char *Out_IndexID, 100);
 %cstring_bounded_output(char *Out_SubIndexID, 100);
 %cstring_bounded_output(char *Out_NodeName, 100);
+%cstring_bounded_output(char *Out_FeatureValue, 512);
+%cstring_bounded_output(char *Out_DataTypes, 1000);
 
 %include typemaps.i
 %include exception.i
@@ -95,7 +99,7 @@ ocfmRetCode GetNodeCount(int MNID, int* Out_NodeCount);
 ocfmRetCode GetIndexCount(int NodeID, ENodeType NodeType, int* Out_IndexCount);
 ocfmRetCode GetSubIndexCount(int NodeID, ENodeType NodeType, char* IndexID, int* Out_SubIndexCount);
 
-ocfmRetCode GetNodeAttributesbyNodePos(int NodePos, int* Out_NodeID, char* Out_NodeName);
+ocfmRetCode GetNodeAttributesbyNodePos(int NodePos, int* Out_NodeID, char* Out_NodeName, EStationType* Out_eStationType);
 ocfmRetCode GetIndexIDbyIndexPos(int NodeID, ENodeType NodeType, int IndexPos, char* Out_IndexID);
 ocfmRetCode GetSubIndexIDbySubIndexPos(int NodeID, ENodeType NodeType, char* IndexID, int SubIndexPos, char* Out_SubIndexID);
 
@@ -119,9 +123,12 @@ char* IndexName, char* Access, char* dataTypeValue,
 char* pdoMappingVal, char* defaultValue, char* highLimit,
 char* lowLimit, char* objType, EFlag flagIfIncludedInCdc);
 
-ocfmRetCode GetProjectSettings(EAutoGenerate* autoGen, EAutoSave* autoSave);
-ocfmRetCode SetProjectSettings(EAutoGenerate autoGen, EAutoSave autoSave);
+ocfmRetCode GetProjectSettings(EAutoGenerate* autoGen, EAutoSave* autoSave, EViewMode* viewMode);
+ocfmRetCode SetProjectSettings(EAutoGenerate autoGen, EAutoSave autoSave, EViewMode viewMode);
 ocfmRetCode FreeProjectMemory();
+ocfmRetCode GetFeatureValue(INT32 iNodeId, ENodeType eNodeType, EFeatureType eFeatureType, char* FeatureName, char* Out_FeatureValue);
+ocfmRetCode UpdateNodeParams(INT32 iCurrNodeId, INT32 iNewNodeID, ENodeType eNodeType, char* NodeName, EStationType eStationType, char* ForcedCycle);
+ocfmRetCode GetNodeDataTypes(INT32 iNodeId, ENodeType eNodeType, char* Out_DataTypes);
 
 %}
 
