@@ -1995,7 +1995,7 @@ ocfmRetCode SaveNode(const char* pbFileName, INT32 NodeID, ENodeType enumNodeTyp
 		xmlTextWriterSetIndent(pxtwWriter, 1);
 					
 		// Start General Features Tag
-		iBytesWritten = xmlTextWriterStartElement(pxtwWriter, BAD_CAST "General Features");
+		iBytesWritten = xmlTextWriterStartElement(pxtwWriter, BAD_CAST "GeneralFeatures");
 		if (iBytesWritten < 0) 
 		{
 			printf("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
@@ -2013,6 +2013,8 @@ ocfmRetCode SaveNode(const char* pbFileName, INT32 NodeID, ENodeType enumNodeTyp
 			
 			if(feature->m_featureType == GENERAL_FEATURES)
 			{
+				printf("\n  feature->m_Name %s",  feature->m_Name);
+				printf("\n  feature->m_Val %s",  feature->m_Value);
 				iBytesWritten = xmlTextWriterWriteAttribute(pxtwWriter, BAD_CAST feature->m_Name, BAD_CAST feature->m_Value);		
 				if (iBytesWritten < 0) 
 				{
@@ -2028,6 +2030,7 @@ ocfmRetCode SaveNode(const char* pbFileName, INT32 NodeID, ENodeType enumNodeTyp
 		iBytesWritten = xmlTextWriterEndElement(pxtwWriter);
 
 		//////////////Write MN Features for MN Node////////////////////////////////
+		printf("\nstart mn features");
 		if(objNode.getNodeType() == MN)
 		{
 			//Start MN Features Tag			
@@ -2063,8 +2066,9 @@ ocfmRetCode SaveNode(const char* pbFileName, INT32 NodeID, ENodeType enumNodeTyp
 			// End MN Features Tag
 			iBytesWritten = xmlTextWriterEndElement(pxtwWriter);
 				
-
+		printf("\end writing mn features");
 		}
+		
 		//////////////Write CN Features for CN Node////////////////////////////////
 		else if(objNode.getNodeType() == CN)
 		{
@@ -2102,8 +2106,11 @@ ocfmRetCode SaveNode(const char* pbFileName, INT32 NodeID, ENodeType enumNodeTyp
 			//End CN Features Tag
 			iBytesWritten = xmlTextWriterEndElement(pxtwWriter);			
 		}
-
+		
+		xmlTextWriterSetIndent(pxtwWriter, 1);		
 		//End Network Management Tag
+		iBytesWritten = xmlTextWriterEndElement(pxtwWriter);	
+
 		xmlTextWriterSetIndent(pxtwWriter, 1);
 		// End ProfileBody Tag
 		iBytesWritten = xmlTextWriterEndElement(pxtwWriter);
