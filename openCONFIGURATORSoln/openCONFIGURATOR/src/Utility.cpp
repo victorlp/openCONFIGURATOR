@@ -223,8 +223,9 @@ char *utoa(unsigned uValue, char *pbDigits, int iBaseValue)
              *pbTempBuffer;
              pbTempBuffer++);
         utoa( uValue % ((unsigned)iBaseValue), pbTempBuffer, iBaseValue);
-    }
+    }	
     return pbDigits;
+	
 }
 
 /****************************************************************************************************
@@ -232,10 +233,10 @@ char *utoa(unsigned uValue, char *pbDigits, int iBaseValue)
 * Description:
 * Return value: char *
 ****************************************************************************************************/
-char *_IntToAscii(int iValue, char *pbDigits, int iBaseValue)
+char *_IntToAscii(long iValue, char *pbDigits, int iBaseValue)
 {
     char *pbDigit;
-    UINT32 uiValue; /* assume unsigned is big enough to hold all the
+    unsigned long uiValue; /* assume unsigned is big enough to hold all the
                  * unsigned values -x could possibly be -- don't
                  * know how well this assumption holds on the
                  * DeathStation 9000, so beware of nasal demons
@@ -251,15 +252,18 @@ char *_IntToAscii(int iValue, char *pbDigits, int iBaseValue)
         return NULL;
 	}
     if (iValue < 0) {
-        *pbDigit++ = '-';
+        //*pbDigit++ = '-';
         uiValue = -((unsigned)iValue);
+		uiValue = ~uiValue + 1; // two's complement
+		
     }
 	else
 	{
         uiValue = iValue;
 	}
+	
     utoa(uiValue, pbDigit, iBaseValue);
-
+	
     return pbDigits;
 }
 

@@ -101,6 +101,20 @@
 #define LINUX_INSTALL_DIR "/usr/share/openCONFIGURATOR-"TOOL_VERSION
 #define LINUX_INSTALL_DIR_LEN 50
 
+#define EPL_NODEASSIGN_NODE_EXISTS      0x00000001L // Bit 0
+#define EPL_NODEASSIGN_NODE_IS_CN       0x00000002L // Bit 1
+#define EPL_NODEASSIGN_START_CN         0x00000004L // Bit 2
+#define EPL_NODEASSIGN_MANDATORY_CN     0x00000008L // Bit 3
+#define EPL_NODEASSIGN_KEEPALIVE        0x00000010L //currently not used in EPL V2 standard
+#define EPL_NODEASSIGN_SWVERSIONCHECK   0x00000020L // Bit 5
+#define EPL_NODEASSIGN_SWUPDATE         0x00000040L // Bit 6
+#define EPL_NODEASSIGN_ASYNCONLY_NODE   0x00000100L // Bit 8
+#define EPL_NODEASSIGN_MULTIPLEXED_CN   0x00000200L // Bit 9
+#define EPL_NODEASSIGN_RT1              0x00000400L // Bit 10
+#define EPL_NODEASSIGN_RT2              0x00000800L // Bit 11
+#define EPL_NODEASSIGN_MN_PRES          0x00001000L // Bit 12
+#define EPL_NODEASSIGN_CHAINED_CN       0x00800000L // Bit 14
+#define EPL_NODEASSIGN_VALID            0x80000000L // Bit 31
 /************************************************************************************************
 * Enumerations
 ************************************************************************************************/
@@ -125,7 +139,7 @@ static bool ObjectDictLoaded = false;
 * Function Declarations
 ****************************************************************************************************/
 char* ConvertToUpper(char* str);
-char* _IntToAscii( int value, char* result, int base );
+char* _IntToAscii( long value, char* result, int base );
 bool CheckIfNotPDO(char* Index);
 void CreateTree();
 bool CheckIfNotPDO(char* Index);
@@ -190,4 +204,5 @@ void setFlagForRequiredMNIndexes(INT32 iNodeId);
 bool CheckAllowedDTForMapping(char* dtName);
 void setFeatures(xmlTextReaderPtr reader, Feature* stFeature);
 CIndex getPDOIndexByOffset(CIndex* objIndex);
+char* setNodeAssigmentBits(CNode* objNode);
 #endif // internal_h

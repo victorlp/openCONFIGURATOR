@@ -87,7 +87,7 @@ class DllExport CBaseIndex
 		CBaseIndex(void);
 		~CBaseIndex(void);
 
-	private:
+	protected:
 		const char*		m_Name;
 		const char*		m_Index;		
 		const char*		m_LowLimit;

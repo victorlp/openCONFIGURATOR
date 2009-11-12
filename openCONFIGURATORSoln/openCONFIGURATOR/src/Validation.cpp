@@ -275,18 +275,18 @@ ocfmRetCode IfSubIndexExists(INT32 iNodeID, ENodeType enumNodeType, char* pbInde
 		{
 			//Check for existance of the SubIndex
 			for(INT32 iSubIndexcount = 0; iSubIndexcount < pobjSubIndex->getNumberofSubIndexes(); iSubIndexcount++)
-			{
+			{			
 				CSubIndex* objSubIndexPtr = NULL;
 				
-				objSubIndexPtr = pobjSubIndex->getSubIndex(iSubIndexcount);						
-				if((strcmp(ConvertToUpper((char*) objSubIndexPtr->getIndexValue()), ConvertToUpper(pbSubIndexID)) == 0))
+				objSubIndexPtr = pobjSubIndex->getSubIndex(iSubIndexcount);		
+				if((strcmp(StringToUpper((char*) objSubIndexPtr->getIndexValue()), StringToUpper(pbSubIndexID)) == 0))
 				{			
 					stErrStruct.code 	= OCFM_ERR_SUCCESS;
-					*piSubIndexPos 		= iSubIndexcount;
+					*piSubIndexPos 		= iSubIndexcount;					
 					return stErrStruct;
 				}
 				else if(iSubIndexcount == (pobjSubIndex->getNumberofSubIndexes() - 1))
-				{
+				{					
 					// SubIndex Doesn't Exist
 					stErrStruct.code = OCFM_ERR_SUBINDEXID_NOT_FOUND;
 					return stErrStruct;

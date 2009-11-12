@@ -82,6 +82,7 @@
 CSubIndex::CSubIndex(void)
 {
 	//Add constructor code here
+	m_objectType = VAR;	
 }
 
 /****************************************************************************************************

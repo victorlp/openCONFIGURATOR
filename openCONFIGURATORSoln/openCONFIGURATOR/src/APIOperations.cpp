@@ -810,7 +810,8 @@ ocfmRetCode AddIndex(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID)
 						objIndex.setIndexValue(pbIndexID);
 						objIndex.setFlagIfIncludedCdc(TRUE);
 						pobjIndexCollection->addIndex(objIndex);
-					 
+						stErrorInfo = AddSubIndex(iNodeID, enumNodeType, pbIndexID, "00");						
+						SetAllSubIndexAttributes(iNodeID, enumNodeType, pbIndexID, "00","0","NumberOfEnteries", "rw", "unsigned8" ,NULL,"0",NULL,NULL, "7", FALSE);
 				}
 				else 
 				{
@@ -1153,8 +1154,9 @@ ocfmRetCode SetAllSubIndexAttributes(INT32 iNodeID,
 		//CSubIndex* pobjSubIndex;
 		
 		try
-		{
+		{			
 			stErrorInfo = IfSubIndexExists(iNodeID, enumNodeType, pbIndexID, pbSubIndexID, &iSubIndexPos, &iIndexPos);
+			
 			if(stErrorInfo.code == OCFM_ERR_SUCCESS)
 			{
 				//iSubIndexPos = Tmp_stErrorInfo.returnValue;
@@ -1184,7 +1186,7 @@ ocfmRetCode SetAllSubIndexAttributes(INT32 iNodeID,
 			{
 				pobjSubIndexPtr->setName(pbIndexName);
 			}
-		
+			
 			if(pbAccess != NULL)
 			{
 				pobjSubIndexPtr->setAccessType(pbAccess);	
@@ -2694,7 +2696,13 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 								hex = _IntToAscii(NodeID,hex,16);
 								hex = padLeft(hex,'0',2);
 								strcat(Buffer1, hex);								
-								strcat(Buffer1, "\t00000004\t80000007\n");																						
+								//strcat(Buffer1, "\t00000004\t80000007\n");			
+								//setNodeAssigmentBits(&objNode);
+
+								strcat(Buffer1, "\tt00000004\t");
+								strcat(Buffer1, setNodeAssigmentBits(&objNode));
+								strcat(Buffer1, "\n");
+
 								len = strlen(Buffer1);
 								if((len != (fwrite(Buffer1, sizeof(char),len,fileptr))))
 								{
@@ -8243,18 +8251,36 @@ ocfmRetCode UpdateNodeParams(INT32 iCurrNodeId, INT32 iNewNodeID, ENodeType eNod
 	try
 	{
 		bool bFlag = false;
-		stErrorInfo = IfNodeExists(iNewNodeID, eNodeType, &iNodePos, bFlag);
-		if (stErrorInfo.code == 0 && bFlag==true) 
-		{		
-			
+		
+		if(iNewNodeID == iCurrNodeId)
+		{
+			stErrorInfo = IfNodeExists(iNewNodeID, eNodeType, &iNodePos, bFlag);
+			if(stErrorInfo.code == 0 && bFlag ==true)
+			{
+			}
+			else
+			{
+				ocfmException objException;// = new ocfmException;
+				objException.ocfm_Excpetion(OCFM_ERR_INVALID_NODEID);
+				throw &objException;
+			}
+
 		}
-		else
-		{	
-			//cout << "$S\n\nErrStruct.errCode.code:" << stErrorInfo.code << "\n\n!!!" << endl;
-			// Node Doesn't Exist
-			ocfmException objException;// = new ocfmException;
-			objException.ocfm_Excpetion(OCFM_ERR_NODE_ALREADY_EXISTS);
-			throw &objException;
+		else if(iNewNodeID != iCurrNodeId)
+		{
+			stErrorInfo = IfNodeExists(iNewNodeID, eNodeType, &iNodePos, bFlag);
+			if(stErrorInfo.code == OCFM_ERR_SUCCESS && bFlag == true)								
+			{		
+				ocfmException objException ;//= new ocfmException;
+				objException.ocfm_Excpetion(OCFM_ERR_NODE_ALREADY_EXISTS);		
+				throw &objException;
+			}
+			else
+			{
+				#if defined DEBUG
+					cout<< "OCFM_ERR_NODEID_NOT_FOUND" << OCFM_ERR_NODEID_NOT_FOUND << endl;;
+				#endif
+			}
 		}
 
 		CNode* pobjNode;		
@@ -8264,10 +8290,15 @@ ocfmRetCode UpdateNodeParams(INT32 iCurrNodeId, INT32 iNewNodeID, ENodeType eNod
 
 		pobjNodeCollection= CNodeCollection::getNodeColObjectPointer();
 		pobjNode = pobjNodeCollection->getNodePtr(eNodeType, iCurrNodeId);
-		pobjNode->setNodeId(iNewNodeID);
+		if(eNodeType == CN)
+		{
+			pobjNode->setNodeId(iNewNodeID);
+			pobjNode->setStationType(eStationType);
+			pobjNode->setForcedCycle(ForcedCycle);
+
+		}
 		pobjNode->setNodeName(NodeName);
-		pobjNode->setStationType(eStationType);
-		pobjNode->setForcedCycle(ForcedCycle);
+		
 				
 		stErrorInfo.code = OCFM_ERR_SUCCESS;
 		return stErrorInfo;
@@ -8359,4 +8390,33 @@ ocfmRetCode GetNodeDataTypes(INT32 iNodeId, ENodeType eNodeType, char* pbOutData
 	{
 		return ex->_ocfmRetCode;
 	}
+}
+/***********************************************************************************************************************************************
+* Function Name: setNodeAssigmentBits
+* Description:Returns the 1F81 object data depending upon the  if Multiplex set bit 8, if chained set bit 14
+* Return value: char*
+***********************************************************************************************************************************************/
+char* setNodeAssigmentBits(CNode* pobjNode)
+{
+	char* pb1F81Data = NULL;
+	unsigned long ulValue;
+	pb1F81Data = new char[8 + STR_ALLOC_BUFFER];
+	ulValue =  EPL_NODEASSIGN_VALID | EPL_NODEASSIGN_NODE_EXISTS | EPL_NODEASSIGN_NODE_IS_CN | EPL_NODEASSIGN_START_CN;
+	switch(pobjNode->getStationType())
+	{
+		case NORMAL:			
+		break;
+
+		case MULTIPLEXED:
+			ulValue =  ulValue | EPL_NODEASSIGN_MULTIPLEXED_CN;
+			break;
+
+		case CHAINED:
+			ulValue =  ulValue | EPL_NODEASSIGN_CHAINED_CN; 
+			break;
+	};
+
+	pb1F81Data = _IntToAscii(ulValue,pb1F81Data, 16); 
+	printf("\npb1F81Data _IntToAscii %s\n", pb1F81Data);	
+	return pb1F81Data;
 }
