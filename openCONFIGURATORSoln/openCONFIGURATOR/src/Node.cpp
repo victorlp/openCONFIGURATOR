@@ -91,6 +91,7 @@ CNode::CNode(void)
 	m_NetworkManagement		= NULL;
 	m_HasPdoObjects 		= false;
 	m_StationType			= NORMAL;
+	m_ForcedCycle			= NULL;
 }
 
 /****************************************************************************************************
@@ -498,6 +499,42 @@ char* CNode::getForcedCycle()
 void CNode::setForcedCycle(char* pbForcedCycle)
 {	
 	m_ForcedCycle = new char[strlen(pbForcedCycle) + ALLOC_BUFFER];
-	strcpy((char*)m_ForcedCycle, pbForcedCycle);
+	strcpy((char*)m_ForcedCycle, pbForcedCycle);	
+
+	//add or update 1f9b
+	ocfmRetCode stErrorInfo;
+	int IndexPos;
+	char* strConvertedValue;
+	strConvertedValue = new char[SUBINDEX_LEN];
+	
+	stErrorInfo = IfIndexExists(240, MN, "1F9B", &IndexPos);
+	strConvertedValue = _IntToAscii(this->getNodeId(), strConvertedValue, 16);
+	strConvertedValue = padLeft(strConvertedValue, '0', 2);
+	if(stErrorInfo.code == OCFM_ERR_SUCCESS)
+	{
+		//Index exists
+		int subIndexPos;		
+		
+		stErrorInfo = IfSubIndexExists(MN_NODEID, MN, "1F9B", strConvertedValue,  &subIndexPos, &IndexPos);		
+		if(stErrorInfo.code == OCFM_ERR_SUCCESS)
+		{			
+			printf("\n pbForcedcycle %s", pbForcedCycle);
+			SetSubIndexAttributes(MN_NODEID, MN, "1F9B", strConvertedValue, pbForcedCycle,NULL, TRUE);
+		}
+		else
+		{			
+			stErrorInfo = AddSubIndex(MN_NODEID, MN, "1F9B", strConvertedValue);
+			SetSubIndexAttributes(MN_NODEID, MN, "1F9B", strConvertedValue, pbForcedCycle,NULL, TRUE);
+		}
+		
+	}
+	else
+	{
+		stErrorInfo = AddIndex(MN_NODEID, MN, "1F9B");
+		stErrorInfo = AddSubIndex(MN_NODEID, MN, "1F9B", strConvertedValue);		
+		SetSubIndexAttributes(MN_NODEID, MN, "1F9B", strConvertedValue, pbForcedCycle,"", TRUE);
+		
+	}
+
 }
 #pragma endregion Properties

@@ -134,6 +134,8 @@ extern int iConfigTime;
 ************************************************************************************************/
 static const int g_simple_arr_size = 19;
 static bool ObjectDictLoaded = false;
+static UINT32 uiCycleNumber = 1;
+static const UINT32 uiPreScalar =0;
 
 /****************************************************************************************************
 * Function Declarations
@@ -205,4 +207,5 @@ bool CheckAllowedDTForMapping(char* dtName);
 void setFeatures(xmlTextReaderPtr reader, Feature* stFeature);
 CIndex getPDOIndexByOffset(CIndex* objIndex);
 char* setNodeAssigmentBits(CNode* objNode);
+UINT32 getLastAvailableCycleNumber();
 #endif // internal_h

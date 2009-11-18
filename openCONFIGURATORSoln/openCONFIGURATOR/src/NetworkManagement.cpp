@@ -121,11 +121,9 @@ char* CNetworkManagement::getFeatureValue(EFeatureType featureType, char *featur
 	for(iLoopCount =0; iLoopCount < FeatureCollection.Count() ; iLoopCount++)
 	{
 		Feature stFeature;		
-		stFeature = FeatureCollection[iLoopCount];
-		printf("\n stFeature.m_Name %s",stFeature.m_Name);
+		stFeature = FeatureCollection[iLoopCount];		
 		if( stFeature.m_featureType == featureType && (!strcmp(featureName, stFeature.m_Name)))
-		{
-			printf("\n stFeature.m_Name %s",stFeature.m_Name);
+		{		
 			pbRetString = new char[strlen(stFeature.m_Value) + STR_ALLOC_BUFFER];
 			strcpy(pbRetString, stFeature.m_Value);
 			return pbRetString;

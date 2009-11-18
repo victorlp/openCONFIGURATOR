@@ -101,5 +101,6 @@ class DllExport CIndex  : public CBaseIndex
 		void setPDOType(EPDOType PDOType);
 		CSubIndex* getSubIndexbyIndexValue(char* Index);			
 		void SwapSubObjects(int pos1, int pos2);
+		void UpdateArraySubObjects();
 };
 #endif // Index_h

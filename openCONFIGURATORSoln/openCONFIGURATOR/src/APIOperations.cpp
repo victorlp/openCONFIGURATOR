@@ -255,10 +255,10 @@ static void AddIndexAttributes(char* pIndexID, CIndex* pobjIndex, CIndex* pobjDi
 * Description: Adds the default attributes to the Index, when addded.
 * Return value: void
 ****************************************************************************************************/
-static void AddSubIndexAttributes(char* pSubIndexID, CSubIndex* pobjSubIndex, CSubIndex* pobjDictSIndex)
+static void AddSubIndexAttributes (char* pSubIndexID, CSubIndex* pobjSubIndex, CSubIndex* pobjDictSIndex)
 {
 		
-	// Setting the Index Value
+	// Setting the Index Value--
 	pobjSubIndex->setIndexValue(pSubIndexID);
 	//$S The Value for all the attributes has to come from ObjDict.xml
 	if(pobjDictSIndex->getName() != NULL)
@@ -568,7 +568,7 @@ ocfmRetCode DeleteSubIndex(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexI
 					pobjSIDx = pobjIndex->getSubIndexbyIndexValue((char*)"00");
 					SetSubIndexAttributes(iNodeID, CN, (char*)pobjIndex->getIndexValue(), (char*)pobjSIDx->getIndexValue(), _IntToAscii(iTotalSIdxs, pbAsciBuff, 16), (char*)pobjSIDx->getName(), TRUE);
 				}*/
-				//UpdateNumberOfEnteriesSIdx(pobjIndex, enumNodeType);
+				UpdateNumberOfEnteriesSIdx(pobjIndex, enumNodeType);
 			}
 		
 			stErrorInfo.code = OCFM_ERR_SUCCESS;
@@ -646,10 +646,9 @@ ocfmRetCode AddSubIndex(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID, 
 				objDictSIdx = pobjOBD->getObjectDictSubIndex(pbIndexID, pbSubIndexID);
 				if(objDictSIdx != NULL)
 				{
-					pobjSubIndex->setNodeID(iNodeID);
+					pobjSubIndex->setNodeID(iNodeID);								
 					AddSubIndexAttributes(pbSubIndexID, pobjSubIndex, objDictSIdx);
-					pobjIndexPtr->addSubIndex(*pobjSubIndex);
-							
+					pobjIndexPtr->addSubIndex(*pobjSubIndex);					
 				
 				}
 				else if( (enumNodeType == MN) && CheckIfProcessImageIdx(pbIndexID))
@@ -666,8 +665,14 @@ ocfmRetCode AddSubIndex(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID, 
 						pobjSubIndex = new CSubIndex;					
 						pobjSubIndex->setNodeID(iNodeID);							
 						pobjSubIndex->setIndexValue(pbSubIndexID);
+											
 						if(pobjIndexPtr != NULL)
 						{
+							if((pobjIndexPtr->getEObjectType() == ARRAY) && (strcmp(pbSubIndexID, "00") == 0))
+							{
+								//If objectType='ARRAY', all subobjects (except 0x00) have got the same dataType as the object
+								pobjSubIndex->setDataTypeST(pobjIndexPtr->getDataType());
+							}	
 							pobjSubIndex->setFlagIfIncludedCdc(TRUE);
 							//printf(pobjIndexPtr->getIndexValue());
 							pobjIndexPtr->addSubIndex(*pobjSubIndex);
@@ -770,6 +775,7 @@ ocfmRetCode AddIndex(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID)
 			
 			if( (stErrorInfo.code == OCFM_ERR_NO_INDEX_FOUND) || (stErrorInfo.code == OCFM_ERR_INDEXID_NOT_FOUND) )
 			{	
+				printf("check5***********");
 				//objIndex = new CIndex();
 				CIndex objIndex;
 				
@@ -780,17 +786,22 @@ ocfmRetCode AddIndex(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID)
 				CObjectDictionary* pobjOBD;
 				pobjOBD = CObjectDictionary::getObjDictPtr();
 				pobjDictIndex = pobjOBD->getObjectDictIndex(pbIndexID);				
+				printf("check6***********");
 				if(pobjDictIndex!=NULL)
 				{
+					printf("check7***********");
 					objIndex.setNodeID(iNodeID);
 					AddIndexAttributes(pbIndexID, &objIndex, pobjDictIndex);
 					for(INT32 iLoopCount= 0; iLoopCount<pobjDictIndex->getNumberofSubIndexes(); iLoopCount++)
 					{
+						printf("check8***********");
 						CSubIndex* objSIdx;
 						objSIdx = pobjDictIndex->getSubIndex(iLoopCount);
 						objIndex.addSubIndex(*objSIdx);
 					}
+	
 					objIndex.setName(pobjOBD->getIndexName(subString(pbIndexID,2,4),(char*)objIndex.getName()));
+					printf("check9***********");
 					pobjIndexCollection->addIndex(objIndex);
 				}
 				else if((enumNodeType == MN) && CheckIfProcessImageIdx(pbIndexID))
@@ -810,6 +821,7 @@ ocfmRetCode AddIndex(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID)
 						objIndex.setIndexValue(pbIndexID);
 						objIndex.setFlagIfIncludedCdc(TRUE);
 						pobjIndexCollection->addIndex(objIndex);
+						SetAllIndexAttributes(iNodeID, enumNodeType, pbIndexID, NULL ,NULL,"rw", NULL, NULL, NULL, NULL, NULL,"8",FALSE);
 						stErrorInfo = AddSubIndex(iNodeID, enumNodeType, pbIndexID, "00");						
 						SetAllSubIndexAttributes(iNodeID, enumNodeType, pbIndexID, "00","0","NumberOfEnteries", "rw", "unsigned8" ,NULL,"0",NULL,NULL, "7", FALSE);
 				}
@@ -1074,7 +1086,13 @@ ocfmRetCode SetAllIndexAttributes(INT32 iNodeID,
 		pobjIndexPtr->setLowLimit(lowLimit);
 		
 		if(objType != NULL)
-		pobjIndexPtr->setObjectType(objType);
+		{
+			pobjIndexPtr->setObjectType(objType);
+			if(pobjIndexPtr->getEObjectType() ==  ARRAY)
+			{
+				pobjIndexPtr->UpdateArraySubObjects();
+			}
+		}
 		
 		pobjIndexPtr->setFlagIfIncludedCdc(enumIsIncludedInCdc);
 		
@@ -1087,6 +1105,10 @@ ocfmRetCode SetAllIndexAttributes(INT32 iNodeID,
 					pobjIndexPtr->setDataType(pbDataTypeName, iNodeID);
 					DataType objDataType;
 					objDataType = pobjIndexPtr->getDataType();
+					if(pobjIndexPtr->getEObjectType() ==  ARRAY)
+					{
+						pobjIndexPtr->UpdateArraySubObjects();
+					}
 					//printf("\n name %s", objDataType.getName());
 				}
 				else
@@ -4925,7 +4947,8 @@ ocfmRetCode GetNodeAttributesbyNodePos(
 	INT32 iNodePos,
 	INT32* piOutNodeID,
 	char* piOutNodeName,
-	EStationType* eOutStationType)
+	EStationType* eOutStationType,
+	char* pbOutForcedCycle)
 {
 	//cout<< "Inside GetNodeIDbyNodeCount" << endl;
 	ocfmRetCode stErrorInfo;
@@ -4970,6 +4993,11 @@ ocfmRetCode GetNodeAttributesbyNodePos(
 			strcpy(piOutNodeName, objNode.getNodeName());
 		else
 			piOutNodeName = NULL;
+
+		if(objNode.getForcedCycle() != NULL)
+			strcpy(pbOutForcedCycle, objNode.getForcedCycle());
+		else
+			pbOutForcedCycle = NULL;
 
 		*eOutStationType = objNode.getStationType();
 				
@@ -8257,6 +8285,7 @@ ocfmRetCode UpdateNodeParams(INT32 iCurrNodeId, INT32 iNewNodeID, ENodeType eNod
 			stErrorInfo = IfNodeExists(iNewNodeID, eNodeType, &iNodePos, bFlag);
 			if(stErrorInfo.code == 0 && bFlag ==true)
 			{
+				
 			}
 			else
 			{
@@ -8276,11 +8305,20 @@ ocfmRetCode UpdateNodeParams(INT32 iCurrNodeId, INT32 iNewNodeID, ENodeType eNod
 				throw &objException;
 			}
 			else
-			{
+			{				
 				#if defined DEBUG
 					cout<< "OCFM_ERR_NODEID_NOT_FOUND" << OCFM_ERR_NODEID_NOT_FOUND << endl;;
 				#endif
 			}
+		}
+		if(eStationType != MULTIPLEXED ||( iNewNodeID != iCurrNodeId && eStationType == MULTIPLEXED))
+		{	
+			printf("\n to be delete node %d", iCurrNodeId);
+			char* cSIdx = new char[SUBINDEX_LEN];
+			cSIdx = _IntToAscii(iCurrNodeId, cSIdx, 16);
+			cSIdx = padLeft(cSIdx, '0', 2);
+			//Deleted MN's 1F9B and Suindex = old node id
+			DeleteSubIndex(MN_NODEID, MN,  "1F9B", cSIdx);
 		}
 
 		CNode* pobjNode;		
@@ -8293,9 +8331,19 @@ ocfmRetCode UpdateNodeParams(INT32 iCurrNodeId, INT32 iNewNodeID, ENodeType eNod
 		if(eNodeType == CN)
 		{
 			pobjNode->setNodeId(iNewNodeID);
-			pobjNode->setStationType(eStationType);
-			pobjNode->setForcedCycle(ForcedCycle);
+			pobjNode->setStationType(eStationType);			
+			if(eStationType == MULTIPLEXED)
+			{
 
+				if(strcmp(ForcedCycle,"") ==0 || ForcedCycle == NULL)
+				{
+					ForcedCycle = new char[20];
+					UINT32 uiCycleno = getLastAvailableCycleNumber();
+					ForcedCycle = _IntToAscii(uiCycleno, ForcedCycle, 16);
+				}
+				
+				pobjNode->setForcedCycle(ForcedCycle);
+			}
 		}
 		pobjNode->setNodeName(NodeName);
 		
@@ -8353,8 +8401,7 @@ ocfmRetCode GetNodeDataTypes(INT32 iNodeId, ENodeType eNodeType, char* pbOutData
 			dt = pobjDtCol->getDataTypeElement(uiLoopCount);			
 			strdtName = new char[strlen(dt->getName()) + STR_ALLOC_BUFFER];
 			
-			strcpy(strdtName, dt->getName());
-			printf("\n strdtname 1111 %s\n", strdtName);
+			strcpy(strdtName, dt->getName());			
 			if(uiLoopCount == 0)
 			{
 				//pbOutDataTypes = (char*)realloc(pbOutDataTypes,  strlen(strdtName) + STR_ALLOC_BUFFER +  2);						
@@ -8381,8 +8428,8 @@ ocfmRetCode GetNodeDataTypes(INT32 iNodeId, ENodeType eNodeType, char* pbOutData
 			}*/
 			
 			strcat(pbOutDataTypes, "\n");					
-		}	
-		printf("\n Out_DataTypes %s\n",pbOutDataTypes);
+		}
+		
 		stErrorInfo.code = OCFM_ERR_SUCCESS;
 		return stErrorInfo;
 	}

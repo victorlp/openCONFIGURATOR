@@ -192,5 +192,17 @@ void CIndex::SwapSubObjects(int pos1, int pos2)
 	swap(collectionObj[pos1], collectionObj[pos2]);
   
 }
+void CIndex::UpdateArraySubObjects()
+{
+	INT32 iLoopCount;
+	CSubIndex* pobjSIndex;
 
+	//it starts from 1 because datatype shouldnt be changed for subobject 0x00
+	for(iLoopCount =1; iLoopCount < collectionObj.Count(); iLoopCount++)
+	{			
+		pobjSIndex = &collectionObj[iLoopCount];
+		pobjSIndex->setDataTypeST(this->getDataType());		
+	}	
+
+}
 #pragma endregion MemberFunctions

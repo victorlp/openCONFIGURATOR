@@ -616,3 +616,20 @@ bool CheckAllowedDTForMapping(char* dtName)
 	else
 		return false;
 }
+UINT32 getLastAvailableCycleNumber()
+{
+	char* actValue = new char[20];
+	ocfmRetCode Ret;
+	Ret = GetSubIndexAttributes(240, MN, "1F98", "07", ACTUALVALUE, actValue);
+	if(Ret.code == OCFM_ERR_SUCCESS)
+	{
+		printf("\n act value %s", actValue);
+		if(atoi(actValue) > uiCycleNumber)
+		{
+			uiCycleNumber += 1;
+		}
+		else
+			uiCycleNumber = 1;
+	}
+	return uiCycleNumber;
+}

@@ -388,8 +388,7 @@ CSubIndex* CObjectDictionary::getObjectDictSubIndex(char* pbIdx, char* pbSIdx)
 			{
 				if(checkInTheRange(pbSIdx, stAttrIdx.start_Index, stAttrIdx.end_Index))
 				{
-					pobjSIdx = pobjIndex->getSubIndexbyIndexValue(stAttrIdx.start_Index);
-					
+					pobjSIdx = pobjIndex->getSubIndexbyIndexValue(stAttrIdx.start_Index);					
 					if(pobjSIdx !=NULL)
 					{
 						return pobjSIdx;

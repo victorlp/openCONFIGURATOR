@@ -171,7 +171,7 @@ ocfmRetCode IfIndexExists(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID
 		pobjNodeCollection = CNodeCollection::getNodeColObjectPointer();
 		objNode = pobjNodeCollection->getNode(enumNodeType, iNodeID);
 		pobjIndexCollection = objNode.getIndexCollection();		
-
+		
 		if(pobjIndexCollection->getNumberofIndexes() == 0)
 		{
 			*piIndexPos = 0;
@@ -190,7 +190,7 @@ ocfmRetCode IfIndexExists(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID
 				pbIndexValue = new char[strlen((char*)objIndexPtr->getIndexValue()) + ALLOC_BUFFER];				
 				strcpy(pbIndexValue, (char*)objIndexPtr->getIndexValue());
 										
-				if((strcmp(ConvertToUpper(pbIndexValue), ConvertToUpper(pbIndexID)) == 0))
+				if((strcmp(StringToUpper(pbIndexValue), StringToUpper(pbIndexID)) == 0))
 				{
 					CIndex* objIndexPtr = NULL;
 					
