@@ -918,11 +918,10 @@ void processNode(xmlTextReaderPtr pxtrReader, ENodeType enumNodeType, INT32 iNod
 				EFeatureType eFeatureType;
 
 				pobjNode = pobjNodeCollection->getNodePtr(enumNodeType, iNodeIndex);	
-				printf("\n Noded %d", pobjNode->getNodeId());
+				
 				if(!strcmp(((char*)pxcName),"GeneralFeatures"))
 				{
-					eFeatureType = GENERAL_FEATURES;
-					printf("General Features\n");	
+					eFeatureType = GENERAL_FEATURES;					
 				}
 				else if(!strcmp(((char*)pxcName),"MNFeatures"))
 				{
@@ -935,7 +934,7 @@ void processNode(xmlTextReaderPtr pxtrReader, ENodeType enumNodeType, INT32 iNod
 					{
 						pobjNode->setStationType(MULTIPLEXED);
 					}*/
-					printf("MN Features\n");	
+					
 				}
 				else if(!strcmp(((char*)pxcName),"CNFeatures"))
 				{
@@ -948,7 +947,7 @@ void processNode(xmlTextReaderPtr pxtrReader, ENodeType enumNodeType, INT32 iNod
 					{
 						pobjNode->setStationType(CHAINED);
 					}*/
-					printf("CN Features\n");	
+					
 				}
 				
 			
@@ -2012,9 +2011,7 @@ ocfmRetCode SaveNode(const char* pbFileName, INT32 NodeID, ENodeType enumNodeTyp
 			feature = pobjNwManagement->getFeature(uiLoopCount);
 			
 			if(feature->m_featureType == GENERAL_FEATURES)
-			{
-				printf("\n  feature->m_Name %s",  feature->m_Name);
-				printf("\n  feature->m_Val %s",  feature->m_Value);
+			{				
 				iBytesWritten = xmlTextWriterWriteAttribute(pxtwWriter, BAD_CAST feature->m_Name, BAD_CAST feature->m_Value);		
 				if (iBytesWritten < 0) 
 				{
