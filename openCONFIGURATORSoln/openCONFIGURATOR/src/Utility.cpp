@@ -622,14 +622,21 @@ UINT32 getLastAvailableCycleNumber()
 	ocfmRetCode Ret;
 	Ret = GetSubIndexAttributes(240, MN, "1F98", "07", ACTUALVALUE, actValue);
 	if(Ret.code == OCFM_ERR_SUCCESS)
-	{
-		printf("\n act value %s", actValue);
-		if(atoi(actValue) > uiCycleNumber)
+	{	
+
+		//printf(" \nactvalue %s",actValue);
+		
+		//printf("\ncycle %d", uiCycleNumber);
+		int iCycleValue = hex2int(subString(actValue, 2,strlen(actValue) -2 ));
+		//printf(" \niCycleValue %d",iCycleValue);
+		if(iCycleValue > uiCycleNumber)
 		{
-			uiCycleNumber += 1;
+			uiCycleNumber += 1;			
 		}
 		else
+		{			
 			uiCycleNumber = 1;
+		}
 	}
 	return uiCycleNumber;
 }

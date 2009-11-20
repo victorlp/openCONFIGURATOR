@@ -134,7 +134,7 @@ extern int iConfigTime;
 ************************************************************************************************/
 static const int g_simple_arr_size = 19;
 static bool ObjectDictLoaded = false;
-static UINT32 uiCycleNumber = 1;
+static UINT32 uiCycleNumber = 0;
 static const UINT32 uiPreScalar =0;
 
 /****************************************************************************************************
