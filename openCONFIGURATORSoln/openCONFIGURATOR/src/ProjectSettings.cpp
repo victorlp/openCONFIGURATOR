@@ -220,4 +220,23 @@ void CPjtSettings::setViewMode(EViewMode enumViewMode)
 {
 	m_viewMode = enumViewMode;
 }
+/****************************************************************************************************
+* Function Name: CPjtSettings::getExpertViewSelectedFlag
+* Description:
+* Return value: bool
+****************************************************************************************************/
+bool CPjtSettings::getExpertViewSelectedFlag()
+{
+	return m_bExpertViewSelected;
+}
+
+/****************************************************************************************************
+* Function Name: CPjtSettings::setExpertViewSelectedFlag
+* Description:
+* Return value: void
+****************************************************************************************************/
+void CPjtSettings::setExpertViewSelectedFlag(bool bExpertViewSelected)
+{
+	m_bExpertViewSelected = bExpertViewSelected;
+}
 

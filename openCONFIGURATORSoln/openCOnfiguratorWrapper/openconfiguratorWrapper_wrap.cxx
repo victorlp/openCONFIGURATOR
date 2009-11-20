@@ -2100,12 +2100,12 @@ ocfmRetCode IfIndexExists(int NodeID, ENodeType NodeType, char* IndexID, int* In
 ocfmRetCode IfSubIndexExists(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID, int* SubIndexPos, int* IndexPos);
 
 ocfmRetCode GetIndexAttributes(int NodeID, ENodeType NodeType, char* IndexID, EAttributeType AttributeType, char* Out_AttributeValue);
-ocfmRetCode GetSubIndexAttributes(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID, EAttributeType AttributeType, char* Out_AttributeValue);
+ocfmRetCode GetSubIndexAttributes(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID, EAttributeType AttributeType,char* Out_AttributeValue);
 ocfmRetCode GetNodeCount(int MNID, int* Out_NodeCount);
 ocfmRetCode GetIndexCount(int NodeID, ENodeType NodeType, int* Out_IndexCount);
 ocfmRetCode GetSubIndexCount(int NodeID, ENodeType NodeType, char* IndexID, int* Out_SubIndexCount);
 
-ocfmRetCode GetNodeAttributesbyNodePos(int NodePos, int* Out_NodeID, char* Out_NodeName, EStationType* Out_eStationType);
+ocfmRetCode GetNodeAttributesbyNodePos(int NodePos, int* Out_NodeID, char* Out_NodeName, EStationType* Out_eStationType, char* Out_ForcedCycle);
 ocfmRetCode GetIndexIDbyIndexPos(int NodeID, ENodeType NodeType, int IndexPos, char* Out_IndexID);
 ocfmRetCode GetSubIndexIDbySubIndexPos(int NodeID, ENodeType NodeType, char* IndexID, int SubIndexPos, char* Out_SubIndexID);
 
@@ -2129,8 +2129,9 @@ char* IndexName, char* Access, char* dataTypeValue,
 char* pdoMappingVal, char* defaultValue, char* highLimit,
 char* lowLimit, char* objType, EFlag flagIfIncludedInCdc);
 
-ocfmRetCode GetProjectSettings(EAutoGenerate* autoGen, EAutoSave* autoSave, EViewMode* viewMode);
-ocfmRetCode SetProjectSettings(EAutoGenerate autoGen, EAutoSave autoSave, EViewMode viewMode);
+ocfmRetCode GetProjectSettings(EAutoGenerate* autoGen, EAutoSave* autoSave, EViewMode* viewMode, bool* bExpertViewAlreadySet);
+ocfmRetCode SetProjectSettings(EAutoGenerate autoGen, EAutoSave autoSave, EViewMode viewMode, bool bExpertViewAlreadySet);
+
 ocfmRetCode FreeProjectMemory();
 ocfmRetCode GetFeatureValue(INT32 iNodeId, ENodeType eNodeType, EFeatureType eFeatureType, char* FeatureName, char* Out_FeatureValue);
 ocfmRetCode UpdateNodeParams(INT32 iCurrNodeId, INT32 iNewNodeID, ENodeType eNodeType, char* NodeName, EStationType eStationType, char* ForcedCycle);
@@ -7070,7 +7071,7 @@ fail:
 
 
 SWIGINTERN int
-_wrap_Feature_Value_set(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+_wrap_Feature_m_Value_set(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   Feature *arg1 = (Feature *) 0 ;
   char *arg2 = (char *) 0 ;
   void *argp1 = 0 ;
@@ -7079,23 +7080,23 @@ _wrap_Feature_Value_set(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, in
   char *buf2 = 0 ;
   int alloc2 = 0 ;
   
-  if (SWIG_GetArgs(interp, objc, objv,"oo:Feature_Value_set self Value ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  if (SWIG_GetArgs(interp, objc, objv,"oo:Feature_m_Value_set self m_Value ",(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_Feature, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Feature_Value_set" "', argument " "1"" of type '" "Feature *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Feature_m_Value_set" "', argument " "1"" of type '" "Feature *""'"); 
   }
   arg1 = reinterpret_cast< Feature * >(argp1);
   res2 = SWIG_AsCharPtrAndSize(objv[2], &buf2, NULL, &alloc2);
   if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Feature_Value_set" "', argument " "2"" of type '" "char *""'");
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "Feature_m_Value_set" "', argument " "2"" of type '" "char *""'");
   }
   arg2 = reinterpret_cast< char * >(buf2);
-  if (arg1->Value) delete[] arg1->Value;
+  if (arg1->m_Value) delete[] arg1->m_Value;
   if (arg2) {
     size_t size = strlen(reinterpret_cast< const char * >(arg2)) + 1;
-    arg1->Value = (char *)reinterpret_cast< char* >(memcpy((new char[size]), reinterpret_cast< const char * >(arg2), sizeof(char)*(size)));
+    arg1->m_Value = (char *)reinterpret_cast< char* >(memcpy((new char[size]), reinterpret_cast< const char * >(arg2), sizeof(char)*(size)));
   } else {
-    arg1->Value = 0;
+    arg1->m_Value = 0;
   }
   
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
@@ -7107,19 +7108,19 @@ fail:
 
 
 SWIGINTERN int
-_wrap_Feature_Value_get(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+_wrap_Feature_m_Value_get(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   Feature *arg1 = (Feature *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   char *result = 0 ;
   
-  if (SWIG_GetArgs(interp, objc, objv,"o:Feature_Value_get self ",(void *)0) == TCL_ERROR) SWIG_fail;
+  if (SWIG_GetArgs(interp, objc, objv,"o:Feature_m_Value_get self ",(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_Feature, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Feature_Value_get" "', argument " "1"" of type '" "Feature *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "Feature_m_Value_get" "', argument " "1"" of type '" "Feature *""'"); 
   }
   arg1 = reinterpret_cast< Feature * >(argp1);
-  result = (char *) ((arg1)->Value);
+  result = (char *) ((arg1)->m_Value);
   Tcl_SetObjResult(interp,SWIG_FromCharPtr((const char *)result));
   return TCL_OK;
 fail:
@@ -7218,7 +7219,7 @@ static swig_method swig_Feature_methods[] = {
 };
 static swig_attribute swig_Feature_attributes[] = {
     { "-m_Name",_wrap_Feature_m_Name_get, _wrap_Feature_m_Name_set},
-    { "-Value",_wrap_Feature_Value_get, _wrap_Feature_Value_set},
+    { "-m_Value",_wrap_Feature_m_Value_get, _wrap_Feature_m_Value_set},
     { "-m_featureType",_wrap_Feature_m_featureType_get, _wrap_Feature_m_featureType_set},
     {0,0,0}
 };
@@ -8608,6 +8609,7 @@ _wrap_GetNodeAttributesbyNodePos(ClientData clientData SWIGUNUSED, Tcl_Interp *i
   int *arg2 = (int *) 0 ;
   char *arg3 = (char *) 0 ;
   EStationType *arg4 = (EStationType *) 0 ;
+  char *arg5 = (char *) 0 ;
   int val1 ;
   int ecode1 = 0 ;
   void *argp2 = 0 ;
@@ -8615,9 +8617,11 @@ _wrap_GetNodeAttributesbyNodePos(ClientData clientData SWIGUNUSED, Tcl_Interp *i
   char temp3[100+1] ;
   void *argp4 = 0 ;
   int res4 = 0 ;
+  char temp5[10+1] ;
   ocfmRetCode result;
   
   arg3 = (char *) temp3;
+  arg5 = (char *) temp5;
   if (SWIG_GetArgs(interp, objc, objv,"ooo:GetNodeAttributesbyNodePos NodePos Out_NodeID Out_eStationType ",(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   ecode1 = SWIG_AsVal_int SWIG_TCL_CALL_ARGS_2(objv[1], &val1);
   if (!SWIG_IsOK(ecode1)) {
@@ -8634,10 +8638,12 @@ _wrap_GetNodeAttributesbyNodePos(ClientData clientData SWIGUNUSED, Tcl_Interp *i
     SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "GetNodeAttributesbyNodePos" "', argument " "4"" of type '" "EStationType *""'"); 
   }
   arg4 = reinterpret_cast< EStationType * >(argp4);
-  result = GetNodeAttributesbyNodePos(arg1,arg2,arg3,arg4);
+  result = GetNodeAttributesbyNodePos(arg1,arg2,arg3,arg4,arg5);
   Tcl_SetObjResult(interp,SWIG_NewInstanceObj((new ocfmRetCode(static_cast< const ocfmRetCode& >(result))), SWIGTYPE_p_ocfmRetCode, SWIG_POINTER_OWN | 0 ));
   arg3[100] = 0;  
   Tcl_ListObjAppendElement(interp,Tcl_GetObjResult(interp),SWIG_FromCharPtr(arg3));
+  arg5[10] = 0;  
+  Tcl_ListObjAppendElement(interp,Tcl_GetObjResult(interp),SWIG_FromCharPtr(arg5));
   return TCL_OK;
 fail:
   return TCL_ERROR;
@@ -9058,15 +9064,18 @@ _wrap_GetProjectSettings(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, i
   EAutoGenerate *arg1 = (EAutoGenerate *) 0 ;
   EAutoSave *arg2 = (EAutoSave *) 0 ;
   EViewMode *arg3 = (EViewMode *) 0 ;
+  bool *arg4 = (bool *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   void *argp2 = 0 ;
   int res2 = 0 ;
   void *argp3 = 0 ;
   int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
   ocfmRetCode result;
   
-  if (SWIG_GetArgs(interp, objc, objv,"ooo:GetProjectSettings autoGen autoSave viewMode ",(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  if (SWIG_GetArgs(interp, objc, objv,"oooo:GetProjectSettings autoGen autoSave viewMode bExpertViewAlreadySet ",(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_EAutoGenerate, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "GetProjectSettings" "', argument " "1"" of type '" "EAutoGenerate *""'"); 
@@ -9082,7 +9091,12 @@ _wrap_GetProjectSettings(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, i
     SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "GetProjectSettings" "', argument " "3"" of type '" "EViewMode *""'"); 
   }
   arg3 = reinterpret_cast< EViewMode * >(argp3);
-  result = GetProjectSettings(arg1,arg2,arg3);
+  res4 = SWIG_ConvertPtr(objv[4], &argp4,SWIGTYPE_p_bool, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "GetProjectSettings" "', argument " "4"" of type '" "bool *""'"); 
+  }
+  arg4 = reinterpret_cast< bool * >(argp4);
+  result = GetProjectSettings(arg1,arg2,arg3,arg4);
   Tcl_SetObjResult(interp,SWIG_NewInstanceObj((new ocfmRetCode(static_cast< const ocfmRetCode& >(result))), SWIGTYPE_p_ocfmRetCode, SWIG_POINTER_OWN | 0 ));
   return TCL_OK;
 fail:
@@ -9095,15 +9109,18 @@ _wrap_SetProjectSettings(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, i
   EAutoGenerate arg1 ;
   EAutoSave arg2 ;
   EViewMode arg3 ;
+  bool arg4 ;
   int val1 ;
   int ecode1 = 0 ;
   int val2 ;
   int ecode2 = 0 ;
   int val3 ;
   int ecode3 = 0 ;
+  bool val4 ;
+  int ecode4 = 0 ;
   ocfmRetCode result;
   
-  if (SWIG_GetArgs(interp, objc, objv,"ooo:SetProjectSettings autoGen autoSave viewMode ",(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
+  if (SWIG_GetArgs(interp, objc, objv,"oooo:SetProjectSettings autoGen autoSave viewMode bExpertViewAlreadySet ",(void *)0,(void *)0,(void *)0,(void *)0) == TCL_ERROR) SWIG_fail;
   ecode1 = SWIG_AsVal_int SWIG_TCL_CALL_ARGS_2(objv[1], &val1);
   if (!SWIG_IsOK(ecode1)) {
     SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "SetProjectSettings" "', argument " "1"" of type '" "EAutoGenerate""'");
@@ -9119,7 +9136,12 @@ _wrap_SetProjectSettings(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, i
     SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "SetProjectSettings" "', argument " "3"" of type '" "EViewMode""'");
   } 
   arg3 = static_cast< EViewMode >(val3);
-  result = SetProjectSettings(arg1,arg2,arg3);
+  ecode4 = SWIG_AsVal_bool SWIG_TCL_CALL_ARGS_2(objv[4], &val4);
+  if (!SWIG_IsOK(ecode4)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "SetProjectSettings" "', argument " "4"" of type '" "bool""'");
+  } 
+  arg4 = static_cast< bool >(val4);
+  result = SetProjectSettings(arg1,arg2,arg3,arg4);
   Tcl_SetObjResult(interp,SWIG_NewInstanceObj((new ocfmRetCode(static_cast< const ocfmRetCode& >(result))), SWIGTYPE_p_ocfmRetCode, SWIG_POINTER_OWN | 0 ));
   return TCL_OK;
 fail:
@@ -9461,7 +9483,7 @@ _wrap_GetFeatureValue(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int 
   int res4 ;
   char *buf4 = 0 ;
   int alloc4 = 0 ;
-  char temp5[512+1] ;
+  char temp5[100+1] ;
   ocfmRetCode result;
   
   arg5 = (char *) temp5;
@@ -9488,7 +9510,7 @@ _wrap_GetFeatureValue(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int 
   arg4 = reinterpret_cast< char * >(buf4);
   result = GetFeatureValue(arg1,arg2,arg3,arg4,arg5);
   Tcl_SetObjResult(interp,SWIG_NewInstanceObj((new ocfmRetCode(static_cast< const ocfmRetCode& >(result))), SWIGTYPE_p_ocfmRetCode, SWIG_POINTER_OWN | 0 ));
-  arg5[512] = 0;  
+  arg5[100] = 0;  
   Tcl_ListObjAppendElement(interp,Tcl_GetObjResult(interp),SWIG_FromCharPtr(arg5));
   if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
   return TCL_OK;
@@ -10119,6 +10141,26 @@ fail:
 }
 
 
+SWIGINTERN int
+_wrap_CIndex_UpdateArraySubObjects(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  CIndex *arg1 = (CIndex *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"o:CIndex_UpdateArraySubObjects self ",(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_CIndex, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "CIndex_UpdateArraySubObjects" "', argument " "1"" of type '" "CIndex *""'"); 
+  }
+  arg1 = reinterpret_cast< CIndex * >(argp1);
+  (arg1)->UpdateArraySubObjects();
+  
+  return TCL_OK;
+fail:
+  return TCL_ERROR;
+}
+
+
 SWIGINTERN void swig_delete_CIndex(void *obj) {
 CIndex *arg1 = (CIndex *) obj;
 delete arg1;
@@ -10132,6 +10174,7 @@ static swig_method swig_CIndex_methods[] = {
     {"setPDOType", _wrap_CIndex_setPDOType}, 
     {"getSubIndexbyIndexValue", _wrap_CIndex_getSubIndexbyIndexValue}, 
     {"SwapSubObjects", _wrap_CIndex_SwapSubObjects}, 
+    {"UpdateArraySubObjects", _wrap_CIndex_UpdateArraySubObjects}, 
     {0,0}
 };
 static swig_attribute swig_CIndex_attributes[] = {
@@ -11792,8 +11835,8 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "Parameter", (swig_wrapper_func) SWIG_ObjectConstructor, (ClientData)&_wrap_class_Parameter},
     { SWIG_prefix "Feature_m_Name_set", (swig_wrapper_func) _wrap_Feature_m_Name_set, NULL},
     { SWIG_prefix "Feature_m_Name_get", (swig_wrapper_func) _wrap_Feature_m_Name_get, NULL},
-    { SWIG_prefix "Feature_Value_set", (swig_wrapper_func) _wrap_Feature_Value_set, NULL},
-    { SWIG_prefix "Feature_Value_get", (swig_wrapper_func) _wrap_Feature_Value_get, NULL},
+    { SWIG_prefix "Feature_m_Value_set", (swig_wrapper_func) _wrap_Feature_m_Value_set, NULL},
+    { SWIG_prefix "Feature_m_Value_get", (swig_wrapper_func) _wrap_Feature_m_Value_get, NULL},
     { SWIG_prefix "Feature_m_featureType_set", (swig_wrapper_func) _wrap_Feature_m_featureType_set, NULL},
     { SWIG_prefix "Feature_m_featureType_get", (swig_wrapper_func) _wrap_Feature_m_featureType_get, NULL},
     { SWIG_prefix "new_Feature", (swig_wrapper_func) _wrap_new_Feature, NULL},
@@ -11878,6 +11921,7 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "CIndex_setPDOType", (swig_wrapper_func) _wrap_CIndex_setPDOType, NULL},
     { SWIG_prefix "CIndex_getSubIndexbyIndexValue", (swig_wrapper_func) _wrap_CIndex_getSubIndexbyIndexValue, NULL},
     { SWIG_prefix "CIndex_SwapSubObjects", (swig_wrapper_func) _wrap_CIndex_SwapSubObjects, NULL},
+    { SWIG_prefix "CIndex_UpdateArraySubObjects", (swig_wrapper_func) _wrap_CIndex_UpdateArraySubObjects, NULL},
     { SWIG_prefix "CIndex", (swig_wrapper_func) SWIG_ObjectConstructor, (ClientData)&_wrap_class_CIndex},
     { SWIG_prefix "new_CNodeCollection", (swig_wrapper_func) _wrap_new_CNodeCollection, NULL},
     { SWIG_prefix "delete_CNodeCollection", (swig_wrapper_func) _wrap_delete_CNodeCollection, NULL},

@@ -91,6 +91,7 @@ class DllExport CPjtSettings
 		EAutoSave m_saveMode;
 		char* m_IP_openPOWERLINK;
 		EViewMode m_viewMode;
+		bool m_bExpertViewSelected;
 	public :
 		static CPjtSettings* getPjtSettingsPtr();
 		EAutoSave getSaveAttr();
@@ -101,5 +102,7 @@ class DllExport CPjtSettings
 		const char* getPOWERLINK_IP();
 		EViewMode getViewMode();
 		void setViewMode(EViewMode);
+		bool getExpertViewSelectedFlag();
+		void setExpertViewSelectedFlag(bool);
 };
 #endif // ProjectSettings_h

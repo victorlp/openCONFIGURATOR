@@ -2721,7 +2721,7 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 								//strcat(Buffer1, "\t00000004\t80000007\n");			
 								//setNodeAssigmentBits(&objNode);
 
-								strcat(Buffer1, "\tt00000004\t");
+								strcat(Buffer1, "\t00000004\t");
 								strcat(Buffer1, setNodeAssigmentBits(&objNode));
 								strcat(Buffer1, "\n");
 
@@ -7040,6 +7040,20 @@ bool setProjectSettings_Auto(xmlTextReaderPtr pxReader)
 				return false;
 			}
 		}
+		else if (strcmp(((char*)pxcName),"ExpertViewSelected") == 0)
+		{
+			if(strcmp(((char*)pxcValue),"true") == 0)
+				pobjPjtSettings->setExpertViewSelectedFlag(true);
+			else if(strcmp(((char*)pxcValue),"false") == 0)
+				pobjPjtSettings->setExpertViewSelectedFlag(false);			
+			else
+			{
+				#if defined DEBUG
+					cout << "\nsetProjectSettings_Auto returning false" << endl;
+				#endif
+				return false;
+			}
+		}
 		else
 		{
 			#if defined DEBUG
@@ -7373,6 +7387,15 @@ if (iBytesWritten < 0)
 	else if(pobjPjtSettings->getViewMode()== EXPERT)
 	{
 		iBytesWritten = xmlTextWriterWriteAttribute(pxtwWriter, BAD_CAST "View", BAD_CAST "Advanced");
+	}
+
+	if(pobjPjtSettings->getExpertViewSelectedFlag() == true)
+	{
+		iBytesWritten = xmlTextWriterWriteAttribute(pxtwWriter, BAD_CAST "ExpertViewSelected", BAD_CAST "true");
+	}
+	else if(pobjPjtSettings->getExpertViewSelectedFlag()== false)
+	{
+		iBytesWritten = xmlTextWriterWriteAttribute(pxtwWriter, BAD_CAST "ExpertViewSelected", BAD_CAST "false");
 	}
 
 
@@ -7732,7 +7755,7 @@ void CreateMNPDOVar(INT32 iOffset, INT32 iDataSize, IEC_Datatype enumDataType, E
 * Return value: ocfmRetCode
 ****************************************************************************************************/
 
-ocfmRetCode GetProjectSettings(EAutoGenerate *enumAutoGen, EAutoSave *enumAutoSave, EViewMode *enumviewMode)
+ocfmRetCode GetProjectSettings(EAutoGenerate *enumAutoGen, EAutoSave *enumAutoSave, EViewMode *enumviewMode, bool* bExpertViewAlreadySet)
 {
  
 		ocfmRetCode stRetInfo;
@@ -7751,6 +7774,8 @@ ocfmRetCode GetProjectSettings(EAutoGenerate *enumAutoGen, EAutoSave *enumAutoSa
 			*enumAutoGen = pobjPrjtSettings->getGenerateAttr();
 			*enumAutoSave = pobjPrjtSettings->getSaveAttr();
 			*enumviewMode = pobjPrjtSettings->getViewMode();
+			*bExpertViewAlreadySet = pobjPrjtSettings->getExpertViewSelectedFlag();
+
 			stRetInfo.code =  OCFM_ERR_SUCCESS;
 			return stRetInfo;
 		}
@@ -7767,7 +7792,7 @@ ocfmRetCode GetProjectSettings(EAutoGenerate *enumAutoGen, EAutoSave *enumAutoSa
 * Return value: ocfmRetCode
 ****************************************************************************************************/
 
-ocfmRetCode SetProjectSettings(EAutoGenerate enumAutoGen, EAutoSave enumAutoSave, EViewMode enumViewMode)
+ocfmRetCode SetProjectSettings(EAutoGenerate enumAutoGen, EAutoSave enumAutoSave, EViewMode enumViewMode,bool bExpertViewAlreadySet)
 {
  
 		ocfmRetCode stRetInfo;
@@ -7787,6 +7812,7 @@ ocfmRetCode SetProjectSettings(EAutoGenerate enumAutoGen, EAutoSave enumAutoSave
 			pobjPrjtSettings->setGenerateAttr(enumAutoGen);
 			pobjPrjtSettings->setSaveAttr(enumAutoSave);
 			pobjPrjtSettings->setViewMode(enumViewMode);
+			pobjPrjtSettings->setExpertViewSelectedFlag(bExpertViewAlreadySet);
 			stRetInfo.code =  OCFM_ERR_SUCCESS;
 			return stRetInfo;
 		}
