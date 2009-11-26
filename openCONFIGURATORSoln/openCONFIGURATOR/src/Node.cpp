@@ -506,20 +506,19 @@ void CNode::setForcedCycle(char* pbForcedCycle)
 	int IndexPos;
 	char* strConvertedValue;
 	strConvertedValue = new char[SUBINDEX_LEN];
-	
-	stErrorInfo = IfIndexExists(240, MN, "1F9B", &IndexPos);
+	char acMultiCycleAssignObj[] = MULTIPL_CYCLE_ASSIGN_OBJECT;
+	stErrorInfo = IfIndexExists(240, MN, acMultiCycleAssignObj, &IndexPos);
 	strConvertedValue = _IntToAscii(this->getNodeId(), strConvertedValue, 16);
 	strConvertedValue = padLeft(strConvertedValue, '0', 2);
 	if(stErrorInfo.code == OCFM_ERR_SUCCESS)
 	{
 		//Index exists
 		int subIndexPos;		
-		
-		stErrorInfo = IfSubIndexExists(MN_NODEID, MN, "1F9B", strConvertedValue,  &subIndexPos, &IndexPos);		
+		stErrorInfo = IfSubIndexExists(MN_NODEID, MN, acMultiCycleAssignObj, strConvertedValue,  &subIndexPos, &IndexPos);
 		if(stErrorInfo.code == OCFM_ERR_SUCCESS)
 		{			
 			printf("\n pbForcedcycle %s", pbForcedCycle);
-			SetSubIndexAttributes(MN_NODEID, MN, "1F9B", strConvertedValue, pbForcedCycle,NULL, TRUE);
+			SetSubIndexAttributes(MN_NODEID, MN, acMultiCycleAssignObj, strConvertedValue, pbForcedCycle,NULL, TRUE);
 		}
 		else
 		{			
@@ -530,9 +529,9 @@ void CNode::setForcedCycle(char* pbForcedCycle)
 	}
 	else
 	{
-		stErrorInfo = AddIndex(MN_NODEID, MN, "1F9B");
-		stErrorInfo = AddSubIndex(MN_NODEID, MN, "1F9B", strConvertedValue);		
-		SetSubIndexAttributes(MN_NODEID, MN, "1F9B", strConvertedValue, pbForcedCycle,"", TRUE);
+		stErrorInfo = AddIndex(MN_NODEID, MN, acMultiCycleAssignObj);
+		stErrorInfo = AddSubIndex(MN_NODEID, MN, acMultiCycleAssignObj, strConvertedValue);		
+		SetSubIndexAttributes(MN_NODEID, MN, acMultiCycleAssignObj, strConvertedValue, pbForcedCycle,"", TRUE);
 		
 	}
 

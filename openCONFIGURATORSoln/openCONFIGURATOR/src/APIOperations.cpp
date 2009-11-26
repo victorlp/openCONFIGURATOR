@@ -8344,7 +8344,7 @@ ocfmRetCode UpdateNodeParams(INT32 iCurrNodeId, INT32 iNewNodeID, ENodeType eNod
 			cSIdx = _IntToAscii(iCurrNodeId, cSIdx, 16);
 			cSIdx = padLeft(cSIdx, '0', 2);
 			//Deleted MN's 1F9B and Suindex = old node id
-			DeleteSubIndex(MN_NODEID, MN,  "1F9B", cSIdx);
+			DeleteSubIndex(MN_NODEID, MN, (char *)MULTIPL_CYCLE_ASSIGN_OBJECT, cSIdx);
 		}
 
 		CNode* pobjNode;		

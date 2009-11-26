@@ -101,6 +101,7 @@ const int OFFSET_UNSIGNED_INTEGER_8 = 0;
 #define NODE_ID			3
 #define ERR_STRING_LEN	100
 #define OFFSET_FIRST_INDEX_IN_1F22 11
+#define MULTIPL_CYCLE_ASSIGN_OBJECT "1F9B"
 
 /****************************************************************************************************
 * Typedefs
