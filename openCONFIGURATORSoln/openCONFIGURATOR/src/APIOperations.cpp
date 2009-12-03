@@ -775,7 +775,6 @@ ocfmRetCode AddIndex(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID)
 			
 			if( (stErrorInfo.code == OCFM_ERR_NO_INDEX_FOUND) || (stErrorInfo.code == OCFM_ERR_INDEXID_NOT_FOUND) )
 			{	
-				printf("check5***********");
 				//objIndex = new CIndex();
 				CIndex objIndex;
 				
@@ -786,22 +785,18 @@ ocfmRetCode AddIndex(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID)
 				CObjectDictionary* pobjOBD;
 				pobjOBD = CObjectDictionary::getObjDictPtr();
 				pobjDictIndex = pobjOBD->getObjectDictIndex(pbIndexID);				
-				printf("check6***********");
 				if(pobjDictIndex!=NULL)
 				{
-					printf("check7***********");
 					objIndex.setNodeID(iNodeID);
 					AddIndexAttributes(pbIndexID, &objIndex, pobjDictIndex);
 					for(INT32 iLoopCount= 0; iLoopCount<pobjDictIndex->getNumberofSubIndexes(); iLoopCount++)
 					{
-						printf("check8***********");
 						CSubIndex* objSIdx;
 						objSIdx = pobjDictIndex->getSubIndex(iLoopCount);
 						objIndex.addSubIndex(*objSIdx);
 					}
 	
 					objIndex.setName(pobjOBD->getIndexName(subString(pbIndexID,2,4),(char*)objIndex.getName()));
-					printf("check9***********");
 					pobjIndexCollection->addIndex(objIndex);
 				}
 				else if((enumNodeType == MN) && CheckIfProcessImageIdx(pbIndexID))
@@ -821,9 +816,9 @@ ocfmRetCode AddIndex(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID)
 						objIndex.setIndexValue(pbIndexID);
 						objIndex.setFlagIfIncludedCdc(TRUE);
 						pobjIndexCollection->addIndex(objIndex);
-						SetAllIndexAttributes(iNodeID, enumNodeType, pbIndexID, NULL ,NULL,"rw", NULL, NULL, NULL, NULL, NULL,"8",FALSE);
-						stErrorInfo = AddSubIndex(iNodeID, enumNodeType, pbIndexID, "00");						
-						SetAllSubIndexAttributes(iNodeID, enumNodeType, pbIndexID, "00","0","NumberOfEnteries", "rw", "unsigned8" ,NULL,"0",NULL,NULL, "7", FALSE);
+						//SetAllIndexAttributes(iNodeID, enumNodeType, pbIndexID, NULL ,NULL,"rw", NULL, NULL, NULL, NULL, NULL,"8",FALSE);
+						//stErrorInfo = AddSubIndex(iNodeID, enumNodeType, pbIndexID, "00");						
+						//SetAllSubIndexAttributes(iNodeID, enumNodeType, pbIndexID, "00","0","NumberOfEntries", "rw", "unsigned8" ,NULL,"0",NULL,NULL, "7", FALSE);
 				}
 				else 
 				{
