@@ -8013,7 +8013,7 @@ void AuotgenerateOtherIndexs(CNode* pobjNode)
 							/* Add 1F92*/
 					strcpy(pbMNIndex, "1F92");
 					retCode = AddIndex(MN_NODEID, MN, pbMNIndex);
-					if(retCode.code == OCFM_ERR_SUCCESS || retCode.code == OCFM_ERR_INDEX_ALREADY_EXISTS)
+					if(retCode.code == OCFM_ERR_SUCCESS)
 					{				
 						pobjIndex = pobjIdxCol->getIndexbyIndexValue(pbMNIndex);
 								/* $:set Flag to true*/
@@ -8022,6 +8022,11 @@ void AuotgenerateOtherIndexs(CNode* pobjNode)
 						AddForEachSIdx(pbMNIndex, pobjIdxCol, pobjNode->getNodeId(), (char*)"2000000",false);			
 											
 					
+					}
+					else if (retCode.code == OCFM_ERR_INDEX_ALREADY_EXISTS)
+					{
+						/* $:set Flag to true*/
+						pobjIndex->setFlagIfIncludedCdc(TRUE);
 					}
 					
 					
