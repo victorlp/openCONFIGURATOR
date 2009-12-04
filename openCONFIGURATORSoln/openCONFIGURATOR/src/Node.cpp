@@ -92,6 +92,7 @@ CNode::CNode(void)
 	m_HasPdoObjects 		= false;
 	m_StationType			= NORMAL;
 	m_ForcedCycle			= NULL;
+	m_PollResponseTimeout		= NULL;
 }
 
 /****************************************************************************************************
@@ -532,6 +533,52 @@ void CNode::setForcedCycle(char* pbForcedCycle)
 		stErrorInfo = AddIndex(MN_NODEID, MN, acMultiCycleAssignObj);
 		stErrorInfo = AddSubIndex(MN_NODEID, MN, acMultiCycleAssignObj, strConvertedValue);		
 		SetSubIndexAttributes(MN_NODEID, MN, acMultiCycleAssignObj, strConvertedValue, pbForcedCycle,"", TRUE);
+		
+	}
+
+}
+
+/**************************************************************************************************
+* Function Name: CNode::setPollResponseTimeout
+* Description: sets the poll response timeout value in MN
+* Return value: void
+****************************************************************************************************/
+void CNode::setPollResponseTimeout(char* pbPollResponseTimeout)
+{	
+	m_PollResponseTimeout = new char[strlen(pbPollResponseTimeout) + ALLOC_BUFFER];
+	strcpy((char*)m_PollResponseTimeout, pbPollResponseTimeout);	
+
+	//add or update 1f92 subobjects in MN
+	ocfmRetCode stErrorInfo;
+	int IndexPos;
+	char* strConvertedValue;
+	strConvertedValue = new char[SUBINDEX_LEN];
+	char acMNCNPollresponseTimeoutObj[] = MNCN_POLLRESPONSE_TIMEOUT_OBJECT;
+	stErrorInfo = IfIndexExists(MN_NODEID, MN, acMNCNPollresponseTimeoutObj, &IndexPos);
+	strConvertedValue = _IntToAscii(this->getNodeId(), strConvertedValue, 16);
+
+	strConvertedValue = padLeft(strConvertedValue, '0', 2);
+	if(stErrorInfo.code == OCFM_ERR_SUCCESS)
+	{
+		//Index exists
+		int subIndexPos;		
+		stErrorInfo = IfSubIndexExists(MN_NODEID, MN, acMNCNPollresponseTimeoutObj, strConvertedValue,  &subIndexPos, &IndexPos);
+		if(stErrorInfo.code == OCFM_ERR_SUCCESS)
+		{			
+			SetSubIndexAttributes(MN_NODEID, MN, acMNCNPollresponseTimeoutObj, strConvertedValue, pbPollResponseTimeout,NULL, TRUE);
+		}
+		else
+		{	
+			stErrorInfo = AddSubIndex(MN_NODEID, MN, acMNCNPollresponseTimeoutObj, strConvertedValue);
+			SetSubIndexAttributes(MN_NODEID, MN, acMNCNPollresponseTimeoutObj, strConvertedValue, pbPollResponseTimeout,"", TRUE);
+		}
+		
+	}
+	else
+	{
+		stErrorInfo = AddIndex(MN_NODEID, MN, acMNCNPollresponseTimeoutObj);
+		stErrorInfo = AddSubIndex(MN_NODEID, MN, acMNCNPollresponseTimeoutObj, strConvertedValue);		
+		SetSubIndexAttributes(MN_NODEID, MN, acMNCNPollresponseTimeoutObj, strConvertedValue, pbPollResponseTimeout,"", TRUE);
 		
 	}
 

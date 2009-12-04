@@ -102,6 +102,7 @@ class DllExport CNode
 		char*			m_NodeName;
 		EStationType	m_StationType;
 		char*			m_ForcedCycle;
+		char*			m_PollResponseTimeout;
 		/*	typedef TCollection<ProcessImage> PICollection;*/
 	public:
 		/*typedef _PICollection PICollection;*/
@@ -150,7 +151,7 @@ class DllExport CNode
 
 		char* getForcedCycle();
 		void setForcedCycle(char* ForcedCycle);
-
+		void setPollResponseTimeout(char* pbPollResponseTimeout);
 		bool isNull();			
 };
 #endif // Node_h

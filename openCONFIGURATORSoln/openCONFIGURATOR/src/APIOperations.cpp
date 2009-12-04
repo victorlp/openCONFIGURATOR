@@ -8292,7 +8292,7 @@ ocfmRetCode GetFeatureValue(
 ****************************************************************************************************/
 
 ocfmRetCode UpdateNodeParams(INT32 iCurrNodeId, INT32 iNewNodeID, ENodeType eNodeType, 
-							 char* NodeName, EStationType eStationType, char* ForcedCycle)
+							 char* NodeName, EStationType eStationType, char* ForcedCycle, char* PollResponseTimeout)
 {
 	//cout<< "Inside GetNodeIDbyNodeCount" << endl;
 	ocfmRetCode stErrorInfo;
@@ -8334,7 +8334,6 @@ ocfmRetCode UpdateNodeParams(INT32 iCurrNodeId, INT32 iNewNodeID, ENodeType eNod
 		}
 		if(eStationType != MULTIPLEXED ||( iNewNodeID != iCurrNodeId && eStationType == MULTIPLEXED))
 		{	
-			printf("\n to be delete node %d", iCurrNodeId);
 			char* cSIdx = new char[SUBINDEX_LEN];
 			cSIdx = _IntToAscii(iCurrNodeId, cSIdx, 16);
 			cSIdx = padLeft(cSIdx, '0', 2);
@@ -8365,6 +8364,11 @@ ocfmRetCode UpdateNodeParams(INT32 iCurrNodeId, INT32 iNewNodeID, ENodeType eNod
 				
 				pobjNode->setForcedCycle(ForcedCycle);
 			}
+		}
+
+		if(eNodeType == CN && !(strcmp(PollResponseTimeout,"") == 0 || PollResponseTimeout == NULL) )
+		{
+			pobjNode->setPollResponseTimeout(PollResponseTimeout);
 		}
 		pobjNode->setNodeName(NodeName);
 		

@@ -102,7 +102,7 @@ const int OFFSET_UNSIGNED_INTEGER_8 = 0;
 #define ERR_STRING_LEN	100
 #define OFFSET_FIRST_INDEX_IN_1F22 11
 #define MULTIPL_CYCLE_ASSIGN_OBJECT "1F9B"
-
+#define MNCN_POLLRESPONSE_TIMEOUT_OBJECT "1F92"
 /****************************************************************************************************
 * Typedefs
 ****************************************************************************************************/
@@ -430,7 +430,7 @@ DllExport ocfmRetCode SetAllSubIndexAttributes(int NodeID, ENodeType NodeType,
 												char* pdoMappingVal, char* defaultValue, char* highLimit,
 												char* lowLimit, char* objType, EFlag flagIfIncludedInCdc);
 DllExport ocfmRetCode GetFeatureValue(INT32 iNodeId, ENodeType eNodeType, EFeatureType eFeatureType, char* FeatureName, char* Out_FeatureValue);
-DllExport ocfmRetCode UpdateNodeParams(INT32 iCurrNodeId, INT32 iNewNodeID, ENodeType eNodeType, char* NodeName, EStationType eStationType, char* ForcedCycle); 
+DllExport ocfmRetCode UpdateNodeParams(INT32 iCurrNodeId, INT32 iNewNodeID, ENodeType eNodeType, char* NodeName, EStationType eStationType, char* ForcedCycle, char* PollResponseTimeout); 
 DllExport ocfmRetCode GetNodeDataTypes(INT32 iNodeId, ENodeType eNodeType, char* Out_DataTypes);
 
 #pragma warning( disable: 4251 )
