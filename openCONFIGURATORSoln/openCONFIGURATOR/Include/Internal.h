@@ -208,4 +208,5 @@ void setFeatures(xmlTextReaderPtr reader, Feature* stFeature);
 CIndex getPDOIndexByOffset(CIndex* objIndex);
 char* setNodeAssigmentBits(CNode* objNode);
 UINT32 getLastAvailableCycleNumber();
+ocfmRetCode RecalculateMultiplex();
 #endif // internal_h

@@ -518,7 +518,6 @@ void CNode::setForcedCycle(char* pbForcedCycle)
 		stErrorInfo = IfSubIndexExists(MN_NODEID, MN, acMultiCycleAssignObj, strConvertedValue,  &subIndexPos, &IndexPos);
 		if(stErrorInfo.code == OCFM_ERR_SUCCESS)
 		{			
-			printf("\n pbForcedcycle %s", pbForcedCycle);
 			SetSubIndexAttributes(MN_NODEID, MN, acMultiCycleAssignObj, strConvertedValue, pbForcedCycle,NULL, TRUE);
 		}
 		else

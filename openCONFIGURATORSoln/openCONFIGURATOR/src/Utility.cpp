@@ -627,16 +627,27 @@ UINT32 getLastAvailableCycleNumber()
 		//printf(" \nactvalue %s",actValue);
 		
 		//printf("\ncycle %d", uiCycleNumber);
-		int iCycleValue = hex2int(subString(actValue, 2,strlen(actValue) -2 ));
-		//printf(" \niCycleValue %d",iCycleValue);
-		if(iCycleValue > uiCycleNumber)
+		int iCycleValue;
+		if (strncmp(actValue,"0x",2) == 0 || strncmp(actValue,"0X",2) == 0)
+			iCycleValue  = hex2int(subString(actValue, 2,strlen(actValue) -2 ));
+		else
+			iCycleValue  = hex2int(actValue);
+
+		if(iCycleValue > uiCycleNumber+1)
 		{
-			uiCycleNumber += 1;			
+			uiCycleNumber += 1;
 		}
 		else
 		{			
-			uiCycleNumber = 1;
+			uiCycleNumber += 1;
+			while(iCycleValue < uiCycleNumber)
+			{
+				uiCycleNumber = uiCycleNumber - iCycleValue;
+			}
+			
 		}
+		
 	}
+	delete[] actValue;
 	return uiCycleNumber;
 }
