@@ -246,6 +246,33 @@ void GroupInOutPIVariables(ProcessImage aobjPIInCol[], ProcessImage aobjPIOutCol
 	}
 }
 
+// /****************************************************************************************************
+// * Function Name: GroupNETPIVariables
+// * Description:
+// * Return value: void
+// ****************************************************************************************************/
+INT32 GroupNETPIVariables( EPIDirectionType DirectionType, NETProcessImage aobjPICol[])
+{
+	CNodeCollection* pobjNodeCol = NULL;
+	CNode*  objNode;
+	pobjNodeCol =  CNodeCollection::getNodeColObjectPointer();
+	INT32 NetPIVarsCount =0;
+	for(INT32 iOutLoopCount=0; iOutLoopCount < pobjNodeCol->getNumberOfNodes(); iOutLoopCount++)
+	{
+		objNode = pobjNodeCol->getNodebyColIndex(iOutLoopCount);	
+		
+		for(INT32 iInLoopCount=0; iInLoopCount < objNode->NETProcessImageCollection.Count(); iInLoopCount++)
+		{			
+			if(objNode->NETProcessImageCollection[iInLoopCount].DirectionType == DirectionType)
+			{
+				aobjPICol[NetPIVarsCount]  = objNode->NETProcessImageCollection[iInLoopCount];
+				NetPIVarsCount++;
+			}
+		}
+	}
+	return NetPIVarsCount;
+}
+
 //void ComputeCompactPI(INT32 VarCount,  EPIDirectionType type)
 //{
 //	//INT32 arrOfOffsets[4][2] = {{-1, -1}, {-1, -1},{-1, -1},{-1,-1}};			/* Contain prev and current offsets of size 1Bytes, 2 bytes, 4 bytes and 8 bytes*/	
@@ -767,6 +794,384 @@ void WriteXAPHeaderContents(ProcessImage objProcessImage[], INT32 iNumberOfVars,
 }
 
 /****************************************************************************************************
+* Function Name: GenerateNETHeaderFile
+* Description:
+* Return value: void
+****************************************************************************************************/
+void GenerateNETHeaderFile(char* pbFileName, ProcessImage objPIInCol[], ProcessImage objPIOutCol[], INT32 iInVar, INT32 iOutVar)
+{
+	char* pbNetFileName  = new char[strlen(pbFileName) + ALLOC_BUFFER];
+	FILE* fpNetFile 	 = new FILE();
+
+	strcpy(pbNetFileName, pbFileName);
+	strcat(pbNetFileName, ".cs");
+	/* write Input structure */
+	if (( fpNetFile = fopen(pbNetFileName,"w+")) == NULL)
+	{
+		ocfmException ex;
+		ex.ocfm_Excpetion(OCFM_ERR_CANNOT_OPEN_FILE);
+		delete [] pbNetFileName;
+		throw ex;
+	}
+	CNodeCollection* pobjNodeCol = NULL;
+	CNode*  objNode;
+	pobjNodeCol =  CNodeCollection::getNodeColObjectPointer();
+	//INT32 NetPIVarsCount =0;
+	for(INT32 iNodeColLoopCount=0; iNodeColLoopCount < pobjNodeCol->getNumberOfNodes(); iNodeColLoopCount++)
+	{
+		objNode = pobjNodeCol->getNodebyColIndex(iNodeColLoopCount);	
+		objNode->DeleteCollectionsForNETPI();	
+	}
+	if( (iInVar != 0) || (iOutVar != 0) )
+	{
+		 /*Writng Header of .NET Interface*/
+		char* pbBuffer 		= new char[HEADER_FILE_BUFFER];
+		strcpy(pbBuffer, "using System;\n");
+		strcat(pbBuffer, "using System.Collections.Generic;\n");
+		strcat(pbBuffer, "using System.Text;\n");
+		strcat(pbBuffer, "using System.Runtime.InteropServices;\n");
+		strcat(pbBuffer, "using openPOWERLINK;\n");
+		strcat(pbBuffer, "namespace openPOWERLINK.Demo\n");
+		strcat(pbBuffer, "{\n");
+		UINT32 uiStrLength =  strlen(pbBuffer);
+		
+		if((uiStrLength != fwrite(pbBuffer, sizeof(char),uiStrLength,fpNetFile)))
+		{	
+			ocfmException ex;
+			ex.ocfm_Excpetion(OCFM_ERR_FILE_CANNOT_OPEN);
+			delete[] pbBuffer;
+			throw ex;
+		}
+		delete[] pbBuffer;
+	}		
+	if(iInVar !=0)
+	{			
+		WriteNETHeaderContents(objPIInCol, iInVar, INPUT, fpNetFile);
+		//fclose(fpNetFile);
+	}
+
+	//fclose(fpNetFile);
+	
+	/* write Output structure */
+	if(iOutVar !=0)
+	{
+		//if (( fpNetFile = fopen(pbNetFileName,"a+")) == NULL)
+		//{
+		//	ocfmException ex;
+		//	ex.ocfm_Excpetion(OCFM_ERR_CANNOT_OPEN_FILE);
+		//	delete [] pbNetFileName;
+		//	throw ex;
+		//}
+		WriteNETHeaderContents(objPIOutCol, iOutVar, OUTPUT, fpNetFile);	
+	}
+	if( (iInVar !=0) || (iOutVar !=0) )
+	{
+		char* pbBuffer = new char[10];
+		strcpy(pbBuffer, "}\n");
+		UINT32 uiStrLength =  strlen(pbBuffer);
+		
+		if((uiStrLength != fwrite(pbBuffer, sizeof(char),uiStrLength,fpNetFile)))
+		{	
+			ocfmException ex;
+			ex.ocfm_Excpetion(OCFM_ERR_FILE_CANNOT_OPEN);
+			fclose(fpNetFile);
+			delete[] pbBuffer;
+			throw ex;
+		}
+		delete[] pbBuffer;
+		fclose(fpNetFile);
+	}
+	delete [] pbNetFileName;
+}
+
+/****************************************************************************************************
+* Function Name: WriteNETHeaderContents
+* Description:
+* Return value: void
+****************************************************************************************************/
+void WriteNETHeaderContents(ProcessImage objProcessImage[], INT32 iNumberOfVars, EPIDirectionType enumDirType, FILE* fpNetHeader)
+{
+
+	char* pbBuffer 		= new char[HEADER_FILE_BUFFER];
+	pbBuffer[0] = 0;
+	char* pbBuffer1 	= new char[200];		
+	char* pbBuffer2 	= new char[500];
+
+	INT32 iTotalsize = GroupNETHeaderContents(objProcessImage, iNumberOfVars, enumDirType, fpNetHeader);
+	NETProcessImage aobjNetPiCol[PI_VAR_COUNT] = {};
+	INT32 NetPIVarsCount = GroupNETPIVariables( enumDirType, aobjNetPiCol);
+	for(INT32 iLoopCount = 0; iLoopCount<NetPIVarsCount ; iLoopCount++)
+	{
+		strcat(pbBuffer , "\t\tpublic ");
+		strcat(pbBuffer , GetDatatypeNETPI(aobjNetPiCol[iLoopCount].DataInfo._dt_enum));
+		strcat(pbBuffer , " ");
+		strcat(pbBuffer , aobjNetPiCol[iLoopCount].ModuleName);
+		strcat(pbBuffer , "_");
+		strcat(pbBuffer , aobjNetPiCol[iLoopCount].Name);
+		if(aobjNetPiCol[iLoopCount].count > 0)
+		{
+			strcat(pbBuffer , "_to_");
+			strcat(pbBuffer , aobjNetPiCol[iLoopCount].LastName);
+		}
+		strcat(pbBuffer , ";\n");
+
+	}
+	if(enumDirType == INPUT)
+	{
+		strcpy(pbBuffer1, "\n\t/// <summary>\n");
+		strcat(pbBuffer1, "\t/// Class : ProcessImage In\n");
+		strcat(pbBuffer1, "\t/// </summary>\n");
+		strcat(pbBuffer1, "\t[StructLayout(LayoutKind.Sequential)]\n");
+		strcat(pbBuffer1, "\tpublic class AppProcessImageIn : cProcessImage\n");
+		strcat(pbBuffer1, "\t{\n");
+
+		strcpy(pbBuffer2, "\t\tprivate static UInt16 uiPIInSize = ");
+	}	
+	else if(enumDirType == OUTPUT)
+	{				
+		
+		strcpy(pbBuffer1, "\n\t/// <summary>\n");
+		strcat(pbBuffer1, "\t/// Class : ProcessImage Out\n");
+		strcat(pbBuffer1, "\t/// </summary>\n");
+		strcat(pbBuffer1, "\t[StructLayout(LayoutKind.Sequential)]\n");
+		strcat(pbBuffer1, "\tpublic class AppProcessImageOut : cProcessImage\n");
+		strcat(pbBuffer1, "\t{\n");
+
+		strcpy(pbBuffer2, "\t\tprivate static UInt16 uiPIOutSize = ");
+	}	
+	char* abTotalsize = new char[20];
+	strcat(pbBuffer2,_IntToAscii(iTotalsize, abTotalsize, 10));
+	delete[] abTotalsize;
+	strcat(pbBuffer2,"\n");
+
+	if(enumDirType == INPUT)
+	{
+		strcat(pbBuffer2, "\n");
+        	strcat(pbBuffer2, "\t\t/// <summary>\n");
+        	strcat(pbBuffer2, "\t\t/// Constructor sets the size of ProcessImage In\n");
+        	strcat(pbBuffer2, "\t\t/// </summary>\n");
+        	strcat(pbBuffer2, "\t\tpublic AppProcessImageIn()\n");
+        	strcat(pbBuffer2, "\t\t{\n");
+            	strcat(pbBuffer2, "\t\t\tthis.Size = uiPIInSize;\n");
+        	strcat(pbBuffer2, "\t\t}\n");
+        	strcat(pbBuffer2, "\t}\n");
+	}	
+	else if(enumDirType == OUTPUT)
+	{
+		strcat(pbBuffer2, "\n");
+        	strcat(pbBuffer2, "\t\t/// <summary>\n");
+        	strcat(pbBuffer2, "\t\t/// Constructor sets the size of ProcessImage Out\n");
+        	strcat(pbBuffer2, "\t\t/// </summary>\n");
+        	strcat(pbBuffer2, "\t\tpublic AppProcessImageOut()\n");
+        	strcat(pbBuffer2, "\t\t{\n");
+            	strcat(pbBuffer2, "\t\t\tthis.Size = uiPIOutSize;\n");
+        	strcat(pbBuffer2, "\t\t}\n");
+        	strcat(pbBuffer2, "\t}\n");
+	}
+
+	UINT32 uiStrLength =  strlen(pbBuffer1);
+	
+	if((uiStrLength != fwrite(pbBuffer1, sizeof(char),uiStrLength,fpNetHeader)))
+	{	
+		ocfmException ex;
+		ex.ocfm_Excpetion(OCFM_ERR_FILE_CANNOT_OPEN);
+		delete[] pbBuffer;
+		delete[] pbBuffer1;
+		throw ex;
+	}
+ 	delete[] pbBuffer1;
+
+	uiStrLength  =  strlen(pbBuffer);
+
+	if((uiStrLength != fwrite(pbBuffer, sizeof(char), uiStrLength, fpNetHeader)))
+	{	
+		ocfmException ex;
+		ex.ocfm_Excpetion(OCFM_ERR_FILE_CANNOT_OPEN);
+		throw ex;
+	}
+ 	delete[] pbBuffer;
+
+	uiStrLength  =  strlen(pbBuffer2);
+
+	if((uiStrLength != fwrite(pbBuffer2, sizeof(char), uiStrLength, fpNetHeader)))
+	{	
+		ocfmException ex;
+		ex.ocfm_Excpetion(OCFM_ERR_FILE_CANNOT_OPEN);
+		throw ex;
+	}
+ 	delete[] pbBuffer2;
+
+}
+
+/****************************************************************************************************
+* Function Name: GroupNETHeaderContents
+* Description:
+* Return value: INT32
+****************************************************************************************************/
+INT32 GroupNETHeaderContents(ProcessImage objProcessImage[], INT32 iNumberOfVars, EPIDirectionType enumDirType, FILE* fpNetHeader)
+{
+
+	INT32 iModuleNo 		= 0;
+	INT32 iDataSize  		= 0;
+	INT32 iHoleFilledIdNo 	= 1;
+	INT32 iTotalsize = 0;
+
+	if(iNumberOfVars != 0 )
+	{
+		iModuleNo = 0;
+		CNodeCollection* pobjNodeCol = NULL;
+		CNode*  objNode;
+		pobjNodeCol =  CNodeCollection::getNodeColObjectPointer();
+
+		for(INT32 iLoopCount = 0; iLoopCount<iNumberOfVars ; iLoopCount++)
+		{
+			objNode = pobjNodeCol->getNodePtr(CN, objProcessImage[iLoopCount].CNNodeID);
+			INT32 iNodeId;
+			char* pbStrCNID 	= new char[50];
+			char* pbModName		= new char[50];
+			char* pbStrModuleNo = new char[20];
+			
+			iDataSize  = objProcessImage[iLoopCount].DataInfo.DataSize;
+			/* Check if 8, 16, 32 bit aligned*/
+			if((iDataSize % 32 == 0 ) || 
+			(iDataSize % 16 == 0 ) ||
+			(iDataSize % 8 == 0 ))
+			{				
+				if(iTotalsize % iDataSize !=0)
+				{
+					char* abHoleid = new char[20];
+					char* pbFbits  = new char[2 + ALLOC_BUFFER];
+					INT32 iFilledBits = iDataSize - (iTotalsize % iDataSize);
+					
+					iTotalsize =  iTotalsize + iFilledBits;
+					NETProcessImage objNETProcessImage;
+					abHoleid = _IntToAscii(iHoleFilledIdNo, abHoleid, 10);
+					objNETProcessImage.Name = new char[ strlen(abHoleid) + ALLOC_BUFFER];
+					strcpy(objNETProcessImage.Name , abHoleid);
+					objNETProcessImage.ModuleName = new char[ strlen("PADDING_VAR") + ALLOC_BUFFER];
+					strcpy(objNETProcessImage.ModuleName , "PADDING_VAR");
+
+					objNETProcessImage.count = 0;
+					objNETProcessImage.DataInfo._dt_enum = BYTE;
+					objNETProcessImage.DataInfo.DataSize = 8;
+					objNETProcessImage.DataInfo._dt_Name = new char[strlen("byte") + ALLOC_BUFFER];
+					strcpy(objNETProcessImage.DataInfo._dt_Name, "byte");
+					objNETProcessImage.iTotalDataSize = 8;
+					objNode->addNETProcessImage(objNETProcessImage);
+					objNETProcessImage.DirectionType= enumDirType;
+					iHoleFilledIdNo =  iHoleFilledIdNo + 1;
+					delete[] pbFbits;
+					delete[] abHoleid;
+				}				
+			}
+			
+			iNodeId = objProcessImage[iLoopCount].CNNodeID;
+		
+			pbStrCNID = _IntToAscii(objProcessImage[iLoopCount].CNNodeID, pbStrCNID, 10); 
+			strcpy(pbStrModuleNo, subString( objProcessImage[iLoopCount].ModuleIndex, 2, 2));
+			strcpy(pbModName, objProcessImage[iLoopCount].ModuleName);
+				
+			char* pbVarName = new char[100];
+			strcpy(pbVarName, "CN");
+			pbStrCNID = _IntToAscii(objProcessImage[iLoopCount].CNNodeID, pbStrCNID, 10); 
+			strcat(pbVarName, pbStrCNID);
+			strcat(pbVarName, "_");
+			
+			/* Add Mod NO*/
+			strcat(pbVarName, "M");
+			strcat(pbVarName, pbStrModuleNo);
+			strcat(pbVarName, "_");
+			
+			strcat(pbVarName, pbModName);
+			INT32 iNETPIIndex;
+			bool NetPICreated = false;
+			if(objProcessImage[iLoopCount].DataInfo._dt_enum == BITSTRING)
+			{
+				INT32 iPIIndexCount = 0;
+				do {
+					iNETPIIndex = SearchModuleNameNETProcessImageCollection(objProcessImage[iLoopCount].CNNodeID, iPIIndexCount, pbVarName);
+					if(iNETPIIndex == -1)
+					{
+						//create new
+						NetPICreated = true;
+						NETProcessImage objNETProcessImage;
+						CopyPItoNETPICollection(objProcessImage[iLoopCount], objNETProcessImage, pbVarName);
+						
+					}
+					else if(objNode->NETProcessImageCollection[iNETPIIndex].iTotalDataSize < 8)
+					{
+						NetPICreated = true;
+						objNode->NETProcessImageCollection[iNETPIIndex].iTotalDataSize = objNode->NETProcessImageCollection[iNETPIIndex].iTotalDataSize + iDataSize;
+						objNode->NETProcessImageCollection[iNETPIIndex].count++;
+ 						//if(objNode->NETProcessImageCollection[iNETPIIndex].LastName != NULL)
+ 						//{
+ 						//	delete[] objNode->NETProcessImageCollection[iNETPIIndex].LastName;
+ 						//	objNode->NETProcessImageCollection[iNETPIIndex].LastName = NULL;
+ 						//}
+						//CLEANPTR(objNode->NETProcessImageCollection[iNETPIIndex].LastName);
+						objNode->NETProcessImageCollection[iNETPIIndex].LastName = new char[strlen(objProcessImage[iLoopCount].VarName) + ALLOC_BUFFER];
+						strcpy( objNode->NETProcessImageCollection[iNETPIIndex].LastName , objProcessImage[iLoopCount].VarName );
+						if(objNode->NETProcessImageCollection[iNETPIIndex].iTotalDataSize == 8)
+						{
+							objNode->NETProcessImageCollection[iNETPIIndex].DataInfo._dt_enum = BYTE;
+							//CLEANPTR(objNode->NETProcessImageCollection[iNETPIIndex].DataInfo._dt_Name);
+							objNode->NETProcessImageCollection[iNETPIIndex].DataInfo._dt_Name = new char[strlen("byte") + ALLOC_BUFFER];
+							strcpy( objNode->NETProcessImageCollection[iNETPIIndex].DataInfo._dt_Name ,"byte");
+						}
+					}
+					else
+					{
+						iPIIndexCount = iNETPIIndex+1;
+					}
+				} while (NetPICreated == false);
+			} else {
+				//copy as it is
+				NETProcessImage objNETProcessImage;
+				CopyPItoNETPICollection(objProcessImage[iLoopCount], objNETProcessImage, pbVarName);
+			}
+
+			iTotalsize 		= iDataSize  + iTotalsize;
+
+			delete[] pbVarName;				
+			delete[] pbModName;
+			delete[] pbStrModuleNo;
+			delete[] pbStrCNID;									
+		}
+		if(iTotalsize % 32 !=0)
+		{
+			char* abHoleid = new char[20];
+			char* pbFbits  = new char[2 + ALLOC_BUFFER];
+			INT32 iFilledBits = 32 - (iTotalsize % 32);
+			
+			iTotalsize =  iTotalsize + iFilledBits;
+
+			NETProcessImage objNETProcessImage;
+			abHoleid = _IntToAscii(iHoleFilledIdNo, abHoleid, 10);
+			objNETProcessImage.Name = new char[ strlen(abHoleid) + ALLOC_BUFFER];
+			strcpy(objNETProcessImage.Name , abHoleid);
+			objNETProcessImage.ModuleName = new char[ strlen("PADDING_VAR") + ALLOC_BUFFER];
+			strcpy(objNETProcessImage.ModuleName , "PADDING_VAR");
+
+			objNETProcessImage.count = 0;
+			objNETProcessImage.DataInfo._dt_enum = BYTE;
+			objNETProcessImage.DataInfo.DataSize = 8;
+			objNETProcessImage.DataInfo._dt_Name = new char[strlen("byte") + ALLOC_BUFFER];
+			strcpy(objNETProcessImage.DataInfo._dt_Name, "byte");
+			objNETProcessImage.iTotalDataSize = 8;
+			objNode->addNETProcessImage(objNETProcessImage);
+			objNETProcessImage.DirectionType= enumDirType;
+			iHoleFilledIdNo =  iHoleFilledIdNo + 1;
+			delete[] pbFbits;
+			delete[] abHoleid;
+		}
+ 	}
+
+	iTotalsize 	=  iTotalsize / 8;	
+
+	return iTotalsize;
+}
+
+/****************************************************************************************************
 * Function Name: SetSIdxDataType
 * Description:
 * Return value: void
@@ -1082,4 +1487,131 @@ bool CheckIfProcessImageIdx(char* pbIndex)
 		}
 	}
 	return false;
+}
+
+/**************************************************************************************************
+* Function Name: SearchModuleNameNETProcessImageCollection
+* Description: 
+* Return value: INT32
+****************************************************************************************************/
+INT32 SearchModuleNameNETProcessImageCollection(int CNNodeID, INT32 iItemLoopCount, char* schModuleName )
+{
+
+	CNodeCollection* pobjNodeCol = NULL;
+	CNode*  objNode;
+	pobjNodeCol =  CNodeCollection::getNodeColObjectPointer();
+	objNode = pobjNodeCol->getNodePtr(CN, CNNodeID);
+
+	INT32 iItemCount = objNode->NETProcessImageCollection.Count();
+	for(; iItemLoopCount < iItemCount; iItemLoopCount++)
+	{
+		if(objNode->NETProcessImageCollection[iItemLoopCount].ModuleName == NULL)
+			continue;
+
+		if(strcmp(objNode->NETProcessImageCollection[iItemLoopCount].ModuleName, schModuleName) == 0)
+			return iItemLoopCount;
+
+	}
+	return -1;
+}
+
+// /**************************************************************************************************
+// * Function Name: CopyPItoNETPICollection
+// * Description: 
+// * Return value: void
+// ****************************************************************************************************/
+void CopyPItoNETPICollection(ProcessImage objProcessImage, NETProcessImage objNETProcessImage, char* ModuleName)
+{
+	CNodeCollection* pobjNodeCol = NULL;
+	CNode*  objNode;
+	pobjNodeCol =  CNodeCollection::getNodeColObjectPointer();
+	objNode = pobjNodeCol->getNodePtr(CN, objProcessImage.CNNodeID);
+
+	//NETProcessImage objNETProcessImage;
+	if(objProcessImage.VarName != NULL)
+	{
+		objNETProcessImage.Name = new char[strlen(objProcessImage.VarName)+ALLOC_BUFFER];
+		strcpy(objNETProcessImage.Name, objProcessImage.VarName);
+	}
+	objNETProcessImage.ModuleName = new char[strlen(ModuleName)+ALLOC_BUFFER];
+	strcpy(objNETProcessImage.ModuleName, ModuleName);
+	objNETProcessImage.DataInfo._dt_enum = objProcessImage.DataInfo._dt_enum;
+	objNETProcessImage.DataInfo.DataSize = objProcessImage.DataInfo.DataSize;
+	if(objProcessImage.DataInfo._dt_Name != NULL)
+	{
+		objNETProcessImage.DataInfo._dt_Name = new char[strlen(objProcessImage.DataInfo._dt_Name) + ALLOC_BUFFER];
+		strcpy(objNETProcessImage.DataInfo._dt_Name, objProcessImage.DataInfo._dt_Name);
+	}
+	objNETProcessImage.CNNodeID = objProcessImage.CNNodeID;
+	objNETProcessImage.DirectionType = objProcessImage.DirectionType;
+	objNETProcessImage.count = 0;
+	objNETProcessImage.iTotalDataSize = objProcessImage.DataInfo.DataSize;
+
+	objNode->addNETProcessImage(objNETProcessImage);
+}
+
+char* GetDatatypeNETPI(IEC_Datatype dt_enum)
+{
+	char* pcDTNetString;
+	switch(dt_enum)
+	{
+		case BITSTRING:
+			pcDTNetString = (char*)"";
+			break;
+		case BOOL:
+			pcDTNetString = (char*)"";
+			break;
+		case BYTE:
+			pcDTNetString = (char*)"byte";
+			break;
+		case _CHAR:
+			pcDTNetString = (char*)"";
+			break;
+		case DWORD:
+			pcDTNetString = (char*)"";
+			break;
+		case LWORD:
+			pcDTNetString = (char*)"";
+			break;
+		case SINT:
+			pcDTNetString = (char*)"";
+			break;
+		case INT:
+			pcDTNetString = (char*)"Int16";
+			break;
+		case DINT:
+			pcDTNetString = (char*)"";
+			break;
+		case LINT:
+			pcDTNetString = (char*)"";
+			break;
+		case USINT:
+			pcDTNetString = (char*)"UInt16";
+			break;
+		case UINT:
+			pcDTNetString = (char*)"";
+			break;
+		case UDINT:
+			pcDTNetString = (char*)"";
+			break;
+		case ULINT:
+			pcDTNetString = (char*)"";
+			break;
+		case REAL:
+			pcDTNetString = (char*)"";
+			break;
+		case LREAL:
+			pcDTNetString = (char*)"";
+			break;
+		case STRING:
+			pcDTNetString = (char*)"";
+			break;
+		case WSTRING:
+			pcDTNetString = (char*)"";
+			break;
+		default:
+			pcDTNetString = (char*)"";
+			break;
+	}
+	return pcDTNetString;
 }

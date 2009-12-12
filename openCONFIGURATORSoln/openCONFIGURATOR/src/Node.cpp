@@ -282,7 +282,17 @@ void CNode::addProcessImage(ProcessImage objProcessImage)
 	//*(ProcessImageCollection + i) = processImage;	
 	ProcessImageCollection[iItemPosition] 	  = objProcessImage;
 }
- 
+
+/**************************************************************************************************
+* Function Name: CNode::addNETProcessImage
+* Description: 
+* Return value: void
+****************************************************************************************************/
+void CNode::addNETProcessImage(NETProcessImage objNETProcessImage )
+{
+	INT32 iItemPosition = NETProcessImageCollection.Add();
+	NETProcessImageCollection[iItemPosition] 	  = objNETProcessImage;
+}
 /**************************************************************************************************
 * Function Name: CNode::addMNPDOvar
 * Description: 
@@ -463,6 +473,21 @@ void CNode::DeleteCollectionsForPI()
 		ProcessImageCollection.Clear();
 	}
 }
+
+/********************
+* Function Name: CNode::DeleteCollectionsForPI
+* Description: 
+* Return value: void
+****************************************************************************************************/
+void CNode::DeleteCollectionsForNETPI()
+{
+	
+	if(NETProcessImageCollection.Count() != 0)
+	{
+		NETProcessImageCollection.Clear();
+	}
+}
+
 /**************************************************************************************************
 * Function Name: CNode::getStationType
 * Description: Returns the stattion type of the Node

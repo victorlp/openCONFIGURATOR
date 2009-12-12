@@ -103,6 +103,8 @@ const int OFFSET_UNSIGNED_INTEGER_8 = 0;
 #define OFFSET_FIRST_INDEX_IN_1F22 11
 #define MULTIPL_CYCLE_ASSIGN_OBJECT "1F9B"
 #define MNCN_POLLRESPONSE_TIMEOUT_OBJECT "1F92"
+#define PI_VAR_COUNT 4000
+//#define CLEANPTR(ptr); if (ptr != NULL) {delete ptr; ptr = NULL;}
 /****************************************************************************************************
 * Typedefs
 ****************************************************************************************************/
@@ -369,6 +371,7 @@ DllExport ocfmRetCode ReImportXML(char* fileName, int NodeID, ENodeType NodeType
 //DllExport ocfmRetCode ImportObjDictXML(char* fileName);
 DllExport ocfmRetCode GenerateXAP(char* fileName);
 DllExport ocfmRetCode GenerateCDC(char* CDCLocation);
+DllExport ocfmRetCode GenerateNET(char* pbFileName);
 //void GenerateMNOBD();
 
 DllExport ocfmRetCode CreateNode(int NodeID, ENodeType NodeType, char* NodeName);

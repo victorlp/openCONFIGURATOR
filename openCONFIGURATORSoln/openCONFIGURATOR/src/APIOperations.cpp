@@ -97,7 +97,7 @@
 
 #define MY_ENCODING "UTF-8"
 #define CDC_BUFFER 5000
-#define PI_VAR_COUNT 4000
+//#define PI_VAR_COUNT 4000
 #define MAX_FILE_PATH_SIZE 500
 
 /****************************************************************************************************
@@ -382,6 +382,7 @@ ocfmRetCode CreateNode(INT32 iNodeID, ENodeType enumNodeType, char* pbNodeName)
 				ObjectDictLoaded = true;
 			//cout << "loaded xml" << endl;
 			}
+			uiCycleNumber = 1;
 		}
 		if(enumNodeType == CN)
 		{
@@ -4192,7 +4193,7 @@ ocfmRetCode GenerateNET(char* pbFileName)
 			ProcessImage aobjPiOutCol[PI_VAR_COUNT] = {};
 			GroupInOutPIVariables(aobjPiInCol, aobjPiOutCol);
 			/*Generate Dot NET Header file */			
-//			GenerateNETHeaderFile (pbFileName, aobjPiInCol, aobjPiOutCol, iInVars, iOutVars);
+			GenerateNETHeaderFile (pbFileName, aobjPiInCol, aobjPiOutCol, iInVars, iOutVars);
 			return objException._ocfmRetCode;
 		}
 		catch(ocfmException& ex)

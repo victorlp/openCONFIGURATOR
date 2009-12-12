@@ -110,6 +110,7 @@ class DllExport CNode
 		TCollection<ProcessImage> ProcessImageCollection;
 		//template class DllExport TCollection<MNPdoVariable>;
 		TCollection<MNPdoVariable> MNPDOINVarCollection, MNPDOOUTVarCollection ;
+		TCollection<NETProcessImage> NETProcessImageCollection;
 	public:
 		CDataTypeCollection* getDataTypeCollection();
 		CIndexCollection* getIndexCollection();
@@ -137,6 +138,7 @@ class DllExport CNode
 		void CreateNetworkManagament();
 		
 		void addProcessImage(ProcessImage processImage);
+		void addNETProcessImage(NETProcessImage objNETProcessImage );
 		void addMNPDOvar(MNPdoVariable variable, EPDOType pdoType);
 
 		CIndexCollection* getPDOIndexCollection(EPDOType PDOType);
@@ -152,6 +154,7 @@ class DllExport CNode
 		char* getForcedCycle();
 		void setForcedCycle(char* ForcedCycle);
 		void setPollResponseTimeout(char* pbPollResponseTimeout);
-		bool isNull();			
+		bool isNull();
+		void DeleteCollectionsForNETPI();
 };
 #endif // Node_h

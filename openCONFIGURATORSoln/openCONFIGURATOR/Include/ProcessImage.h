@@ -131,6 +131,23 @@ struct ProcessImage
 	EPIDirectionType			DirectionType;
 };
 
+struct NETProcessImage
+{
+	char*					Name;
+	char*					LastName;
+	char*					ModuleName;
+	PIDataInfo DataInfo;
+	int					CNNodeID;
+	void Initialize()
+	{
+		count = 0;
+		iTotalDataSize = 0;
+	}
+	EPIDirectionType			DirectionType;
+	int					iTotalDataSize;
+	int count;
+};
+
 typedef struct tAddressTable
 {
 	char Address[10];
@@ -183,4 +200,11 @@ char* getPIDataTypeName(char* Address);
 char* getPIName(char* Address);
 bool CheckIfProcessImageIdx(char* Index);
 void WriteXAPHeaderContents(ProcessImage PI[], int NumberOfVars, EPIDirectionType dirType, FILE* fileptr);
+void GenerateNETHeaderFile(char* pbFileName, ProcessImage objPIInCol[], ProcessImage objPIOutCol[], INT32 iInVar, INT32 iOutVar);
+void WriteNETHeaderContents(ProcessImage objProcessImage[], INT32 iNumberOfVars, EPIDirectionType enumDirType, FILE* fpNetHeader);
+INT32 SearchModuleNameNETProcessImageCollection(int CNNodeID, INT32 iItemLoopCount, char* schModuleName );
+INT32 GroupNETPIVariables( EPIDirectionType DirectionType, ProcessImage aobjPICol[]);
+void CopyPItoNETPICollection(ProcessImage objProcessImage, NETProcessImage objNETProcessImage, char* ModuleName);
+INT32 GroupNETHeaderContents(ProcessImage objProcessImage[], INT32 iNumberOfVars, EPIDirectionType enumDirType, FILE* fpNetHeader);
+char* GetDatatypeNETPI(IEC_Datatype dt_enum);
 #endif // processImage_h
