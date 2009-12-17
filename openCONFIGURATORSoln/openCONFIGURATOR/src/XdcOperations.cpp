@@ -159,6 +159,7 @@ void setIndexAttributes(xmlTextReaderPtr pxtrReader, CIndex *pobjIndex, bool& bh
 	}
 	else if( !(strcmp(ConvertToUpper((char*)pxcName), "NAME")) )
 	{	
+        checkAndCorrectName((char*)pxcValue);
 		pobjIndex->setName((char*)pxcValue);
 	}
 	else if(!strcmp(ConvertToUpper((char*)pxcName), "OBJECTTYPE"))
@@ -237,6 +238,7 @@ void setSubIndexAttributes(xmlTextReaderPtr pxtrReader, CSubIndex *pobjSubIndex)
 	}
 	else if(!strcmp(ConvertToUpper((char*)pxcName), "NAME"))					
 	{
+        checkAndCorrectName((char*)pxcValue);
 		pobjSubIndex->setName((char*)pxcValue);
 	}
 	else if(!strcmp(ConvertToUpper((char*)pxcName), "OBJECTTYPE"))					
@@ -414,8 +416,9 @@ void setParameterAttributes(xmlTextReaderPtr pxtrReader, Parameter *pstParameter
 			pstParameter->name_id_dt_attr.setUniqueID((char*)pxcValue);
 		}
 		else if(!strcmp(ConvertToUpper((char*)pxcName), "NAME"))					
-		{									
-			pstParameter->name_id_dt_attr.setName((char*)pxcValue);		
+		{
+            checkAndCorrectName((char*)pxcValue);
+			pstParameter->name_id_dt_attr.setName((char*)pxcValue);
 		}
 		else if(!strcmp(ConvertToUpper((char*)pxcName), "ACCESS"))					
 		{						
@@ -507,10 +510,11 @@ static void setCDTAttributes(xmlTextReaderPtr pxtrReader, CComplexDataType *pobj
 		pobjCDT->name_id_attr->setUniqueID((char*)pxcValue);
 	}
 
-	else if(strcmp(ConvertToUpper((char*)pxcName), "NAME")==0)					
-	{						
-		pobjCDT->name_id_attr->setName((char*)pxcValue);			
-	}		
+	else if(strcmp(ConvertToUpper((char*)pxcName), "NAME")==0)
+	{
+        checkAndCorrectName((char*)pxcValue);
+		pobjCDT->name_id_attr->setName((char*)pxcValue);
+	}
 }
 	
 /**************************************************************************************************
@@ -559,7 +563,8 @@ void setVarDecAttributes(xmlTextReaderPtr pxtrReader, varDeclaration& vdecl)
 	}
 	else if(!strcmp(ConvertToUpper((char*)pxcName), "NAME"))					
 	{						
-		vdecl.nam_id_dt_attr->setName((char*)pxcValue);			
+        checkAndCorrectName((char*)pxcValue);
+		vdecl.nam_id_dt_attr->setName((char*)pxcValue);
 	}
 	if(!strcmp(ConvertToUpper((char*)pxcName), "SIZE"))					
 	{						

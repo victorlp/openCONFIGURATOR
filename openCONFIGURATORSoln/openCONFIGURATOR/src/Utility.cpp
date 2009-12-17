@@ -651,3 +651,21 @@ UINT32 getLastAvailableCycleNumber()
 	delete[] actValue;
 	return uiCycleNumber;
 }
+
+void checkAndCorrectName(char* checkName)
+{
+    if(checkName == NULL)
+        return;
+
+	UINT32 uiStrLen = strlen(checkName);
+    for(UINT32 uiLoopCount = 0; uiLoopCount < uiStrLen; uiLoopCount++)
+    {
+		if( (checkName[uiLoopCount] >= 48 && checkName[uiLoopCount] <= 57) || (checkName[uiLoopCount] >= 65 && checkName[uiLoopCount] <= 90) || (checkName[uiLoopCount] >= 97 && checkName[uiLoopCount] <= 122) || checkName[uiLoopCount] == 95)
+		{
+		}
+		else
+		{
+			checkName[uiLoopCount] = '_';
+		}
+    }
+}

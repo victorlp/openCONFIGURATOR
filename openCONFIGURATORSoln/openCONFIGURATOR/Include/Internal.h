@@ -209,4 +209,5 @@ CIndex getPDOIndexByOffset(CIndex* objIndex);
 char* setNodeAssigmentBits(CNode* objNode);
 UINT32 getLastAvailableCycleNumber();
 ocfmRetCode RecalculateMultiplex();
+void checkAndCorrectName(char* checkName);
 #endif // internal_h
