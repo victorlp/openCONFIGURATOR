@@ -102,6 +102,7 @@ class DllExport CNode
 		char*			m_NodeName;
 		EStationType	m_StationType;
 		char*			m_ForcedCycle;
+		bool			m_ForcedCycleFlag;
 		char*			m_PollResponseTimeout;
 		/*	typedef TCollection<ProcessImage> PICollection;*/
 	public:
@@ -152,7 +153,9 @@ class DllExport CNode
 		void setStationType(EStationType StationType);
 
 		char* getForcedCycle();
+		bool getForceCycleFlag();
 		void setForcedCycle(char* ForcedCycle);
+		void setForceCycleFlag(bool bForceCycleFlag);
 		void setPollResponseTimeout(char* pbPollResponseTimeout);
 		bool isNull();
 		void DeleteCollectionsForNETPI();

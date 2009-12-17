@@ -400,7 +400,7 @@ DllExport ocfmRetCode GetNodeCount(int MNID, int* Out_NodeCount);
 DllExport ocfmRetCode GetIndexCount(int NodeID, ENodeType NodeType, int* Out_IndexCount);
 DllExport ocfmRetCode GetSubIndexCount(int NodeID, ENodeType NodeType, char* IndexID, int* Out_SubIndexCount);
 
-DllExport ocfmRetCode GetNodeAttributesbyNodePos(int NodePos, int* Out_NodeID, char* Out_NodeName, EStationType *Out_eStationType, char* Out_ForcedCycle);
+DllExport ocfmRetCode GetNodeAttributesbyNodePos(int NodePos, int* Out_NodeID, char* Out_NodeName, EStationType *Out_eStationType, char* Out_ForcedCycle, bool* bForcedCycleFlag);
 DllExport ocfmRetCode GetIndexIDbyIndexPos(int NodeID, ENodeType NodeType, int IndexPos, char* Out_IndexID);
 DllExport ocfmRetCode GetSubIndexIDbySubIndexPos(int NodeID, ENodeType NodeType, char* IndexID, int SubIndexPos, char* Out_SubIndexID);
 
@@ -433,7 +433,7 @@ DllExport ocfmRetCode SetAllSubIndexAttributes(int NodeID, ENodeType NodeType,
 												char* pdoMappingVal, char* defaultValue, char* highLimit,
 												char* lowLimit, char* objType, EFlag flagIfIncludedInCdc);
 DllExport ocfmRetCode GetFeatureValue(INT32 iNodeId, ENodeType eNodeType, EFeatureType eFeatureType, char* FeatureName, char* Out_FeatureValue);
-DllExport ocfmRetCode UpdateNodeParams(INT32 iCurrNodeId, INT32 iNewNodeID, ENodeType eNodeType, char* NodeName, EStationType eStationType, char* ForcedCycle, char* PollResponseTimeout); 
+DllExport ocfmRetCode UpdateNodeParams(INT32 iCurrNodeId, INT32 iNewNodeID, ENodeType eNodeType, char* NodeName, EStationType eStationType, char* ForcedCycle , bool ForcedCycleFlag, char* PollResponseTimeout); 
 DllExport ocfmRetCode GetNodeDataTypes(INT32 iNodeId, ENodeType eNodeType, char* Out_DataTypes);
 
 #pragma warning( disable: 4251 )

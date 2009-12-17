@@ -93,6 +93,7 @@ CNode::CNode(void)
 	m_StationType			= NORMAL;
 	m_ForcedCycle			= NULL;
 	m_PollResponseTimeout		= NULL;
+	m_ForcedCycleFlag		= false;
 }
 
 /****************************************************************************************************
@@ -606,5 +607,15 @@ void CNode::setPollResponseTimeout(char* pbPollResponseTimeout)
 		
 	}
 
+}
+
+bool CNode::getForceCycleFlag()
+{
+	return m_ForcedCycleFlag;
+}
+
+void CNode::setForceCycleFlag(bool bForceCycleFlag)
+{
+	m_ForcedCycleFlag = bForceCycleFlag;
 }
 #pragma endregion Properties
