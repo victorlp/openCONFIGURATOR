@@ -7185,7 +7185,7 @@ bool getandCreateNode(xmlTextReaderPtr pxReader, char* pbPjtPath)
 	char* pbXdcPath;
 	char* pbFileName;
 	bool bForceCycleFlag;
-
+    EStationType eStationType = NORMAL;
 	CPjtSettings* pobjPjtSettings;
 	pobjPjtSettings = CPjtSettings::getPjtSettingsPtr();
 	
@@ -7307,6 +7307,36 @@ bool getandCreateNode(xmlTextReaderPtr pxReader, char* pbPjtPath)
 				#endif
 			}
 		}	
+        else if (strcmp(((char*)pxcName),"StationType") == 0)
+        {
+            if(strcmp(((char*)pxcValue), "Multiplexed") == 0)      
+            {
+                eStationType = MULTIPLEXED;
+                #if defined DEBUG
+                cout << "\nStationType:" << eStationType << endl;             
+                #endif
+            }
+            else if(strcmp(((char*)pxcValue), "Chained") == 0)        
+            {
+                eStationType = CHAINED;
+                #if defined DEBUG
+                cout << "\nStationType:" << eStationType << endl;
+                #endif
+            }
+            else if(strcmp(((char*)pxcValue), "Normal") == 0)        
+            {
+                eStationType = NORMAL;
+                #if defined DEBUG
+                cout << "\nStationType:" << eStationType << endl;
+                #endif
+            }
+            else
+            {
+                #if defined DEBUG
+                    cout << "\ngetandCreateNode returning false" << endl;
+                #endif
+            }
+        }   
 	}
 	#if defined DEBUG
 		cout << "\n\n\nCan Create Node\n\n"  << endl;
@@ -7326,6 +7356,7 @@ bool getandCreateNode(xmlTextReaderPtr pxReader, char* pbPjtPath)
 	pobjNodeCollection = CNodeCollection::getNodeColObjectPointer();
 	objNode = pobjNodeCollection->getNodePtr(enumNodeType,iNodeID);
 	objNode->setForceCycleFlag(bForceCycleFlag);
+    objNode->setStationType(eStationType);
 
 	if(stErrorInfo.code != OCFM_ERR_SUCCESS)
 		return false;
@@ -7617,6 +7648,19 @@ if (iBytesWritten < 0)
 		{
 			iBytesWritten = xmlTextWriterWriteAttribute(pxtwWriter, BAD_CAST "ForceCycleFlag", BAD_CAST "false");
 		}
+
+        if(pobjNode->getStationType() == NORMAL)
+        {
+            iBytesWritten = xmlTextWriterWriteAttribute(pxtwWriter, BAD_CAST "StationType", BAD_CAST "Normal");
+        }
+        else if(pobjNode->getStationType() == MULTIPLEXED)
+        {
+            iBytesWritten = xmlTextWriterWriteAttribute(pxtwWriter, BAD_CAST "StationType", BAD_CAST "Multiplexed");
+        }
+        else if(pobjNode->getStationType() == CHAINED)
+        {
+            iBytesWritten = xmlTextWriterWriteAttribute(pxtwWriter, BAD_CAST "StationType", BAD_CAST "Chained");
+        }
 		// End Node Tag
 		iBytesWritten = xmlTextWriterEndElement(pxtwWriter);
 		if (iBytesWritten < 0)
