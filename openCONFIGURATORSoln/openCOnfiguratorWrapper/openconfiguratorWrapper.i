@@ -40,7 +40,7 @@
 %cstring_bounded_output(char *Out_IndexID, 100);
 %cstring_bounded_output(char *Out_SubIndexID, 100);
 %cstring_bounded_output(char *Out_NodeName, 100);
-%cstring_bounded_output(char *Out_FeatureValue, 100);
+%cstring_bounded_output(char *Out_FeatureValue, 512);
 %cstring_bounded_output(char *Out_DataTypes, 1000);
 %cstring_bounded_output(char *Out_ForcedCycle, 10);
 
@@ -101,7 +101,7 @@ ocfmRetCode GetNodeCount(int MNID, int* Out_NodeCount);
 ocfmRetCode GetIndexCount(int NodeID, ENodeType NodeType, int* Out_IndexCount);
 ocfmRetCode GetSubIndexCount(int NodeID, ENodeType NodeType, char* IndexID, int* Out_SubIndexCount);
 
-ocfmRetCode GetNodeAttributesbyNodePos(int NodePos, int* Out_NodeID, char* Out_NodeName, EStationType* Out_eStationType, char* Out_ForcedCycle);
+ocfmRetCode GetNodeAttributesbyNodePos(int NodePos, int* Out_NodeID, char* Out_NodeName, EStationType* Out_eStationType, char* Out_ForcedCycle, bool* bForcedCycleFlag);
 ocfmRetCode GetIndexIDbyIndexPos(int NodeID, ENodeType NodeType, int IndexPos, char* Out_IndexID);
 ocfmRetCode GetSubIndexIDbySubIndexPos(int NodeID, ENodeType NodeType, char* IndexID, int SubIndexPos, char* Out_SubIndexID);
 
@@ -130,7 +130,7 @@ ocfmRetCode SetProjectSettings(EAutoGenerate autoGen, EAutoSave autoSave, EViewM
 
 ocfmRetCode FreeProjectMemory();
 ocfmRetCode GetFeatureValue(INT32 iNodeId, ENodeType eNodeType, EFeatureType eFeatureType, char* FeatureName, char* Out_FeatureValue);
-ocfmRetCode UpdateNodeParams(INT32 iCurrNodeId, INT32 iNewNodeID, ENodeType eNodeType, char* NodeName, EStationType eStationType, char* ForcedCycle);
+ocfmRetCode UpdateNodeParams(INT32 iCurrNodeId, INT32 iNewNodeID, ENodeType eNodeType, char* NodeName, EStationType eStationType, char* ForcedCycle , bool ForcedCycleFlag, char* PollResponseTimeout);
 ocfmRetCode GetNodeDataTypes(INT32 iNodeId, ENodeType eNodeType, char* Out_DataTypes);
 
 %}
