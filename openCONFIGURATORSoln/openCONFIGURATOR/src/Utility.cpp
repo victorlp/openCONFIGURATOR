@@ -602,6 +602,12 @@ int reversedata(UINT8 *pbArg1, UINT8 *pbArg2, UINT32 uiSize)
 		
 	return 0;
 }
+
+/**************************************************************************************************
+* Function Name: CheckAllowedDTForMapping
+* Description: 
+* Return value: bool
+***************************************************************************************************/
 bool CheckAllowedDTForMapping(char* dtName)
 {
 	if(strcmp(StringToUpper(dtName), "INTEGER8") == 0 ||
@@ -616,11 +622,17 @@ bool CheckAllowedDTForMapping(char* dtName)
 	else
 		return false;
 }
+
+/**************************************************************************************************
+* Function Name: getLastAvailableCycleNumber
+* Description: 
+* Return value: UINT32
+***************************************************************************************************/
 UINT32 getLastAvailableCycleNumber()
 {
 	char* actValue = new char[20];
 	ocfmRetCode Ret;
-	Ret = GetSubIndexAttributes(240, MN, "1F98", "07", ACTUALVALUE, actValue);
+	Ret = GetSubIndexAttributes(240, MN, (char*)"1F98", (char*)"07", ACTUALVALUE, actValue);
 	if(Ret.code == OCFM_ERR_SUCCESS)
 	{	
 
@@ -631,7 +643,7 @@ UINT32 getLastAvailableCycleNumber()
 		if (strncmp(actValue,"0x",2) == 0 || strncmp(actValue,"0X",2) == 0)
 			iCycleValue  = hex2int(subString(actValue, 2,strlen(actValue) -2 ));
 		else
-			iCycleValue  = hex2int(actValue);
+			iCycleValue  = atoi(actValue);
 
 		if(iCycleValue > uiCycleNumber+1)
 		{
@@ -649,9 +661,18 @@ UINT32 getLastAvailableCycleNumber()
 		
 	}
 	delete[] actValue;
+
+        //uiCycleNumber = getFreeCycleNumber(uiCycleNumber);
+
 	return uiCycleNumber;
 }
 
+
+/**************************************************************************************************
+* Function Name: checkAndCorrectName
+* Description: 
+* Return value: void
+***************************************************************************************************/
 void checkAndCorrectName(char* checkName)
 {
     if(checkName == NULL)

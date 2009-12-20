@@ -128,13 +128,13 @@ typedef enum{
 ************************************************************************************************/
 extern int iConfigDate;
 extern int iConfigTime;
-
+extern UINT32 uiCycleNumber;
 /************************************************************************************************
 * Global variables
 ************************************************************************************************/
 static const int g_simple_arr_size = 19;
 static bool ObjectDictLoaded = false;
-static UINT32 uiCycleNumber = 0;
+//static UINT32 uiCycleNumber = 0;
 static const UINT32 uiPreScalar =0;
 
 /****************************************************************************************************
@@ -202,6 +202,7 @@ ocfmRetCode AddOtherMNIndexes(int NodeID);
 void AuotgenerateOtherIndexs(CNode* objNode);
 void UpdatedCNDateORTime(CIndex* pobjMNIndex, int iNodeId, EDateTime eDT);
 void copyPDODefToAct(int iNodeID, ENodeType enumNodeType);
+void copyDefToAct(int iNodeID, ENodeType enumNodeType);
 void setFlagForRequiredMNIndexes(INT32 iNodeId);
 bool CheckAllowedDTForMapping(char* dtName);
 void setFeatures(xmlTextReaderPtr reader, Feature* stFeature);
@@ -210,4 +211,7 @@ char* setNodeAssigmentBits(CNode* objNode);
 UINT32 getLastAvailableCycleNumber();
 ocfmRetCode RecalculateMultiplex();
 void checkAndCorrectName(char* checkName);
+void CheckAndReAssignMultiplex(int iCNNodeId, char* CycleValue );
+ocfmRetCode CheckMutliplexAssigned();
+UINT32 getFreeCycleNumber(UINT32 uiCycleNumber, INT32 iNodeID);
 #endif // internal_h

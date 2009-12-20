@@ -757,7 +757,8 @@ ocfmRetCode ImportXML(char *pbFileName, INT32 iNodeID, ENodeType enumNodeType)
 		}*/
 		
 		/* Copy default value of pdos to act value*/
-		copyPDODefToAct(iNodeID, enumNodeType);	
+		//copyPDODefToAct(iNodeID, enumNodeType);	
+        copyDefToAct(iNodeID, enumNodeType);
 		
 		stErrStruct.code = OCFM_ERR_SUCCESS;
 		return stErrStruct;
@@ -1082,8 +1083,11 @@ ocfmRetCode ReImportXML(char* pbFileName, INT32 iNodeID, ENodeType enumNodeType)
 				setFlagForRequiredMNIndexes(iNodeID);			
 		}		
 			/* Copy default value of pdos to act value*/
-			copyPDODefToAct(iNodeID, enumNodeType);	
+			//copyPDODefToAct(iNodeID, enumNodeType);
+            copyDefToAct(iNodeID, enumNodeType);
 		
+            if(enumNodeType == MN)
+                RecalculateMultiplex();
 			ErrStruct.code = OCFM_ERR_SUCCESS;
 			return ErrStruct;
 		}
@@ -2032,7 +2036,6 @@ ocfmRetCode SaveNode(const char* pbFileName, INT32 NodeID, ENodeType enumNodeTyp
 		iBytesWritten = xmlTextWriterEndElement(pxtwWriter);
 
 		//////////////Write MN Features for MN Node////////////////////////////////
-		printf("\nstart mn features");
 		if(objNode.getNodeType() == MN)
 		{
 			//Start MN Features Tag			
@@ -2068,7 +2071,6 @@ ocfmRetCode SaveNode(const char* pbFileName, INT32 NodeID, ENodeType enumNodeTyp
 			// End MN Features Tag
 			iBytesWritten = xmlTextWriterEndElement(pxtwWriter);
 				
-		printf("\end writing mn features");
 		}
 		
 		//////////////Write CN Features for CN Node////////////////////////////////

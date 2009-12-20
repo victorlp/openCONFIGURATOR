@@ -128,7 +128,7 @@ char abC_DLL_ISOCHR_MAX_PAYL[5] = "1490";
 char abC_DLL_MIN_ASYNC_MTU[4] = "300";
 INT32 iConfigDate;
 INT32 iConfigTime;
-
+UINT32 uiCycleNumber;
 /****************************************************************************************************
 * FUNCTION DEFINITIONS
 ****************************************************************************************************/
@@ -382,7 +382,7 @@ ocfmRetCode CreateNode(INT32 iNodeID, ENodeType enumNodeType, char* pbNodeName)
 				ObjectDictLoaded = true;
 			//cout << "loaded xml" << endl;
 			}
-			uiCycleNumber = 1;
+			uiCycleNumber = 0;
 		}
 		if(enumNodeType == CN)
 		{
@@ -1031,7 +1031,6 @@ ocfmRetCode SetAllIndexAttributes(INT32 iNodeID,
 	try 
 	{
 		stErrorInfo = IfIndexExists(iNodeID, enumNodeType, pbIndexID, &iIndexPos);
-		cout << "\n\nSetALLIndexAttributes\n\n" << endl;
 		if(stErrorInfo.code == OCFM_ERR_SUCCESS)
 		{
 			//iIndexPos = stErrorInfo.returnValue;
@@ -1664,7 +1663,7 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 				bool flag_No_of_enteriesAdded = false;
 				int i;
 				CSubIndex* objSubIndex;
-				objSubIndex = objIndex->getSubIndexbyIndexValue("00");
+				objSubIndex = objIndex->getSubIndexbyIndexValue((char*)"00");
 				if(objSubIndex != NULL)
 				{
 					if(objSubIndex->getActualValue() != NULL)
@@ -2047,10 +2046,10 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 									
 						/*************WRITE MN'S 1006,1020 Indexes Values *******************************/			
 							//Buffer4 = (char*)malloc(10000);	
-							Buffer4 = new char[10000];	
-							objIndex = getMNIndexValues("1006");
+							Buffer4 = new char[15000];	
+							objIndex = getMNIndexValues((char*)"1006");
 							//Buffer2 = (char*)malloc(20000);		
-							Buffer2 = new char[20000];		
+							Buffer2 = new char[60000];		
 						
 							if(objIndex!=NULL)
 							{
@@ -2060,11 +2059,11 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 								UpdateCNCycleTime(objIndexCollection,(char*) objIndex->getActualValue());
 							}
 							
-							objIndex = getMNIndexValues("1F26");
+							objIndex = getMNIndexValues((char*)"1F26");
 							if(objIndex != NULL)
 							UpdatedCNDateORTime(objIndex, objNode.getNodeId(), DATE);
 							
-							objIndex = getMNIndexValues("1F27");
+							objIndex = getMNIndexValues((char*)"1F27");
 							if(objIndex != NULL)
 							UpdatedCNDateORTime(objIndex, objNode.getNodeId(), TIME);
 							
@@ -2095,7 +2094,7 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 										GetIndexData(objIndex, Buffer4);
 										strcat(Buffer2, Buffer4);
 										
-									}									
+									}
 								}	
 								delete[] Buffer4;
 										
@@ -3731,8 +3730,8 @@ INT32 getCNDataLen(char* pbBuffer)
 	INT32 iCtr;
 	INT32 iLength;
 	INT32 iLoopCount =0;
-	unsigned char abCnObd[10000];
-	unsigned char abTempCnObd[10000];
+	unsigned char abCnObd[60000];
+	unsigned char abTempCnObd[60000];
 	int i =0;
 	
 	cCharRead = *(pbBuffer);
@@ -6068,6 +6067,11 @@ ocfmRetCode GenerateMNOBD()
 			}
 			else
 			{
+                stRetInfo = CheckMutliplexAssigned();
+                if(stRetInfo.code != OCFM_ERR_SUCCESS)
+                {
+                    return stRetInfo;
+                }
 				/*Process PDO Nodes*/
 				stRetInfo = ProcessPDONodes();
 				#if defined DEBUG	
@@ -7186,6 +7190,7 @@ bool getandCreateNode(xmlTextReaderPtr pxReader, char* pbPjtPath)
 	char* pbFileName;
 	bool bForceCycleFlag;
     EStationType eStationType = NORMAL;
+    char* pbForceCycleValue = NULL;
 	CPjtSettings* pobjPjtSettings;
 	pobjPjtSettings = CPjtSettings::getPjtSettingsPtr();
 	
@@ -7307,6 +7312,14 @@ bool getandCreateNode(xmlTextReaderPtr pxReader, char* pbPjtPath)
 				#endif
 			}
 		}	
+        else if(strcmp(((char*)pxcName),"ForceCycle") == 0)
+        {
+            if( (char*)pxcValue != NULL && strcmp((char*)pxcValue,"") )
+            {
+                pbForceCycleValue = new char[strlen((char*)pxcValue) + ALLOC_BUFFER];
+                strcpy((char*)pbForceCycleValue, (char*)pxcValue);
+            }
+        }
         else if (strcmp(((char*)pxcName),"StationType") == 0)
         {
             if(strcmp(((char*)pxcValue), "Multiplexed") == 0)      
@@ -7356,6 +7369,9 @@ bool getandCreateNode(xmlTextReaderPtr pxReader, char* pbPjtPath)
 	pobjNodeCollection = CNodeCollection::getNodeColObjectPointer();
 	objNode = pobjNodeCollection->getNodePtr(enumNodeType,iNodeID);
 	objNode->setForceCycleFlag(bForceCycleFlag);
+    if(enumNodeType == 1 && pbForceCycleValue != NULL)
+        objNode->setForcedCycle(pbForceCycleValue);
+
     objNode->setStationType(eStationType);
 
 	if(stErrorInfo.code != OCFM_ERR_SUCCESS)
@@ -7372,6 +7388,7 @@ bool getandCreateNode(xmlTextReaderPtr pxReader, char* pbPjtPath)
 	else if(enumNodeType == 0)
 		stErrorInfo = parseFile(pbFileName, iNodeID, MN);
 
+//    copyDefToAct(iNodeID, enumNodeType);
 	delete [] pbFileName;
 	delete [] pbNodeName;
 	return true;
@@ -7648,6 +7665,11 @@ if (iBytesWritten < 0)
 		{
 			iBytesWritten = xmlTextWriterWriteAttribute(pxtwWriter, BAD_CAST "ForceCycleFlag", BAD_CAST "false");
 		}
+
+        if(pobjNode->getForcedCycle() != NULL && strcmp(pobjNode->getForcedCycle(),""))
+        {
+            iBytesWritten = xmlTextWriterWriteAttribute(pxtwWriter, BAD_CAST "ForceCycle", BAD_CAST pobjNode->getForcedCycle());
+        }
 
         if(pobjNode->getStationType() == NORMAL)
         {
@@ -8497,26 +8519,87 @@ ocfmRetCode UpdateNodeParams(INT32 iCurrNodeId, INT32 iNewNodeID, ENodeType eNod
 			pobjNode->setNodeId(iNewNodeID);
 			EStationType eNodePrevStationType = pobjNode->getStationType();
 			pobjNode->setStationType(eStationType);
+            if( (eNodePrevStationType == MULTIPLEXED) && (eStationType != eNodePrevStationType) )
+            {
+                CheckAndReAssignMultiplex(iNewNodeID, pobjNode->getForcedCycle());
+            }
 			if(eStationType == MULTIPLEXED)
 			{
+                bool bCalcForceCycle = true;
+                bool bSetForceCycle = true;
+                if(ForcedCycleFlag == true)
+                {
+                    bCalcForceCycle = false;
+                }
 
-				if(strcmp(ForcedCycle,"") ==0 || ForcedCycle == NULL)
+				if( (ForcedCycle == NULL || strcmp(ForcedCycle,"") ==0) && ForcedCycleFlag == false )
 				{
-					ForcedCycle = new char[20];
-					UINT32 uiCycleno = getLastAvailableCycleNumber();
-					ForcedCycle = _IntToAscii(uiCycleno, ForcedCycle, 16);
+                    if(pobjNode->getForceCycleFlag() == true )
+                    {
+                        
+                    }
+                    else if(pobjNode->getForcedCycle() == NULL || strcmp(pobjNode->getForcedCycle(),"") == 0 )
+                    {
+
+                    } 
+                    else
+                    {
+//                         char* actValue = new char[50];
+//                         actValue[0] = 0;
+//                         stErrorInfo = GetSubIndexAttributes(MN_NODEID, MN, (char*)"1F98", (char*)"07", ACTUALVALUE, actValue); 
+//                         if(stErrorInfo.code == OCFM_ERR_SUCCESS)
+//                         {
+//                             if( !(actValue == NULL || strcmp(actValue,"") ==0) )
+//                             {
+//                                 INT32 iMNMultiActualValue = 0;
+//                                 if (strncmp(actValue,"0x",2) == 0 || strncmp(actValue,"0X",2) == 0)
+//                                     iMNMultiActualValue  = hex2int(subString(actValue, 2, strlen(actValue) -2));
+//                                 else
+//                                     iMNMultiActualValue  = atoi(actValue);
+    
+                                INT32 iCNActualValue = 0;
+                                if (strncmp(pobjNode->getForcedCycle(),"0x",2) == 0 || strncmp(pobjNode->getForcedCycle(),"0X",2) == 0)
+                                    iCNActualValue  = hex2int(subString(pobjNode->getForcedCycle(), 2, strlen(pobjNode->getForcedCycle()) -2));
+                                else
+                                    iCNActualValue  = atoi(pobjNode->getForcedCycle());
+
+                                if( iCNActualValue == getFreeCycleNumber(iCNActualValue, pobjNode->getNodeId()) )
+                                {
+                                    bCalcForceCycle = false;
+                                    bSetForceCycle = false;
+                                }
+//                             }
+//                             else
+//                             {
+//                             }
+//                         }
+//                         else
+//                         {
+//                         }
+                    }
 				}
-				
-				pobjNode->setForcedCycle(ForcedCycle);
+                if(bCalcForceCycle == true)
+                {
+                        ForcedCycle = new char[20];
+                        UINT32 uiCycleno =  getLastAvailableCycleNumber();
+                        uiCycleno = getFreeCycleNumber(uiCycleno, pobjNode->getNodeId());
+                        uiCycleNumber = uiCycleno;
+                        ForcedCycle = _IntToAscii(uiCycleno, ForcedCycle, 16);
+                }
+				if(bSetForceCycle == true)
+				    pobjNode->setForcedCycle(ForcedCycle);
+//                 if(ForcedCycleFlag == false)
+//                 {
+//                         ForcedCycle = new char[20];
+//                         UINT32 uiCycleno =  getLastAvailableCycleNumber();
+//                         ForcedCycle = _IntToAscii(uiCycleno, ForcedCycle, 16);
+//                 }
+//                 pobjNode->setForcedCycle(ForcedCycle);
 				pobjNode->setForceCycleFlag(ForcedCycleFlag);
-			}
-			if( (eNodePrevStationType == MULTIPLEXED) && (eStationType != eNodePrevStationType) )
-			{
-				stErrorInfo = RecalculateMultiplex();
 			}
 		}
 
-		if(eNodeType == CN && !(strcmp(PollResponseTimeout,"") == 0 || PollResponseTimeout == NULL) )
+		if(eNodeType == CN && !(PollResponseTimeout == NULL || strcmp(PollResponseTimeout,"") == 0) )
 		{
 			pobjNode->setPollResponseTimeout(PollResponseTimeout);
 		}
@@ -8639,7 +8722,6 @@ char* setNodeAssigmentBits(CNode* pobjNode)
 	};
 
 	pb1F81Data = _IntToAscii(ulValue,pb1F81Data, 16); 
-	printf("\npb1F81Data _IntToAscii %s\n", pb1F81Data);	
 	return pb1F81Data;
 }
 
@@ -8651,7 +8733,6 @@ char* setNodeAssigmentBits(CNode* pobjNode)
 
 ocfmRetCode RecalculateMultiplex()
 {
-	cout<< "Inside RecalculateMultiplex" << endl;
 	ocfmRetCode stErrorInfo;
 	CNodeCollection *objNodeCol;
 	objNodeCol= CNodeCollection::getNodeColObjectPointer();
@@ -8664,12 +8745,12 @@ ocfmRetCode RecalculateMultiplex()
 	{
 		if(iNodesCount == 0)
 		{				
-			exit;
+			stErrorInfo.code = OCFM_ERR_NO_CN_NODES_FOUND;
+            return stErrorInfo;
 		}
 		char* actValue = new char[50];
 		actValue[0] = 0;
-		stErrorInfo = GetSubIndexAttributes(MN_NODEID, MN, "1F98", "07", ACTUALVALUE, actValue); 
-cout << "got value from 1f98 07 \n" << endl;
+		stErrorInfo = GetSubIndexAttributes(MN_NODEID, MN, (char*)"1F98", (char*)"07", ACTUALVALUE, actValue); 
 		if(stErrorInfo.code == OCFM_ERR_SUCCESS)		
 		{
 		}
@@ -8681,14 +8762,11 @@ cout << "got value from 1f98 07 \n" << endl;
 			throw &objException;
 		}
 
-cout << "1f98 07 actual value : " << actValue << endl;
 		for(INT32 iLoopCount = 0; iLoopCount < objNodeCol->getNumberOfNodes(); iLoopCount++)
 		{
-cout << "iLoopCount : " << iLoopCount <<endl;
 			objNode = objNodeCol->getNodebyColIndex(iLoopCount);
 			if (objNode->getNodeType() == CN )
 			{
-cout << "iLoopCount : " << iLoopCount <<endl;
 				ocfmRetCode stErrorInfoSubindexMultiplCycl;
 				static char* strConvertedValue = NULL;
 				if(strConvertedValue != NULL)
@@ -8702,11 +8780,9 @@ cout << "iLoopCount : " << iLoopCount <<endl;
 				strConvertedValue = padLeft(strConvertedValue, '0', 2);
 				char* subIndActValue = new char[20];
 				subIndActValue[0] = 0;
-printf("\n GetSubIndexAttributes 111111 acMultiCycleAssignObj=%s strConvertedValue=%s subIndActValue=%s \n", acMultiCycleAssignObj, strConvertedValue, subIndActValue);
 				try
 				{
 					stErrorInfoSubindexMultiplCycl = GetSubIndexAttributes(240, MN, acMultiCycleAssignObj, strConvertedValue, ACTUALVALUE, subIndActValue);
-printf("\n GetSubIndexAttributes 22222 acMultiCycleAssignObj=%s strConvertedValue=%s subIndActValue=%s \n", acMultiCycleAssignObj, strConvertedValue, subIndActValue);
 				} 
 				catch(...)
 				{
@@ -8714,23 +8790,24 @@ printf("\n GetSubIndexAttributes 22222 acMultiCycleAssignObj=%s strConvertedValu
 					//delete[] strConvertedValue;
 					continue;
 				}
-printf("\n stErrorInfoSubindexMultiplCycl.errorString= %s \n",stErrorInfoSubindexMultiplCycl.errorString);
  				if(stErrorInfoSubindexMultiplCycl.code == OCFM_ERR_SUCCESS)
  				{
  				}
  				else
  				{
-printf("\n stErrorInfoSubindexMultiplCycl.errorString= %s \n",stErrorInfoSubindexMultiplCycl.errorString);
 					continue;
  				}
-printf("\n objNode->getStationType()=%d NORMAL = 0, MULTIPLEXED =1, CHAINED=3\n", objNode->getStationType());
 				if (objNode->getStationType() == MULTIPLEXED)
 				{
-					if(strcmp(objNode->getForcedCycle(),"") == 0 || objNode->getForcedCycle() == NULL)
+                    if(objNode->getForceCycleFlag() == 1)
+                    {
+                        continue;
+                    }
+					else if( objNode->getForcedCycle() == NULL || strcmp(objNode->getForcedCycle(),"") == 0 )
 					{
 						//continue down the loop
 					}
-					else if (strcmp(actValue,"") == 0 || actValue == NULL)
+					else if ( actValue == NULL || strcmp(actValue,"") == 0 )
 					{
 						char* subIndName = new char[50];
 						subIndName[0] = 0;
@@ -8738,8 +8815,8 @@ printf("\n objNode->getStationType()=%d NORMAL = 0, MULTIPLEXED =1, CHAINED=3\n"
 						char* subIndFlag = new char[10];
 						GetSubIndexAttributes(240, MN, acMultiCycleAssignObj, strConvertedValue, FLAGIFINCDC, subIndFlag);
 						INT32 iCNsubIndFlag = 0;
-						iCNsubIndFlag  = hex2int(subIndFlag);
-						SetSubIndexAttributes(MN_NODEID, MN, acMultiCycleAssignObj, strConvertedValue, "",subIndName, (EFlag)iCNsubIndFlag);
+						iCNsubIndFlag  = atoi(subIndFlag);
+						SetSubIndexAttributes(MN_NODEID, MN, acMultiCycleAssignObj, strConvertedValue, (char*)"",subIndName, (EFlag)iCNsubIndFlag);
 						delete[] subIndName;
 						delete[] subIndFlag;
 						//delete[] strConvertedValue;
@@ -8749,23 +8826,20 @@ printf("\n objNode->getStationType()=%d NORMAL = 0, MULTIPLEXED =1, CHAINED=3\n"
 					{
 						if(stErrorInfoSubindexMultiplCycl.code == OCFM_ERR_SUCCESS)
 						{
-printf("inside stErrorInfoSubindexMultiplCycl.code == OCFM_ERR_SUCCESS actValue=%s \n", actValue);
 							INT32 iMNMultiActualValue = 0;
 							if (strncmp(actValue,"0x",2) == 0 || strncmp(actValue,"0X",2) == 0)
 								iMNMultiActualValue  = hex2int(subString(actValue, 2, strlen(actValue) -2));
 							else
-								iMNMultiActualValue  = hex2int(actValue);
-printf("\n iMNMultiActualValue=%d \n", iMNMultiActualValue);
+								iMNMultiActualValue  = atoi(actValue);
+
 							char* ForcedCycleValue = new char[50];
 							strcpy(ForcedCycleValue,objNode->getForcedCycle());
-printf("\n ForcedCycleValue=%s \n", ForcedCycleValue);
 							INT32 iCNActualValue = 0;
 							if (strncmp(ForcedCycleValue,"0x",2) == 0 || strncmp(ForcedCycleValue,"0X",2) == 0)
 								iCNActualValue  = hex2int(subString(ForcedCycleValue, 2, strlen(ForcedCycleValue) -2));
 							else
-								iCNActualValue  = hex2int(ForcedCycleValue);
+								iCNActualValue  = atoi(ForcedCycleValue);
 
-printf("\niMNMultiActualValue=%d iCNActualValue=%d (iCNActualValue <= iMNMultiActualValue)=%d\n", iMNMultiActualValue, iCNActualValue, (iCNActualValue <= iMNMultiActualValue));
 							if (iMNMultiActualValue == 0)
 							{
 
@@ -8775,8 +8849,8 @@ printf("\niMNMultiActualValue=%d iCNActualValue=%d (iCNActualValue <= iMNMultiAc
 								char* subIndFlag = new char[10];
 								GetSubIndexAttributes(240, MN, acMultiCycleAssignObj, strConvertedValue, FLAGIFINCDC, subIndFlag);
 								INT32 iCNsubIndFlag = 0;
-								iCNsubIndFlag  = hex2int(subIndFlag);
-								SetSubIndexAttributes(MN_NODEID, MN, acMultiCycleAssignObj, strConvertedValue, "",subIndName, (EFlag)iCNsubIndFlag);
+								iCNsubIndFlag  = atoi(subIndFlag);
+								SetSubIndexAttributes(MN_NODEID, MN, acMultiCycleAssignObj, strConvertedValue, (char*)"",subIndName, (EFlag)iCNsubIndFlag);
 								delete[] subIndName;
 								delete[] subIndFlag;
 								continue;
@@ -8805,7 +8879,8 @@ printf("\niMNMultiActualValue=%d iCNActualValue=%d (iCNActualValue <= iMNMultiAc
 
 					char* ForcedCycle = new char[20];
 					UINT32 uiCycleno = getLastAvailableCycleNumber();
-printf("\n calling force cycle LoopCount=%d uiCycleno=%d\n",iLoopCount,uiCycleno);
+                    uiCycleno = getFreeCycleNumber(uiCycleno, objNode->getNodeId());
+                    uiCycleNumber = uiCycleno;
 					ForcedCycle = _IntToAscii(uiCycleno, ForcedCycle, 16);
 					objNode->setForcedCycle(ForcedCycle);
 					delete[] ForcedCycle;
@@ -8816,14 +8891,13 @@ printf("\n calling force cycle LoopCount=%d uiCycleno=%d\n",iLoopCount,uiCycleno
 					char* subIndName = new char[50];
 					subIndName[0] = 0;
 					GetSubIndexAttributes(240, MN, acMultiCycleAssignObj, strConvertedValue, NAME, subIndName);
-printf("\n station other than multiplexed subIndName=%s \n",subIndName);
+
 					char* subIndFlag = new char[10];
 					GetSubIndexAttributes(240, MN, acMultiCycleAssignObj, strConvertedValue, FLAGIFINCDC, subIndFlag);
-printf("\n station other than multiplexed subIndFlag=%s \n",subIndFlag);
+
 					INT32 iCNsubIndFlag = 0;
-					iCNsubIndFlag  = hex2int(subIndFlag);
-printf("\n after hex2int station other than multiplexed subIndFlag=%s \n",subIndFlag);
-					SetSubIndexAttributes(MN_NODEID, MN, acMultiCycleAssignObj, strConvertedValue, "",subIndName, (EFlag)iCNsubIndFlag);
+					iCNsubIndFlag  = atoi(subIndFlag);
+					SetSubIndexAttributes(MN_NODEID, MN, acMultiCycleAssignObj, strConvertedValue, (char*)"",subIndName, (EFlag)iCNsubIndFlag);
 					delete[] subIndName;
 					delete[] subIndFlag;
 				}
@@ -8838,207 +8912,393 @@ printf("\n after hex2int station other than multiplexed subIndFlag=%s \n",subInd
 	}
 }
 
+/**************************************************************************************************
+* Function Name: CNode::Copy pdos default value to actual value
+* Description: 
+* Return value: void
+****************************************************************************************************/
+void copyDefToAct(int iNodeID, ENodeType enumNodeType)
+{
+    CSubIndex* pobjSIndex;
+    CIndexCollection* pobjIdxCol;
+            
+    CNode *pobjNode;
+    CNodeCollection *objNodeCollection = NULL;
+
+    
+    objNodeCollection = CNodeCollection::getNodeColObjectPointer();
+    pobjNode = objNodeCollection->getNodePtr(enumNodeType, iNodeID);
+    pobjIdxCol = pobjNode->getIndexCollection();
+    
+    for(INT32 iIndexLoopCount=0; iIndexLoopCount < pobjIdxCol->getNumberofIndexes(); iIndexLoopCount++)
+    {
+            CIndex* pobjIndex;
+            
+            pobjIndex = pobjIdxCol->getIndex(iIndexLoopCount);
+            if(pobjIndex->getActualValue() == NULL)
+            {
+                if(pobjIndex->getDefaultValue() != NULL)
+                {
+                    pobjIndex->setActualValue((char*)pobjIndex->getDefaultValue());
+                }
+
+            }
+
+
+            for(INT32 iSIdxLoopCount=0; iSIdxLoopCount < pobjIndex->getNumberofSubIndexes(); iSIdxLoopCount++)
+            {
+                pobjSIndex = pobjIndex->getSubIndex(iSIdxLoopCount);
+                if(pobjSIndex->getActualValue() ==      NULL)
+                {
+                    if(pobjSIndex->getDefaultValue() != NULL)
+                    {
+                        pobjSIndex->setActualValue((char*)pobjSIndex->getDefaultValue());
+                    }
+
+                }
+            }
+
+    }
+}
 // /****************************************************************************************************
-// * Function Name: ReAssignMultiplex
+// * Function Name: CheckAndReAssignMultiplex
 // * Description: -
 // * Return value: ocfmRetCode
 // ****************************************************************************************************/
-// 
-// ocfmRetCode RecalculateMultiplex(char* CycleValue )
-// {
-// 	ocfmRetCode stErrorInfo;
-// 	if(CycleValue == NULL || strcmp(CycleValue,"") == 0 )
-// 	{
-// 		stErrorInfo.code = OCFM_ERR_SUCCESS;
-// 		return stErrorInfo;
-// 	}
-// 
-// 	INT32 iCycleValue = 0;
-// 	if (strncmp(CycleValue,"0x",2) == 0 || strncmp(CycleValue,"0X",2) == 0)
-// 		iCycleValue  = hex2int(subString(CycleValue, 2, strlen(CycleValue) -2));
-// 	else
-// 		iCycleValue  = hex2int(CycleValue);
-// 
-// 	CNodeCollection *objNodeCol;
-// 	objNodeCol= CNodeCollection::getNodeColObjectPointer();
-// 	INT32 iNodesCount = 0;
-// 	iNodesCount = objNodeCol->getCNNodesCount();
-// 
-// 	CNode* objNode;
-// 
-// 	try
-// 	{
-// 		if(iNodesCount == 0)
-// 		{				
-// 			exit;
-// 		}
-// 		char* actValue = new char[50];
-// 		actValue[0] = 0;
-// 		stErrorInfo = GetSubIndexAttributes(MN_NODEID, MN, "1F98", "07", ACTUALVALUE, actValue); 
-// cout << "got value from 1f98 07 \n" << endl;
-// 		if(stErrorInfo.code == OCFM_ERR_SUCCESS)		
-// 		{
-// 		}
-// 		else
-// 		{
-// 			ocfmException objException;// = new ocfmException;
-// 			objException.ocfm_Excpetion(stErrorInfo.code);
-// 			delete[] actValue;
-// 			throw &objException;
-// 		}
-// 
-// cout << "1f98 07 actual value : " << actValue << endl;
-// 		for(INT32 iLoopCount = 0; iLoopCount < objNodeCol->getNumberOfNodes(); iLoopCount++)
-// 		{
-// cout << "iLoopCount : " << iLoopCount <<endl;
-// 			objNode = objNodeCol->getNodebyColIndex(iLoopCount);
-// 			if (objNode->getNodeType() == CN )
-// 			{
-// cout << "iLoopCount : " << iLoopCount <<endl;
-// 				ocfmRetCode stErrorInfoSubindexMultiplCycl;
-// 				static char* strConvertedValue = NULL;
-// 				if(strConvertedValue != NULL)
-// 				{
-// 					delete[] strConvertedValue;
-// 					strConvertedValue = NULL;
-// 				}
-// 				strConvertedValue = new char[SUBINDEX_LEN];
-// 				char acMultiCycleAssignObj[] = MULTIPL_CYCLE_ASSIGN_OBJECT;
-// 				strConvertedValue = _IntToAscii(objNode->getNodeId(), strConvertedValue, 16);
-// 				strConvertedValue = padLeft(strConvertedValue, '0', 2);
-// 				char* subIndActValue = new char[20];
-// 				subIndActValue[0] = 0;
-// 				try
-// 				{
-// 					stErrorInfoSubindexMultiplCycl = GetSubIndexAttributes(240, MN, acMultiCycleAssignObj, strConvertedValue, ACTUALVALUE, subIndActValue);
-// 				} 
-// 				catch(...)
-// 				{
-// 					delete[] subIndActValue;
-// 					//delete[] strConvertedValue;
-// 					continue;
-// 				}
-// printf("\n stErrorInfoSubindexMultiplCycl.errorString= %s \n",stErrorInfoSubindexMultiplCycl.errorString);
-//  				if(stErrorInfoSubindexMultiplCycl.code == OCFM_ERR_SUCCESS)
-//  				{
-//  				}
-//  				else
-//  				{
-// printf("\n stErrorInfoSubindexMultiplCycl.errorString= %s \n",stErrorInfoSubindexMultiplCycl.errorString);
-// 					continue;
-//  				}
-// printf("\n objNode->getStationType()=%d NORMAL = 0, MULTIPLEXED =1, CHAINED=3\n", objNode->getStationType());
-// 				if (objNode->getStationType() == MULTIPLEXED)
-// 				{
-// 					if(strcmp(objNode->getForcedCycle(),"") == 0 || objNode->getForcedCycle() == NULL)
-// 					{
-// 						//continue down the loop
-// 					}
-// 					else if (strcmp(actValue,"") == 0 || actValue == NULL)
-// 					{
-// 						char* subIndName = new char[50];
-// 						subIndName[0] = 0;
-// 						GetSubIndexAttributes(240, MN, acMultiCycleAssignObj, strConvertedValue, NAME, subIndName);
-// 						char* subIndFlag = new char[10];
-// 						GetSubIndexAttributes(240, MN, acMultiCycleAssignObj, strConvertedValue, FLAGIFINCDC, subIndFlag);
-// 						INT32 iCNsubIndFlag = 0;
-// 						iCNsubIndFlag  = hex2int(subIndFlag);
-// 						SetSubIndexAttributes(MN_NODEID, MN, acMultiCycleAssignObj, strConvertedValue, "",subIndName, (EFlag)iCNsubIndFlag);
-// 						delete[] subIndName;
-// 						delete[] subIndFlag;
-// 						//delete[] strConvertedValue;
-// 						continue;
-// 					}
-// 					else
-// 					{
-// 						if(stErrorInfoSubindexMultiplCycl.code == OCFM_ERR_SUCCESS)
-// 						{
-// printf("inside stErrorInfoSubindexMultiplCycl.code == OCFM_ERR_SUCCESS actValue=%s \n", actValue);
-// 							INT32 iMNMultiActualValue = 0;
-// 							if (strncmp(actValue,"0x",2) == 0 || strncmp(actValue,"0X",2) == 0)
-// 								iMNMultiActualValue  = hex2int(subString(actValue, 2, strlen(actValue) -2));
-// 							else
-// 								iMNMultiActualValue  = hex2int(actValue);
-// printf("\n iMNMultiActualValue=%d \n", iMNMultiActualValue);
-// 							char* ForcedCycleValue = new char[50];
-// 							strcpy(ForcedCycleValue,objNode->getForcedCycle());
-// printf("\n ForcedCycleValue=%s \n", ForcedCycleValue);
-// 							INT32 iCNActualValue = 0;
-// 							if (strncmp(ForcedCycleValue,"0x",2) == 0 || strncmp(ForcedCycleValue,"0X",2) == 0)
-// 								iCNActualValue  = hex2int(subString(ForcedCycleValue, 2, strlen(ForcedCycleValue) -2));
-// 							else
-// 								iCNActualValue  = hex2int(ForcedCycleValue);
-// 
-// printf("\niMNMultiActualValue=%d iCNActualValue=%d (iCNActualValue <= iMNMultiActualValue)=%d\n", iMNMultiActualValue, iCNActualValue, (iCNActualValue <= iMNMultiActualValue));
-// 							if (iMNMultiActualValue == 0)
-// 							{
-// 
-// 								char* subIndName = new char[50];
-// 								subIndName[0] = 0;
-// 								GetSubIndexAttributes(240, MN, acMultiCycleAssignObj, strConvertedValue, NAME, subIndName);
-// 								char* subIndFlag = new char[10];
-// 								GetSubIndexAttributes(240, MN, acMultiCycleAssignObj, strConvertedValue, FLAGIFINCDC, subIndFlag);
-// 								INT32 iCNsubIndFlag = 0;
-// 								iCNsubIndFlag  = hex2int(subIndFlag);
-// 								SetSubIndexAttributes(MN_NODEID, MN, acMultiCycleAssignObj, strConvertedValue, "",subIndName, (EFlag)iCNsubIndFlag);
-// 								delete[] subIndName;
-// 								delete[] subIndFlag;
-// 								continue;
-// 							}
-// 							else if( (iCNActualValue <= iMNMultiActualValue) && (iCNActualValue <= ) )
-// 							{
-// 								continue;
-// 							}
-// 							else
-// 							{
-// 								//continue the function
-// 							}
-// 						}
-// 						else
-// 						{
-// 
-// //need to foce the cycle
-// 
-// 
-// // 							ocfmException objException;// = new ocfmException;
-// // 							objException.ocfm_Excpetion(stErrorInfoSubindexMultiplCycl.code);
-// // 							delete[] subIndActValue;
-// // 							throw &objException;
-// 						}
-// 					}
-// 
-// 					char* ForcedCycle = new char[20];
-// 					UINT32 uiCycleno = getLastAvailableCycleNumber();
-// printf("\n calling force cycle LoopCount=%d uiCycleno=%d\n",iLoopCount,uiCycleno);
-// 					ForcedCycle = _IntToAscii(uiCycleno, ForcedCycle, 16);
-// 					objNode->setForcedCycle(ForcedCycle);
-// 					delete[] ForcedCycle;
-// 				}
-// 				else 
-// 				{
-// 				// station other than multiplexed
-// 					char* subIndName = new char[50];
-// 					subIndName[0] = 0;
-// 					GetSubIndexAttributes(240, MN, acMultiCycleAssignObj, strConvertedValue, NAME, subIndName);
-// printf("\n station other than multiplexed subIndName=%s \n",subIndName);
-// 					char* subIndFlag = new char[10];
-// 					GetSubIndexAttributes(240, MN, acMultiCycleAssignObj, strConvertedValue, FLAGIFINCDC, subIndFlag);
-// printf("\n station other than multiplexed subIndFlag=%s \n",subIndFlag);
-// 					INT32 iCNsubIndFlag = 0;
-// 					iCNsubIndFlag  = hex2int(subIndFlag);
-// printf("\n after hex2int station other than multiplexed subIndFlag=%s \n",subIndFlag);
-// 					SetSubIndexAttributes(MN_NODEID, MN, acMultiCycleAssignObj, strConvertedValue, "",subIndName, (EFlag)iCNsubIndFlag);
-// 					delete[] subIndName;
-// 					delete[] subIndFlag;
-// 				}
-// 				//delete[] strConvertedValue;
-// 			} // end of if loop 1
-// 		}//end of for loop
-// 		delete[] actValue;
-// 	}//end of try
-// 	catch(ocfmException* ex)
-// 	{
-// 		return ex->_ocfmRetCode;
-// 	}
-// }
-// 
+
+void CheckAndReAssignMultiplex(int iCNNodeId, char* CycleValue )
+{
+	ocfmRetCode stErrorInfo;
+	if(CycleValue == NULL || strcmp(CycleValue,"") == 0 )
+	{
+		stErrorInfo.code = OCFM_ERR_SUCCESS;
+		//return stErrorInfo;
+        return;
+	}
+
+	INT32 iCycleValue = 0;
+	if (strncmp(CycleValue,"0x",2) == 0 || strncmp(CycleValue,"0X",2) == 0)
+		iCycleValue  = hex2int(subString(CycleValue, 2, strlen(CycleValue) -2));
+	else
+		iCycleValue  = atoi(CycleValue);
+
+	CNodeCollection *objNodeCol;
+	objNodeCol= CNodeCollection::getNodeColObjectPointer();
+	INT32 iNodesCount = 0;
+	iNodesCount = objNodeCol->getCNNodesCount();
+
+	CNode* objNode;
+
+	try
+	{
+		if(iNodesCount == 0)
+		{				
+			//exit;
+            return;
+		}
+		char* actValue = new char[50];
+		actValue[0] = 0;
+        try 
+        {
+        
+		    stErrorInfo = GetSubIndexAttributes(MN_NODEID, MN, (char*)"1F98", (char*)"07", ACTUALVALUE, actValue); 
+		}
+		catch(...)
+		{
+			delete[] actValue;
+            stErrorInfo.code = OCFM_ERR_SUCCESS;
+            //return stErrorInfo;
+            return;
+		}
+
+		for(INT32 iLoopCount = 0; iLoopCount < objNodeCol->getNumberOfNodes(); iLoopCount++)
+		{
+			objNode = objNodeCol->getNodebyColIndex(iLoopCount);
+			if (objNode->getNodeType() == CN && objNode->getNodeId() != iCNNodeId && objNode->getStationType() == MULTIPLEXED)
+			{
+                    if(objNode->getForcedCycle() == NULL || strcmp(objNode->getForcedCycle(),"") == 0 )
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                            char* ForcedCycleValue = new char[strlen(objNode->getForcedCycle()) + ALLOC_BUFFER];
+                            strcpy(ForcedCycleValue,objNode->getForcedCycle());
+                            INT32 iCNActualValue = 0;
+                            if (strncmp(ForcedCycleValue,"0x",2) == 0 || strncmp(ForcedCycleValue,"0X",2) == 0)
+                                iCNActualValue  = hex2int(subString(ForcedCycleValue, 2, strlen(ForcedCycleValue) -2));
+                            else
+                                iCNActualValue  = atoi(ForcedCycleValue);
+
+                            delete[] ForcedCycleValue;
+                            if (iCycleValue == iCNActualValue)
+                            {
+                                return;
+                            }
+                            else
+                            {
+                                //continue the function
+                            }
+                    }
+            } // end of if loop 1
+		}//end of for loop
+        for(INT32 iLoopCount = 0; iLoopCount < objNodeCol->getNumberOfNodes(); iLoopCount++)
+        {
+            objNode = objNodeCol->getNodebyColIndex(iLoopCount);
+            if (objNode->getNodeType() == CN && objNode->getNodeId() != iCNNodeId && objNode->getStationType() == MULTIPLEXED && objNode->getForceCycleFlag() == false)
+            {
+                if(objNode->getForcedCycle() == NULL || strcmp(objNode->getForcedCycle(),"") == 0 )
+                {
+                    continue;
+                }
+                else
+                {
+                }
+
+                char* ForcedCycleValue = new char[strlen(objNode->getForcedCycle()) + ALLOC_BUFFER];
+                strcpy(ForcedCycleValue,objNode->getForcedCycle());
+                INT32 iCNActualValue = 0;
+                if (strncmp(ForcedCycleValue,"0x",2) == 0 || strncmp(ForcedCycleValue,"0X",2) == 0)
+                    iCNActualValue  = hex2int(subString(ForcedCycleValue, 2, strlen(ForcedCycleValue) -2));
+                else
+                    iCNActualValue  = atoi(ForcedCycleValue);
+
+                delete[] ForcedCycleValue;
+                if (iCycleValue >= iCNActualValue || iCNActualValue == 1)
+                {
+                    continue;
+                }
+                else
+                {
+                            //continue the function
+                }
+                iCNActualValue--;
+                uiCycleNumber = iCNActualValue;
+
+                ocfmRetCode stErrorInfoSubindexMultiplCycl;
+                static char* strCNActualValue = NULL;
+                if(strCNActualValue != NULL)
+                {
+                    delete[] strCNActualValue;
+                    strCNActualValue = NULL;
+                }
+                strCNActualValue = new char[50];
+                strCNActualValue = _IntToAscii(iCNActualValue, strCNActualValue, 10);
+
+                objNode->setForcedCycle(strCNActualValue);
+            } //end of if loop
+        } //end of for loop
+		delete[] actValue;
+	}//end of try
+ 	catch(ocfmException* ex)
+ 	{
+ 		//return ex->_ocfmRetCode;
+        return;
+ 	}
+}
+
+/****************************************************************************************************
+// * Function Name: CheckMutliplexAssigned
+// * Description: -
+// * Return value: ocfmRetCode
+// ****************************************************************************************************/
+ocfmRetCode CheckMutliplexAssigned()
+{
+    ocfmRetCode stErrorInfo;
+    CNodeCollection *objNodeCol;
+    objNodeCol= CNodeCollection::getNodeColObjectPointer();
+    INT32 iNodesCount = 0;
+    iNodesCount = objNodeCol->getCNNodesCount();
+    stErrorInfo.code = OCFM_ERR_SUCCESS;
+
+    bool bErrorFlag = false;
+    CNode* objNode;
+
+    try
+    {
+        if(iNodesCount == 0)
+        {
+            stErrorInfo.code = OCFM_ERR_NO_CN_NODES_FOUND;
+            return stErrorInfo;
+        }
+        char* actValue = new char[50];
+        actValue[0] = 0;
+        stErrorInfo = GetSubIndexAttributes(MN_NODEID, MN, (char*)"1F98", (char*)"07", ACTUALVALUE, actValue); 
+        if(stErrorInfo.code == OCFM_ERR_SUCCESS)        
+        {
+        }
+        else
+        {
+            return stErrorInfo;
+
+        }
+        stErrorInfo.errorString = new char[500];
+        stErrorInfo.errorString[0] = 0;
+        strcpy(stErrorInfo.errorString,"CN with nodeid ");
+        INT32 iMNMultiActualValue = 0;
+        if (strncmp(actValue,"0x",2) == 0 || strncmp(actValue,"0X",2) == 0)
+            iMNMultiActualValue  = hex2int(subString(actValue, 2, strlen(actValue) -2));
+        else
+            iMNMultiActualValue  = atoi(actValue);
+
+        for(INT32 iLoopCount = 0; iLoopCount < objNodeCol->getNumberOfNodes(); iLoopCount++)
+        {
+            objNode = objNodeCol->getNodebyColIndex(iLoopCount);
+            if (objNode->getNodeType() == CN )
+            {
+                if (objNode->getStationType() == MULTIPLEXED)
+                {
+    
+                    ocfmRetCode stErrorInfoSubindexMultiplCycl;
+                    static char* strConvertedValue = NULL;
+                    if(strConvertedValue != NULL)
+                    {
+                        delete[] strConvertedValue;
+                        strConvertedValue = NULL;
+                    }
+                    strConvertedValue = new char[SUBINDEX_LEN];
+                    char acMultiCycleAssignObj[] = MULTIPL_CYCLE_ASSIGN_OBJECT;
+                    strConvertedValue = _IntToAscii(objNode->getNodeId(), strConvertedValue, 16);
+                    strConvertedValue = padLeft(strConvertedValue, '0', 2);
+                    char* subIndActValue = new char[20];
+                    subIndActValue[0] = 0;
+                    try
+                    {
+                        stErrorInfoSubindexMultiplCycl = GetSubIndexAttributes(240, MN, acMultiCycleAssignObj, strConvertedValue, ACTUALVALUE, subIndActValue);
+                    } 
+                    catch(...)
+                    {
+                        delete[] subIndActValue;
+                        //delete[] strConvertedValue;
+                        continue;
+                    }
+                    if(stErrorInfoSubindexMultiplCycl.code == OCFM_ERR_SUCCESS)
+                    {
+                    }
+                    else
+                    {
+                        continue;
+                    }
+
+                    if(objNode->getForcedCycle() == NULL || strcmp(objNode->getForcedCycle(),"") == 0)
+                    {
+                        //continue down the loop
+                    }
+                    else if ( actValue == NULL || strcmp(actValue,"") == 0 )
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        //if(stErrorInfoSubindexMultiplCycl.code == OCFM_ERR_SUCCESS)
+                        //{
+                            char* ForcedCycleValue = new char[50];
+                            strcpy(ForcedCycleValue,objNode->getForcedCycle());
+                            INT32 iCNActualValue = 0;
+                            if (strncmp(ForcedCycleValue,"0x",2) == 0 || strncmp(ForcedCycleValue,"0X",2) == 0)
+                                iCNActualValue  = hex2int(subString(ForcedCycleValue, 2, strlen(ForcedCycleValue) -2));
+                            else
+                                iCNActualValue  = atoi(ForcedCycleValue);
+
+                            if(iCNActualValue <= iMNMultiActualValue)
+                            {
+                                continue;
+                            }
+                            else
+                            {
+//                                 strcat(stErrorInfo.errorString, "Nodeid:");
+//                                 char* pCNnodeid = new char[SUBINDEX_LEN];
+//                                 pCNnodeid = _IntToAscii(objNode->getNodeId(), pCNnodeid, 10);
+//                                 strcat(stErrorInfo.errorString, pCNnodeid);
+//                                 strcat(stErrorInfo.errorString, " ");
+//                                 delete[] pCNnodeid;
+                                sprintf(stErrorInfo.errorString,"%s%d, ", stErrorInfo.errorString, objNode->getNodeId());
+                                bErrorFlag = true;
+                            }
+                        //}
+                        //else
+                        //{
+                        //}
+                    }
+                }
+                else 
+                {
+                }
+                //delete[] strConvertedValue;
+            } // end of if loop 1
+        }//end of for loop
+        if(bErrorFlag == true)
+        {
+            stErrorInfo.code = OCFM_ERR_MULTIPLEX_ASSIGN_ERROR;
+            stErrorInfo.errorString[strlen(stErrorInfo.errorString)-2] = 0;
+            strcat(stErrorInfo.errorString, " multiplex cycle value exceeds the multiplex prescalar");
+        }
+        delete[] actValue;
+        return stErrorInfo;
+    }//end of try
+    catch(ocfmException* ex)
+    {
+        return ex->_ocfmRetCode;
+    }
+}
+
+UINT32 getFreeCycleNumber(UINT32 uiCycleNumber, INT32 iNodeID)
+{
+    ocfmRetCode stErrorInfo;
+    CNodeCollection *objNodeCol;
+    objNodeCol= CNodeCollection::getNodeColObjectPointer();
+    INT32 iNodesCount = 0;
+    iNodesCount = objNodeCol->getCNNodesCount();
+
+    CNode* objNode;
+    UINT32 uiFreeCycleNumber = 0;
+
+        if(iNodesCount == 0)
+        {
+            stErrorInfo.code = OCFM_ERR_NO_CN_NODES_FOUND;
+            ocfmException objException;// = new ocfmException;
+            objException.ocfm_Excpetion(stErrorInfo.code);
+            return uiCycleNumber;
+        }
+        for(UINT32 uiCycleNumberCount = 1; uiCycleNumberCount < uiCycleNumber; uiCycleNumberCount++)
+        {
+            for(INT32 iLoopCount = 0; iLoopCount < objNodeCol->getNumberOfNodes(); iLoopCount++)
+            {
+                objNode = objNodeCol->getNodebyColIndex(iLoopCount);
+                if (objNode->getNodeType() == CN && objNode->getNodeId() != iNodeID && objNode->getStationType() == MULTIPLEXED)
+                {
+                        if(objNode->getForcedCycle() == NULL || strcmp(objNode->getForcedCycle(),"") == 0 )
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                                char* ForcedCycleValue = new char[strlen(objNode->getForcedCycle()) + ALLOC_BUFFER];
+                                strcpy(ForcedCycleValue,objNode->getForcedCycle());
+                                INT32 iCNActualValue = 0;
+                                if (strncmp(ForcedCycleValue,"0x",2) == 0 || strncmp(ForcedCycleValue,"0X",2) == 0)
+                                    iCNActualValue  = hex2int(subString(ForcedCycleValue, 2, strlen(ForcedCycleValue) -2));
+                                else
+                                    iCNActualValue  = atoi(ForcedCycleValue);
+    
+                                delete[] ForcedCycleValue;
+                                if (uiCycleNumberCount == iCNActualValue)
+                                {
+                                    //uiFreeCycleNumber = uiCycleNumberCount;
+                                    break;
+                                }
+                                else
+                                {
+                                    //continue the function
+                                }
+                        }
+                } // end of if loop 1
+                if(iLoopCount == objNodeCol->getNumberOfNodes()-1)
+                {
+                    return uiCycleNumberCount;
+                }
+            }//end of for loop
+            
+        }//end of for loop
+        return uiCycleNumber;
+}
