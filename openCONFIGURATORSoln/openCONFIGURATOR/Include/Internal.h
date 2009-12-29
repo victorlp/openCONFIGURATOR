@@ -213,5 +213,6 @@ ocfmRetCode RecalculateMultiplex();
 void checkAndCorrectName(char* checkName);
 void CheckAndReAssignMultiplex(int iCNNodeId, char* CycleValue );
 ocfmRetCode CheckMutliplexAssigned();
-UINT32 getFreeCycleNumber(UINT32 uiCycleNumber, INT32 iNodeID);
+UINT32 getFreeCycleNumber(UINT32 uiCycleNumber);
+bool IsMultiplexCycleNumberContinuous(UINT32 uiCycleNumber);
 #endif // internal_h

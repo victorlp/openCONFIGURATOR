@@ -573,6 +573,16 @@ void CNode::setForcedCycle(char* pbForcedCycle)
 }
 
 /**************************************************************************************************
+* Function Name: CNode::resetForcedCycleValue
+* Description: sets the cycle of the Node
+* Return value: void
+****************************************************************************************************/
+void CNode::resetForcedCycleValue()
+{
+    m_ForcedCycle = new char[strlen("") + ALLOC_BUFFER];
+    strcpy((char*)m_ForcedCycle, "");
+}
+/**************************************************************************************************
 * Function Name: CNode::setPollResponseTimeout
 * Description: sets the poll response timeout value in MN
 * Return value: void

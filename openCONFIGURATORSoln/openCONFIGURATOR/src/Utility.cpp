@@ -633,6 +633,7 @@ UINT32 getLastAvailableCycleNumber()
 	char* actValue = new char[20];
 	ocfmRetCode Ret;
 	Ret = GetSubIndexAttributes(240, MN, (char*)"1F98", (char*)"07", ACTUALVALUE, actValue);
+    UINT32 uiTempCycleNumber = uiCycleNumber;
 	if(Ret.code == OCFM_ERR_SUCCESS)
 	{	
 
@@ -645,16 +646,16 @@ UINT32 getLastAvailableCycleNumber()
 		else
 			iCycleValue  = atoi(actValue);
 
-		if(iCycleValue > uiCycleNumber+1)
+		if(iCycleValue > uiTempCycleNumber+1)
 		{
-			uiCycleNumber += 1;
+			uiTempCycleNumber += 1;
 		}
 		else
 		{			
-			uiCycleNumber += 1;
-			while(iCycleValue < uiCycleNumber)
+			uiTempCycleNumber += 1;
+			while(iCycleValue < uiTempCycleNumber)
 			{
-				uiCycleNumber = uiCycleNumber - iCycleValue;
+				uiTempCycleNumber = uiTempCycleNumber - iCycleValue;
 			}
 			
 		}
@@ -662,9 +663,16 @@ UINT32 getLastAvailableCycleNumber()
 	}
 	delete[] actValue;
 
-        //uiCycleNumber = getFreeCycleNumber(uiCycleNumber);
-
-	return uiCycleNumber;
+    UINT32 uiFreeCycleNumber = getFreeCycleNumber(uiTempCycleNumber);
+    if(uiFreeCycleNumber == uiTempCycleNumber)
+    {
+        uiCycleNumber = uiTempCycleNumber;
+    	return uiTempCycleNumber;
+    }
+    else
+    {
+        return uiFreeCycleNumber;
+    }
 }
 
 

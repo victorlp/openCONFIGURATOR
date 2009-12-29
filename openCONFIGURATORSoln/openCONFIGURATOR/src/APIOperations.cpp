@@ -463,6 +463,32 @@ ocfmRetCode DeleteNode(INT32 iNodeID, ENodeType enumNodeType)
 		pobjNodeCollection= CNodeCollection::getNodeColObjectPointer();	
 		//cout<< "Inside DeleteNode: \n" <<pobjNodeCollection->getNumberOfNodes()<<endl;
 		pobjNodeCollection = CNodeCollection::getNodeColObjectPointer();
+        objNode = pobjNodeCollection->getNodebyCollectionIndex(iNodePos);
+
+        char* cSIdx = new char[SUBINDEX_LEN];
+        cSIdx = _IntToAscii(objNode.getNodeId(), cSIdx, 16);
+        cSIdx = padLeft(cSIdx, '0', 2);
+        ocfmRetCode stErrStructInfo;
+        int IndexPos;
+        int subIndexPos;
+        if(objNode.getNodeType() == CN)
+        {
+            if(objNode.getStationType() == MULTIPLEXED)
+            {
+                //Deleted MN's 1F9B and Suindex = old node id
+                CheckAndReAssignMultiplex(objNode.getNodeId(), objNode.getForcedCycle() );
+            }
+            stErrStructInfo = IfSubIndexExists(MN_NODEID, MN, (char *)MULTIPL_CYCLE_ASSIGN_OBJECT, cSIdx, &subIndexPos, &IndexPos);
+            if(stErrStructInfo.code == OCFM_ERR_SUCCESS)
+            {
+                DeleteSubIndex(MN_NODEID, MN, (char *)MULTIPL_CYCLE_ASSIGN_OBJECT, cSIdx);
+            }
+            stErrStructInfo = IfSubIndexExists(MN_NODEID, MN, (char *)MNCN_POLLRESPONSE_TIMEOUT_OBJECT, cSIdx, &subIndexPos, &IndexPos);
+            if(stErrStructInfo.code == OCFM_ERR_SUCCESS)
+            {
+                DeleteSubIndex(MN_NODEID, MN, (char *)MNCN_POLLRESPONSE_TIMEOUT_OBJECT, cSIdx);
+            }
+        }
 		pobjNodeCollection->deleteNode(iNodePos);
 		stErrorInfo.code = OCFM_ERR_SUCCESS;
 		return stErrorInfo;		
@@ -8523,6 +8549,10 @@ ocfmRetCode UpdateNodeParams(INT32 iCurrNodeId, INT32 iNewNodeID, ENodeType eNod
             {
                 CheckAndReAssignMultiplex(iNewNodeID, pobjNode->getForcedCycle());
             }
+            if(eStationType != MULTIPLEXED)
+            {
+                pobjNode->resetForcedCycleValue();
+            }
 			if(eStationType == MULTIPLEXED)
 			{
                 bool bCalcForceCycle = true;
@@ -8563,7 +8593,7 @@ ocfmRetCode UpdateNodeParams(INT32 iCurrNodeId, INT32 iNewNodeID, ENodeType eNod
                                 else
                                     iCNActualValue  = atoi(pobjNode->getForcedCycle());
 
-                                if( iCNActualValue == getFreeCycleNumber(iCNActualValue, pobjNode->getNodeId()) )
+                                if( true == IsMultiplexCycleNumberContinuous(iCNActualValue) )
                                 {
                                     bCalcForceCycle = false;
                                     bSetForceCycle = false;
@@ -8582,8 +8612,8 @@ ocfmRetCode UpdateNodeParams(INT32 iCurrNodeId, INT32 iNewNodeID, ENodeType eNod
                 {
                         ForcedCycle = new char[20];
                         UINT32 uiCycleno =  getLastAvailableCycleNumber();
-                        uiCycleno = getFreeCycleNumber(uiCycleno, pobjNode->getNodeId());
-                        uiCycleNumber = uiCycleno;
+                        //uiCycleno = getFreeCycleNumber(uiCycleno, pobjNode->getNodeId());
+                        //uiCycleNumber = uiCycleno;
                         ForcedCycle = _IntToAscii(uiCycleno, ForcedCycle, 16);
                 }
 				if(bSetForceCycle == true)
@@ -8879,8 +8909,8 @@ ocfmRetCode RecalculateMultiplex()
 
 					char* ForcedCycle = new char[20];
 					UINT32 uiCycleno = getLastAvailableCycleNumber();
-                    uiCycleno = getFreeCycleNumber(uiCycleno, objNode->getNodeId());
-                    uiCycleNumber = uiCycleno;
+                    //uiCycleno = getFreeCycleNumber(uiCycleno, objNode->getNodeId());
+                    //uiCycleNumber = uiCycleno;
 					ForcedCycle = _IntToAscii(uiCycleno, ForcedCycle, 16);
 					objNode->setForcedCycle(ForcedCycle);
 					delete[] ForcedCycle;
@@ -9242,7 +9272,7 @@ ocfmRetCode CheckMutliplexAssigned()
     }
 }
 
-UINT32 getFreeCycleNumber(UINT32 uiCycleNumber, INT32 iNodeID)
+UINT32 getFreeCycleNumber(UINT32 uiCycleNumber)
 {
     ocfmRetCode stErrorInfo;
     CNodeCollection *objNodeCol;
@@ -9265,11 +9295,72 @@ UINT32 getFreeCycleNumber(UINT32 uiCycleNumber, INT32 iNodeID)
             for(INT32 iLoopCount = 0; iLoopCount < objNodeCol->getNumberOfNodes(); iLoopCount++)
             {
                 objNode = objNodeCol->getNodebyColIndex(iLoopCount);
-                if (objNode->getNodeType() == CN && objNode->getNodeId() != iNodeID && objNode->getStationType() == MULTIPLEXED)
+                if (objNode->getNodeType() == CN && objNode->getStationType() == MULTIPLEXED)
                 {
+                    if(objNode->getForcedCycle() == NULL || strcmp(objNode->getForcedCycle(),"") == 0 )
+                    {
+                        //continue;
+                    }
+                    else
+                    {
+                        char* ForcedCycleValue = new char[strlen(objNode->getForcedCycle()) + ALLOC_BUFFER];
+                        strcpy(ForcedCycleValue,objNode->getForcedCycle());
+                        INT32 iCNActualValue = 0;
+                        if (strncmp(ForcedCycleValue,"0x",2) == 0 || strncmp(ForcedCycleValue,"0X",2) == 0)
+                            iCNActualValue  = hex2int(subString(ForcedCycleValue, 2, strlen(ForcedCycleValue) -2));
+                        else
+                            iCNActualValue  = atoi(ForcedCycleValue);
+
+                        delete[] ForcedCycleValue;
+                        if (uiCycleNumberCount == iCNActualValue)
+                        {
+                            //uiFreeCycleNumber = uiCycleNumberCount;
+                            break;
+                        }
+                        else
+                        {
+                            //continue the function
+                        }
+                    }
+                } // end of if loop 1
+                if(iLoopCount == objNodeCol->getNumberOfNodes()-1)
+                {
+                    return uiCycleNumberCount;
+                }
+            }//end of for loop
+            
+        }//end of for loop
+        return uiCycleNumber;
+}
+
+bool IsMultiplexCycleNumberContinuous(UINT32 uiCycleNumber)
+{
+    ocfmRetCode stErrorInfo;
+    CNodeCollection *objNodeCol;
+    objNodeCol= CNodeCollection::getNodeColObjectPointer();
+    INT32 iNodesCount = 0;
+    iNodesCount = objNodeCol->getCNNodesCount();
+
+    CNode* objNode;
+    UINT32 uiFreeCycleNumber = 0;
+
+        if(iNodesCount == 0)
+        {
+            return false;
+        }
+        for(UINT32 uiCycleNumberCount = 1; uiCycleNumberCount < uiCycleNumber; uiCycleNumberCount++)
+        {
+
+            for(INT32 iLoopCount = 0; iLoopCount < objNodeCol->getNumberOfNodes(); iLoopCount++)
+            {
+
+                objNode = objNodeCol->getNodebyColIndex(iLoopCount);
+                if (objNode->getNodeType() == CN && objNode->getStationType() == MULTIPLEXED)
+                {
+
                         if(objNode->getForcedCycle() == NULL || strcmp(objNode->getForcedCycle(),"") == 0 )
                         {
-                            continue;
+                            //continue;
                         }
                         else
                         {
@@ -9295,10 +9386,10 @@ UINT32 getFreeCycleNumber(UINT32 uiCycleNumber, INT32 iNodeID)
                 } // end of if loop 1
                 if(iLoopCount == objNodeCol->getNumberOfNodes()-1)
                 {
-                    return uiCycleNumberCount;
+                    return false;
                 }
             }//end of for loop
             
         }//end of for loop
-        return uiCycleNumber;
+        return true;
 }
