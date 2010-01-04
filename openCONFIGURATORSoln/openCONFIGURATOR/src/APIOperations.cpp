@@ -8943,11 +8943,28 @@ ocfmRetCode RecalculateMultiplex()
 }
 
 /**************************************************************************************************
-* Function Name: CNode::Copy pdos default value to actual value
+* Function Name: CNode::copyMNPropDefToAct
 * Description: 
 * Return value: void
 ****************************************************************************************************/
-void copyDefToAct(int iNodeID, ENodeType enumNodeType)
+void copyMNPropDefToAct(int iNodeID, ENodeType enumNodeType)
+{   
+    if ( enumNodeType != MN ) 
+    {
+        return;
+    }
+    copyIndexDefToAct(iNodeID, enumNodeType, (char *)"1006");
+    copySubIndexDefToAct(iNodeID, enumNodeType, (char *)"1F8A", (char *)"02" );
+    copySubIndexDefToAct(iNodeID, enumNodeType, (char *)"1F98", (char *)"07" );
+    copySubIndexDefToAct(iNodeID, enumNodeType, (char *)"1F98", (char *)"08" );
+}
+
+/**************************************************************************************************
+* Function Name: CNode::copyIndexDefToAct
+* Description: 
+* Return value: void
+****************************************************************************************************/
+void copyIndexDefToAct(int iNodeID, ENodeType enumNodeType, char *indexId )
 {
     CSubIndex* pobjSIndex;
     CIndexCollection* pobjIdxCol;
@@ -8960,36 +8977,63 @@ void copyDefToAct(int iNodeID, ENodeType enumNodeType)
     pobjNode = objNodeCollection->getNodePtr(enumNodeType, iNodeID);
     pobjIdxCol = pobjNode->getIndexCollection();
     
-    for(INT32 iIndexLoopCount=0; iIndexLoopCount < pobjIdxCol->getNumberofIndexes(); iIndexLoopCount++)
+    CIndex* pobjIndex;
+    
+    pobjIndex = pobjIdxCol->getIndexbyIndexValue(indexId);
+    if(pobjIndex == NULL)
     {
-            CIndex* pobjIndex;
-            
-            pobjIndex = pobjIdxCol->getIndex(iIndexLoopCount);
-            if(pobjIndex->getActualValue() == NULL)
-            {
-                if(pobjIndex->getDefaultValue() != NULL)
-                {
-                    pobjIndex->setActualValue((char*)pobjIndex->getDefaultValue());
-                }
-
-            }
-
-
-            for(INT32 iSIdxLoopCount=0; iSIdxLoopCount < pobjIndex->getNumberofSubIndexes(); iSIdxLoopCount++)
-            {
-                pobjSIndex = pobjIndex->getSubIndex(iSIdxLoopCount);
-                if(pobjSIndex->getActualValue() ==      NULL)
-                {
-                    if(pobjSIndex->getDefaultValue() != NULL)
-                    {
-                        pobjSIndex->setActualValue((char*)pobjSIndex->getDefaultValue());
-                    }
-
-                }
-            }
-
+        return;
+    }
+    if(pobjIndex->getActualValue() == NULL)
+    {
+        if(pobjIndex->getDefaultValue() != NULL)
+        {
+            pobjIndex->setActualValue((char*)pobjIndex->getDefaultValue());
+        }
     }
 }
+
+/**************************************************************************************************
+* Function Name: CNode::copySubIndexDefToAct
+* Description: 
+* Return value: void
+****************************************************************************************************/
+void copySubIndexDefToAct(int iNodeID, ENodeType enumNodeType, char *indexId, char *subIndexId )
+{
+    CSubIndex* pobjSIndex;
+    CIndexCollection* pobjIdxCol;
+            
+    CNode *pobjNode;
+    CNodeCollection *objNodeCollection = NULL;
+
+    
+    objNodeCollection = CNodeCollection::getNodeColObjectPointer();
+    pobjNode = objNodeCollection->getNodePtr(enumNodeType, iNodeID);
+    pobjIdxCol = pobjNode->getIndexCollection();
+    
+    CIndex* pobjIndex;
+    
+    pobjIndex = pobjIdxCol->getIndexbyIndexValue(indexId);
+    if(pobjIndex == NULL)
+    {
+        return;
+    }
+
+
+    pobjSIndex = pobjIndex->getSubIndexbyIndexValue(subIndexId);
+    if(pobjSIndex == NULL)
+    {
+        return;
+    }
+    if(pobjSIndex->getActualValue() ==      NULL)
+    {
+        if(pobjSIndex->getDefaultValue() != NULL)
+        {
+            pobjSIndex->setActualValue((char*)pobjSIndex->getDefaultValue());
+        }
+    }
+}
+
 // /****************************************************************************************************
 // * Function Name: CheckAndReAssignMultiplex
 // * Description: -

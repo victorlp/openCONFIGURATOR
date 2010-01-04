@@ -758,7 +758,7 @@ ocfmRetCode ImportXML(char *pbFileName, INT32 iNodeID, ENodeType enumNodeType)
 		
 		/* Copy default value of pdos to act value*/
 		//copyPDODefToAct(iNodeID, enumNodeType);	
-        copyDefToAct(iNodeID, enumNodeType);
+        copyMNPropDefToAct(iNodeID, enumNodeType);
 		
 		stErrStruct.code = OCFM_ERR_SUCCESS;
 		return stErrStruct;
@@ -1087,7 +1087,7 @@ ocfmRetCode ReImportXML(char* pbFileName, INT32 iNodeID, ENodeType enumNodeType)
 		}		
 			/* Copy default value of pdos to act value*/
 			//copyPDODefToAct(iNodeID, enumNodeType);
-            copyDefToAct(iNodeID, enumNodeType);
+            copyMNPropDefToAct(iNodeID, enumNodeType);
 		
             if(enumNodeType == MN)
                 RecalculateMultiplex();
@@ -2247,6 +2247,20 @@ void setFlagForRequiredMNIndexes(INT32 iNodeId)
 				pobjSIdx->setFlagIfIncludedCdc(TRUE);				
 			}
 		}
+        else if( strcmp((char*)pobjIndex->getIndexValue(),"1F8A") == 0 )
+        {
+            pobjIndex->setFlagIfIncludedCdc(TRUE);
+            for(INT32 iSIDxCount = 0; iSIDxCount < pobjIndex->getNumberofSubIndexes(); iSIDxCount++)
+            {
+                CSubIndex* pobjSIdx;
+                pobjSIdx = pobjIndex->getSubIndex(iSIDxCount);
+                if(strcmp((char*)pobjSIdx->getIndexValue(),"02") == 0)
+                {
+                    pobjSIdx->setFlagIfIncludedCdc(TRUE);
+                    break;
+                }
+            }
+        }
 	}				
 }
 
