@@ -839,6 +839,7 @@ void GenerateNETHeaderFile(char* pbFileName, ProcessImage objPIInCol[], ProcessI
 		{	
 			ocfmException ex;
 			ex.ocfm_Excpetion(OCFM_ERR_FILE_CANNOT_OPEN);
+            fclose(fpNetFile);
 			delete[] pbBuffer;
 			throw ex;
 		}
@@ -879,8 +880,8 @@ void GenerateNETHeaderFile(char* pbFileName, ProcessImage objPIInCol[], ProcessI
 			throw ex;
 		}
 		delete[] pbBuffer;
-		fclose(fpNetFile);
 	}
+    fclose(fpNetFile);
 	delete [] pbNetFileName;
 }
 
@@ -1044,22 +1045,27 @@ INT32 GroupNETHeaderContents(ProcessImage objProcessImage[], INT32 iNumberOfVars
 					INT32 iFilledBits = iDataSize - (iTotalsize % iDataSize);
 					
 					iTotalsize =  iTotalsize + iFilledBits;
-					NETProcessImage objNETProcessImage;
-					abHoleid = _IntToAscii(iHoleFilledIdNo, abHoleid, 10);
-					objNETProcessImage.Name = new char[ strlen(abHoleid) + ALLOC_BUFFER];
-					strcpy(objNETProcessImage.Name , abHoleid);
-					objNETProcessImage.ModuleName = new char[ strlen("PADDING_VAR") + ALLOC_BUFFER];
-					strcpy(objNETProcessImage.ModuleName , "PADDING_VAR");
-
-					objNETProcessImage.count = 0;
-					objNETProcessImage.DataInfo._dt_enum = BYTE;
-					objNETProcessImage.DataInfo.DataSize = 8;
-					objNETProcessImage.DataInfo._dt_Name = new char[strlen("byte") + ALLOC_BUFFER];
-					strcpy(objNETProcessImage.DataInfo._dt_Name, "byte");
-					objNETProcessImage.iTotalDataSize = 8;
-					objNode->addNETProcessImage(objNETProcessImage);
-					objNETProcessImage.DirectionType= enumDirType;
-					iHoleFilledIdNo =  iHoleFilledIdNo + 1;
+					for(INT32 iLoopCount = 1 ; iLoopCount <= (iFilledBits / 8) ; iLoopCount++ )
+                    {
+                        strcpy(abHoleid, "" );
+                        strcpy(pbFbits, "" );
+                        NETProcessImage objNETProcessImage;
+                        abHoleid = _IntToAscii(iHoleFilledIdNo, abHoleid, 10);
+                        objNETProcessImage.Name = new char[ strlen(abHoleid) + ALLOC_BUFFER];
+                        strcpy(objNETProcessImage.Name , abHoleid);
+                        objNETProcessImage.ModuleName = new char[ strlen("PADDING_VAR") + ALLOC_BUFFER];
+                        strcpy(objNETProcessImage.ModuleName , "PADDING_VAR");
+            
+                        objNETProcessImage.count = 0;
+                        objNETProcessImage.DataInfo._dt_enum = BYTE;
+                        objNETProcessImage.DataInfo.DataSize = 8;
+                        objNETProcessImage.DataInfo._dt_Name = new char[strlen("byte") + ALLOC_BUFFER];
+                        strcpy(objNETProcessImage.DataInfo._dt_Name, "byte");
+                        objNETProcessImage.iTotalDataSize = 8;
+                        objNETProcessImage.DirectionType= enumDirType;
+                        objNode->addNETProcessImage(objNETProcessImage);
+                        iHoleFilledIdNo =  iHoleFilledIdNo + 1;
+                    }
 					delete[] pbFbits;
 					delete[] abHoleid;
 				}				
@@ -1144,25 +1150,29 @@ INT32 GroupNETHeaderContents(ProcessImage objProcessImage[], INT32 iNumberOfVars
 			INT32 iFilledBits = 32 - (iTotalsize % 32);
 			
 			iTotalsize =  iTotalsize + iFilledBits;
-
-			NETProcessImage objNETProcessImage;
-			abHoleid = _IntToAscii(iHoleFilledIdNo, abHoleid, 10);
-			objNETProcessImage.Name = new char[ strlen(abHoleid) + ALLOC_BUFFER];
-			strcpy(objNETProcessImage.Name , abHoleid);
-			objNETProcessImage.ModuleName = new char[ strlen("PADDING_VAR") + ALLOC_BUFFER];
-			strcpy(objNETProcessImage.ModuleName , "PADDING_VAR");
-
-			objNETProcessImage.count = 0;
-			objNETProcessImage.DataInfo._dt_enum = BYTE;
-			objNETProcessImage.DataInfo.DataSize = 8;
-			objNETProcessImage.DataInfo._dt_Name = new char[strlen("byte") + ALLOC_BUFFER];
-			strcpy(objNETProcessImage.DataInfo._dt_Name, "byte");
-			objNETProcessImage.iTotalDataSize = 8;
-			objNode->addNETProcessImage(objNETProcessImage);
-			objNETProcessImage.DirectionType= enumDirType;
-			iHoleFilledIdNo =  iHoleFilledIdNo + 1;
-			delete[] pbFbits;
-			delete[] abHoleid;
+            for(INT32 iLoopCount = 1 ; iLoopCount <= (iFilledBits / 8) ; iLoopCount++ )
+            {
+                strcpy(abHoleid, "" );
+                strcpy(pbFbits, "" );
+			    NETProcessImage objNETProcessImage;
+			    abHoleid = _IntToAscii(iHoleFilledIdNo, abHoleid, 10);
+			    objNETProcessImage.Name = new char[ strlen(abHoleid) + ALLOC_BUFFER];
+			    strcpy(objNETProcessImage.Name , abHoleid);
+			    objNETProcessImage.ModuleName = new char[ strlen("PADDING_VAR") + ALLOC_BUFFER];
+			    strcpy(objNETProcessImage.ModuleName , "PADDING_VAR");
+    
+			    objNETProcessImage.count = 0;
+			    objNETProcessImage.DataInfo._dt_enum = BYTE;
+			    objNETProcessImage.DataInfo.DataSize = 8;
+			    objNETProcessImage.DataInfo._dt_Name = new char[strlen("byte") + ALLOC_BUFFER];
+			    strcpy(objNETProcessImage.DataInfo._dt_Name, "byte");
+			    objNETProcessImage.iTotalDataSize = 8;
+                objNETProcessImage.DirectionType= enumDirType;
+			    objNode->addNETProcessImage(objNETProcessImage);
+			    iHoleFilledIdNo =  iHoleFilledIdNo + 1;
+            }
+            delete[] pbFbits;
+            delete[] abHoleid;
 		}
  	}
 
@@ -1552,66 +1562,66 @@ void CopyPItoNETPICollection(ProcessImage objProcessImage, NETProcessImage objNE
 
 char* GetDatatypeNETPI(IEC_Datatype dt_enum)
 {
-	char* pcDTNetString;
-	switch(dt_enum)
-	{
-		case BITSTRING:
-			pcDTNetString = (char*)"";
-			break;
-		case BOOL:
-			pcDTNetString = (char*)"";
-			break;
-		case BYTE:
-			pcDTNetString = (char*)"byte";
-			break;
-		case _CHAR:
-			pcDTNetString = (char*)"";
-			break;
-		case DWORD:
-			pcDTNetString = (char*)"";
-			break;
-		case LWORD:
-			pcDTNetString = (char*)"";
-			break;
-		case SINT:
-			pcDTNetString = (char*)"";
-			break;
-		case INT:
-			pcDTNetString = (char*)"Int16";
-			break;
-		case DINT:
-			pcDTNetString = (char*)"";
-			break;
-		case LINT:
-			pcDTNetString = (char*)"";
-			break;
-		case USINT:
-			pcDTNetString = (char*)"UInt16";
-			break;
-		case UINT:
-			pcDTNetString = (char*)"";
-			break;
-		case UDINT:
-			pcDTNetString = (char*)"";
-			break;
-		case ULINT:
-			pcDTNetString = (char*)"";
-			break;
-		case REAL:
-			pcDTNetString = (char*)"";
-			break;
-		case LREAL:
-			pcDTNetString = (char*)"";
-			break;
-		case STRING:
-			pcDTNetString = (char*)"";
-			break;
-		case WSTRING:
-			pcDTNetString = (char*)"";
-			break;
-		default:
-			pcDTNetString = (char*)"";
-			break;
-	}
-	return pcDTNetString;
+    char* pcDTNetString;
+    switch(dt_enum)
+    {
+        case BITSTRING:
+            pcDTNetString = (char*)"";
+            break;
+        case BOOL:
+            pcDTNetString = (char*)"byte";
+            break;
+        case BYTE:
+            pcDTNetString = (char*)"byte";
+            break;
+        case _CHAR:
+            pcDTNetString = (char*)"byte";
+            break;
+        case DWORD:
+            pcDTNetString = (char*)"UInt32";
+            break;
+        case LWORD:
+            pcDTNetString = (char*)"UInt64";
+            break;
+        case SINT:
+            pcDTNetString = (char*)"sbyte";
+            break;
+        case INT:
+            pcDTNetString = (char*)"Int16";
+            break;
+        case DINT:
+            pcDTNetString = (char*)"Int32";
+            break;
+        case LINT:
+            pcDTNetString = (char*)"Int64";
+            break;
+        case USINT:
+            pcDTNetString = (char*)"byte";
+            break;
+        case UINT:
+            pcDTNetString = (char*)"UInt16";
+            break;
+        case UDINT:
+            pcDTNetString = (char*)"UInt32";
+            break;
+        case ULINT:
+            pcDTNetString = (char*)"UInt64";
+            break;
+        case REAL:
+            pcDTNetString = (char*)"";
+            break;
+        case LREAL:
+            pcDTNetString = (char*)"";
+            break;
+        case STRING:
+            pcDTNetString = (char*)"";
+            break;
+        case WSTRING:
+            pcDTNetString = (char*)"";
+            break;
+        default:
+            pcDTNetString = (char*)"";
+            break;
+    }
+    return pcDTNetString;
 }
