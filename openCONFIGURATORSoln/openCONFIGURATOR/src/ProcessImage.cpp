@@ -942,7 +942,7 @@ void WriteNETHeaderContents(ProcessImage objProcessImage[], INT32 iNumberOfVars,
 	char* abTotalsize = new char[20];
 	strcat(pbBuffer2,_IntToAscii(iTotalsize, abTotalsize, 10));
 	delete[] abTotalsize;
-	strcat(pbBuffer2,"\n");
+	strcat(pbBuffer2,";\n");
 
 	if(enumDirType == INPUT)
 	{

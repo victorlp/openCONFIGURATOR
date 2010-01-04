@@ -9316,6 +9316,11 @@ ocfmRetCode CheckMutliplexAssigned()
     }
 }
 
+/****************************************************************************************************
+// * Function Name: getFreeCycleNumber
+// * Description: -
+// * Return value: UINT32
+// ****************************************************************************************************/
 UINT32 getFreeCycleNumber(UINT32 uiCycleNumber)
 {
     ocfmRetCode stErrorInfo;
@@ -9377,6 +9382,11 @@ UINT32 getFreeCycleNumber(UINT32 uiCycleNumber)
         return uiCycleNumber;
 }
 
+/****************************************************************************************************
+// * Function Name: IsMultiplexCycleNumberContinuous
+// * Description: -
+// * Return value: bool
+// ****************************************************************************************************/
 bool IsMultiplexCycleNumberContinuous(UINT32 uiCycleNumber)
 {
     ocfmRetCode stErrorInfo;
@@ -9436,4 +9446,85 @@ bool IsMultiplexCycleNumberContinuous(UINT32 uiCycleNumber)
             
         }//end of for loop
         return true;
+}
+
+/****************************************************************************************************
+// * Function Name: calculateCNPollResponse
+// * Description: -
+// * Return value: void
+// ****************************************************************************************************/
+void calculateCNPollResponse(int iNodeID, ENodeType enumNodeType)
+{
+    if(enumNodeType != CN)
+    {
+        return;
+    }
+    int SubIndexPos;
+    int IndexPos;
+    ocfmRetCode stErrorInfo;
+    stErrorInfo = IfSubIndexExists(iNodeID, enumNodeType, (char*)"1F98", (char*)"03", &SubIndexPos, &IndexPos);
+    if(stErrorInfo.code != OCFM_ERR_SUCCESS)
+    {
+        return;
+    }
+
+    CSubIndex* pobjSIndex;
+    CIndexCollection* pobjIdxCol;
+            
+    CNode *pobjNode;
+    CNodeCollection *objNodeCollection = NULL;
+
+    
+    objNodeCollection = CNodeCollection::getNodeColObjectPointer();
+    pobjNode = objNodeCollection->getNodePtr(enumNodeType, iNodeID);
+    pobjIdxCol = pobjNode->getIndexCollection();
+    
+    CIndex* pobjIndex;
+    
+    pobjIndex = pobjIdxCol->getIndexbyIndexValue((char*)"1F98");
+    if(pobjIndex == NULL)
+    {
+        return;
+    }
+
+
+    pobjSIndex = pobjIndex->getSubIndexbyIndexValue((char*)"03");
+    if(pobjSIndex == NULL)
+    {
+        return;
+    }
+    char *pcValue;
+    INT32 iValue = 0;
+    if(pobjSIndex->getActualValue() == NULL || strcmp(pobjSIndex->getActualValue(),"") == 0)
+    {
+        if(pobjSIndex->getDefaultValue() == NULL || strcmp(pobjSIndex->getDefaultValue(),"") == 0)
+        {
+            pcValue = new char[strlen("0") + ALLOC_BUFFER];
+            strcpy(pcValue, "0");
+        }
+        else
+        {
+            pcValue = new char[strlen(pobjSIndex->getDefaultValue()) + ALLOC_BUFFER];
+            strcpy(pcValue, pobjSIndex->getDefaultValue());
+        }
+    }
+    else
+    {
+        pcValue = new char[strlen(pobjSIndex->getActualValue()) + ALLOC_BUFFER];
+        strcpy(pcValue, pobjSIndex->getActualValue());
+    }
+
+    if (strncmp(pcValue,"0x",2) == 0 || strncmp(pcValue,"0X",2) == 0)
+        iValue  = hex2int(subString(pcValue, 2, strlen(pcValue) -2));
+    else
+        iValue  = atoi(pcValue);
+    
+    //add with 25 micro sec
+    iValue += 25000;
+    char *convValue = new char[30];
+    
+    convValue = _IntToAscii(iValue, convValue, 10);
+    pobjNode->setPollResponseTimeout(convValue);
+    delete [] pcValue;
+    delete [] convValue;
 }

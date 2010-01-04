@@ -217,4 +217,5 @@ void CheckAndReAssignMultiplex(int iCNNodeId, char* CycleValue );
 ocfmRetCode CheckMutliplexAssigned();
 UINT32 getFreeCycleNumber(UINT32 uiCycleNumber);
 bool IsMultiplexCycleNumberContinuous(UINT32 uiCycleNumber);
+void calculateCNPollResponse(int iNodeID, ENodeType enumNodeType);
 #endif // internal_h
