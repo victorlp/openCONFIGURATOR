@@ -1045,7 +1045,7 @@ ocfmRetCode ReImportXML(char* pbFileName, INT32 iNodeID, ENodeType enumNodeType)
 			CIndexCollection *pobjIndexCollection;
 			CDataTypeCollection *pobjDataTypeCollection;
 			CIndex objIndex;
-
+            CNetworkManagement *pobjNetworkManagement;
 			objIndex.setNodeID(objNode.getNodeId());
 			pobjNodeCollection= CNodeCollection::getNodeColObjectPointer();
 			objNode = pobjNodeCollection->getNode(enumNodeType, iNodeID);
@@ -1053,10 +1053,13 @@ ocfmRetCode ReImportXML(char* pbFileName, INT32 iNodeID, ENodeType enumNodeType)
 			pobjDataTypeCollection = objNode.getDataTypeCollection();
 
 			pobjIndexCollection = objNode.getIndexCollection();
+            pobjNetworkManagement = objNode.getNetworkManagement();
 			// Delete IndexCollection
 			pobjIndexCollection->DeleteIndexCollection();
 			// Delete DataTypeCollection
 			pobjDataTypeCollection->DeleteDataTypeCollection();
+            //Delete Network management collectionObj
+            pobjNetworkManagement->DeleteFeatureCollections();
 			ErrStruct = parseFile(pbFileName, iNodeID, enumNodeType);
 			if(ErrStruct.code != OCFM_ERR_SUCCESS)
 			{

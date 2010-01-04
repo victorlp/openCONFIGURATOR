@@ -151,3 +151,17 @@ Feature* CNetworkManagement::getFeature(UINT32 uiCount)
 {	
 	return &FeatureCollection[uiCount];
 }
+
+/********************
+* Function Name: CNetworkManagement::DeleteNetworkManagementCollections
+* Description: 
+* Return value: void
+****************************************************************************************************/
+void CNetworkManagement::DeleteFeatureCollections()
+{
+    
+    if(FeatureCollection.Count() != 0)
+    {
+        FeatureCollection.Clear();
+    }
+}

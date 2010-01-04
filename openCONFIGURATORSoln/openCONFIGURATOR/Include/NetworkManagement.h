@@ -104,6 +104,7 @@ class DllExport CNetworkManagement
 		UINT32 getNumberOfFeatures();
 		/*UINT32 getNumberOfMNFeatures();
 		UINT32 getNumberOfCNFeatures();*/
+        void DeleteFeatureCollections();
 };
 
 #endif // NetworkManagement_h
