@@ -68,24 +68,20 @@ TARGET 		= 	openCONFIGURATOR.so
 
 
 
-SOURCE 		=   ApplicationProcess.cpp BaseIndex.cpp \
-				ComplexDataType.cpp APIOperations.cpp \
-				DataTypeCollection.cpp 	Error.cpp \
-				Exception.cpp Index.cpp IndexCollection.cpp \
-				Node.cpp ObjectDictionary.cpp ProcessImage.cpp \
-				ProjectSettings.cpp SubIndex.cpp \
-				Utility.cpp Validation.cpp \
-				XdcOperations.cpp NodeCollection.cpp
+SOURCE 		=   APIOperations.cpp ApplicationProcess.cpp BaseIndex.cpp \
+			ComplexDataType.cpp DataTypeCollection.cpp Error.cpp \
+			Exception.cpp IndexCollection.cpp Index.cpp \
+			NetworkManagement.cpp NodeCollection.cpp Node.cpp \
+			ObjectDictionary.cpp ProcessImage.cpp ProjectSettings.cpp \
+			SubIndex.cpp Utility.cpp Validation.cpp XdcOperations.cpp
 
 
-OBJECTS		=   APIOperations.o ApplicationProcess.o \
-				BaseIndex.o ComplexDataType.o \
-			  	DataTypeCollection.o Error.o \
-				Exception.o Index.o IndexCollection.o \
-				Node.o ObjectDictionary.o ProcessImage.o \
-			  	ProjectSettings.o SubIndex.o \
-				Utility.o Validation.o XdcOperations.o \
-				NodeCollection.o
+OBJECTS		=   APIOperations.o ApplicationProcess.o BaseIndex.o \
+			ComplexDataType.o DataTypeCollection.o Error.o \
+			Exception.o IndexCollection.o Index.o \
+			NetworkManagement.o NodeCollection.o Node.o \
+			ObjectDictionary.o ProcessImage.o ProjectSettings.o \
+			SubIndex.o Utility.o Validation.o XdcOperations.o
 
 
 $(TARGET):	$(OBJECTS)

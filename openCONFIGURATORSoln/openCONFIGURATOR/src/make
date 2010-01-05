@@ -1,3 +1,0 @@
-rm ./openCONFIGURATOR.so
-#g++ -shared -o ../SharedLibrary/openCONFIGURATOR.so `xml2-config --cflags` *.cpp `xml2-config --libs`
-g++ -o ./openCONFIGURATOR `xml2-config --cflags` *.cpp `xml2-config --libs`
