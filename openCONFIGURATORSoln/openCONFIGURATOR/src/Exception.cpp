@@ -249,6 +249,9 @@ void ocfmException::ocfm_Excpetion(EConfiuguratorErrors enumErrcode)
 		case OCFM_ERR_MAX_PI_SIZE:
 				strcpy(_ocfmRetCode.errorString, "MAX PI Size(4064 bytes) crossed");
 				break;
+        case OCFM_ERR_INVALID_UPPERLOWER_LIMITS:
+                strcpy(_ocfmRetCode.errorString, "Invalid upper and lower limits");
+                break;
 		default:
 				strcpy(_ocfmRetCode.errorString, "Unhandled Error");
 				break;

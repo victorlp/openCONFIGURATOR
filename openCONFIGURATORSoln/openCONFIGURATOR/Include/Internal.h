@@ -218,4 +218,6 @@ ocfmRetCode CheckMutliplexAssigned();
 UINT32 getFreeCycleNumber(UINT32 uiCycleNumber);
 bool IsMultiplexCycleNumberContinuous(UINT32 uiCycleNumber);
 void calculateCNPollResponse(int iNodeID, ENodeType enumNodeType);
+ocfmRetCode CheckUpperAndLowerLimits(char* pcLowLimit, char* pcHighLimit);
+ocfmRetCode AddSubobject00(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID);
 #endif // internal_h

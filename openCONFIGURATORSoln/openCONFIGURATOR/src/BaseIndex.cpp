@@ -74,7 +74,7 @@
 #include "../Include/BaseIndex.h"
 #include "../Include/Declarations.h"
 #include "../Include/Internal.h"
-
+#include "../Include/Exception.h"
 /****************************************************************************************************
 * FUNCTION DEFINITIONS
 ****************************************************************************************************/
@@ -609,6 +609,12 @@ bool CBaseIndex::IsIndexVaueValid(char* pbHexValue)
 			}
 			else
 			{
+                ocfmException objException;
+                objException._ocfmRetCode.code = OCFM_ERR_VALUE_NOT_WITHIN_RANGE;    
+                objException._ocfmRetCode.errorString = new char[150];
+                objException._ocfmRetCode.errorString[0] = 0;
+                sprintf(objException._ocfmRetCode.errorString, "The entered value(%s) is less than the lower limit(%s)", pbHexValue, this->m_LowLimit);
+                throw objException;
 				bFlag = false;
 				return bFlag;	 
 			}
@@ -633,6 +639,12 @@ bool CBaseIndex::IsIndexVaueValid(char* pbHexValue)
 			}
 			else
 			{
+                ocfmException objException;
+                objException._ocfmRetCode.code = OCFM_ERR_VALUE_NOT_WITHIN_RANGE;    
+                objException._ocfmRetCode.errorString = new char[150];
+                objException._ocfmRetCode.errorString[0] = 0;
+                sprintf(objException._ocfmRetCode.errorString, "The entered value(%s) is greater than the upper limit(%s)", pbHexValue, this->m_HighLimit);
+                throw objException;
 				bFlag = false;
 			}
 		}

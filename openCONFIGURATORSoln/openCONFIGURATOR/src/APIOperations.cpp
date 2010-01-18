@@ -695,11 +695,13 @@ ocfmRetCode AddSubIndex(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID, 
 											
 						if(pobjIndexPtr != NULL)
 						{
-							if((pobjIndexPtr->getEObjectType() == ARRAY) && (strcmp(pbSubIndexID, "00") == 0))
+							if((pobjIndexPtr->getEObjectType() == ARRAY) && (strcmp(pbSubIndexID, "00") != 0))
 							{
 								//If objectType='ARRAY', all subobjects (except 0x00) have got the same dataType as the object
 								pobjSubIndex->setDataTypeST(pobjIndexPtr->getDataType());
-							}	
+							}
+                            //all the subobjects is of type VAR
+                            pobjSubIndex->setObjectType((char*)"VAR");
 							pobjSubIndex->setFlagIfIncludedCdc(TRUE);
 							//printf(pobjIndexPtr->getIndexValue());
 							pobjIndexPtr->addSubIndex(*pobjSubIndex);
@@ -731,6 +733,74 @@ ocfmRetCode AddSubIndex(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID, 
 			return ex._ocfmRetCode;
 		}
 	}	
+
+ocfmRetCode AddSubobject00(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID)
+{
+    INT32 iSubIndexPos;
+    INT32 iIndexPos;
+    ocfmRetCode stErrorInfo;
+    
+    try
+    {
+        stErrorInfo = AddSubIndex(iNodeID, enumNodeType, pbIndexID, "00");
+        if( (stErrorInfo.code == OCFM_ERR_SUCCESS) && (CheckIfManufactureSpecificObject(pbIndexID)) )
+        {
+            CNode objNode;      
+            CNodeCollection *pobjNodeCollection;
+            CIndexCollection *pobjIndexCollection;
+            CIndex objIndex;
+            CIndex* pobjSubIndex;
+            INT32 iIndexPos;
+            INT32 iSubIndexPos;
+            ocfmRetCode stErrorInfo;
+            
+        
+            stErrorInfo = IfSubIndexExists(iNodeID, enumNodeType, pbIndexID, "00", &iSubIndexPos, &iIndexPos);
+            if(stErrorInfo.code == OCFM_ERR_SUCCESS)
+            {
+                
+            }
+            else
+            {
+                
+                ocfmException objException;             
+                objException.ocfm_Excpetion(OCFM_ERR_INVALID_SUBINDEXID);
+                throw objException;
+            }
+                
+            CSubIndex* pobjSubIndexPtr;
+                
+            pobjNodeCollection= CNodeCollection::getNodeColObjectPointer();
+            objNode = pobjNodeCollection->getNode(enumNodeType, iNodeID);
+    
+            pobjIndexCollection = objNode.getIndexCollection();
+            pobjSubIndex =pobjIndexCollection->getIndex(iIndexPos);
+            
+            pobjSubIndexPtr = pobjSubIndex->getSubIndex(iSubIndexPos);
+            pobjSubIndexPtr->setName("NumberOfEntries");
+            pobjSubIndexPtr->setObjectType("VAR");
+            char* pbDataTypeName = new char[15];
+            strcpy(pbDataTypeName, "UNSIGNED8");
+            if( (CheckIfDataTypeByNameExists(pbDataTypeName, pobjSubIndexPtr->getNodeID())) == true)
+            {
+                pobjSubIndexPtr->setDataType(pbDataTypeName, iNodeID);
+            }
+            else
+            {
+                ocfmException objException;             
+                objException.ocfm_Excpetion(OCFM_ERR_DATATYPE_NOT_FOUND);
+                throw objException;
+            }
+        }
+        stErrorInfo.code = OCFM_ERR_SUCCESS;
+        return stErrorInfo;
+    }
+    catch(ocfmException& ex)
+    {
+        return ex._ocfmRetCode;
+    }
+}
+
 char* getIndexName(char* ObjectIndex, char* ObjectName)
 {
 	char* Name = NULL;// = new char[100];
@@ -1103,7 +1173,17 @@ ocfmRetCode SetAllIndexAttributes(INT32 iNodeID,
 		{
 			pobjIndexPtr->setDefaultValue(defaultValue);
 		}
-		
+
+        ocfmRetCode stErrorLimitInfo;
+		stErrorLimitInfo = CheckUpperAndLowerLimits(lowLimit, highLimit);
+        if(stErrorLimitInfo.code == OCFM_ERR_SUCCESS)
+        {
+            //
+        }
+        else
+        {
+            return stErrorLimitInfo;
+        }
 		if(highLimit != NULL)
 		pobjIndexPtr->setHighLimit(highLimit);
 		
@@ -1121,6 +1201,11 @@ ocfmRetCode SetAllIndexAttributes(INT32 iNodeID,
 		
 		pobjIndexPtr->setFlagIfIncludedCdc(enumIsIncludedInCdc);
 		
+        if((pobjIndexPtr->getEObjectType() ==  ARRAY) || (pobjIndexPtr->getEObjectType() ==  RECORD) )
+        {
+            AddSubobject00(iNodeID, enumNodeType, pbIndexID);
+        }
+
 		if(pbDataTypeName != NULL)
 		{
 			if(strcmp(pbDataTypeName, "") !=0)
@@ -1250,6 +1335,16 @@ ocfmRetCode SetAllSubIndexAttributes(INT32 iNodeID,
 				pobjSubIndexPtr->setDefaultValue(pbDefaultValue);
 			}
 			
+            ocfmRetCode stErrorLimitInfo;
+            stErrorLimitInfo = CheckUpperAndLowerLimits(pbLowLimit, pbHighLimit);
+            if(stErrorLimitInfo.code == OCFM_ERR_SUCCESS)
+            {
+                //
+            }
+            else
+            {
+                return stErrorLimitInfo;
+            }
 			if(pbHighLimit != NULL)
 			{
 				pobjSubIndexPtr->setHighLimit(pbHighLimit);
@@ -1312,6 +1407,52 @@ ocfmRetCode SetAllSubIndexAttributes(INT32 iNodeID,
 		}
 }
 
+
+ocfmRetCode CheckUpperAndLowerLimits(char* pcLowLimit, char* pcHighLimit)
+{
+    ocfmRetCode stError;
+    stError.code = OCFM_ERR_SUCCESS;
+
+    unsigned long ulLowlimit;
+    unsigned long ulHighLimit;
+
+    if(pcLowLimit != NULL && pcHighLimit!= NULL)
+    {       
+        if( (strcmp(pcLowLimit,"") != 0) && (strcmp(pcHighLimit,"") != 0) )
+        {
+            if(CheckIfHex((char*)pcLowLimit))
+            {
+                ulLowlimit = hex2int(subString((char*)pcLowLimit, 2, strlen(pcLowLimit) -2));       
+            }
+            else
+            {
+                ulLowlimit = atoi(pcLowLimit);
+            }
+            if(CheckIfHex((char*)pcHighLimit))
+            {
+                ulHighLimit = hex2int(subString((char*)pcHighLimit, 2, strlen(pcHighLimit) -2));       
+            }
+            else
+            {
+                ulHighLimit = atoi(pcHighLimit);
+            }
+
+            if(ulHighLimit >= ulLowlimit)
+            {
+                return stError;
+            }
+            else
+            {
+                stError.code = OCFM_ERR_INVALID_UPPERLOWER_LIMITS;    
+                stError.errorString = new char[150];
+                stError.errorString[0] = 0;
+                sprintf(stError.errorString, "The lower limit(%s) is greater than upperlimit(%s)", pcLowLimit, pcHighLimit);
+                return stError;
+            }
+        }
+    }
+    return stError;
+}
 /****************************************************************************************************
 * Function Name: DisplayNodeTree
 * Description:

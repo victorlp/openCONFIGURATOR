@@ -198,9 +198,11 @@ void CIndex::UpdateArraySubObjects()
 	CSubIndex* pobjSIndex;
 
 	//it starts from 1 because datatype shouldnt be changed for subobject 0x00
-	for(iLoopCount =1; iLoopCount < collectionObj.Count(); iLoopCount++)
+	for(iLoopCount =0; iLoopCount < collectionObj.Count(); iLoopCount++)
 	{			
 		pobjSIndex = &collectionObj[iLoopCount];
+        if((pobjSIndex->getIndexValue() != NULL) && (strcmp(pobjSIndex->getIndexValue(), "00") == 0))
+            continue;
 		pobjSIndex->setDataTypeST(this->getDataType());		
 	}	
 
