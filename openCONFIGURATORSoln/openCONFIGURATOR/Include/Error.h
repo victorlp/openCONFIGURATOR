@@ -125,7 +125,8 @@ typedef enum
 	OCFM_ERR_MAX_PI_SIZE,/*43*/
 	OCFM_ERR_UNKNOWN,	/*44*/
     OCFM_ERR_MULTIPLEX_ASSIGN_ERROR, /*45*/
-	OCFM_ERR_INVALID_UPPERLOWER_LIMITS /*46*/
+	OCFM_ERR_INVALID_UPPERLOWER_LIMITS, /*46*/
+    OCFM_ERR_LOW_CNPRESTIMEOUT /*47*/
 }EConfiuguratorErrors;
 
 /************************************************************************************************

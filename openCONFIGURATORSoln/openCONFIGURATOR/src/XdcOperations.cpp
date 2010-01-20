@@ -757,7 +757,7 @@ ocfmRetCode ImportXML(char *pbFileName, INT32 iNodeID, ENodeType enumNodeType)
 		}*/
 		
 		/* Copy default value of pdos to act value*/
-		//copyPDODefToAct(iNodeID, enumNodeType);	
+		copyPDODefToAct(iNodeID, enumNodeType);	
         copyMNPropDefToAct(iNodeID, enumNodeType);
 		calculateCNPollResponse(iNodeID, enumNodeType);
 		stErrStruct.code = OCFM_ERR_SUCCESS;
@@ -998,6 +998,7 @@ ocfmRetCode parseFile(char* pbFileName, INT32 iNodeIndex, ENodeType  enumNodeTyp
 				processNode(pxtrReader,enumNodeType, iNodeIndex);
 				iRetVal = xmlTextReaderRead(pxtrReader);
 			}
+            xmlFreeTextReader(pxtrReader);
 			if(iRetVal!=0)
 			{
 				ocfmException objException;
@@ -1086,7 +1087,7 @@ ocfmRetCode ReImportXML(char* pbFileName, INT32 iNodeID, ENodeType enumNodeType)
 				setFlagForRequiredMNIndexes(iNodeID);			
 		}		
 			/* Copy default value of pdos to act value*/
-			//copyPDODefToAct(iNodeID, enumNodeType);
+			copyPDODefToAct(iNodeID, enumNodeType);
             copyMNPropDefToAct(iNodeID, enumNodeType);
 		    calculateCNPollResponse(iNodeID, enumNodeType);
             if(enumNodeType == MN)

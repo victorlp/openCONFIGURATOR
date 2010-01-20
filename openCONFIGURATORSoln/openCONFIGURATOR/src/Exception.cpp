@@ -252,6 +252,9 @@ void ocfmException::ocfm_Excpetion(EConfiuguratorErrors enumErrcode)
         case OCFM_ERR_INVALID_UPPERLOWER_LIMITS:
                 strcpy(_ocfmRetCode.errorString, "Invalid upper and lower limits");
                 break;
+        case OCFM_ERR_LOW_CNPRESTIMEOUT:
+                strcpy(_ocfmRetCode.errorString, "Value is less than minimum value of CN PresTimeout");
+                break;
 		default:
 				strcpy(_ocfmRetCode.errorString, "Unhandled Error");
 				break;

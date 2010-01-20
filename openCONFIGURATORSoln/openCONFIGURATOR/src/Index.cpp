@@ -140,6 +140,18 @@ void CIndex::deleteSubIndex(int iSubIndexID)
 }
 
 /****************************************************************************************************
+* Function Name: CIndex::deleteSubIndexCollection
+* Description: delete the SubIndex in the Index Object
+* Return value: void
+****************************************************************************************************/
+void CIndex::deleteSubIndexCollection() 
+{
+    collectionObj.Clear();
+    m_SubIndexCount = collectionObj.Count();
+    //printf("\n\nAfter Delete - SubIndexCount:%d\n\n", m_SubIndexCount);
+}
+
+/****************************************************************************************************
 * Function Name: CIndex::getNumberofSubIndexes
 * Description: delete the SubIndex in the Index Object
 * Return value: int

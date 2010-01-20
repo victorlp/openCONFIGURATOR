@@ -95,6 +95,7 @@ class DllExport CIndex  : public CBaseIndex
 	public :
 		void addSubIndex(CSubIndex objSubIndex);
 		void deleteSubIndex(int SubIndexID);
+        void deleteSubIndexCollection();
 		int getNumberofSubIndexes();
 		CSubIndex* getSubIndex(int SubIndexId);
 		EPDOType getPDOType();

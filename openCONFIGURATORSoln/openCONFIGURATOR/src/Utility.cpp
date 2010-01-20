@@ -413,7 +413,7 @@ bool CheckAllowedCNIndexes(char* pbIndexValue)
 {
 	if((CheckIfNotPDO((char*)pbIndexValue) == false)  || CheckIfManufactureSpecificObject((char*)pbIndexValue) ||
 	strcmp(pbIndexValue,"1F98") == 0 
-	||	strcmp(pbIndexValue,"1020") == 0
+	||	strcmp(pbIndexValue,"1020") == 0 || strcmp(pbIndexValue,"1F9B") == 0
 	||	strcmp(pbIndexValue,"1006") == 0)
 	{
 		return true;
@@ -628,10 +628,19 @@ bool CheckAllowedDTForMapping(char* dtName)
 * Description: 
 * Return value: UINT32
 ***************************************************************************************************/
-UINT32 getLastAvailableCycleNumber()
+char* getLastAvailableCycleNumber()
 {
 	char* actValue = new char[20];
+    char* ForcedCycle = new char[20];
 	ocfmRetCode Ret;
+    int IndexPos;
+    int subIndexPos;
+    Ret = IfSubIndexExists(240, MN, (char*)"1F98", (char*)"07", &subIndexPos, &IndexPos);
+    if(Ret.code != OCFM_ERR_SUCCESS)
+    {
+        strcpy(ForcedCycle, "");
+        return ForcedCycle;
+    }
 	Ret = GetSubIndexAttributes(240, MN, (char*)"1F98", (char*)"07", ACTUALVALUE, actValue);
     UINT32 uiTempCycleNumber = uiCycleNumber;
 	if(Ret.code == OCFM_ERR_SUCCESS)
@@ -667,12 +676,13 @@ UINT32 getLastAvailableCycleNumber()
     if(uiFreeCycleNumber == uiTempCycleNumber)
     {
         uiCycleNumber = uiTempCycleNumber;
-    	return uiTempCycleNumber;
+        ForcedCycle = _IntToAscii(uiTempCycleNumber, ForcedCycle, 16);
     }
     else
     {
-        return uiFreeCycleNumber;
+        ForcedCycle = _IntToAscii(uiFreeCycleNumber, ForcedCycle, 16);
     }
+    return ForcedCycle;
 }
 
 
@@ -697,4 +707,40 @@ void checkAndCorrectName(char* checkName)
 			checkName[uiLoopCount] = '_';
 		}
     }
+}
+
+/**************************************************************************************************
+* Function Name: checkIfValueZero
+* Description: 
+* Return value: bool
+***************************************************************************************************/
+bool checkIfValueZero(char* pcValue)
+{
+    if(pcValue == NULL || strcmp(pcValue,"") == 0 )
+        return false;
+
+    INT32 iValue = 0;
+    if (strncmp(pcValue,"0x",2) == 0 || strncmp(pcValue,"0X",2) == 0)
+        iValue  = hex2int(subString(pcValue, 2, strlen(pcValue) -2));
+    else
+        iValue  = atoi(pcValue);
+
+    if(iValue == 0)
+        return true;
+    else
+        return false;
+}
+
+INT32 GetDecimalValue(char* pcValue)
+{
+    if(pcValue == NULL || strcmp(pcValue,"") == 0 )
+        return 0;
+
+    INT32 iValue = 0;
+    if (strncmp(pcValue,"0x",2) == 0 || strncmp(pcValue,"0X",2) == 0)
+        iValue  = hex2int(subString(pcValue, 2, strlen(pcValue) -2));
+    else
+        iValue  = atoi(pcValue);
+
+    return iValue;
 }

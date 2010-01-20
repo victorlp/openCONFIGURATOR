@@ -566,8 +566,38 @@ void CNode::setForcedCycle(char* pbForcedCycle)
     char* subIndFlag = new char[10];
     GetSubIndexAttributes(240, MN, acMultiCycleAssignObj, strConvertedValue, FLAGIFINCDC, subIndFlag);
     iCNsubIndFlag  = atoi(subIndFlag);
+    SetSubIndexAttributes(240, MN, acMultiCycleAssignObj, strConvertedValue, pbForcedCycle, subIndName, (EFlag)iCNsubIndFlag);
 
-    SetSubIndexAttributes(MN_NODEID, MN, acMultiCycleAssignObj, strConvertedValue, pbForcedCycle, subIndName, (EFlag)iCNsubIndFlag);
+    strcpy(subIndName,"");
+    strcpy(subIndFlag,"");
+    stErrorInfo = IfIndexExists(this->getNodeId(), CN, acMultiCycleAssignObj, &IndexPos);
+    if(stErrorInfo.code == OCFM_ERR_SUCCESS)
+    {
+        //Index exists
+        int subIndexPos;        
+        stErrorInfo = IfSubIndexExists(this->getNodeId(), CN, acMultiCycleAssignObj, strConvertedValue,  &subIndexPos, &IndexPos);
+        if(stErrorInfo.code == OCFM_ERR_SUCCESS)
+        {           
+
+        }
+        else
+        {           
+            stErrorInfo = AddSubIndex(this->getNodeId(), CN, (char*)"1F9B", strConvertedValue);
+        }
+        
+    }
+    else
+    {
+        stErrorInfo = AddIndex(this->getNodeId(), CN, acMultiCycleAssignObj);
+        stErrorInfo = AddSubIndex(this->getNodeId(), CN, acMultiCycleAssignObj, strConvertedValue);     
+        
+    }
+    GetSubIndexAttributes(this->getNodeId(), CN, acMultiCycleAssignObj, strConvertedValue, NAME, subIndName);
+    GetSubIndexAttributes(this->getNodeId(), CN, acMultiCycleAssignObj, strConvertedValue, FLAGIFINCDC, subIndFlag);
+    iCNsubIndFlag  = atoi(subIndFlag);
+
+    SetSubIndexAttributes(this->getNodeId(), CN, acMultiCycleAssignObj, strConvertedValue, pbForcedCycle, subIndName, (EFlag)iCNsubIndFlag);
+
     delete[] subIndName;
     delete[] subIndFlag;
 }
@@ -632,6 +662,12 @@ void CNode::setPollResponseTimeout(char* pbPollResponseTimeout)
     iCNsubIndFlag  = atoi(subIndFlag);
 
     SetSubIndexAttributes(MN_NODEID, MN, acMNCNPollresponseTimeoutObj, strConvertedValue, pbPollResponseTimeout, subIndName, (EFlag)iCNsubIndFlag);
+
+    CIndex* objMN1F92Index;
+    objMN1F92Index = getMNIndexValues(acMNCNPollresponseTimeoutObj);
+    if(NULL != objMN1F92Index)
+        UpdateNumberOfEnteriesSIdx(objMN1F92Index, MN);
+
     delete[] subIndName;
     delete[] subIndFlag;
 }
