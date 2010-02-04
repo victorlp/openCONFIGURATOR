@@ -413,7 +413,7 @@ bool CheckAllowedCNIndexes(char* pbIndexValue)
 {
 	if((CheckIfNotPDO((char*)pbIndexValue) == false)  || CheckIfManufactureSpecificObject((char*)pbIndexValue) ||
 	strcmp(pbIndexValue,"1F98") == 0 
-	||	strcmp(pbIndexValue,"1020") == 0 || strcmp(pbIndexValue,"1F9B") == 0
+	||	strcmp(pbIndexValue,"1020") == 0 || strcmp(pbIndexValue,"1F9B") == 0 || strcmp(pbIndexValue,"1F81") == 0 
 	||	strcmp(pbIndexValue,"1006") == 0)
 	{
 		return true;
@@ -421,6 +421,23 @@ bool CheckAllowedCNIndexes(char* pbIndexValue)
 	else
 	{
 		return false;							
+	}
+}
+
+/**************************************************************************************************
+* Function Name: CheckBlockedMNIndexes
+* Description: 
+* Return value: bool
+***************************************************************************************************/
+bool CheckBlockedMNIndexes(char* pbIndexValue)
+{
+	if( strcmp(pbIndexValue,"1F81") == 0 )
+	{
+		return true;
+	}
+	else
+	{
+		return false;
 	}
 }
 

@@ -156,6 +156,7 @@ char* padLeft(char* str, char padChar, int padLength);
 unsigned long hex2int(char *a);
 CIndex* getMNIndexValues(char* Index);
 bool CheckAllowedCNIndexes(char* IndexValue);
+bool CheckBlockedMNIndexes(char* IndexValue);
 int ConvertCdcToBinary(char* fileName,char* tempFile);
 char* getParameterAccess(char* access);
 bool CheckEndElement(int NodeType, char* element, char* comparewith);
