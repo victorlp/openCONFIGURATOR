@@ -2387,7 +2387,6 @@ void UpdateCNMultipleCycleAssign(CNode*  pobjNode)
 							/*strcpy(Buffer2, comment);*/
 							int NumberOfIndexes;
 							//bool firstBuffer = true;																								
-							NumberOfIndexes = objIndexCollection->getNumberofIndexes();
 							
 							CIndex* objIndex;
 							char* Buffer4;
@@ -2451,7 +2450,7 @@ void UpdateCNMultipleCycleAssign(CNode*  pobjNode)
 							strcat(Buffer4, "\n");
 							strcpy(Buffer2, Buffer4);
 						
-							
+							NumberOfIndexes = objIndexCollection->getNumberofIndexes();
 						
 							/*************WRITE Required CN Indexes in CDC *******************************/
 								for(int i=0; i<NumberOfIndexes; i++)
@@ -2464,7 +2463,7 @@ void UpdateCNMultipleCycleAssign(CNode*  pobjNode)
 								//if(CheckAllowedCNIndexes((char*)IndexValue) && (objIndex->getFlagIfIncludedCdc() == true))
 								if(objIndex->getFlagIfIncludedCdc() == TRUE)
 								{	
-										//printf("objindex value %s",objIndex->getIndexValue());
+										//printf("\nobjindex value %s\n",objIndex->getIndexValue());
 										GetIndexData(objIndex, Buffer4);
 										strcat(Buffer2, Buffer4);
 										
@@ -2587,6 +2586,7 @@ void UpdateCNMultipleCycleAssign(CNode*  pobjNode)
 							//printf("\nIndexid=%s subindex=%s before iNumberOfEntries=%d\t", (char*)pobjIndex->getIndexValue(), (char*)pobjSubIndex->getIndexValue(), iNumberOfEntries);
                             if(checkIfValueZero((char*)pobjSubIndex->getActualValue()))
                                 continue;
+                            /*
                             if(TRUE == pobjSubIndex->getFlagIfIncludedCdc())
                             {
                                 iNumberOfEntries = iNumberOfEntries + 1;
@@ -2594,12 +2594,13 @@ void UpdateCNMultipleCycleAssign(CNode*  pobjNode)
                             iNumberOfEntries =  iNumberOfEntries + GetDecimalValue((char*)pobjSubIndex->getActualValue());
 							//printf("After iNumberOfEntries=%d\n", iNumberOfEntries);
                         continue;
+                            */
                         }
 
                         for(INT32 iLoopCount = 0; iLoopCount < pobjIndex->getNumberofSubIndexes(); iLoopCount++)
                         {
                             //printf("\n SubIndex iLoopCount%d",pobjIndex->getNumberofSubIndexes());
-                            if(pobjIndex->getSubIndex(iLoopCount)->getActualValue() !=NULL)
+                            if(pobjIndex->getSubIndex(iLoopCount)->getActualValue() !=NULL && TRUE == pobjIndex->getSubIndex(iLoopCount)->getFlagIfIncludedCdc())
                             {
                                 iNumberOfEntries =  iNumberOfEntries + 1;
 								//printf("\nIndexid=%s subindex=%s before iNumberOfEntries=%d\t", (char*)pobjIndex->getIndexValue(), (char*)pobjIndex->getSubIndex(iLoopCount)->getIndexValue(), iNumberOfEntries);
@@ -2673,18 +2674,18 @@ void UpdateCNMultipleCycleAssign(CNode*  pobjNode)
                         {
                             if(checkIfValueZero((char*)pobjSubIndex->getActualValue()))
                                 continue;
-                            if(TRUE == pobjSubIndex->getFlagIfIncludedCdc())
+                            /*if(TRUE == pobjSubIndex->getFlagIfIncludedCdc())
                             {
                                 iNumberOfEntries = iNumberOfEntries + 1;
                             }
                             
                             iNumberOfEntries =  iNumberOfEntries + GetDecimalValue((char*)pobjSubIndex->getActualValue());
-                        continue;
+                        continue;*/
                         }
                         
 						for(INT32 iLoopCount = 0; iLoopCount < pobjIndex->getNumberofSubIndexes(); iLoopCount++)
 						{
-							if(pobjIndex->getSubIndex(iLoopCount)->getActualValue() !=NULL)
+							if(pobjIndex->getSubIndex(iLoopCount)->getActualValue() !=NULL && TRUE == pobjIndex->getSubIndex(iLoopCount)->getFlagIfIncludedCdc())
 							{
                                 /* if index is a mapping pdo then dont count if value is zero */
                                   //if( CheckIfMappingPDO((char*)pobjIndex->getIndexValue()) && ( strcmp(pobjIndex->getSubIndex(iLoopCount)->getActualValue(),"") == 0 ||  checkIfValueZero((char*)pobjIndex->getSubIndex(iLoopCount)->getActualValue()) ) )
@@ -2693,7 +2694,7 @@ void UpdateCNMultipleCycleAssign(CNode*  pobjNode)
 // // 
 // //                             CSubIndex* pobjSubIndex;
 // //                             pobjSubIndex = pobjIndex->getSubIndexbyIndexValue((char*)"00");
-// // printf("\nIndexid=%s tsubIndexid=%s value=%s iNumberOfEntries=%d", (char*)pobjIndex->getIndexValue(), (char*)pobjSubIndex->getIndexValue(), pobjSubIndex->getActualValue(), iNumberOfEntries); 
+// // printf("\nIndexid=%s tsubIndexid=%s value=%s iNumberOfEntries=%d flag=%d", (char*)pobjIndex->getIndexValue(), (char*)pobjIndex->getSubIndex(iLoopCount)->getIndexValue(), pobjIndex->getSubIndex(iLoopCount)->getActualValue(), iNumberOfEntries, pobjIndex->getSubIndex(iLoopCount)->getFlagIfIncludedCdc()); 
 // //                             if((NULL != pobjSubIndex) && (NULL != pobjSubIndex->getActualValue()) && ( 0 != strcmp(pobjSubIndex->getActualValue(),"")) && !(checkIfValueZero((char*)pobjSubIndex->getActualValue())) )
 // //                             {
 // //                                 iNumberOfEntries =  iNumberOfEntries + GetDecimalValue((char*)pobjSubIndex->getActualValue());
@@ -8551,7 +8552,13 @@ void	UpdateNumberOfEnteriesSIdx(CIndex *pobjIndex, ENodeType enumNodeType)
 	}*/
 	
 	if(pobjSIdx!=NULL)
-	pobjSIdx->setActualValue(_IntToAscii(iTotalSIdxs, pbAsciBuff, 16)); 
+    {
+        char* buffer = new char[10];
+        strcpy(buffer, "0x");
+        strcat(buffer, _IntToAscii(iTotalSIdxs, pbAsciBuff, 16));
+	    pobjSIdx->setActualValue(buffer); 
+        delete [] buffer;
+    }
 }
 
 void AuotgenerateOtherIndexs(CNode* pobjNode)
@@ -10268,7 +10275,7 @@ void UpdateMNNodeAssignmentIndex(CNode *pobjNode, INT32 CNsCount)
 		pobjIndex->setFlagIfIncludedCdc(TRUE);	
 		//pobjIndex->deleteSubIndexCollection();
 		CSubIndex* pobjSubIndex;
-		for(INT32 iSidxCount = 0; iSidxCount < pobjIndex->getNumberofSubIndexes(); iSidxCount++)
+		for(INT32 iSidxCount = pobjIndex->getNumberofSubIndexes()-1; iSidxCount >= 0; iSidxCount--)
 		{
 			pobjSubIndex = pobjIndex->getSubIndex(iSidxCount);
 			if(NULL == pobjSubIndex)
@@ -10298,13 +10305,15 @@ void UpdateMNNodeAssignmentIndex(CNode *pobjNode, INT32 CNsCount)
                 }
                 else
                 {
-                    pobjSubIndex->setActualValue("0");
+                    //pobjSubIndex->setActualValue("0");
+                    pobjIndex->deleteSubIndex(iSidxCount);
                 }
             }
             catch(ocfmException* ex)
             {
                 //return ex->_ocfmRetCode;
-                pobjSubIndex->setActualValue("0");
+                //pobjSubIndex->setActualValue("0");
+                pobjIndex->deleteSubIndex(iSidxCount);
             }
 			
 		}
