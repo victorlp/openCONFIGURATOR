@@ -2538,6 +2538,9 @@ void UpdateCNMultipleCycleAssign(CNode*  pobjNode)
 		objNode = objNodeCol->getMNNode();
 		/* Number of 1F81 enteries is twice the number of CN's*/
 		iNumberOfEntries =  2 * objNodeCol->getCNNodesCount();
+        /* include the number of CN's*/
+        iNumberOfEntries =  iNumberOfEntries + objNodeCol->getCNNodesCount();
+
 		pobjIdxCol =  objNode.getIndexCollection();
 
 		for(INT32 iLoopCount = 0; iLoopCount < pobjIdxCol->getNumberofIndexes(); iLoopCount++)
@@ -2611,7 +2614,7 @@ void UpdateCNMultipleCycleAssign(CNode*  pobjNode)
                 }
             }
 		/* Add + 1 for the number of enteries line*/
-		iNumberOfEntries = iNumberOfEntries + 1;		
+		//iNumberOfEntries = iNumberOfEntries + 1;		
 
 		return iNumberOfEntries ;
 	}
