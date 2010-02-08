@@ -231,7 +231,7 @@ void ResetMultiplexedCNForceCycle();
 bool CheckIfMultiplexedCNExist();
 void CopyCustomErrorString(ocfmRetCode* stRet, char* pcCustomErrString);
 void UpdateCNMultipleCycleAssign(CNode*  pobjNode);
-void UpdateMNNodeAssignmentIndex(CNode *pobjNode, INT32 CNsCount);
+void UpdateMNNodeAssignmentIndex(CNode *pobjNode, INT32 CNsCount, char* pcIndex, bool allowMNSubindex);
 void RecalculateCNPresTimeout(char* pbSubIndexId);
 bool ValidateCNPresTimeout(char* pbSubIndexId, char* pcCheckValue);
 #endif // internal_h

@@ -3079,7 +3079,9 @@ void UpdateCNMultipleCycleAssign(CNode*  pobjNode)
 				}
 
 				// Add 1F81
-				UpdateMNNodeAssignmentIndex(&objNodeCollection->getMNNode(), objNodeCollection->getCNNodesCount());
+				//UpdateMNNodeAssignmentIndex(&objNodeCollection->getMNNode(), objNodeCollection->getCNNodesCount());
+				UpdateMNNodeAssignmentIndex(&objNodeCollection->getMNNode(), objNodeCollection->getCNNodesCount(), (char*)"1F81", true );
+				UpdateMNNodeAssignmentIndex(&objNodeCollection->getMNNode(), objNodeCollection->getCNNodesCount(), (char*)"1F92", false );
 							
 				for(int i=0;i < objNodeCollection->getNumberOfNodes();i++)
 				{
@@ -10260,8 +10262,11 @@ void RecalculateCNPresTimeout(char* pbSubIndexId)
 
 }
 
-void UpdateMNNodeAssignmentIndex(CNode *pobjNode, INT32 CNsCount)
+void UpdateMNNodeAssignmentIndex(CNode *pobjNode, INT32 CNsCount, char* pcIndex, bool allowMNSubindex)
 { 	
+	if(NULL == pcIndex)
+		return;
+
 	CIndexCollection *pobjIdxCol = NULL;
 	ocfmRetCode retCode;
 	CIndex *pobjIndex;
@@ -10271,13 +10276,13 @@ void UpdateMNNodeAssignmentIndex(CNode *pobjNode, INT32 CNsCount)
 	char* pbMNIndex = new char[INDEX_LEN + ALLOC_BUFFER];
 	char* pbSidx =  new char[SUBINDEX_LEN + ALLOC_BUFFER];
 		/* Add 1F81*/
-	strcpy(pbMNIndex, "1F81");
+	strcpy(pbMNIndex, pcIndex);
 	retCode = AddIndex(MN_NODEID, MN, pbMNIndex);
 	//printf("cn count %d", CNsCount);
 
 	if(retCode.code == OCFM_ERR_SUCCESS || retCode.code == OCFM_ERR_INDEX_ALREADY_EXISTS)
 	{				
-		pobjIndex = pobjIdxCol->getIndexbyIndexValue("1F81");
+		pobjIndex = pobjIdxCol->getIndexbyIndexValue(pcIndex);
 				/* $:set Flag to true*/
 		pobjIndex->setFlagIfIncludedCdc(TRUE);	
 		//pobjIndex->deleteSubIndexCollection();
@@ -10307,7 +10312,7 @@ void UpdateMNNodeAssignmentIndex(CNode *pobjNode, INT32 CNsCount)
                 INT32 iNodePos;
                 bool bFlag = false;
                 retCode = IfNodeExists(iNodeidValue, iNodeType, &iNodePos, bFlag);
-                if(OCFM_ERR_SUCCESS == retCode.code && true == bFlag)
+                if(OCFM_ERR_SUCCESS == retCode.code && true == bFlag && ((CN == iNodeType) || (true == allowMNSubindex)) )
                 {
                 }
                 else
