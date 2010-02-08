@@ -7868,7 +7868,7 @@ bool getandCreateNode(xmlTextReaderPtr pxReader, char* pbPjtPath)
 		}	
         else if(strcmp(((char*)pxcName),"ForceCycle") == 0)
         {
-            if( (char*)pxcValue != NULL && strcmp((char*)pxcValue,"") )
+            if( (char*)pxcValue != NULL && strcmp((char*)pxcValue,"") != 0 )
             {
                 pbForceCycleValue = new char[strlen((char*)pxcValue) + ALLOC_BUFFER];
                 strcpy((char*)pbForceCycleValue, (char*)pxcValue);
@@ -7918,18 +7918,14 @@ bool getandCreateNode(xmlTextReaderPtr pxReader, char* pbPjtPath)
 		stErrorInfo = CreateNode(iNodeID, MN, pbNodeName);
 	}
 	
+	if(stErrorInfo.code != OCFM_ERR_SUCCESS)
+		return false;
+
 	CNode* objNode;		
 	CNodeCollection *pobjNodeCollection;
 	pobjNodeCollection = CNodeCollection::getNodeColObjectPointer();
 	objNode = pobjNodeCollection->getNodePtr(enumNodeType,iNodeID);
 	objNode->setForceCycleFlag(bForceCycleFlag);
-    if(enumNodeType == 1 && pbForceCycleValue != NULL)
-        objNode->setForcedCycle(pbForceCycleValue);
-
-    objNode->setStationType(eStationType);
-
-	if(stErrorInfo.code != OCFM_ERR_SUCCESS)
-		return false;
 	
 	#if defined DEBUG
 	cout << "\nCreateNode - stErrorInfo.code:" << stErrorInfo.code << endl;
@@ -7941,6 +7937,14 @@ bool getandCreateNode(xmlTextReaderPtr pxReader, char* pbPjtPath)
 		stErrorInfo = parseFile(pbFileName, iNodeID, CN);
 	else if(enumNodeType == 0)
 		stErrorInfo = parseFile(pbFileName, iNodeID, MN);
+
+	if(stErrorInfo.code != OCFM_ERR_SUCCESS)
+		return false;
+
+    if(enumNodeType == 1 && pbForceCycleValue != NULL)
+        objNode->setForcedCycle(pbForceCycleValue);
+
+    objNode->setStationType(eStationType);
 
 //    copyDefToAct(iNodeID, enumNodeType);
 	delete [] pbFileName;
