@@ -234,4 +234,6 @@ void UpdateCNMultipleCycleAssign(CNode*  pobjNode);
 void UpdateMNNodeAssignmentIndex(CNode *pobjNode, INT32 CNsCount, char* pcIndex, bool allowMNSubindex);
 void RecalculateCNPresTimeout(char* pbSubIndexId);
 bool ValidateCNPresTimeout(char* pbSubIndexId, char* pcCheckValue);
+void CopyOldNodeIdAssignmentObject(CNode* pobjNode, INT32 iOldNodeId);
+void CopyOldNodeIdAssignmentObjectSubindex(CNode* pobjNode, INT32 iOldNodeId, char* pcIndex);
 #endif // internal_h

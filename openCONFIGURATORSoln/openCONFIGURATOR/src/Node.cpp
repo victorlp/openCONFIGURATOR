@@ -574,6 +574,10 @@ void CNode::setForcedCycle(char* pbForcedCycle)
     {
         //UpdateNumberOfEnteriesSIdx(objMN1F92Index, MN);
         objMN1F9BIndex->setFlagIfIncludedCdc(TRUE);
+        if( NULL != objMN1F9BIndex->getSubIndexbyIndexValue((char*)"00"))
+        {
+            objMN1F9BIndex->getSubIndexbyIndexValue((char*)"00")->setFlagIfIncludedCdc(TRUE);
+        }
     }
 
     strcpy(subIndName,"");
@@ -612,6 +616,10 @@ void CNode::setForcedCycle(char* pbForcedCycle)
     {
         //UpdateNumberOfEnteriesSIdx(objMN1F92Index, MN);
         objThis1F9BIndex->setFlagIfIncludedCdc(TRUE);
+        if( NULL != objThis1F9BIndex->getSubIndexbyIndexValue((char*)"00"))
+        {
+            objThis1F9BIndex->getSubIndexbyIndexValue((char*)"00")->setFlagIfIncludedCdc(TRUE);
+        }
     }
 
     delete[] subIndName;
