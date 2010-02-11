@@ -1864,7 +1864,55 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 					}
 				}
 				int noOfValidSubIndexes = 0;
-				
+				int noOFPdoAddedSubindex = 0;
+				//calculating added pdo subindex elimnating 00 values
+				if(!(CheckIfNotPDO((char*)objIndex->getIndexValue())))
+				{
+					bool incCntFor00 = false;
+
+					for(i=0; i<noOfTotalSubIndexes ; i++)
+					{
+						objSubIndex = objIndex->getSubIndex(i);
+                        
+                        if((objSubIndex->getActualValue() != NULL) && (objSubIndex->getFlagIfIncludedCdc() == TRUE) && (true == CheckAccessTypeForInclude((char*)objSubIndex->getAccessType()) || (true == CheckIfMappingPDO((char*)objIndex->getIndexValue())) ) )            
+                        {
+                            //proceed with other check
+                        }
+                        else
+                        {
+                            continue;
+                        }
+
+						if( 0 == strcmp(objSubIndex->getIndexValue(),"00"))
+						{
+							if(NULL != objSubIndex->getActualValue())
+								incCntFor00 = true;
+
+							continue;
+						}
+						UINT32 iPdoActualValue;
+						/*if(CheckIfHex((char*)objSubIndex->getActualValue()))
+						{
+						//	cout << "hex value" << objSubIndex->getActualValue();
+							noOfSubIndexes = hex2int(subString((char*)objSubIndex->getActualValue(), 2, strlen(objSubIndex->getActualValue()) -2));
+							
+						}
+						else
+							iPdoActualValue = atoi(objSubIndex->getActualValue());
+							//printf("\n GetIndexdata Indxeid=%s noOfSubIndexes=%d\n", objIndex->getIndexValue(), noOfSubIndexes);
+						*/
+						iPdoActualValue = GetDecimalValue((char*)objSubIndex->getActualValue());
+						if(0 == iPdoActualValue)
+						continue;
+						noOFPdoAddedSubindex++;
+					}
+					if(0 == noOFPdoAddedSubindex)
+						return;
+					//for 00
+					//if(true == incCntFor00)
+					//	noOFPdoAddedSubindex++;
+				}
+
 				for(i=0; i<noOfTotalSubIndexes ; i++)
 				{
 					
@@ -1872,7 +1920,7 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 				
 					/*if(strcmp(objSubIndex->getIndexValue(),"00")!=0 && objSubIndex->getActualValue() != NULL)*/
 					//$S_:TODO
-					if((objSubIndex->getActualValue() != NULL) && (objSubIndex->getFlagIfIncludedCdc() == TRUE))			
+					if((objSubIndex->getActualValue() != NULL) && (objSubIndex->getFlagIfIncludedCdc() == TRUE) && ( (true == CheckAccessTypeForInclude((char*)objSubIndex->getAccessType())) || (true == CheckIfMappingPDO((char*)objIndex->getIndexValue())) ) )
 					//if((objSubIndex->getActualValue() != NULL))
 					{
 
@@ -1883,6 +1931,26 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 							i= noOfTotalSubIndexes -1;
 						
 						}
+
+						if(!(CheckIfNotPDO((char*)objIndex->getIndexValue())))
+						{
+							UINT32 iPdoActualValue;
+							/*if(CheckIfHex((char*)objSubIndex->getActualValue()))
+							{
+							//	cout << "hex value" << objSubIndex->getActualValue();
+								noOfSubIndexes = hex2int(subString((char*)objSubIndex->getActualValue(), 2, strlen(objSubIndex->getActualValue()) -2));
+								
+							}
+							else
+								iPdoActualValue = atoi(objSubIndex->getActualValue());
+								//printf("\n GetIndexdata Indxeid=%s noOfSubIndexes=%d\n", objIndex->getIndexValue(), noOfSubIndexes);*/
+							iPdoActualValue = GetDecimalValue((char*)objSubIndex->getActualValue());
+
+							if(iPdoActualValue == 0)
+							continue;
+
+						}
+
 						if (Indexadded)
 						strcat(Buffer,objIndex->getIndexValue());
 						else
@@ -1947,6 +2015,15 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 										strcpy(actvalue,"0");
 										strcat(Buffer,padLeft(actvalue,'0',padLength));
 										resetValueAdded = true;
+										//i--;
+									}
+									else if(strcmp(objSubIndex->getIndexValue(),"00")==0 && !CheckIfNotPDO((char*)objIndex->getIndexValue()))
+									{
+										char actvalue[20];
+										actvalue[0]  = '\0';
+										strcpy(actvalue, _IntToAscii(noOFPdoAddedSubindex,actvalue,16));
+										//printf("\n ACT Value%s",actvalue);
+										strcat(Buffer,padLeft(actvalue, '0', padLength));
 										//i--;
 									}
 									else
@@ -2443,7 +2520,7 @@ void UpdateCNMultipleCycleAssign(CNode*  pobjNode)
 							strcpy(Buffer4, "");
 							
 							char* NoOfenteries = new char[10];
-							NoOfenteries = _IntToAscii(getCNsTotalIndexSubIndex(objNode.getNodeId())+1, NoOfenteries, 16);
+							NoOfenteries = _IntToAscii(getCNsTotalIndexSubIndex(objNode.getNodeId()), NoOfenteries, 16);
                             /*1 is added for the size*/
 							NoOfenteries =  padLeft(NoOfenteries, '0', 8);
 							strcpy(Buffer4, NoOfenteries);
@@ -2461,7 +2538,7 @@ void UpdateCNMultipleCycleAssign(CNode*  pobjNode)
 									//const char* IndexValue = objIndex->getIndexValue();
 									
 								//if(CheckAllowedCNIndexes((char*)IndexValue) && (objIndex->getFlagIfIncludedCdc() == true))
-								if(objIndex->getFlagIfIncludedCdc() == TRUE)
+								if( (objIndex->getFlagIfIncludedCdc() == TRUE) && ( (true == CheckAccessTypeForInclude((char*)objIndex->getAccessType())) || (true == CheckIfMappingPDO((char*)objIndex->getIndexValue())) ) )
 								{	
 										//printf("\nobjindex value %s\n",objIndex->getIndexValue());
 										GetIndexData(objIndex, Buffer4);
@@ -2550,73 +2627,107 @@ void UpdateCNMultipleCycleAssign(CNode*  pobjNode)
             pobjIndex = pobjIdxCol->getIndex(iLoopCount);
             
     
-            if( pobjIndex->getFlagIfIncludedCdc() == TRUE)
+            if( pobjIndex->getFlagIfIncludedCdc() == TRUE && true == CheckAccessTypeForInclude((char*)pobjIndex->getAccessType()))
             {
-		if(CheckBlockedMNIndexes((char*)pobjIndex->getIndexValue()))
-		{
-			continue;
-		}
-                    if(pobjIndex->getNumberofSubIndexes() ==0)
-                    {
-                        if(pobjIndex->getActualValue() != NULL)
-                        {
-                            iNumberOfEntries =  iNumberOfEntries + 1;
-							//	printf("\nIndexid=%s iNumberOfEntries=%d\n", (char*)pobjIndex->getIndexValue(), iNumberOfEntries);
-                        }
-                    }
-                        
-                    else 
+				if(CheckBlockedMNIndexes((char*)pobjIndex->getIndexValue()))
+				{
+					continue;
+				}
+				if(pobjIndex->getNumberofSubIndexes() ==0)
+				{
+					if(pobjIndex->getActualValue() != NULL)
+					{
+						iNumberOfEntries =  iNumberOfEntries + 1;
+						//	printf("\nIndexid=%s iNumberOfEntries=%d\n", (char*)pobjIndex->getIndexValue(), iNumberOfEntries);
+					}
+				}
+				else 
                 {
-                        if(CheckIfMappingPDO((char*)pobjIndex->getIndexValue()))
-                        {
-                            CSubIndex* pobjSubIndex;
-                            pobjSubIndex = pobjIndex->getSubIndexbyIndexValue((char*)"00");
+					if(CheckIfMappingPDO((char*)pobjIndex->getIndexValue()))
+					{
+						CSubIndex* pobjSubIndex;
+						pobjSubIndex = pobjIndex->getSubIndexbyIndexValue((char*)"00");
 
-                            if((NULL != pobjSubIndex) && (NULL != pobjSubIndex->getActualValue()) && ( 0 != strcmp(pobjSubIndex->getActualValue(),"")) && !(checkIfValueZero((char*)pobjSubIndex->getActualValue())) )
-                            {
-								//printf("\nIndexid=%s subindex=%s before iNumberOfEntries=%d\t", (char*)pobjIndex->getIndexValue(), (char*)pobjSubIndex->getIndexValue(), iNumberOfEntries);
-                                iNumberOfEntries =  iNumberOfEntries + GetDecimalValue((char*)pobjSubIndex->getActualValue());
-                                iNumberOfEntries =  iNumberOfEntries + 2; /* to initalize and reinitialize 00 entry subindex */
-								//printf("After iNumberOfEntries=%d\n", iNumberOfEntries);
-                            }
-                            continue;
-                        }
-
-                        CSubIndex* pobjSubIndex;
-                        pobjSubIndex = pobjIndex->getSubIndexbyIndexValue((char*)"00");
-                        if((NULL != pobjSubIndex) && (NULL != pobjSubIndex->getActualValue()) && ( 0 != strcmp(pobjSubIndex->getActualValue(),"")) )
-                        {
+						if((NULL != pobjSubIndex) && (NULL != pobjSubIndex->getActualValue()) && ( 0 != strcmp(pobjSubIndex->getActualValue(),"")) && !(checkIfValueZero((char*)pobjSubIndex->getActualValue())) )
+						{
 							//printf("\nIndexid=%s subindex=%s before iNumberOfEntries=%d\t", (char*)pobjIndex->getIndexValue(), (char*)pobjSubIndex->getIndexValue(), iNumberOfEntries);
-                            if(checkIfValueZero((char*)pobjSubIndex->getActualValue()))
-                                continue;
-                            /*
-                            if(TRUE == pobjSubIndex->getFlagIfIncludedCdc())
-                            {
-                                iNumberOfEntries = iNumberOfEntries + 1;
-                            }
-                            iNumberOfEntries =  iNumberOfEntries + GetDecimalValue((char*)pobjSubIndex->getActualValue());
+							iNumberOfEntries =  iNumberOfEntries + GetDecimalValue((char*)pobjSubIndex->getActualValue());
+							iNumberOfEntries =  iNumberOfEntries + 2; /* to initalize and reinitialize 00 entry subindex */
 							//printf("After iNumberOfEntries=%d\n", iNumberOfEntries);
-                        continue;
-                            */
-                        }
+						}
+						continue;
+					}
 
-                        for(INT32 iLoopCount = 0; iLoopCount < pobjIndex->getNumberofSubIndexes(); iLoopCount++)
-                        {
-                            //printf("\n SubIndex iLoopCount%d",pobjIndex->getNumberofSubIndexes());
-                            if(pobjIndex->getSubIndex(iLoopCount)->getActualValue() !=NULL && TRUE == pobjIndex->getSubIndex(iLoopCount)->getFlagIfIncludedCdc())
-                            {
-                                iNumberOfEntries =  iNumberOfEntries + 1;
-								//printf("\nIndexid=%s subindex=%s before iNumberOfEntries=%d\t", (char*)pobjIndex->getIndexValue(), (char*)pobjIndex->getSubIndex(iLoopCount)->getIndexValue(), iNumberOfEntries);
-                            }
-                        }               
-                    }
+					CSubIndex* pobjSubIndex;
+					pobjSubIndex = pobjIndex->getSubIndexbyIndexValue((char*)"00");
+					if((NULL != pobjSubIndex) && (NULL != pobjSubIndex->getActualValue()) && ( 0 != strcmp(pobjSubIndex->getActualValue(),"")) )
+					{
+						//printf("\nIndexid=%s subindex=%s before iNumberOfEntries=%d\t", (char*)pobjIndex->getIndexValue(), (char*)pobjSubIndex->getIndexValue(), iNumberOfEntries);
+						if(checkIfValueZero((char*)pobjSubIndex->getActualValue()))
+							continue;
+						/*
+						if(TRUE == pobjSubIndex->getFlagIfIncludedCdc())
+						{
+							iNumberOfEntries = iNumberOfEntries + 1;
+						}
+						iNumberOfEntries =  iNumberOfEntries + GetDecimalValue((char*)pobjSubIndex->getActualValue());
+						//printf("After iNumberOfEntries=%d\n", iNumberOfEntries);
+					continue;
+						*/
+					}
+
+					bool incCntFor00 = false;
+					bool subindexAddedToCdc = false;
+					for(INT32 iLoopCount = 0; iLoopCount < pobjIndex->getNumberofSubIndexes(); iLoopCount++)
+					{
+						//printf("\n SubIndex iLoopCount%d",pobjIndex->getNumberofSubIndexes());
+						if(pobjIndex->getSubIndex(iLoopCount)->getActualValue() !=NULL && TRUE == pobjIndex->getSubIndex(iLoopCount)->getFlagIfIncludedCdc() && true == CheckAccessTypeForInclude((char*)pobjIndex->getSubIndex(iLoopCount)->getAccessType()))
+						{
+							if(!(CheckIfNotPDO((char*)pobjIndex->getIndexValue())))
+							{
+									UINT32 iPdoActualValue;
+									/*if(CheckIfHex((char*)pobjIndex->getSubIndex(iLoopCount)->getActualValue()))
+									{
+									//	cout << "hex value" << objSubIndex->getActualValue();
+										iPdoActualValue = hex2int(subString((char*)pobjIndex->getSubIndex(iLoopCount)->getActualValue(), 2, strlen(pobjIndex->getSubIndex(iLoopCount)->getActualValue()) -2));
+										
+									}
+									else
+										iPdoActualValue = atoi(pobjIndex->getSubIndex(iLoopCount)->getActualValue());
+										//printf("\n GetIndexdata Indxeid=%s noOfSubIndexes=%d\n", objIndex->getIndexValue(), noOfSubIndexes);*/
+									if( 0 == strcmp(pobjIndex->getSubIndex(iLoopCount)->getIndexValue(),"00"))
+									{
+										if(NULL != pobjIndex->getSubIndex(iLoopCount)->getActualValue())
+											incCntFor00 = true;
+
+										continue;
+									}
+
+									if(0 < GetDecimalValue((char*)pobjIndex->getSubIndex(iLoopCount)->getActualValue()))
+									{
+										iNumberOfEntries =  iNumberOfEntries + 1;
+										subindexAddedToCdc = true;
+									}
+
+							}
+							else
+							{
+								iNumberOfEntries =  iNumberOfEntries + 1;
+							}
+							//printf("\nIndexid=%s subindex=%s before iNumberOfEntries=%d\t", (char*)pobjIndex->getIndexValue(), (char*)pobjIndex->getSubIndex(iLoopCount)->getIndexValue(), iNumberOfEntries);
+						}
+					}
+					if(true == incCntFor00 && true == subindexAddedToCdc)
+						iNumberOfEntries++;
+				}
                    
-                }
-            }
+			}
+		}
 		/* Add + 1 for the number of enteries line*/
 		//iNumberOfEntries = iNumberOfEntries + 1;		
 
 		return iNumberOfEntries ;
+		
 	}
 	
 /****************************************************************************************************
@@ -2642,7 +2753,7 @@ void UpdateCNMultipleCycleAssign(CNode*  pobjNode)
 			pobjIndex = pobjIdxCol->getIndex(iLoopCount);
 			
 	
-			if( pobjIndex->getFlagIfIncludedCdc() == TRUE)
+			if( pobjIndex->getFlagIfIncludedCdc() == TRUE && true == CheckAccessTypeForInclude((char*)pobjIndex->getAccessType()))
 			{
 				if(CheckAllowedCNIndexes((char*)pobjIndex->getIndexValue()))
 				{
@@ -2686,14 +2797,47 @@ void UpdateCNMultipleCycleAssign(CNode*  pobjNode)
                         continue;*/
                         }
                         
+						bool incCntFor00 = false;
+						bool subindexAddedToCdc = false;
 						for(INT32 iLoopCount = 0; iLoopCount < pobjIndex->getNumberofSubIndexes(); iLoopCount++)
 						{
-							if(pobjIndex->getSubIndex(iLoopCount)->getActualValue() !=NULL && TRUE == pobjIndex->getSubIndex(iLoopCount)->getFlagIfIncludedCdc())
+							if(pobjIndex->getSubIndex(iLoopCount)->getActualValue() !=NULL && TRUE == pobjIndex->getSubIndex(iLoopCount)->getFlagIfIncludedCdc() && true == CheckAccessTypeForInclude((char*)pobjIndex->getSubIndex(iLoopCount)->getAccessType()) )
 							{
                                 /* if index is a mapping pdo then dont count if value is zero */
                                   //if( CheckIfMappingPDO((char*)pobjIndex->getIndexValue()) && ( strcmp(pobjIndex->getSubIndex(iLoopCount)->getActualValue(),"") == 0 ||  checkIfValueZero((char*)pobjIndex->getSubIndex(iLoopCount)->getActualValue()) ) )
                                   //  continue;
- 								iNumberOfEntries =  iNumberOfEntries + 1;
+								//int noOFPdoAddedSubindex = 0;
+				//calculating added pdo subindex elimnating 00 values
+								if(!(CheckIfNotPDO((char*)pobjIndex->getIndexValue())))
+								{
+										UINT32 iPdoActualValue;
+										/*if(CheckIfHex((char*)pobjIndex->getSubIndex(iLoopCount)->getActualValue()))
+										{
+										//	cout << "hex value" << objSubIndex->getActualValue();
+											iPdoActualValue = hex2int(subString((char*)pobjIndex->getSubIndex(iLoopCount)->getActualValue(), 2, strlen(pobjIndex->getSubIndex(iLoopCount)->getActualValue()) -2));
+											
+										}
+										else
+											iPdoActualValue = atoi(pobjIndex->getSubIndex(iLoopCount)->getActualValue());
+											//printf("\n GetIndexdata Indxeid=%s noOfSubIndexes=%d\n", objIndex->getIndexValue(), noOfSubIndexes);*/
+										if( 0 == strcmp(pobjIndex->getSubIndex(iLoopCount)->getIndexValue(),"00"))
+										{
+											if(NULL != pobjIndex->getSubIndex(iLoopCount)->getActualValue())
+												incCntFor00 = true;
+
+											continue;
+										}
+										if(0 < GetDecimalValue((char*)pobjIndex->getSubIndex(iLoopCount)->getActualValue()))
+										{
+											iNumberOfEntries =  iNumberOfEntries + 1;
+											subindexAddedToCdc = true;
+										}
+
+								}
+								else
+								{
+ 									iNumberOfEntries =  iNumberOfEntries + 1;
+								}
 // // 
 // //                             CSubIndex* pobjSubIndex;
 // //                             pobjSubIndex = pobjIndex->getSubIndexbyIndexValue((char*)"00");
@@ -2705,7 +2849,9 @@ void UpdateCNMultipleCycleAssign(CNode*  pobjNode)
 // //                             }
                             //continue;
 							}
-						}				
+						}	
+						if(true == incCntFor00 && true == subindexAddedToCdc)
+							iNumberOfEntries++;
 					}
 					}
 					
@@ -3170,7 +3316,7 @@ void UpdateCNMultipleCycleAssign(CNode*  pobjNode)
 					
 					if(strcmp(objIndex->getIndexValue(), "1F81") != 0)
 					{
-						if(objIndex->getFlagIfIncludedCdc() == TRUE )
+						if(objIndex->getFlagIfIncludedCdc() == TRUE && true == CheckAccessTypeForInclude((char*)objIndex->getAccessType()))
 						{
 								//Buffer1 = (char*)malloc(CDC_BUFFER);
 								Buffer1 = new char[CDC_BUFFER];

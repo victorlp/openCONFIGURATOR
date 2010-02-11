@@ -761,3 +761,19 @@ INT32 GetDecimalValue(char* pcValue)
 
     return iValue;
 }
+
+bool CheckAccessTypeForInclude(char* pcAccesstype)
+{
+    if(NULL == pcAccesstype)
+        return true;
+
+    char* pcUpperAccesstype = StringToUpper(pcAccesstype);
+    if( (0 == strcmp(pcUpperAccesstype, "CONST")) || (0 == strcmp(pcUpperAccesstype, "RO")) )
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
