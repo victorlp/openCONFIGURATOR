@@ -742,7 +742,7 @@ ocfmRetCode AddSubobject(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID)
     
     try
     {
-        stErrorInfo = AddSubIndex(iNodeID, enumNodeType, pbIndexID, "00");
+        stErrorInfo = AddSubIndex(iNodeID, enumNodeType, pbIndexID, (char*)"00");
         if( (stErrorInfo.code == OCFM_ERR_SUCCESS) && (CheckIfManufactureSpecificObject(pbIndexID)) )
         {
             CNode objNode;      
@@ -755,7 +755,7 @@ ocfmRetCode AddSubobject(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID)
             ocfmRetCode stErrorInfo;
             
         
-            stErrorInfo = IfSubIndexExists(iNodeID, enumNodeType, pbIndexID, "00", &iSubIndexPos, &iIndexPos);
+            stErrorInfo = IfSubIndexExists(iNodeID, enumNodeType, pbIndexID, (char*)"00", &iSubIndexPos, &iIndexPos);
             if(stErrorInfo.code == OCFM_ERR_SUCCESS)
             {
                 
@@ -2199,6 +2199,7 @@ void UpdateCNNodeAssignment(CNode*  pobjNode)
         for(INT32 iLoopCount = 0; iLoopCount < objMNIndex->getNumberofSubIndexes(); iLoopCount++)
         {
             objCNIndex->addSubIndex(*objMNIndex->getSubIndex(iLoopCount));
+            //objCNIndex->addSubIndex(*DuplicateSubIndexObject(objMNIndex->getSubIndex(iLoopCount)));
 //             objCNSubIndex = NULL;
             objCNSubIndex = objCNIndex->getSubIndex(iLoopCount);
             if(NULL != objCNSubIndex)
@@ -2252,6 +2253,7 @@ void UpdateCNMultipleCycleAssign(CNode*  pobjNode)
     for(INT32 iLoopCount = 0; iLoopCount < objMNIndex->getNumberofSubIndexes(); iLoopCount++)
     {
         objCNIndex->addSubIndex(*objMNIndex->getSubIndex(iLoopCount));
+        //objCNIndex->addSubIndex(*DuplicateSubIndexObject(objMNIndex->getSubIndex(iLoopCount)));
         objCNSubIndex = objCNIndex->getSubIndex(iLoopCount);
         if(NULL != objCNSubIndex)
             objCNSubIndex->setFlagIfIncludedCdc(TRUE);
@@ -2629,10 +2631,6 @@ void UpdateCNMultipleCycleAssign(CNode*  pobjNode)
     
             if( pobjIndex->getFlagIfIncludedCdc() == TRUE && true == CheckAccessTypeForInclude((char*)pobjIndex->getAccessType()))
             {
-				if(CheckBlockedMNIndexes((char*)pobjIndex->getIndexValue()))
-				{
-					continue;
-				}
 				if(pobjIndex->getNumberofSubIndexes() ==0)
 				{
 					if(pobjIndex->getActualValue() != NULL)
@@ -2657,6 +2655,19 @@ void UpdateCNMultipleCycleAssign(CNode*  pobjNode)
 						}
 						continue;
 					}
+
+                    if(0 == strcmp((char*)pobjIndex->getIndexValue(), "1F81"))
+                    {
+                        CSubIndex* pobjSubIndex;
+                        pobjSubIndex = pobjIndex->getSubIndexbyIndexValue((char*)"F0");
+                        if( NULL != pobjSubIndex && pobjSubIndex->getActualValue() !=NULL && 0 != strcmp((char*)pobjSubIndex->getActualValue(), ""))
+                        {
+                            iNumberOfEntries =  iNumberOfEntries + 1;
+                        }
+                        continue;
+
+                    }
+
 
 					CSubIndex* pobjSubIndex;
 					pobjSubIndex = pobjIndex->getSubIndexbyIndexValue((char*)"00");
@@ -3209,6 +3220,37 @@ void UpdateCNMultipleCycleAssign(CNode*  pobjNode)
 					throw ex;						
 				}
 
+                for(int i=0;i < objNodeCollection->getNumberOfNodes();i++)
+                {
+                        CNode objNode;
+                        objNode = objNodeCollection->getNodebyCollectionIndex(i);
+                        if(objNode.getNodeType() ==CN)
+                        {
+                                int NodeID = objNode.getNodeId();       
+                                char* hex = (char*)malloc(10);                  
+                                hex = _IntToAscii(NodeID,hex,16);
+                                hex = padLeft(hex,'0',2);
+
+                                char* pcTemp1F81Data = setNodeAssigmentBits(&objNode);
+                                char* pb1F81Data = new char[ strlen(pcTemp1F81Data) + ALLOC_BUFFER + 2];
+                                sprintf(pb1F81Data, "0X%s", pcTemp1F81Data);
+                                ret1F81Code = IfSubIndexExists(240, MN, (char*)"1F81", hex, &iSubIndexPos, &iIndexPos);
+                                if( OCFM_ERR_INDEXID_NOT_FOUND == ret1F81Code.code)
+                                {
+                                    AddIndex(240, MN, (char*)"1F81");
+                                    AddSubIndex(240, MN, (char*)"1F81", hex);
+                                }
+                                else if(OCFM_ERR_SUBINDEXID_NOT_FOUND == ret1F81Code.code)
+                                {
+                                    AddSubIndex(240, MN, (char*)"1F81", hex);
+                                }
+ 
+                                SetSIdxValue((char*)"1F81",hex, pb1F81Data,objNodeCollection->getMNNode().getIndexCollection(), MN_NODEID, MN, false); 
+                                delete [] pb1F81Data;
+                        }
+                    }
+
+
                 UpdateMNNodeAssignmentIndex(&objNodeCollection->getMNNode(), objNodeCollection->getCNNodesCount(), (char*)"1F81", true );
                 UpdateMNNodeAssignmentIndex(&objNodeCollection->getMNNode(), objNodeCollection->getCNNodesCount(), (char*)"1F92", false );
 
@@ -3253,7 +3295,8 @@ void UpdateCNMultipleCycleAssign(CNode*  pobjNode)
 								strcat(Buffer1, hex);								
 								strcat(Buffer1, "\t00000004\t00000007\n");
 
-                                char* pcTemp1F81Data = setNodeAssigmentBits(&objNode);
+                                // moved the below block before
+                                /*char* pcTemp1F81Data = setNodeAssigmentBits(&objNode);
                                 char* pb1F81Data = new char[ strlen(pcTemp1F81Data) + ALLOC_BUFFER + 2];
                                 sprintf(pb1F81Data, "0X%s", pcTemp1F81Data);
                                 ret1F81Code = IfSubIndexExists(240, MN, (char*)"1F81", hex, &iSubIndexPos, &iIndexPos);
@@ -3267,7 +3310,9 @@ void UpdateCNMultipleCycleAssign(CNode*  pobjNode)
                                     AddSubIndex(240, MN, (char*)"1F81", hex);
                                 }
  
-								SetSIdxValue((char*)"1F81",hex, pb1F81Data,objNodeCollection->getMNNode().getIndexCollection(), MN_NODEID, MN, false); 
+								SetSIdxValue((char*)"1F81",hex, pb1F81Data,objNodeCollection->getMNNode().getIndexCollection(), MN_NODEID, MN, false); */
+                                // moved the above block before
+
                               /*  char* pcSubIndName = new char[50];
                                 pcSubIndName[0] = 0;
                                 INT32 iSubIndFlag = 0;
@@ -3278,7 +3323,8 @@ void UpdateCNMultipleCycleAssign(CNode*  pobjNode)
                                 SetSubIndexAttributes(240, MN, (char*)"1F81", hex, pb1F81Data, pcSubIndName, (EFlag)iSubIndFlag);
                                 delete [] pcSubIndName;
                                 delete [] pcSubIndFlag;*/
-                                delete [] pb1F81Data;
+
+                                //delete [] pb1F81Data;
 
 								strcat(Buffer1, "\n");	
 								len = strlen(Buffer1);
@@ -3294,6 +3340,36 @@ void UpdateCNMultipleCycleAssign(CNode*  pobjNode)
 						}
 					}
 					/*	}*/
+                //objNode = objNodeCollection->getMNNode();
+                //objIndexCollection = objNode.getIndexCollection();
+                //CIndex* objIndex;
+                //objIndex = objIndexCollection->getIndexbyIndexValue("1F81");
+                //if(NULL != objIndex)
+                //{
+                //    CSubIndex* objSubIndex = objIndex->getSubIndexbyIndexValue("F0");
+                //    if(NULL != objSubIndex && NULL != objSubIndex->getActualValue() && 0 != strcmp((char*)objSubIndex->getActualValue(), ""))
+                //    {
+                //                Buffer1 = new char[CDC_BUFFER];
+                //                //strcpy(Buffer1, NoOfenteries);
+                //                strcpy(Buffer1, "//// NodeId Assignment\n");
+                //                strcat(Buffer1, "1F81");
+                //                strcat(Buffer1, "\t");
+                //                /*int NodeID = objNode.getNodeId();       
+                //                char* hex = (char*)malloc(10);                  
+                //                hex = _IntToAscii(NodeID,hex,16);
+                //                hex = padLeft(hex,'0',2);*/
+                //                strcat(Buffer1, "F0");                               
+                //                strcat(Buffer1, "\t00000004\t00000007\n");
+                //                strcat(Buffer1, "\n");  
+                //                len = strlen(Buffer1);
+                //                if((len != (fwrite(Buffer1, sizeof(char),len,fileptr))))
+                //                {
+                //                    //fclose(fileptr);
+                //                    //printf("Buffer1 written");
+                //                }
+                //                delete[] Buffer1;
+                //    }
+                //}
 				fclose(fileptr);
 				
 			if (( fileptr = fopen(tempFileName,"a+")) == NULL)
@@ -3314,26 +3390,63 @@ void UpdateCNMultipleCycleAssign(CNode*  pobjNode)
 					objIndex = objIndexCollection->getIndex(i);
 					//if((!checkFlag) || (checkFlag && (objIndex->getFlagIfIncludedCdc() == TRUE)))
 					
-					if(strcmp(objIndex->getIndexValue(), "1F81") != 0)
+
+					if(objIndex->getFlagIfIncludedCdc() == TRUE && true == CheckAccessTypeForInclude((char*)objIndex->getAccessType()))
 					{
-						if(objIndex->getFlagIfIncludedCdc() == TRUE && true == CheckAccessTypeForInclude((char*)objIndex->getAccessType()))
-						{
-								//Buffer1 = (char*)malloc(CDC_BUFFER);
-								Buffer1 = new char[CDC_BUFFER];
-								len = strlen(Buffer1);		
-								GetIndexData(objIndex,Buffer1);
-								len = strlen(Buffer1);
-								if((len != (fwrite(Buffer1, sizeof(char),len,fileptr))))
-								{
-									//printf("Buffer1 written");
-								
-								}					
-								
-								delete[] Buffer1;
-						}
-								
+                        if(strcmp(objIndex->getIndexValue(), "1F81") != 0)
+                        {
+							//Buffer1 = (char*)malloc(CDC_BUFFER);
+							Buffer1 = new char[CDC_BUFFER];
+							len = strlen(Buffer1);		
+							GetIndexData(objIndex,Buffer1);
+							len = strlen(Buffer1);
+							if((len != (fwrite(Buffer1, sizeof(char),len,fileptr))))
+							{
+								//printf("Buffer1 written");
+							
+							}					
+							
+							delete[] Buffer1;
+                        }
+                        else
+                        {
+                            CSubIndex* objSubIndex = objIndex->getSubIndexbyIndexValue((char*)"F0");
+                            if(NULL != objSubIndex && NULL != objSubIndex->getActualValue() && 0 != strcmp((char*)objSubIndex->getActualValue(), ""))
+                            {
+                                    Buffer1 = new char[CDC_BUFFER];
+                                    strcpy(Buffer1, "1F81");
+                                    strcat(Buffer1, "\t");
+                                    strcat(Buffer1, "F0");
+                                    strcat(Buffer1, "\t00000004\t");
+    
+                                    char actvalue[20];
+                                    actvalue[0]  = '\0';
+                                    if(CheckIfHex((char*)objSubIndex->getActualValue()))
+                                    {
+                                        int len = strlen((char*)objSubIndex->getActualValue());
+                                        strncpy(actvalue,(objSubIndex->getActualValue()+ 2),len-2 );
+                                        actvalue[len -2] ='\0';
+                                        strcat(Buffer1,padLeft(actvalue,'0',8));
+                                    }
+                                    else
+                                    {
+                                        strcpy(actvalue, _IntToAscii(atoi(objSubIndex->getActualValue()),actvalue,16));
+                                        strcat(Buffer1,padLeft(actvalue, '0', 8));
+                                    }
+    
+                                    strcat(Buffer1, "\n"); 
+                                    len = strlen(Buffer1);
+                                    if((len != (fwrite(Buffer1, sizeof(char),len,fileptr))))
+                                    {
+                                        //fclose(fileptr);
+                                        //printf("Buffer1 written");
+                                    
+                                    }
+                                
+                                    delete[] Buffer1;
+                        }
 					}
-			
+				}			
 			}
 				fclose(fileptr);
 	
@@ -3419,7 +3532,64 @@ void UpdateCNMultipleCycleAssign(CNode*  pobjNode)
 					/*	}*/
 							
 				}
-			
+
+                //objNode = objNodeCollection->getMNNode();
+                //objIndexCollection = objNode.getIndexCollection();
+                ////CIndex* objIndex;
+                //objIndex = objIndexCollection->getIndexbyIndexValue("1F81");
+                //if(NULL != objIndex)
+                //{
+                //    CSubIndex* objSubIndex = objIndex->getSubIndexbyIndexValue("F0");
+                //    if(NULL != objSubIndex && NULL != objSubIndex->getActualValue() && 0 != strcmp((char*)objSubIndex->getActualValue(), ""))
+                //    {
+                //                if (( fileptr = fopen(tempFileName,"a+")) == NULL)
+                //                {
+                //                    ocfmException ex;
+                //                    ex.ocfm_Excpetion(OCFM_ERR_CANNOT_OPEN_FILE);
+                //                    throw ex;                       
+                //                }
+                //                Buffer1 = new char[CDC_BUFFER];
+                //                //strcpy(Buffer1, NoOfenteries);
+                //                strcpy(Buffer1, "//// NodeId Reassignment\n");
+                //                strcat(Buffer1, "1F81");
+                //                strcat(Buffer1, "\t");
+                //                /*int NodeID = objNode.getNodeId();       
+                //                char* hex = (char*)malloc(10);                  
+                //                hex = _IntToAscii(NodeID,hex,16);
+                //                hex = padLeft(hex,'0',2);*/
+                //                strcat(Buffer1, "F0");
+                //                strcat(Buffer1, "\t00000004\t");
+                //                char actvalue[20];
+                //                actvalue[0]  = '\0';
+                //                if(CheckIfHex((char*)objSubIndex->getActualValue()))
+                //                {
+                //                    int len = strlen((char*)objSubIndex->getActualValue());
+                //                    strncpy(actvalue,(objSubIndex->getActualValue()+ 2),len-2 );
+                //                    actvalue[len -2] ='\0';                             
+                //                    strcat(Buffer1,padLeft(actvalue,'0',8));
+                //                    
+                //                }
+                //                else
+                //                {
+                //                    strcpy(actvalue, _IntToAscii(atoi(objSubIndex->getActualValue()),actvalue,16));
+                //                    strcat(Buffer1,padLeft(actvalue, '0', 8));
+                //                
+                //                }
+                //
+                //                strcat(Buffer1, "\n"); 
+                //                len = strlen(Buffer1);
+                //                if((len != (fwrite(Buffer1, sizeof(char),len,fileptr))))
+                //                {
+                //                    //fclose(fileptr);
+                //                    //printf("Buffer1 written");
+                //                
+                //                }
+                //            
+                //                delete[] Buffer1;
+                //                fclose(fileptr);
+                //    }
+                //}
+                
 					
 			//printf("\nText cdc generated");
 			// Convert CDC txt file to Binary
@@ -10642,4 +10812,53 @@ void CopyOldNodeIdAssignmentObjectSubindex(CNode* pobjNode, INT32 iOldNodeId, ch
     {
         //return false;
     }
+}
+
+CSubIndex* DuplicateSubIndexObject(CSubIndex* pobjSubindex)
+{
+    if(NULL == pobjSubindex)
+        return NULL;
+
+    CSubIndex* pobjDupliSubindex = new CSubIndex();
+
+    if(NULL != pobjSubindex->getIndexValue())
+        pobjDupliSubindex->setIndexValue((char*)pobjSubindex->getIndexValue());
+
+    pobjDupliSubindex->setName((char*)pobjSubindex->getName());
+
+    if(NULL != pobjSubindex->getHighLimit())
+        pobjDupliSubindex->setHighLimit((char*)pobjSubindex->getHighLimit());
+
+     if(NULL != pobjSubindex->getDataTypeValue())
+        pobjDupliSubindex->setDataTypeValue(pobjSubindex->getDataTypeValue());
+
+    if(NULL != pobjSubindex->getDefaultValue())
+        pobjDupliSubindex->setDefaultValue((char*)pobjSubindex->getDefaultValue());
+
+    if(NULL != pobjSubindex->getActualValue())
+        pobjDupliSubindex->setActualValue((char*)pobjSubindex->getActualValue());
+
+    if(NULL != pobjSubindex->getAccessType())
+        pobjDupliSubindex->setAccessType((char*)pobjSubindex->getAccessType());
+
+    if(NULL != pobjSubindex->getLowLimit())
+        pobjDupliSubindex->setLowLimit((char*)pobjSubindex->getLowLimit());
+
+    if(NULL != pobjSubindex->getUniqueIDRef())
+        pobjDupliSubindex->setUniqueIDRef((char*)pobjSubindex->getUniqueIDRef());
+
+    pobjDupliSubindex->setDataTypeST(pobjSubindex->getDataType());
+
+    pobjDupliSubindex->setFlagIfIncludedCdc(pobjSubindex->getFlagIfIncludedCdc());
+        
+    if(NULL != pobjSubindex->getObjectType())
+        pobjDupliSubindex->setObjectType((char*)pobjSubindex->getObjectType());
+
+    if(NULL != pobjSubindex->getPDOMapping())
+        pobjDupliSubindex->setPDOMapping((char*)pobjSubindex->getPDOMapping());
+
+    pobjDupliSubindex->setNodeID(pobjSubindex->getNodeID());
+
+    return pobjDupliSubindex;
+
 }

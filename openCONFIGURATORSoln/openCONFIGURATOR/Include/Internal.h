@@ -237,4 +237,5 @@ bool ValidateCNPresTimeout(char* pbSubIndexId, char* pcCheckValue);
 void CopyOldNodeIdAssignmentObject(CNode* pobjNode, INT32 iOldNodeId);
 void CopyOldNodeIdAssignmentObjectSubindex(CNode* pobjNode, INT32 iOldNodeId, char* pcIndex);
 bool CheckAccessTypeForInclude(char* pcAccesstype);
+CSubIndex* DuplicateSubIndexObject(CSubIndex* pobjSubindex);
 #endif // internal_h
