@@ -238,6 +238,8 @@ void CopyOldNodeIdAssignmentObject(CNode* pobjNode, INT32 iOldNodeId);
 void CopyOldNodeIdAssignmentObjectSubindex(CNode* pobjNode, INT32 iOldNodeId, char* pcIndex);
 bool CheckAccessTypeForInclude(char* pcAccesstype);
 CSubIndex* DuplicateSubIndexObject(CSubIndex* pobjSubindex);
-void EnableDisableMappingPDO(CIndex* objIndex, char* Buffer, bool EnableFlag);
+void EnableDisableMappingPDO(CIndexCollection* pobjIdxCol, CIndex* objIndex, char* Buffer, bool EnableFlag);
 void FormatCdc(CIndexCollection *objIndexCollection, char* Buffer1, FILE* fileptr, ENodeType eNodeType );
+bool IsDefaultActualNotEqual(CBaseIndex* pBaseIndexObject);
+bool ReactivateMappingPDO(CIndexCollection* pobjIndexCol, CIndex* pobjIndex);
 #endif // internal_h
