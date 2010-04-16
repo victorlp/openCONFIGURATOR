@@ -4026,11 +4026,13 @@ ocfmRetCode  ProcessCDT(CComplexDataType* pobjCDT,CApplicationProcess* pobjAppPr
 			objProcessImage.DataInfo = *(getIECDT(objVarDecl.nam_id_dt_attr->getDataType(), objProcessImage.DataInfo.DataSize));
 			
 			/* Calculate Offset*/
-			if((objProcessImage.DataInfo.DataSize >= 8 ) || ((objProcessImage.DataInfo.DataSize == 1) && (iStartBitOffset == 0 || iStartBitOffset ==8)))
+			//if((objProcessImage.DataInfo.DataSize >= 8 ) || ((objProcessImage.DataInfo.DataSize == 1) && (iStartBitOffset == 0 || iStartBitOffset ==8)))
+            if((objProcessImage.DataInfo.DataSize >= 8 ) || ((objProcessImage.DataInfo._dt_enum  == BITSTRING) && (iStartBitOffset == 0 || iStartBitOffset ==8)))
 			{
 				
 				bIsNewBitStringVar =  true;
-				if((objProcessImage.DataInfo.DataSize == 1) && (iStartBitOffset == 0 || iStartBitOffset ==8))
+				//if((objProcessImage.DataInfo.DataSize == 1) && (iStartBitOffset == 0 || iStartBitOffset ==8))
+                if((objProcessImage.DataInfo._dt_enum  == BITSTRING) && (iStartBitOffset == 0 || iStartBitOffset ==8))
 				{
 					iDataSize = 8;
 					if(iStartBitOffset ==8)
