@@ -2860,7 +2860,7 @@ INT32 getCNsTotalIndexSubIndex(INT32 iNodeID)
 	
 		if( pobjIndex->getFlagIfIncludedCdc() == TRUE && ( true == CheckAccessTypeForInclude((char*)pobjIndex->getAccessType()) || CheckIfMappingPDO((char*)pobjIndex->getIndexValue()) ) )
 		{
-	        if(CheckAllowedCNIndexes((char*)pobjIndex->getIndexValue()))
+	        //if(CheckAllowedCNIndexes((char*)pobjIndex->getIndexValue()))
 			{
 				if(pobjIndex->getNumberofSubIndexes() ==0)
 				{
