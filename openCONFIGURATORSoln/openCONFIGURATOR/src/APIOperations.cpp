@@ -3934,7 +3934,7 @@ ocfmRetCode  ProcessCDT(CComplexDataType* pobjCDT,CApplicationProcess* pobjAppPr
 	ocfmException objocfmException;
 	INT32 iStartBitOffset =  0;
 	INT32 iOffset;
-	bool bIsNewBitStringVar = true;
+	bool bIsNewBitStringVar = false; //true;
 	INT32 iDataSize = 0;
 	INT32 iTotalBytesMapped = 0;
 		
@@ -4004,7 +4004,7 @@ ocfmRetCode  ProcessCDT(CComplexDataType* pobjCDT,CApplicationProcess* pobjAppPr
 					objProcessImage.ModuleName = (char*)malloc(strlen(pbModuleName) + ALLOC_BUFFER);
 					strcpy(objProcessImage.ModuleName, pbModuleName);		
 					
-						objProcessImage.ModuleIndex = (char*)malloc(strlen(pbModuleIndex) + ALLOC_BUFFER);
+					objProcessImage.ModuleIndex = (char*)malloc(strlen(pbModuleIndex) + ALLOC_BUFFER);
 					strcpy(objProcessImage.ModuleIndex, pbModuleIndex);	
 					
 								
@@ -4027,18 +4027,74 @@ ocfmRetCode  ProcessCDT(CComplexDataType* pobjCDT,CApplicationProcess* pobjAppPr
 			
 			/* Calculate Offset*/
 			//if((objProcessImage.DataInfo.DataSize >= 8 ) || ((objProcessImage.DataInfo.DataSize == 1) && (iStartBitOffset == 0 || iStartBitOffset ==8)))
-            if((objProcessImage.DataInfo.DataSize >= 8 ) || ((objProcessImage.DataInfo._dt_enum  == BITSTRING) && (iStartBitOffset == 0 || iStartBitOffset ==8)))
+
+            if(((objProcessImage.DataInfo._dt_enum  != BITSTRING) && (objProcessImage.DataInfo.DataSize >= 8 )) || ((objProcessImage.DataInfo._dt_enum  == BITSTRING) && (iStartBitOffset ==0 || iStartBitOffset ==8 || iStartBitOffset == 16 || iStartBitOffset == 32 || iStartBitOffset == 64)))
 			{
 				
 				bIsNewBitStringVar =  true;
 				//if((objProcessImage.DataInfo.DataSize == 1) && (iStartBitOffset == 0 || iStartBitOffset ==8))
-                if((objProcessImage.DataInfo._dt_enum  == BITSTRING) && (iStartBitOffset == 0 || iStartBitOffset ==8))
-				{
-					iDataSize = 8;
-					if(iStartBitOffset ==8)
-					{						
-						iStartBitOffset = 0;					
-					}
+                if(objProcessImage.DataInfo._dt_enum  == BITSTRING) 
+                {
+                    switch(iStartBitOffset)
+                    {
+                        case 0:
+                            //bIsNewBitStringVar =  false;
+                            //break;
+                        case 8:
+				        {
+					        iDataSize = 8;
+					        if(iStartBitOffset ==8)
+					        {						
+						        iStartBitOffset = 0;					
+					        }
+                            break;
+                        }
+                        case 16:
+                        case 32:
+                        case 64:
+                        {
+                            iDataSize = iStartBitOffset;
+                            iStartBitOffset = 0;                    
+                            break;
+                        }
+                        default:
+                        {
+                            printf("Hit default case in ProcessCDT %d\n", iStartBitOffset);
+                            break;
+                        }
+                    }
+                    
+                    iDataSize =  0;
+                    for(INT32 iBitStringCount = iLoopCount; iBitStringCount<pobjCDT->varCollection.Count(); iBitStringCount++)
+                    {
+                        varDeclaration objVarDecl;
+            
+                        objVarDecl.Initialize();
+                        objVarDecl = pobjCDT->varCollection[iBitStringCount];            
+                        /*if(objVarDecl.nam_id_dt_attr->getDtUniqueRefId() != NULL)
+                        {
+                            pobjCDT = pobjAppProc->getCDTbyUniqueID(objVarDecl.nam_id_dt_attr->getDtUniqueRefId()); 
+                            pobjAppProc->updatePreviousCDT_UId(objVarDecl.StructUniqueId, pobjCDT->Index);      
+                            //pobjCDT->previousCDT_UId = (char*)malloc(strlen(objVarDecl.StructUniqueId)+1);
+                            //strcpy(pobjCDT->previousCDT_UId, objVarDecl.StructUniqueId);
+                            //iLastVarIndex = iLoopCount;
+                            //printf("\n previousCDT_UId : %s",pobjCDT->previousCDT_UId);
+                            //printf("\n DataRefID : %s",objVarDecl.nam_id_dt_attr->getDtUniqueRefId());
+                          ProcessCDT(pobjCDT, pobjAppProc, pobjNode, pobjParameter, enumPdoType, pbModuleName, pbModuleIndex );
+                        }*/
+                        if( BITSTRING == ((*(getIECDT(objVarDecl.nam_id_dt_attr->getDataType(), objProcessImage.DataInfo.DataSize)))._dt_enum) )
+                        {
+                            iDataSize +=  atoi(objVarDecl.size);
+                            if(8 == iDataSize || 16 == iDataSize || 32 == iDataSize || 64 == iDataSize)
+                            {
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
 				}
 				else
 				{
@@ -4070,7 +4126,7 @@ ocfmRetCode  ProcessCDT(CComplexDataType* pobjCDT,CApplicationProcess* pobjAppPr
 				CreateMNPDOVar(iOffset, iDataSize, objProcessImage.DataInfo._dt_enum, enumPdoType, pobjNode);
 			}
 			
-			if((objProcessImage.DataInfo.DataSize >= 8) && (iStartBitOffset!= 0 ))
+			if((objProcessImage.DataInfo.DataSize >= 8) && (iStartBitOffset!= 0 ) && (objProcessImage.DataInfo._dt_enum  != BITSTRING))
 			{
 				iStartBitOffset = 0;
 			}
@@ -8901,15 +8957,32 @@ void CreateMNPDOVar(INT32 iOffset, INT32 iDataSize, IEC_Datatype enumDataType, E
 			{
 			
 				case USINT:
-				case BITSTRING :						
+				case BITSTRING :	
+                    PDODataType dt;
+                    switch (iDataSize)
+                    {
+                        case 8:
+                            dt = UNSIGNED8;
+                            break;
+                        case 16:
+                            dt = UNSIGNED16;
+                            break;
+                        case 32:
+                            dt = UNSIGNED32;
+                            break;
+                        case 64:
+                            break;
+                        default:
+                            break;
+                    }					
 					if(enumPdoType == PDO_TPDO)
 					{
-						objpi =  getPIAddress(UNSIGNED8, INPUT, iOffset, iDataSize);
+						objpi =  getPIAddress(dt, INPUT, iOffset, iDataSize);
 					
 					}
 					else if(enumPdoType == PDO_RPDO)
 					{
-						objpi =  getPIAddress(UNSIGNED8, OUTPUT, iOffset, iDataSize);
+						objpi =  getPIAddress(dt, OUTPUT, iOffset, iDataSize);
 						//strcpy(objPDOvar.Index, getPIAddress(UNSIGNED8, OUTPUT, Offset, dataSize));	
 					}
 					
@@ -9014,7 +9087,7 @@ void CreateMNPDOVar(INT32 iOffset, INT32 iDataSize, IEC_Datatype enumDataType, E
 	
 			strcpy(objPDOvar.Index,objpi.Index);	
 			strcpy(objPDOvar.SubIndex, objpi.SubIndex);		
-		//printf("\n objPDOvar.Index%s", objPDOvar.Index);
+		printf("\n CreateMNPDO var Index=%s SubIndex=%s\n", objPDOvar.Index, objPDOvar.SubIndex);
 	
 	
 	/* Assign SubIndex*/							
