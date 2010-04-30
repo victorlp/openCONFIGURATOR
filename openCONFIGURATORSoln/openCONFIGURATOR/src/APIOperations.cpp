@@ -3743,7 +3743,7 @@ void FormatCdc(CIndexCollection *objIndexCollection, char* Buffer1, FILE* filept
         {
                 if(CheckIfMappingPDO((char*)objIndex->getIndexValue()))
                 {
-                TempBuffer1 = (char*)malloc(CDC_BUFFER);
+                //TempBuffer1 = (char*)malloc(CDC_BUFFER);
                 //printf("\nDisable indexid=%s \n", (char*)objIndex->getIndexValue());
                 TempBuffer1 = new char[CDC_BUFFER];
                 len = strlen(Buffer1);      
@@ -3934,7 +3934,7 @@ ocfmRetCode  ProcessCDT(CComplexDataType* pobjCDT,CApplicationProcess* pobjAppPr
 	ocfmException objocfmException;
 	INT32 iStartBitOffset =  0;
 	INT32 iOffset;
-	bool bIsNewBitStringVar = false; //true;
+	bool bIsNewBitStringVar = false;
 	INT32 iDataSize = 0;
 	INT32 iTotalBytesMapped = 0;
 		
@@ -4035,35 +4035,7 @@ ocfmRetCode  ProcessCDT(CComplexDataType* pobjCDT,CApplicationProcess* pobjAppPr
 				//if((objProcessImage.DataInfo.DataSize == 1) && (iStartBitOffset == 0 || iStartBitOffset ==8))
                 if(objProcessImage.DataInfo._dt_enum  == BITSTRING) 
                 {
-                    switch(iStartBitOffset)
-                    {
-                        case 0:
-                            //bIsNewBitStringVar =  false;
-                            //break;
-                        case 8:
-				        {
-					        iDataSize = 8;
-					        if(iStartBitOffset ==8)
-					        {						
-						        iStartBitOffset = 0;					
-					        }
-                            break;
-                        }
-                        case 16:
-                        case 32:
-                        case 64:
-                        {
-                            iDataSize = iStartBitOffset;
-                            iStartBitOffset = 0;                    
-                            break;
-                        }
-                        default:
-                        {
-                            printf("Hit default case in ProcessCDT %d\n", iStartBitOffset);
-                            break;
-                        }
-                    }
-                    
+			        iStartBitOffset = 0;					
                     iDataSize =  0;
                     for(INT32 iBitStringCount = iLoopCount; iBitStringCount<pobjCDT->varCollection.Count(); iBitStringCount++)
                     {
@@ -9087,7 +9059,7 @@ void CreateMNPDOVar(INT32 iOffset, INT32 iDataSize, IEC_Datatype enumDataType, E
 	
 			strcpy(objPDOvar.Index,objpi.Index);	
 			strcpy(objPDOvar.SubIndex, objpi.SubIndex);		
-		printf("\n CreateMNPDO var Index=%s SubIndex=%s\n", objPDOvar.Index, objPDOvar.SubIndex);
+		//printf("\n objPDOvar.Index%s", objPDOvar.Index);
 	
 	
 	/* Assign SubIndex*/							
