@@ -424,7 +424,7 @@ bool IfVersionNumberMatches(xmlTextReaderPtr pxReader)
 	{
 		if( (strcmp(ConvertToUpper((char*)pxcValue), TOOL_VERSION) == FALSE) ||
 			(strcmp(ConvertToUpper((char*)pxcValue), PREV_TOOL_VERSION_1) == FALSE)  ||
-			(strcmp(ConvertToUpper((char*)pxcValue), PREV_TOOL_VERSION_2) == FALSE)  ||
+			(strcmp(ConvertToUpper((char*)pxcValue), PREV_TOOL_VERSION_2) == FALSE)  || (strcmp(ConvertToUpper((char*)pxcValue), PREV_TOOL_VERSION_3) == FALSE)  ||
 			(strcmp(ConvertToUpper((char*)pxcValue), LAST_TOOL_VERSION) == FALSE) )
 		{
 			#if defined DEBUG
