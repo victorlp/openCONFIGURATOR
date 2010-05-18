@@ -1124,6 +1124,20 @@ INT32 GroupNETHeaderContents(ProcessImage objProcessImage[], INT32 iNumberOfVars
 							objNode->NETProcessImageCollection[iNETPIIndex].DataInfo._dt_Name = new char[strlen("byte") + ALLOC_BUFFER];
 							strcpy( objNode->NETProcessImageCollection[iNETPIIndex].DataInfo._dt_Name ,"byte");
 						}
+                        else if(objNode->NETProcessImageCollection[iNETPIIndex].iTotalDataSize == 16)
+                        {
+                            objNode->NETProcessImageCollection[iNETPIIndex].DataInfo._dt_enum = UINT;
+                            //CLEANPTR(objNode->NETProcessImageCollection[iNETPIIndex].DataInfo._dt_Name);
+                            objNode->NETProcessImageCollection[iNETPIIndex].DataInfo._dt_Name = new char[strlen("UInt16") + ALLOC_BUFFER];
+                            strcpy( objNode->NETProcessImageCollection[iNETPIIndex].DataInfo._dt_Name ,"UInt16");
+                        }
+                        else if(objNode->NETProcessImageCollection[iNETPIIndex].iTotalDataSize == 32)
+                        {
+                            objNode->NETProcessImageCollection[iNETPIIndex].DataInfo._dt_enum = UDINT;
+                            //CLEANPTR(objNode->NETProcessImageCollection[iNETPIIndex].DataInfo._dt_Name);
+                            objNode->NETProcessImageCollection[iNETPIIndex].DataInfo._dt_Name = new char[strlen("UInt32") + ALLOC_BUFFER];
+                            strcpy( objNode->NETProcessImageCollection[iNETPIIndex].DataInfo._dt_Name ,"UInt32");
+                        }
 					}
 					else
 					{

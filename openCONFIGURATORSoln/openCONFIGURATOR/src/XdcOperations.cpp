@@ -110,7 +110,7 @@ static const char *gpa2bSimple[][2] = {
 										{"LREAL",    "64"},
 										{"STRING",   "1"},
 										{"WSTRING",  "1"}
-									};
+									}; //array size in g_simple_arr_size
 																										
 /****************************************************************************************************
 * FUNCTION DEFINITIONS

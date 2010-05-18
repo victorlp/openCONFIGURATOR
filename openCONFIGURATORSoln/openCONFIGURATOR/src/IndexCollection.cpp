@@ -110,7 +110,7 @@ void CIndexCollection::addIndex(CIndex objIndex)
 	{
 		objIndex.setPDOType(PDO_RPDO);			
 	}
-	else if(strcmp(substr,"18")==0 ||strcmp(substr,"1A") ==0)
+	else if(strcmp(substr,"18")==0 ||strcmp(substr,"1A") ==0 ||strcmp(substr,"1a") ==0)
 	{
 		objIndex.setPDOType(PDO_TPDO);		
 	}
