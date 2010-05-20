@@ -666,7 +666,7 @@ char* getLastAvailableCycleNumber()
 		//printf(" \nactvalue %s",actValue);
 		
 		//printf("\ncycle %d", uiCycleNumber);
-		int iCycleValue;
+		UINT32 iCycleValue;
 		if (strncmp(actValue,"0x",2) == 0 || strncmp(actValue,"0X",2) == 0)
 			iCycleValue  = hex2int(subString(actValue, 2,strlen(actValue) -2 ));
 		else

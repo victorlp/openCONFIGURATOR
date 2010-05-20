@@ -897,14 +897,22 @@ void WriteNETHeaderContents(ProcessImage objProcessImage[], INT32 iNumberOfVars,
 	pbBuffer[0] = 0;
 	char* pbBuffer1 	= new char[200];		
 	char* pbBuffer2 	= new char[500];
+    char pcOffset[10];
+    int iOffset = 0;
 
 	INT32 iTotalsize = GroupNETHeaderContents(objProcessImage, iNumberOfVars, enumDirType, fpNetHeader);
 	NETProcessImage aobjNetPiCol[PI_VAR_COUNT] = {};
 	INT32 NetPIVarsCount = GroupNETPIVariables( enumDirType, aobjNetPiCol);
 	for(INT32 iLoopCount = 0; iLoopCount<NetPIVarsCount ; iLoopCount++)
 	{
+        strcat(pbBuffer , "\t\t[FieldOffset(");
+        memset(pcOffset, 0, 10);
+        _IntToAscii(iOffset, pcOffset, 10);
+        strcat(pbBuffer , pcOffset);
+        strcat(pbBuffer , ")]\n");
 		strcat(pbBuffer , "\t\tpublic ");
 		strcat(pbBuffer , GetDatatypeNETPI(aobjNetPiCol[iLoopCount].DataInfo._dt_enum));
+        iOffset += GetDatasizeNETPI(aobjNetPiCol[iLoopCount].DataInfo._dt_enum);
 		strcat(pbBuffer , " ");
 		strcat(pbBuffer , aobjNetPiCol[iLoopCount].ModuleName);
 		strcat(pbBuffer , "_");
@@ -917,16 +925,23 @@ void WriteNETHeaderContents(ProcessImage objProcessImage[], INT32 iNumberOfVars,
 		strcat(pbBuffer , ";\n");
 
 	}
+
+    char* abTotalsize = new char[20];
+    _IntToAscii(iTotalsize, abTotalsize, 10);
+
 	if(enumDirType == INPUT)
 	{
 		strcpy(pbBuffer1, "\n\t/// <summary>\n");
 		strcat(pbBuffer1, "\t/// Class : ProcessImage In\n");
 		strcat(pbBuffer1, "\t/// </summary>\n");
-		strcat(pbBuffer1, "\t[StructLayout(LayoutKind.Sequential)]\n");
-		strcat(pbBuffer1, "\tpublic class AppProcessImageIn : cProcessImage\n");
+		strcat(pbBuffer1, "\t[StructLayout(LayoutKind.Explicit, Pack = 1, Size = ");
+        strcat(pbBuffer1, abTotalsize);
+        strcat(pbBuffer1, ")]\n");
+		strcat(pbBuffer1, "\tpublic class AppProcessImageIn\n");
 		strcat(pbBuffer1, "\t{\n");
 
-		strcpy(pbBuffer2, "\t\tprivate static UInt16 uiPIInSize = ");
+		//strcpy(pbBuffer2, "\t\tprivate static UInt16 uiPIInSize = ");
+        strcpy(pbBuffer2, "\t}\n");
 	}	
 	else if(enumDirType == OUTPUT)
 	{				
@@ -934,18 +949,19 @@ void WriteNETHeaderContents(ProcessImage objProcessImage[], INT32 iNumberOfVars,
 		strcpy(pbBuffer1, "\n\t/// <summary>\n");
 		strcat(pbBuffer1, "\t/// Class : ProcessImage Out\n");
 		strcat(pbBuffer1, "\t/// </summary>\n");
-		strcat(pbBuffer1, "\t[StructLayout(LayoutKind.Sequential)]\n");
-		strcat(pbBuffer1, "\tpublic class AppProcessImageOut : cProcessImage\n");
+		strcat(pbBuffer1, "\t[StructLayout(LayoutKind.Explicit, Pack = 1, Size = ");
+        strcat(pbBuffer1, abTotalsize);
+        strcat(pbBuffer1, ")]\n");
+		strcat(pbBuffer1, "\tpublic class AppProcessImageOut\n");
 		strcat(pbBuffer1, "\t{\n");
 
-		strcpy(pbBuffer2, "\t\tprivate static UInt16 uiPIOutSize = ");
+		//strcpy(pbBuffer2, "\t\tprivate static UInt16 uiPIOutSize = ");
+        strcpy(pbBuffer2, "\t}\n");
 	}	
-	char* abTotalsize = new char[20];
-	strcat(pbBuffer2,_IntToAscii(iTotalsize, abTotalsize, 10));
 	delete[] abTotalsize;
-	strcat(pbBuffer2,";\n");
+	/*strcat(pbBuffer2,";\n");*/
 
-	if(enumDirType == INPUT)
+	/*if(enumDirType == INPUT)
 	{
 		strcat(pbBuffer2, "\n");
         	strcat(pbBuffer2, "\t\t/// <summary>\n");
@@ -968,7 +984,7 @@ void WriteNETHeaderContents(ProcessImage objProcessImage[], INT32 iNumberOfVars,
             	strcat(pbBuffer2, "\t\t\tthis.Size = uiPIOutSize;\n");
         	strcat(pbBuffer2, "\t\t}\n");
         	strcat(pbBuffer2, "\t}\n");
-	}
+	}*/
 
 	UINT32 uiStrLength =  strlen(pbBuffer1);
 	
@@ -1638,4 +1654,36 @@ char* GetDatatypeNETPI(IEC_Datatype dt_enum)
             break;
     }
     return pcDTNetString;
+}
+
+int GetDatasizeNETPI(IEC_Datatype dt_enum)
+{
+    int iDSNetString = 0;
+    switch(dt_enum)
+    {
+        case BOOL:
+        case BYTE:
+        case _CHAR:
+        case SINT:
+        case USINT:
+            iDSNetString = 1;
+            break;
+        case INT:
+        case UINT:
+            iDSNetString = 2;
+            break;
+        case DINT:
+        case DWORD:
+        case UDINT:
+            iDSNetString = 4;
+            break;
+        case LINT:
+        case LWORD:
+        case ULINT:
+            iDSNetString = 8;
+            break;
+        default:
+            break;
+    }
+    return iDSNetString;
 }

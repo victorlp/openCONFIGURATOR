@@ -207,4 +207,5 @@ INT32 GroupNETPIVariables( EPIDirectionType DirectionType, ProcessImage aobjPICo
 void CopyPItoNETPICollection(ProcessImage objProcessImage, NETProcessImage objNETProcessImage, char* ModuleName);
 INT32 GroupNETHeaderContents(ProcessImage objProcessImage[], INT32 iNumberOfVars, EPIDirectionType enumDirType, FILE* fpNetHeader);
 char* GetDatatypeNETPI(IEC_Datatype dt_enum);
+int GetDatasizeNETPI(IEC_Datatype dt_enum);
 #endif // processImage_h
