@@ -85,12 +85,12 @@ OBJECTS		=   APIOperations.o ApplicationProcess.o BaseIndex.o \
 
 
 $(TARGET):	$(OBJECTS)
-		$(GCC) $(XMLFLAGS) -I $(INCLUDE) -o $(TARGET) $(OBJECTS)
+		$(GCC) -fPIC $(XMLFLAGS) -I $(INCLUDE) -o $(TARGET) $(OBJECTS)
 		@echo 'Finished building target: $@'
 	
 
 %.o: %.cpp
-		$(GCC) $(XMLFLAGS) -I $(INCLUDE) -c $< 
+		$(GCC) -fPIC $(XMLFLAGS) -I $(INCLUDE) -c $< 
 		@echo 'Finished building: $<'
 
 .PHONY:     clean
