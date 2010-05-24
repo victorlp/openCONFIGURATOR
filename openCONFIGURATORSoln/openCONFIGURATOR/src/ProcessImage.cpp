@@ -932,12 +932,12 @@ void WriteNETHeaderContents(ProcessImage objProcessImage[], INT32 iNumberOfVars,
 	if(enumDirType == INPUT)
 	{
 		strcpy(pbBuffer1, "\n\t/// <summary>\n");
-		strcat(pbBuffer1, "\t/// Class : ProcessImage In\n");
+		strcat(pbBuffer1, "\t/// Struct : ProcessImage In\n");
 		strcat(pbBuffer1, "\t/// </summary>\n");
 		strcat(pbBuffer1, "\t[StructLayout(LayoutKind.Explicit, Pack = 1, Size = ");
         strcat(pbBuffer1, abTotalsize);
         strcat(pbBuffer1, ")]\n");
-		strcat(pbBuffer1, "\tpublic class AppProcessImageIn\n");
+		strcat(pbBuffer1, "\tpublic struct AppProcessImageIn\n");
 		strcat(pbBuffer1, "\t{\n");
 
 		//strcpy(pbBuffer2, "\t\tprivate static UInt16 uiPIInSize = ");
@@ -947,12 +947,12 @@ void WriteNETHeaderContents(ProcessImage objProcessImage[], INT32 iNumberOfVars,
 	{				
 		
 		strcpy(pbBuffer1, "\n\t/// <summary>\n");
-		strcat(pbBuffer1, "\t/// Class : ProcessImage Out\n");
+		strcat(pbBuffer1, "\t/// Struct : ProcessImage Out\n");
 		strcat(pbBuffer1, "\t/// </summary>\n");
 		strcat(pbBuffer1, "\t[StructLayout(LayoutKind.Explicit, Pack = 1, Size = ");
         strcat(pbBuffer1, abTotalsize);
         strcat(pbBuffer1, ")]\n");
-		strcat(pbBuffer1, "\tpublic class AppProcessImageOut\n");
+		strcat(pbBuffer1, "\tpublic struct AppProcessImageOut\n");
 		strcat(pbBuffer1, "\t{\n");
 
 		//strcpy(pbBuffer2, "\t\tprivate static UInt16 uiPIOutSize = ");
