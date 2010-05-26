@@ -2500,6 +2500,319 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
                 }
     }
 
+/****************************************************************************************************
+* Function Name: BRSpecificGetIndexData
+* Description: write the index data into cdc as per specific format
+* Return value: void
+****************************************************************************************************/
+void BRSpecificGetIndexData(CIndex* objIndex, char* Buffer, int iNodeId )
+    {
+            int len;
+            bool IfStringDT = false;
+	    char pb1F81nodeid[10];
+            //Get the Index Value       
+            
+            /*if(objIndex->getNumberofSubIndexes()==0 &&(objIndex->getDefaultValue()!= NULL ||
+                                                                                                                                                                                     objIndex->getActualValue()!=NULL))*/
+            strcpy(Buffer,"");
+            if(objIndex->getNumberofSubIndexes()==0 && objIndex->getActualValue()!=NULL)
+            {
+                if(true == IsDefaultActualNotEqual(objIndex))
+                {
+                    //Buffer = (char*)malloc(sizeof(objIndex->getIndexValue()+1));
+                    strcpy(Buffer,objIndex->getIndexValue());
+
+                    //Place a tab           
+                    len = strlen(Buffer);
+                    //Buffer =(char*)realloc(Buffer,2);
+                    strcat(Buffer,"\t");
+                    //printf("\n%s",Buffer);
+
+                    //If subindexes are none, add "00"
+                    //  Buffer =(char*)realloc(Buffer,4);
+                        strcat(Buffer,"00");
+                        strcat(Buffer,"\t");
+
+                            //Add datatype
+                            DataType dt;        
+                            //Buffer =(char*)realloc(Buffer,6); 
+                            dt = objIndex->getDataType();
+                            int padLength=0;
+                            char* size = new char[8 + ALLOC_BUFFER];
+                            if(dt.Name != NULL)
+                            {
+                                //dt.DataSize = padLeft(dt.DataSize, '0', 4);
+                                //strcat(Buffer ,dt.DataSize);  
+                                if(!checkIfStringDatatypes(dt.Name)) 
+                                {
+                                    size  = _IntToAscii(dt.DataSize, size, 16); 
+                                    size = padLeft(size, '0', 8);
+                                    strcat(Buffer, size);   
+                                    padLength = dt.DataSize*2;
+                                    IfStringDT = false;
+                                    }
+                                    else
+                                    {           
+                                        int len = strlen(objIndex->getActualValue());                           
+                                        size = _IntToAscii(len, size, 16);
+                                        size = padLeft(size, '0', 8);
+                                        strcat(Buffer, size);   
+                                        padLength = len*2;
+                                        IfStringDT = true;
+                                    }
+                            }
+                            
+                            else strcat(Buffer,"00000000");
+                            delete[] size;
+                            
+                            strcat(Buffer,"\t");
+                        
+                            if (objIndex->getActualValue()!=NULL)
+                            {   
+                                        char actvalue[20];
+                                        actvalue[0]  = '\0';
+                                        if(IfStringDT)
+                                        {
+                                            strcat(Buffer,(char*)objIndex->getActualValue());
+                                        }
+                                        else
+                                        {
+                                            if(CheckIfHex((char*)objIndex->getActualValue()))
+                                            //if(actvalue!=NULL)
+                                            {
+                                                int len = strlen((char*)objIndex->getActualValue());
+                                                strncpy(actvalue,(objIndex->getActualValue()+ 2),len-2 );
+                                                actvalue[len -2] ='\0';                             
+                                                strcat(Buffer,padLeft(actvalue,'0',padLength));
+                                                
+                                            }                                       
+                        
+                                        else
+                                        {
+                                     
+                                            strcpy(actvalue, _IntToAscii(atoi(objIndex->getActualValue()),actvalue,16));
+                                            //printf("\n ACT Value%s",actvalue);                                                            
+                                            strcat(Buffer,padLeft(actvalue, '0', padLength));
+                                        
+                                    }
+                                }
+                            }
+                    
+                                    strcat(Buffer,"\n");
+                }
+            }
+            /* If Subobjects present*/
+            else
+            {
+                int noOfSubIndexes = 0; //= objIndex->getNumberofSubIndexes();  
+                int noOfTotalSubIndexes = objIndex->getNumberofSubIndexes();
+            
+                bool Indexadded  = false;               
+                bool resetValueAdded = false;
+                bool flag_No_of_enteriesAdded = false;
+                int i;
+                CSubIndex* objSubIndex;
+                objSubIndex = objIndex->getSubIndexbyIndexValue((char*)"00");
+                if(objSubIndex != NULL)
+                {
+                    if(objSubIndex->getActualValue() != NULL)
+                    {
+                        if(CheckIfHex((char*)objSubIndex->getActualValue()))
+                        {
+                        //  cout << "hex value" << objSubIndex->getActualValue();
+                            noOfSubIndexes = hex2int(subString((char*)objSubIndex->getActualValue(), 2, strlen(objSubIndex->getActualValue()) -2));
+                            
+                        }
+                        else
+                            noOfSubIndexes = atoi(objSubIndex->getActualValue());
+                            //printf("\n GetIndexdata Indxeid=%s noOfSubIndexes=%d\n", objIndex->getIndexValue(), noOfSubIndexes);
+                            if(noOfSubIndexes ==0)
+                            return;
+                            noOfSubIndexes = noOfSubIndexes + 1;
+                    }
+                }
+
+                //newly added
+                if(CheckIfMappingPDO((char*)objIndex->getIndexValue()))
+                {
+                    if(objSubIndex->getActualValue() != NULL)
+                    {
+                            noOfSubIndexes = noOfTotalSubIndexes ;
+                    }
+                    else
+                    {
+                            noOfSubIndexes = noOfTotalSubIndexes + 1;
+                    }
+                }
+                //end of newly added
+
+                int noOfValidSubIndexes = 0;
+                
+				if(0 == strcmp(objIndex->getIndexValue(),(char*)"1F81"))
+				{
+					
+					_IntToAscii(iNodeId, pb1F81nodeid, 16); 
+					padLeft(pb1F81nodeid, '0', 2);
+				}
+
+                for(i=0; i<noOfTotalSubIndexes ; i++)
+                {
+                    
+                    objSubIndex = objIndex->getSubIndex(i);
+                
+                    /*if(strcmp(objSubIndex->getIndexValue(),"00")!=0 && objSubIndex->getActualValue() != NULL)*/
+                    //$S_:TODO
+                    //if((objSubIndex->getActualValue() != NULL) && (objSubIndex->getFlagIfIncludedCdc() == TRUE))            
+                    //if((objSubIndex->getActualValue() != NULL))
+                    if((objSubIndex->getActualValue() != NULL) && (objSubIndex->getFlagIfIncludedCdc() == TRUE) &&  ( true == CheckAccessTypeForInclude((char*)objSubIndex->getAccessType()) || CheckIfMappingPDO((char*)objIndex->getIndexValue()) ) && (true == IsDefaultActualNotEqual(objSubIndex))  )
+                    {
+						if(0 == strcmp(objIndex->getIndexValue(),(char*)"1F81"))
+						{
+							
+							if(0 == strcmp(objSubIndex->getIndexValue(),"00") || 0 == strcmp(objSubIndex->getIndexValue(),pb1F81nodeid))
+							{
+								continue;
+							}
+							else
+							{
+							}
+						}
+                        noOfValidSubIndexes = noOfValidSubIndexes + 1;
+                        
+                        if(noOfValidSubIndexes == noOfSubIndexes)
+                        {
+                            i= noOfTotalSubIndexes -1;
+                        
+                        }
+                        //newly added
+                        if(CheckIfMappingPDO((char*)objIndex->getIndexValue()))
+                        {
+                            if(0 == strcmp((char*)objSubIndex->getIndexValue() ,"00"))
+                            {
+                                continue;
+                            }  
+                            if(0 == GetDecimalValue((char*)objSubIndex->getActualValue()))
+                            {
+                                if(  NULL == objSubIndex->getDefaultValue() || 0 == GetDecimalValue((char*)objSubIndex->getDefaultValue()))
+                                {
+                                    continue;
+                                }
+                            }
+                        }
+                        // end of newly added
+
+                        if (Indexadded)
+                        strcat(Buffer,objIndex->getIndexValue());
+                        else
+                        {
+                            strcpy(Buffer,objIndex->getIndexValue());
+                            Indexadded = true;
+                        }
+                                            
+                        //Place a tab           
+                        len = strlen(Buffer);
+                        strcat(Buffer,"\t");                
+    
+                            /*if(objSubIndex->getActualValue() != NULL || objSubIndex->getDefaultValue()!=NULL)*/
+                                strcat(Buffer, objSubIndex->getIndexValue());
+                                strcat(Buffer,"\t");
+                                    //Add datatype
+                                DataType dt;            
+                                dt = objSubIndex->getDataType();
+                                int padLength=0;
+                            char* size = new char[8 + ALLOC_BUFFER];
+                            
+                                if(dt.Name != NULL)
+                                {
+                                    if(!checkIfStringDatatypes(dt.Name)) 
+                                {
+                                    size  = _IntToAscii(dt.DataSize, size, 16); 
+                                    size = padLeft(size, '0', 8);
+                                    strcat(Buffer, size);   
+                                    padLength = dt.DataSize*2;
+                                    IfStringDT = false;
+                                    }
+                                    else
+                                    {           
+                                        int len = strlen(objIndex->getActualValue());                           
+                                        size = _IntToAscii(len, size, 16);
+                                        size = padLeft(size, '0', 8);
+                                        strcat(Buffer, size);   
+                                        padLength = len*2;
+                                            IfStringDT = true;
+                                    }
+                                }
+                    
+                                else strcat(Buffer,"00000000");
+                                delete[] size;
+                                strcat(Buffer,"\t");
+            
+                                if (objSubIndex->getActualValue()!=NULL)
+                                {
+
+                                    // Add the reset value for that Index,SubIndex
+                                    if(strcmp(objSubIndex->getIndexValue(),"00")==0 && CheckIfMappingPDO((char*)objIndex->getIndexValue()) &&
+                                                resetValueAdded==false )
+                                    {
+                                        char actvalue[20];
+                                        strcpy(actvalue,"0");
+                                        strcat(Buffer,padLeft(actvalue,'0',padLength));
+                                        resetValueAdded = true;
+                                        //i--;
+                                    }
+                                    else
+                                    {
+                                        
+                                        char actvalue[20];
+                                        actvalue[0]  = '\0';
+                                        if(IfStringDT)
+                                        {
+                                            strcat(Buffer,(char*)objSubIndex->getActualValue());
+                                        }
+                                        else
+                                        {
+                                            if(CheckIfHex((char*)objSubIndex->getActualValue()))                                        
+                                            {
+                                                int len = strlen((char*)objSubIndex->getActualValue());
+                                                strncpy(actvalue,(objSubIndex->getActualValue()+ 2),len-2 );
+                                                actvalue[len -2] ='\0';
+                                            
+                                                //printf("\n ACT Value%s",actvalue);
+                                                strcat(Buffer,padLeft(actvalue,'0',padLength));
+                                            
+                                            }
+                                                else
+                                                {               
+                                                    //actvalue = new char[50];                                  
+                                                    strcpy(actvalue, _IntToAscii(atoi(objSubIndex->getActualValue()),actvalue,16));
+                                                    //printf("\n ACT Value%s",actvalue);
+                                        
+                                                    strcat(Buffer,padLeft(actvalue, '0', padLength));
+                                                }
+                                            }
+                                        
+                                        }
+                                        
+                                }
+                    
+                                    /*else strcat(Buffer,objSubIndex->getDefaultValue());*/
+                                strcat(Buffer,"\n");
+                                if(i == 0 && (CheckIfMappingPDO((char*)objIndex->getIndexValue()) &&(flag_No_of_enteriesAdded==true)))
+                                {
+                                    i = noOfTotalSubIndexes-1;                              
+                                }
+                                if(i == noOfTotalSubIndexes-1 && (CheckIfMappingPDO((char*)objIndex->getIndexValue()) && (flag_No_of_enteriesAdded==false) && resetValueAdded == true))
+                                {
+                                        //printf("\n*set for adding actual entereis");
+                                    i = -1; 
+                                    flag_No_of_enteriesAdded = true;                            
+                                }
+                            }
+                        }                   
+                        
+                }
+    }
+
 	void WriteCNsData(char* fileName)
 {
 		char* Buffer2;
@@ -2610,7 +2923,9 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 							strcpy(Buffer4, "");
 							
 							char* NoOfenteries = new char[10];
-							NoOfenteries = _IntToAscii(getCNsTotalIndexSubIndex(objNode.getNodeId()), NoOfenteries, 16);
+							//workaround for B&R Bus Controller stack
+							//NoOfenteries = _IntToAscii(getCNsTotalIndexSubIndex(objNode.getNodeId()), NoOfenteries, 16);
+							NoOfenteries = _IntToAscii(BRSpecificgetCNsTotalIndexSubIndex(objNode.getNodeId()), NoOfenteries, 16);
                             /*1 is added for the size*/
 							NoOfenteries =  padLeft(NoOfenteries, '0', 8);
 							strcpy(Buffer4, NoOfenteries);
@@ -2638,7 +2953,11 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
 // printf("\n *********** \n");
 // 								delete[] Buffer4;
 								
-                                FormatCdc(objIndexCollection, Buffer4, fileptr, CN);
+
+								////workaround for B&R Bus Controller stack
+                                //FormatCdc(objIndexCollection, Buffer4, fileptr, CN);
+								BRSpecificFormatCdc(objIndexCollection, Buffer4, fileptr, CN, objNode.getNodeId() );
+
                                 strcat(Buffer2, Buffer4);
                                 delete[] Buffer4;
 							
@@ -2947,6 +3266,143 @@ INT32 getCNsTotalIndexSubIndex(INT32 iNodeID)
                         //printf("\n SubIndex iLoopCount%d",pobjIndex->getNumberofSubIndexes());
                         if(pobjIndex->getSubIndex(iLoopCount)->getActualValue() !=NULL && TRUE == pobjIndex->getSubIndex(iLoopCount)->getFlagIfIncludedCdc() && true == CheckAccessTypeForInclude((char*)pobjIndex->getSubIndex(iLoopCount)->getAccessType()) && true == IsDefaultActualNotEqual(pobjIndex->getSubIndex(iLoopCount)) )
                         {
+                                iNumberOfEntries =  iNumberOfEntries + 1;
+                        }
+                            //printf("\nIndexid=%s subindex=%s before iNumberOfEntries=%d\t", (char*)pobjIndex->getIndexValue(), (char*)pobjIndex->getSubIndex(iLoopCount)->getIndexValue(), iNumberOfEntries);
+			        }
+                    //printf("\nIndexid=%s  iNumberOfEntries=%d\t", (char*)pobjIndex->getIndexValue(),  iNumberOfEntries);
+		        }
+			}
+		}
+	}
+	return iNumberOfEntries ;
+}
+/****************************************************************************************************
+* Function Name: BRSpecificgetCNsTotalIndexSubIndex
+* Description: 
+* Return value: INT32
+****************************************************************************************************/
+INT32 BRSpecificgetCNsTotalIndexSubIndex(INT32 iNodeID)
+{
+	CNodeCollection *objNodeCol;
+	objNodeCol =  CNodeCollection::getNodeColObjectPointer();
+	CNode objNode;		
+	INT32 iNumberOfEntries = 0;
+	CIndexCollection* pobjIdxCol;
+	char pb1F81nodeid[10];
+	_IntToAscii(iNodeID, pb1F81nodeid, 16); 
+	padLeft(pb1F81nodeid, '0', 2);
+			
+	objNode    = objNodeCol->getNode(iNodeID);
+	pobjIdxCol =  objNode.getIndexCollection();
+//printf("\ngetCNsTotalIndexSubIndex iNodeID=%d\n",iNodeID);
+	for(INT32 iLoopCount = 0; iLoopCount < pobjIdxCol->getNumberofIndexes(); iLoopCount++)
+	{
+			
+		CIndex *pobjIndex;
+		pobjIndex = pobjIdxCol->getIndex(iLoopCount);
+			
+	
+		if( pobjIndex->getFlagIfIncludedCdc() == TRUE && ( true == CheckAccessTypeForInclude((char*)pobjIndex->getAccessType()) || CheckIfMappingPDO((char*)pobjIndex->getIndexValue()) ) )
+		{
+	        //if(CheckAllowedCNIndexes((char*)pobjIndex->getIndexValue()))
+			{
+				if(pobjIndex->getNumberofSubIndexes() ==0)
+				{
+					if(pobjIndex->getActualValue() != NULL && true == IsDefaultActualNotEqual(pobjIndex) )
+			        {
+						iNumberOfEntries =  iNumberOfEntries + 1;
+						//printf("\n indexid=%s iNumberOfEntries=%d\n", pobjIndex->getIndexValue(), iNumberOfEntries);
+					}
+				}
+				else 
+				{
+                    if(CheckIfMappingPDO((char*)pobjIndex->getIndexValue()))
+                    {
+                        CSubIndex* pobjSubIndex;
+                        pobjSubIndex = pobjIndex->getSubIndexbyIndexValue((char*)"00");
+
+                        //if((NULL != pobjSubIndex) && (NULL != pobjSubIndex->getActualValue()) && ( 0 != strcmp(pobjSubIndex->getActualValue(),"")) && !(checkIfValueZero((char*)pobjSubIndex->getActualValue())) )
+                        if((NULL != pobjSubIndex) && (NULL != pobjSubIndex->getActualValue()) && ( 0 != strcmp(pobjSubIndex->getActualValue(),"")) )
+                        {
+                            //printf("\nIndexid=%s subindex=%s before iNumberOfEntries=%d\t", (char*)pobjIndex->getIndexValue(), (char*)pobjSubIndex->getIndexValue(), iNumberOfEntries);
+                            //iNumberOfEntries =  iNumberOfEntries + GetDecimalValue((char*)pobjSubIndex->getActualValue());
+                            if(true == ReactivateMappingPDO(pobjIdxCol, pobjIndex) || true == IsDefaultActualNotEqual(pobjSubIndex))
+                            {
+                                iNumberOfEntries =  iNumberOfEntries + 1; /* to initalize 00 entry subindex */
+                            }
+							//printf("\n indexid=%s 00 initialize iNumberOfEntries=%d\n", pobjIndex->getIndexValue(), iNumberOfEntries);
+                            if(checkIfValueZero((char*)pobjSubIndex->getActualValue()))
+                            {
+                                continue;
+                            }
+                            if(true == ReactivateMappingPDO(pobjIdxCol, pobjIndex) || true == IsDefaultActualNotEqual(pobjSubIndex))
+                            {
+                                iNumberOfEntries =  iNumberOfEntries + 1; /* to reinitalize 00 entry subindex */
+                            }
+							//printf("\n indexid=%s 00 reinitialize iNumberOfEntries=%d\n", pobjIndex->getIndexValue(), iNumberOfEntries);
+                            //printf("After iNumberOfEntries=%d\n", iNumberOfEntries);
+                            for(INT32 iLoopCount = 0; iLoopCount < pobjIndex->getNumberofSubIndexes(); iLoopCount++)
+                            {
+                                //printf("\n SubIndex iLoopCount%d",pobjIndex->getNumberofSubIndexes());
+                                //if(pobjIndex->getSubIndex(iLoopCount)->getActualValue() !=NULL && TRUE == pobjIndex->getSubIndex(iLoopCount)->getFlagIfIncludedCdc() && true == CheckAccessTypeForInclude((char*)pobjIndex->getSubIndex(iLoopCount)->getAccessType()))
+                                if(pobjIndex->getSubIndex(iLoopCount)->getActualValue() !=NULL && TRUE == pobjIndex->getSubIndex(iLoopCount)->getFlagIfIncludedCdc() && true == IsDefaultActualNotEqual(pobjIndex->getSubIndex(iLoopCount)) )
+                                {
+                                    if(0 == strcmp((char*)pobjIndex->getSubIndex(iLoopCount)->getIndexValue() ,"00"))
+                                    {
+                                        continue;
+                                    }  
+                                    if(0 == GetDecimalValue((char*)pobjIndex->getSubIndex(iLoopCount)->getActualValue()))
+                                    {
+                                        if(  NULL == pobjIndex->getSubIndex(iLoopCount)->getDefaultValue() || 0 == GetDecimalValue((char*)pobjIndex->getSubIndex(iLoopCount)->getDefaultValue()))
+                                        {
+                                            continue;
+                                        }
+                                    }
+                                    iNumberOfEntries =  iNumberOfEntries + 1;
+                                    //printf("\nIndexid=%s subindex=%s iNumberOfEntries=%d\t", (char*)pobjIndex->getIndexValue(), (char*)pobjIndex->getSubIndex(iLoopCount)->getIndexValue(), iNumberOfEntries);
+
+                                }
+                            }
+                            //printf("\nIndexid=%s  iNumberOfEntries=%d\t", (char*)pobjIndex->getIndexValue(), iNumberOfEntries);
+                        }
+                        continue;
+                    }
+
+                    CSubIndex* pobjSubIndex;
+                    pobjSubIndex = pobjIndex->getSubIndexbyIndexValue((char*)"00");
+                    if((NULL != pobjSubIndex) && (NULL != pobjSubIndex->getActualValue()) && ( 0 != strcmp(pobjSubIndex->getActualValue(),"")) )
+                    {
+                        //printf("\nIndexid=%s subindex=%s before iNumberOfEntries=%d\t", (char*)pobjIndex->getIndexValue(), (char*)pobjSubIndex->getIndexValue(), iNumberOfEntries);
+                        if(checkIfValueZero((char*)pobjSubIndex->getActualValue()))
+                            continue;
+                        /*
+                        if(TRUE == pobjSubIndex->getFlagIfIncludedCdc())
+                        {
+                            iNumberOfEntries = iNumberOfEntries + 1;
+                        }
+                        iNumberOfEntries =  iNumberOfEntries + GetDecimalValue((char*)pobjSubIndex->getActualValue());
+                        //printf("After iNumberOfEntries=%d\n", iNumberOfEntries);
+                    continue;
+                        */
+                    }
+
+                    for(INT32 iLoopCount = 0; iLoopCount < pobjIndex->getNumberofSubIndexes(); iLoopCount++)
+                    {
+                        //printf("\n SubIndex iLoopCount%d",pobjIndex->getNumberofSubIndexes());
+						if(pobjIndex->getSubIndex(iLoopCount)->getActualValue() !=NULL && TRUE == pobjIndex->getSubIndex(iLoopCount)->getFlagIfIncludedCdc() && true == CheckAccessTypeForInclude((char*)pobjIndex->getSubIndex(iLoopCount)->getAccessType()) && true == IsDefaultActualNotEqual(pobjIndex->getSubIndex(iLoopCount)) )
+                        {
+							if(0 == strcmp(pobjIndex->getIndexValue(),(char*)"1F81"))
+							{
+								
+								if(0 == strcmp(pobjIndex->getSubIndex(iLoopCount)->getIndexValue(),"00") || 0 == strcmp(pobjIndex->getSubIndex(iLoopCount)->getIndexValue(),pb1F81nodeid))
+								{
+									continue;
+								}
+								else
+								{
+								}
+							}
                                 iNumberOfEntries =  iNumberOfEntries + 1;
                         }
                             //printf("\nIndexid=%s subindex=%s before iNumberOfEntries=%d\t", (char*)pobjIndex->getIndexValue(), (char*)pobjIndex->getSubIndex(iLoopCount)->getIndexValue(), iNumberOfEntries);
@@ -3885,6 +4341,177 @@ void FormatCdc(CIndexCollection *objIndexCollection, char* Buffer1, FILE* filept
                 }
             }
 }
+
+/****************************************************************************************************
+* Function Name: BRSpecificFormatCdc
+* Description: write the cdc as per BR specific format
+* Return value: void
+****************************************************************************************************/
+void BRSpecificFormatCdc(CIndexCollection *objIndexCollection, char* Buffer1, FILE* fileptr, ENodeType eNodeType, int iNodeId )
+{
+    //char *Buffer1 = NULL;
+    char *TempBuffer1 = NULL;
+    strcpy(Buffer1, "");
+    unsigned int len;
+    int NumberOfIndexes = objIndexCollection->getNumberofIndexes();
+//disable mapping pdo
+    for(int i=0;i < NumberOfIndexes; i++)
+    {
+        CIndex* objIndex;
+        objIndex = objIndexCollection->getIndex(i);
+        //if((!checkFlag) || (checkFlag && (objIndex->getFlagIfIncludedCdc() == TRUE)))
+        
+
+        //if(objIndex->getFlagIfIncludedCdc() == TRUE && true == CheckAccessTypeForInclude((char*)objIndex->getAccessType()))
+        if(objIndex->getFlagIfIncludedCdc() == TRUE )
+        {
+                if(CheckIfMappingPDO((char*)objIndex->getIndexValue()))
+                {
+                //TempBuffer1 = (char*)malloc(CDC_BUFFER);
+                //printf("\nDisable indexid=%s \n", (char*)objIndex->getIndexValue());
+                TempBuffer1 = new char[CDC_BUFFER];
+                len = strlen(Buffer1);      
+                //GetIndexData(objIndex,Buffer1);
+                EnableDisableMappingPDO(objIndexCollection, objIndex, TempBuffer1, false);
+                strcat(Buffer1, TempBuffer1);
+//                len = strlen(Buffer1);
+//                 if((len != (fwrite(Buffer1, sizeof(char),len,fileptr))))
+//                 {
+//                     //printf("Buffer1 written");
+//                 
+//                 }                   
+//                 
+                 delete[] TempBuffer1;
+                 }
+        }
+    }
+            // write all objects except pdo
+            for(int i=0;i < NumberOfIndexes; i++)
+            {
+                CIndex* objIndex;
+                objIndex = objIndexCollection->getIndex(i);
+                //if((!checkFlag) || (checkFlag && (objIndex->getFlagIfIncludedCdc() == TRUE)))
+                
+
+                if(objIndex->getFlagIfIncludedCdc() == TRUE && true == CheckAccessTypeForInclude((char*)objIndex->getAccessType()) && CheckIfNotPDO((char*)objIndex->getIndexValue()))
+                {
+                        if((CN == eNodeType) ||  (strcmp(objIndex->getIndexValue(), "1F81") != 0 && MN == eNodeType))
+                        {
+                        //Buffer1 = (char*)malloc(CDC_BUFFER);
+                        //TempBuffer1 = new char[CDC_BUFFER];
+                        //TempBuffer1 = new char[3 * CDC_BUFFER];
+                        TempBuffer1 = new char[15000];
+						//commented the GetIndexData fn and BRSpecificGetIndexData is used
+						//GetIndexData(objIndex,TempBuffer1);
+                        BRSpecificGetIndexData(objIndex,TempBuffer1,iNodeId);
+                        strcat(Buffer1, TempBuffer1);
+                        /*len = strlen(Buffer1);
+                        if((len != (fwrite(Buffer1, sizeof(char),len,fileptr))))
+                        {
+                            //printf("Buffer1 written");
+                        
+                        } */                  
+                        
+                        delete[] TempBuffer1;
+                        }
+                        else
+                        {
+                            CSubIndex* objSubIndex = objIndex->getSubIndexbyIndexValue((char*)"F0");
+                            if(NULL != objSubIndex && TRUE == objSubIndex->getFlagIfIncludedCdc() && true == CheckAccessTypeForInclude((char*)objSubIndex->getAccessType())  && NULL != objSubIndex->getActualValue() && 0 != strcmp((char*)objSubIndex->getActualValue(), "") && true == IsDefaultActualNotEqual(objSubIndex))
+                            {
+                                    TempBuffer1 = new char[CDC_BUFFER];
+                                    //TempBuffer1 = new char[2 * CDC_BUFFER];
+                                    strcpy(TempBuffer1, "1F81");
+                                    strcat(TempBuffer1, "\t");
+                                    strcat(TempBuffer1, "F0");
+                                    strcat(TempBuffer1, "\t00000004\t");
+    
+                                    char actvalue[20];
+                                    actvalue[0]  = '\0';
+                                    if(CheckIfHex((char*)objSubIndex->getActualValue()))
+                                    {
+                                        int len = strlen((char*)objSubIndex->getActualValue());
+                                        strncpy(actvalue,(objSubIndex->getActualValue()+ 2),len-2 );
+                                        actvalue[len -2] ='\0';
+                                        strcat(TempBuffer1,padLeft(actvalue,'0',8));
+                                    }
+                                    else
+                                    {
+                                        strcpy(actvalue, _IntToAscii(atoi(objSubIndex->getActualValue()),actvalue,16));
+                                        strcat(TempBuffer1,padLeft(actvalue, '0', 8));
+                                    }
+    
+                                    strcat(TempBuffer1, "\n"); 
+                                    len = strlen(TempBuffer1);
+//                                     if((len != (fwrite(Buffer1, sizeof(char),len,fileptr))))
+//                                     {
+//                                         //fclose(fileptr);
+//                                         //printf("Buffer1 written");
+//                                     
+//                                     }
+                                    strcat(Buffer1, TempBuffer1);
+                                    delete[] TempBuffer1;
+                        }
+                }
+            }           
+        }
+        //Write the pdo configuration
+        for(int i=0;i < NumberOfIndexes; i++)
+            {
+                CIndex* objIndex;
+                objIndex = objIndexCollection->getIndex(i);
+                //if((!checkFlag) || (checkFlag && (objIndex->getFlagIfIncludedCdc() == TRUE)))
+                
+
+                //if(objIndex->getFlagIfIncludedCdc() == TRUE && true == CheckAccessTypeForInclude((char*)objIndex->getAccessType()) && !CheckIfNotPDO((char*)objIndex->getIndexValue()))
+                if(objIndex->getFlagIfIncludedCdc() == TRUE && ( true == CheckAccessTypeForInclude((char*)objIndex->getAccessType()) || CheckIfMappingPDO((char*)objIndex->getIndexValue()) ) && !CheckIfNotPDO((char*)objIndex->getIndexValue()))
+                {
+                        //Buffer1 = (char*)malloc(CDC_BUFFER);
+                        //TempBuffer1 = new char[CDC_BUFFER];
+                        TempBuffer1 = new char[3 * CDC_BUFFER];
+                        GetIndexData(objIndex,TempBuffer1);
+                        //len = strlen(TempBuffer1);
+                        strcat(Buffer1, TempBuffer1);
+                        /*if((len != (fwrite(Buffer1, sizeof(char),len,fileptr))))
+                        {
+                            //printf("Buffer1 written");
+                        
+                        }  */                 
+                        
+                        delete[] TempBuffer1;
+                    }
+            }           
+            //reenable the pdos
+            for(int i=0;i < NumberOfIndexes; i++)
+            {
+                CIndex* objIndex;
+                objIndex = objIndexCollection->getIndex(i);
+                //if((!checkFlag) || (checkFlag && (objIndex->getFlagIfIncludedCdc() == TRUE)))
+                
+
+                //if(objIndex->getFlagIfIncludedCdc() == TRUE && true == CheckAccessTypeForInclude((char*)objIndex->getAccessType()))
+                if(objIndex->getFlagIfIncludedCdc() == TRUE )
+                {
+                        if(CheckIfMappingPDO((char*)objIndex->getIndexValue()))
+                        {
+                        //Buffer1 = (char*)malloc(CDC_BUFFER);
+                        TempBuffer1 = new char[CDC_BUFFER];
+                        //GetIndexData(objIndex,Buffer1);
+                        EnableDisableMappingPDO(objIndexCollection, objIndex, TempBuffer1, true);
+                        strcat(Buffer1, TempBuffer1);
+//                        len = strlen(TempBuffer1);
+//                         if((len != (fwrite(Buffer1, sizeof(char),len,fileptr))))
+//                         {
+//                             //printf("Buffer1 written");
+//                         
+//                         }                   
+//                         
+                         delete[] TempBuffer1;
+                         }
+                }
+            }
+}
+
 
 /****************************************************************************************************
 * Function Name: GenerateMNOBD

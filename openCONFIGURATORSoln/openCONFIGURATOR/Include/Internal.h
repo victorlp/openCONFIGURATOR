@@ -242,4 +242,7 @@ void EnableDisableMappingPDO(CIndexCollection* pobjIdxCol, CIndex* objIndex, cha
 void FormatCdc(CIndexCollection *objIndexCollection, char* Buffer1, FILE* fileptr, ENodeType eNodeType );
 bool IsDefaultActualNotEqual(CBaseIndex* pBaseIndexObject);
 bool ReactivateMappingPDO(CIndexCollection* pobjIndexCol, CIndex* pobjIndex);
+void BRSpecificFormatCdc(CIndexCollection *objIndexCollection, char* Buffer1, FILE* fileptr, ENodeType eNodeType, int iNodeId );
+void BRSpecificGetIndexData(CIndex* objIndex, char* Buffer, int iNodeId );
+INT32 BRSpecificgetCNsTotalIndexSubIndex(INT32 iNodeID);
 #endif // internal_h
