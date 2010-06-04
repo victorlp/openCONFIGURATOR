@@ -5005,6 +5005,10 @@ ocfmRetCode ProcessPDONodes()
 															if(pobjModuleIndex==NULL)
 															{								
 																objocfmException.ocfm_Excpetion(OCFM_ERR_MODULE_INDEX_NOT_FOUND);
+                                                                char acCustomError[200] = {0};
+                                                                sprintf(acCustomError, "PDO Mapped Module Index Not Found, Index:%s in Node ID:%d", pbModuleIndex, pobjNode->getNodeId());
+                                                                CopyCustomErrorString(&(objocfmException._ocfmRetCode), acCustomError);
+
 																throw objocfmException;
 															}
 															
@@ -5040,6 +5044,10 @@ ocfmRetCode ProcessPDONodes()
 															if(pobjModuleSIndex==NULL)
 															{								
 																objocfmException.ocfm_Excpetion(OCFM_ERR_MODULE_SUBINDEX_NOT_FOUND);
+                                                                char acCustomError[200] = {0};
+                                                                sprintf(acCustomError, "PDO Mapped Module SubIndex Not Found, Index:%s Subindex:%s in Node ID:%d", pbModuleIndex, pbSubIndex, pobjNode->getNodeId());
+                                                                CopyCustomErrorString(&(objocfmException._ocfmRetCode), acCustomError);
+
 																throw objocfmException;
 																}
 																else
@@ -11420,7 +11428,7 @@ void calculateCNPollResponse(int iNodeID, ENodeType enumNodeType)
 ****************************************************************************************************/
 void CopyCustomErrorString(ocfmRetCode* stRet, char* pcCustomErrString)
 {
-    if(NULL != pcCustomErrString)
+    if(0 == strlen(pcCustomErrString))
         return;
 
     stRet->errorString = new char[strlen(pcCustomErrString) + ALLOC_BUFFER];

@@ -113,7 +113,7 @@
 #define EPL_NODEASSIGN_RT1              0x00000400L // Bit 10
 #define EPL_NODEASSIGN_RT2              0x00000800L // Bit 11
 #define EPL_NODEASSIGN_MN_PRES          0x00001000L // Bit 12
-#define EPL_NODEASSIGN_CHAINED_CN       0x00800000L // Bit 14
+#define EPL_NODEASSIGN_CHAINED_CN       0x00004000L // Bit 14
 #define EPL_NODEASSIGN_VALID            0x80000000L // Bit 31
 /************************************************************************************************
 * Enumerations
