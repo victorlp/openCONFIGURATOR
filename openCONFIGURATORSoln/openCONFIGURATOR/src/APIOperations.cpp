@@ -97,6 +97,7 @@
 
 #define MY_ENCODING "UTF-8"
 #define CDC_BUFFER 5000
+#define CDC_MN_BUFFER 200000
 //#define PI_VAR_COUNT 4000
 #define MAX_FILE_PATH_SIZE 500
 
@@ -119,6 +120,8 @@ static stOffsets stSize16OUTOffset;
 static stOffsets stSize32OUTOffset;
 static stOffsets stSize64OUTOffset;
 
+static INT32 iPresMNPayload =0;
+    
 INT32 iNo8Offsets  = 0; 
 INT32 iNo16Offsets = 0;
 INT32 iNo32Offsets = 0; 
@@ -426,6 +429,58 @@ ocfmRetCode CreateNode(INT32 iNodeID, ENodeType enumNodeType, char* pbNodeName)
 		stErrorInfo = ex->_ocfmRetCode;
 		return stErrorInfo;
 	}
+}
+
+/****************************************************************************************************
+* Function Name: NewProjectNode
+* Description:
+* Return value: ocfmRetCode
+****************************************************************************************************/
+ocfmRetCode NewProjectNode(INT32 iNodeID, ENodeType enumNodeType, char* pbNodeName, char * pbImportXmlFile)
+{
+    ocfmRetCode stErrorInfo;
+    CNode objNode;
+    CNodeCollection *pobjNodeCollection;
+    INT32 iNodePos;
+    
+    try
+    {
+        stErrorInfo = CreateNode(iNodeID, enumNodeType, pbNodeName);
+        if(OCFM_ERR_SUCCESS != stErrorInfo.code)
+            return stErrorInfo;
+
+
+        stErrorInfo = ImportXML(pbImportXmlFile, iNodeID, enumNodeType);
+        if(OCFM_ERR_SUCCESS != stErrorInfo.code)
+            return stErrorInfo;
+
+        if(MN == enumNodeType)
+        {
+            //set the loss of SoC tolerance to 10 ms
+            INT32 iIndexPos;
+            stErrorInfo = IfIndexExists(iNodeID, enumNodeType, (char *)"1C14", &iIndexPos);
+            if(OCFM_ERR_SUCCESS == stErrorInfo.code)
+            {
+                //iIndexPos = stErrorInfo.returnValue;
+                CIndex* pobjIndex;
+        
+                pobjIndex = getMNIndexValues((char*) "1C14");
+                if( (NULL != pobjIndex) && (NULL == pobjIndex->getActualValue()))
+                {
+                    pobjIndex->setActualValue((char *)"10000000");
+                }
+            }
+        }
+        stErrorInfo.code = OCFM_ERR_SUCCESS;
+        return stErrorInfo;
+
+    }
+    catch(ocfmException* ex)
+    {
+        //cout << "\nOut of Create Node\n" << endl;
+        stErrorInfo = ex->_ocfmRetCode;
+        return stErrorInfo;
+    }
 }
 
 /****************************************************************************************************
@@ -1897,6 +1952,24 @@ void EnableDisableMappingPDO(CIndexCollection* pobjIdxCol, CIndex* objIndex, cha
 	}
 
 /****************************************************************************************************
+* Function Name: UpdateCNSoCTolerance
+* Description: Updates the Loss SoC Tolerance(1C14) of the CN
+* Return value: void
+****************************************************************************************************/
+
+    void UpdateCNSoCTolerance(CIndexCollection  *pobjIdxCol,char* pbSocTolerance)
+    {
+        CIndex* pobjIndex;
+
+        pobjIndex = pobjIdxCol->getIndexbyIndexValue((char*) "1C14");
+        if(pobjIndex!= NULL)
+        {
+            pobjIndex->setActualValue(pbSocTolerance);
+        }
+        
+    }
+
+/****************************************************************************************************
 * Function Name: UpdateCNAsyncMTUsize
 * Description: Updates the Asynchronous MTU size(1F98/08) of the CN
 * Return value: void
@@ -2054,6 +2127,79 @@ void UpdateCNMultipleCycleAssign(CNode*  pobjNode)
         objCNSubIndex = objCNIndex->getSubIndex(iLoopCount);
         if(NULL != objCNSubIndex)
             objCNSubIndex->setFlagIfIncludedCdc(TRUE);
+    }
+}
+
+/****************************************************************************************************
+* Function Name: UpdateCNPresActLoad
+* Description: copies all the subobjects of 1F81 in MN to CN if conditions are satisfied
+* Return value: void
+****************************************************************************************************/
+void UpdateCNPresActLoad(CNode*  pobjNode, EAutoGenerate ePjtSetting)
+{
+    if(YES_AG == ePjtSetting)
+    {
+        ocfmRetCode stErrStructInfo;
+        CIndex *pobjIndex;
+        CSubIndex *pobjSubIndex;
+        CIndexCollection *pobjIndexColl;
+        INT32 IndexPos=0, subIndexPos=0;
+
+        INT32 iNodeId = pobjNode->getNodeId();
+        ENodeType eNodeType =  pobjNode->getNodeType();
+        stErrStructInfo = IfSubIndexExists(iNodeId, eNodeType, (char *)"1F8D", (char *)"F0", &subIndexPos, &IndexPos);
+        if((CHAINED != pobjNode->getStationType()) && (OCFM_ERR_SUCCESS != stErrStructInfo.code))
+        {
+          return;
+        }
+        char * pcSubindexId = new char[SUBINDEX_LEN+1];
+        strcpy(pcSubindexId, (char *)"F0");
+        
+        if(CHAINED == pobjNode->getStationType())
+        {
+            if( OCFM_ERR_INDEXID_NOT_FOUND == stErrStructInfo.code)
+            {
+                stErrStructInfo = AddIndex(iNodeId, eNodeType, (char*)"1F8D");
+                
+                AddSubIndex(iNodeId, eNodeType, (char*)"1F8D", pcSubindexId);
+            }
+            else if(OCFM_ERR_SUBINDEXID_NOT_FOUND == stErrStructInfo.code)
+            {
+                AddSubIndex(iNodeId, eNodeType, (char*)"1F8D", pcSubindexId);
+            }
+        }
+        
+        pobjIndexColl = pobjNode->getIndexCollection();
+        pobjIndex = pobjIndexColl->getIndexbyIndexValue((char *)"1F8D");
+        if(NULL != pobjIndex)
+        {
+            pobjSubIndex = pobjIndex->getSubIndexbyIndexValue((char *)"F0");
+            if(NULL != pobjSubIndex)
+            {
+                if(CHAINED == pobjNode->getStationType())
+                {
+                    char convalue[20];
+                    memset(convalue, 0, 20*sizeof(char));
+                    char actvalue[22];
+                    memset(actvalue, 0, 22*sizeof(char));
+                    _IntToAscii(GetPresMNActPayload(), convalue, 16);
+                    strcpy(actvalue, (char *)"0x");
+                    strcat(actvalue, convalue);
+                    pobjSubIndex->setActualValue(actvalue);
+                    
+                    pobjIndex->setFlagIfIncludedCdc(TRUE);
+                    pobjSubIndex->setFlagIfIncludedCdc(TRUE);
+                }
+                else
+                {
+                    pobjSubIndex->setActualValue((char *)"");
+                        
+                    pobjIndex->setFlagIfIncludedCdc(FALSE);
+                    pobjSubIndex->setFlagIfIncludedCdc(FALSE);
+                }
+            }
+        }
+        delete[] pcSubindexId;
     }
 }
 
@@ -2834,6 +2980,11 @@ void BRSpecificGetIndexData(CIndex* objIndex, char* Buffer, int iNodeId )
 		//{
 		//	//cout << "Problem" <<endl;
 		//}
+        
+        CPjtSettings* stPjtSettings;
+        EAutoGenerate ePjtSetting;
+        ePjtSetting = CPjtSettings::getPjtSettingsPtr()->getGenerateAttr();
+                
 		for(int count=0; count<objNodeCollection->getNumberOfNodes(); count++)
 			{
 				objNode = objNodeCollection->getNodebyCollectionIndex(count);
@@ -2885,6 +3036,13 @@ void BRSpecificGetIndexData(CIndex* objIndex, char* Buffer, int iNodeId )
 								UpdateCNCycleTime(objIndexCollection,(char*) objIndex->getActualValue());
 							}
 							
+                            objIndex = getMNIndexValues((char*)"1C14");
+                            if(objIndex!=NULL)
+                            {
+                                if((char*)objIndex->getActualValue() != NULL)
+                                UpdateCNSoCTolerance(objIndexCollection,(char*) objIndex->getActualValue());
+                            }
+
 							objIndex = getMNIndexValues((char*)"1F26");
 							if(objIndex != NULL)
 							UpdatedCNDateORTime(objIndex, objNode.getNodeId(), DATE);
@@ -2917,7 +3075,7 @@ void BRSpecificGetIndexData(CIndex* objIndex, char* Buffer, int iNodeId )
                             {
                                     UpdateCNNodeAssignment( &objNode);
                             }
-
+                            UpdateCNPresActLoad(&objNode, ePjtSetting);
 
 							strcpy(Buffer2, "");
 							strcpy(Buffer4, "");
@@ -3747,7 +3905,7 @@ INT32 BRSpecificgetCNsTotalIndexSubIndex(INT32 iNodeID)
                 {
                     return retCode;
                 }
-				retCode = GenerateMNOBD();
+				retCode = GenerateMNOBD(true);
 				if(retCode.code != OCFM_ERR_SUCCESS)
 					return retCode;
 				/*else
@@ -3810,8 +3968,9 @@ INT32 BRSpecificgetCNsTotalIndexSubIndex(INT32 iNodeID)
 				/* Write number of enteries */
 				if((len != (fwrite(Buffer1, sizeof(char),len,fileptr))))
 				{
-					delete[] Buffer1;
+					
 				}
+                delete[] Buffer1;
 
 				// Add 1F81
 				//UpdateMNNodeAssignmentIndex(&objNodeCollection->getMNNode(), objNodeCollection->getCNNodesCount());
@@ -3992,8 +4151,10 @@ INT32 BRSpecificgetCNsTotalIndexSubIndex(INT32 iNodeID)
 // 				}			
 // 			}
 
-            Buffer1 = new char[CDC_BUFFER];
+            Buffer1 = new char[CDC_MN_BUFFER];
+            memset(Buffer1, 0, CDC_MN_BUFFER*sizeof(char));
             FormatCdc(objIndexCollection, Buffer1, fileptr, MN);
+            
             len = strlen(Buffer1);
             if((len != (fwrite(Buffer1, sizeof(char),len,fileptr))))
             {
@@ -4849,18 +5010,25 @@ void DecodeUniqiueIDRef(char* uniquedIdref, CNode* pobjNode, EPDOType enumPdoTyp
 		throw ex;
 	}
 }
+
+ocfmRetCode ProcessPDONodes()
+{
+  return (ProcessPDONodes(false));
+}
 /****************************************************************************************************
 * Function Name: ProcessPDONodes
 * Description: Processes the Node
 * Return value: ocfmRetCode
 ****************************************************************************************************/
-ocfmRetCode ProcessPDONodes()
+ocfmRetCode ProcessPDONodes(bool IsBuild)
 {
 		CNodeCollection* objNodeCol;
 		ocfmException objocfmException;
 		objNodeCol = CNodeCollection::getNodeColObjectPointer();
 		CNode* pobjNode;
 		INT32 iTotalBytesMapped = 0;
+		INT32 iTotalChainedBytesMapped = 0;
+        INT32 iNodeMappedTotalBytes = 0;
 			
 		CIndexCollection* objPDOCollection;
 		CIndexCollection* pobjIndexCollection;
@@ -4895,10 +5063,15 @@ ocfmRetCode ProcessPDONodes()
 				stSize32OUTOffset.currOffset  = 0; stSize32OUTOffset.prevOffset = 0;
 				stSize64OUTOffset.currOffset  = 0; stSize64OUTOffset.prevOffset = 0;
 
+                INT32* pArrangedNodeIDbyStation;
+                pArrangedNodeIDbyStation = ArrangeNodeIDbyStation();
 			for(INT32 iLoopCount = 0; iLoopCount < objNodeCol->getNumberOfNodes(); iLoopCount++)
+            //for(INT32 iLoopCount = 0; iLoopCount < iNodesCount; iLoopCount++)
 			{
 			//printf("\n iiNodeID %d",NodeID);
+
 				pobjNode = objNodeCol->getNodebyColIndex(iLoopCount);
+                //pobjNode = objNodeCol->getNodebyColIndex(pArrangedNodeIDbyStation[iLoopCount]);
 				/* Process PDO Objects for CN*/
 			
 					if (pobjNode->getNodeType() != MN )
@@ -4909,6 +5082,7 @@ ocfmRetCode ProcessPDONodes()
 							continue;
 						}
 					
+                            EStationType eNodeStation = pobjNode->getStationType();
 
 							/* Empty ProcessImage collection*/
 							pobjNode->DeleteCollectionsForPI();
@@ -4936,6 +5110,7 @@ ocfmRetCode ProcessPDONodes()
 									cout<< "index:"<<(char*)pobjIndex->getIndexValue() << endl;
 								#endif
 										}
+                                        iNodeMappedTotalBytes = 0;
 										if(pobjBforeSortIndex->getNumberofSubIndexes() > 0)
 										{
 										
@@ -5229,16 +5404,85 @@ ocfmRetCode ProcessPDONodes()
 																pobjNode->addProcessImage(objProcessImage);
 																delete[] pbModuleName ;
 																delete[] pbSIdxName;
-															}															
+															}
+                                                            if((true == IsBuild) &&  (strncmp(objIndex.getIndexValue(), "16", 2) == 0))
+															{
+                                                                char* pbModOffset = new char[strlen(pbActualVal) + 1];
+                                                                strcpy(pbModOffset, pbActualVal);
+                                                                INT32 iLength = 0;
+                                                                char* pcLength = NULL;
+                                                                //extract the length mapped 1AXX
+                                                                pcLength = subString((char *)pbActualVal, 2, 4);
+                                                                iLength = hex2int(pcLength);
+
+																char* offset = new char[5];
+                                                                memset(offset, 0, 5*sizeof(char));
+                                                                if(CHAINED == eNodeStation)
+                                                                {
+                                                                  offset  = _IntToAscii(iTotalChainedBytesMapped, &(offset[0]), 16); 
+                                                                }
+                                                                else
+                                                                {
+                                                                  offset  = _IntToAscii(iNodeMappedTotalBytes, &(offset[0]), 16); 
+                                                                }
+												                offset = padLeft(&(offset[0]), '0', 4);
+																INT32 iOffsetCopyCount;
+                                                                for(iOffsetCopyCount = 0; iOffsetCopyCount <= 3; iOffsetCopyCount++)
+																{
+																	pbModOffset[iOffsetCopyCount+2+4] = offset[iOffsetCopyCount];
+																}
+                                                                pobjIndexCollection->getIndexbyIndexValue((char *)pobjBforeSortIndex->getIndexValue())->getSubIndexbyIndexValue((char *)pobjSubIdx->getIndexValue())->setActualValue(pbModOffset);
+                                                                
+                                                                if(CHAINED == eNodeStation)
+                                                                {
+                                                                    iTotalChainedBytesMapped =  iTotalChainedBytesMapped +  iLength;
+                                                                }
+                                                                iNodeMappedTotalBytes = iNodeMappedTotalBytes + iLength;
+                                                                
+																delete[] pbModOffset;
+                                                                delete[] pcLength;
+                                                                delete[] offset;
+															}
 													}
 													iSiCount++;
 												}
+												//set the correponding 14xx/01 to f0
+                                                if((true == IsBuild) && (strncmp(objIndex.getIndexValue(), "16", 2) == 0))
+                                                {
+                                                    CIndex *pobjCommIndex;
+                                                    CSubIndex *pobjNodeIDSubIndex;
+                                                    char *pcIdx = subString((char *)objIndex.getIndexValue(), 2, 4);
+                                                    char *pcCommIdx = new char[INDEX_SIZE];
+                                                    strcpy(pcCommIdx, (char *)"14");
+                                                    strcat(pcCommIdx, pcIdx);
+                                                    pobjCommIndex = pobjIndexCollection->getIndexbyIndexValue(pcCommIdx);
+                                                    if(NULL != pobjCommIndex)
+                                                    {
+                                                        pobjNodeIDSubIndex = pobjCommIndex->getSubIndexbyIndexValue((char *)"01");
+                                                        if(NULL != pobjNodeIDSubIndex)
+                                                        {
+                                                            if(CHAINED == eNodeStation)
+                                                            {
+                                                                pobjNodeIDSubIndex->setActualValue("0xF0");
+                                                            }
+                                                            else
+                                                            {
+                                                                pobjNodeIDSubIndex->setActualValue("0x0");
+                                                            }
+                                                        }
+                                                    }
+                                                }
 											}
 										}
 									}
 								}
 							}
-			stRetInfo.code = OCFM_ERR_SUCCESS ;
+            if(true == IsBuild)
+            {
+              SetPresMNActPayload(iTotalChainedBytesMapped/8);
+            }
+			delete[] pArrangedNodeIDbyStation;
+            stRetInfo.code = OCFM_ERR_SUCCESS ;
 			return stRetInfo;
 		}
 		catch(ocfmException& ex)
@@ -7478,6 +7722,7 @@ void AddForEachSIdx (char* pbIdx,CIndexCollection * pobjIdxCol, INT32 iMNNodeID,
 		CIndex *pobjIndex;
 		char* pbSIdx =  new char[3];
 		char* pbIndexNo = new char[3];
+        char* pbHexIndexNo = new char[5];
 		ocfmRetCode stRetInfo;
 		
 		stRetInfo.code = OCFM_ERR_SUCCESS;
@@ -7499,11 +7744,13 @@ void AddForEachSIdx (char* pbIdx,CIndexCollection * pobjIdxCol, INT32 iMNNodeID,
 			if(objNodeCol->getCNNodesCount() !=0)
 			{
 				strcpy(pbSIdx, "00");
+                strcpy(pbHexIndexNo, "0x");
 			
 				pbIndexNo = _IntToAscii(objNodeCol->getCNNodesCount(), pbIndexNo, 16);
 				pbIndexNo = padLeft(pbIndexNo, '0', 2);
-				
-				SetSIdxValue(pbIdx, pbSIdx, pbIndexNo , pobjIdxCol, iMNNodeID, MN, false);
+				strcat(pbHexIndexNo, pbIndexNo);
+				//SetSIdxValue(pbIdx, pbSIdx, pbIndexNo , pobjIdxCol, iMNNodeID, MN, false);
+                SetSIdxValue(pbIdx, pbSIdx, pbHexIndexNo, pobjIdxCol, iMNNodeID, MN, false);
 			}
 	}
 				
@@ -7824,12 +8071,23 @@ ocfmRetCode AddOtherMNIndexes(int NodeID)
 		}
 
 }
+
 /****************************************************************************************************
 * Function Name: GenerateMNOBD
 * Description: 
 * Return value: ocfmRetCode
 ****************************************************************************************************/
 ocfmRetCode GenerateMNOBD()
+{
+  return (GenerateMNOBD(false));
+}
+
+/****************************************************************************************************
+* Function Name: GenerateMNOBD
+* Description: 
+* Return value: ocfmRetCode
+****************************************************************************************************/
+ocfmRetCode GenerateMNOBD(bool IsBuild)
 	{
 		CNode objNode;		
 		CNode *pobjMNNode;
@@ -7837,14 +8095,24 @@ ocfmRetCode GenerateMNOBD()
 		CIndexCollection * objMNIndexCol;
 		CSubIndex * objSubIdex;
 		CIndex* pobjIndex;			
-		char* pbMNIndex = new char[INDEX_LEN];								
+		char* pbMNIndex = new char[INDEX_LEN];
 		char* pbIdx =  new char[SUBINDEX_LEN];
+		char* pbMappIdx =  new char[SUBINDEX_LEN];
+        char* pbMappNodeID =  new char[SUBINDEX_LEN];
 		ocfmRetCode stRetInfo;
 		
 		ocfmException objocfmException;
-		INT32 iPrevSubIndex = 0 ;
-		INT32 iPrevSize = 0;
+        INT32 iOutPrevSubIndex = 0 ;
+        INT32 iOutPrevSize = 0;
+        INT32 iChainOutPrevSubIndex = 0 ;
+        INT32 iChainOutPrevSize = 0;
+		INT32 iInPrevSubIndex = 0 ;
+		INT32 iInPrevSize = 0;
+        INT32 iIndexPos = 0;
+        INT32 iRxChannelCount = 0;
+        INT32 iTxChannelCount = 0;
 
+        EStationType eCurrCNStation;
 		try
 		{		
 			pobjNodeCollection = CNodeCollection::getNodeColObjectPointer();	
@@ -7857,7 +8125,7 @@ ocfmRetCode GenerateMNOBD()
 			else
 			{
 				/*Process PDO Nodes*/
-				stRetInfo = ProcessPDONodes();
+              stRetInfo = ProcessPDONodes(IsBuild);
 				#if defined DEBUG	
 						cout<< "Nodes Processed"<<endl;
 					#endif
@@ -7912,26 +8180,78 @@ ocfmRetCode GenerateMNOBD()
 						cout<< "Deleted"<<endl;
 					#endif
 			}
+            
+            bool bIsPresMN = false;
+            bIsPresMN = IsPresMN();
+            
+            if(true == bIsPresMN)
+            {
+                iTxChannelCount = 1;
+            }
+
+            INT32* pArrangedNodeIDbyStation;
+            pArrangedNodeIDbyStation = ArrangeNodeIDbyStation();
 			for(INT32 iLoopCount =0; iLoopCount<pobjNodeCollection->getNumberOfNodes(); iLoopCount++)
+            //for(INT32 iLoopCount = 0; iLoopCount < pobjNodeCollection->getCNNodesCount(); iLoopCount++)
 			{
-				objNode = pobjNodeCollection->getNodebyCollectionIndex(iLoopCount);			
+				//objNode = pobjNodeCollection->getNodebyCollectionIndex(pArrangedNodeIDbyStation[iLoopCount]);
+              objNode = pobjNodeCollection->getNodebyCollectionIndex(iLoopCount);         			
 				if(objNode.getNodeType() == CN)
 				{
-					iPrevSubIndex = 0;
-					iPrevSize = 0;
+                    eCurrCNStation = objNode.getStationType();
+
 					objMNIndexCol =  pobjMNNode->getIndexCollection();
 									
 					if(objNode.MNPDOOUTVarCollection.Count()!=0)
 					{
-												
+                        if(CHAINED != eCurrCNStation)
+                        {
+                            iOutPrevSubIndex = 0;
+                            iOutPrevSize = 0;
+                        }
+                        else
+                        {
+                            iOutPrevSubIndex = iChainOutPrevSubIndex;
+                            iOutPrevSize = iChainOutPrevSize;
+                        }
 						/* Create PDO_TxCommParam_XXh_REC 1800 INdex*/
 						CIndex* pobjIndex;	
 						strcpy(pbMNIndex, "18");
-						pbIdx = _IntToAscii((objNode.getNodeId()-1), pbIdx, 16);
-						pbIdx = padLeft(pbIdx, '0', 2);
-						pbMNIndex =strcat(pbMNIndex, pbIdx);
-					
-						stRetInfo = AddIndex(MN_NODEID, MN, pbMNIndex);
+                        if(CHAINED != eCurrCNStation)
+                        {
+                            /*if(true == bIsPresMN)
+                            {
+						        pbIdx = _IntToAscii((objNode.getNodeId()), pbIdx, 16);
+                            }
+                            else
+                            {
+                                pbIdx = _IntToAscii((objNode.getNodeId()-1), pbIdx, 16);
+                            }*/
+                            pbIdx = _IntToAscii(iTxChannelCount, pbIdx, 16);
+                            iTxChannelCount++;
+
+						    pbIdx = padLeft(pbIdx, '0', 2);
+						    pbMNIndex =strcat(pbMNIndex, pbIdx);
+						    stRetInfo = AddIndex(MN_NODEID, MN, pbMNIndex);
+
+                            //to write cn node id in 18XX/01
+                            pbMappNodeID = _IntToAscii(objNode.getNodeId(), pbMappNodeID, 10);
+                        }
+                        else
+                        {
+                            //1800 is used of PRes chained station
+                            iIndexPos = 0;
+                            strcpy(pbMNIndex, (char *)"1800");
+                            strcpy(pbIdx, (char *)"00");
+                            stRetInfo = IfIndexExists(MN_NODEID, MN, pbMNIndex, &iIndexPos);
+                            if(stRetInfo.code != OCFM_ERR_SUCCESS)
+                            {
+                                stRetInfo = AddIndex(MN_NODEID, MN, pbMNIndex);
+                            }
+
+                            //to write 0 in 18XX/01 to indicate PRes MN
+                            strcpy(pbMappNodeID, (char *)"0x0");
+                        }
 							/* set bFlag to true for 1800*/
 						pobjIndex = objMNIndexCol->getIndexbyIndexValue(pbMNIndex);
 						if(pobjIndex != NULL)
@@ -7943,18 +8263,21 @@ ocfmRetCode GenerateMNOBD()
 							throw objocfmException;
 						}
 						
-						pbIdx = _IntToAscii(objNode.getNodeId(), pbIdx, 10);
 						char* pbSidx =  new char[SUBINDEX_LEN];
 						strcpy(pbSidx, "01");
-						SetSubIndexAttributes(MN_NODEID, MN, pbMNIndex, pbSidx, pbIdx,(char*)"NodeID_U8", TRUE);
+						SetSubIndexAttributes(MN_NODEID, MN, pbMNIndex, pbSidx, pbMappNodeID,(char*)"NodeID_U8", TRUE);
 									
 						strcpy(pbMNIndex, "1A");
-						pbIdx = _IntToAscii((objNode.getNodeId()-1), pbIdx, 16);
-						pbIdx = padLeft(pbIdx, '0', 2);
+						/*pbIdx = _IntToAscii((objNode.getNodeId()-1), pbIdx, 16);
+						pbIdx = padLeft(pbIdx, '0', 2);*/
 						pbMNIndex =strcat(pbMNIndex, pbIdx);
 						/* Set the MN's PDO Index*/
-						stRetInfo = AddIndex(MN_NODEID, MN, pbMNIndex);
-						
+                        iIndexPos = 0;
+                        stRetInfo = IfIndexExists(MN_NODEID, MN, pbMNIndex, &iIndexPos);
+                        if(stRetInfo.code != OCFM_ERR_SUCCESS)
+                        {
+                            stRetInfo = AddIndex(MN_NODEID, MN, pbMNIndex);
+                        }
 					
 						pobjIndex->setFlagIfIncludedCdc(TRUE);
 							
@@ -7974,16 +8297,21 @@ ocfmRetCode GenerateMNOBD()
 							if(pobjIndex !=NULL)
 							{
 							 pobjIndex->setFlagIfIncludedCdc(TRUE);				
-								GetMNPDOSubIndex(stMNPdoVar, iPrevSubIndex, pobjIndex, pbMNIndex, iPrevSize);
-								iPrevSize = iPrevSize + stMNPdoVar.DataSize;
+								GetMNPDOSubIndex(stMNPdoVar, iOutPrevSubIndex, pobjIndex, pbMNIndex, iOutPrevSize);
+								iOutPrevSize = iOutPrevSize + stMNPdoVar.DataSize;
 							}
 					
 						}
-						char* pbActVal = new char[4];
+						/*char* pbActVal = new char[4];
 						pbActVal = _IntToAscii(objNode.MNPDOOUTVarCollection.Count(), pbActVal, 16);
 						pbActVal = ConvertToHexformat(pbActVal, 2, true);	
 						objSubIdex = pobjIndex->getSubIndexbyIndexValue((char*)"00");
-						objSubIdex->setActualValue(pbActVal);
+						objSubIdex->setActualValue(pbActVal);*/
+                        if(CHAINED == eCurrCNStation)
+                        {
+                          iChainOutPrevSubIndex = iOutPrevSubIndex;
+                          iChainOutPrevSize = iOutPrevSize;
+                        }
 		
 					}
 											
@@ -7992,33 +8320,47 @@ ocfmRetCode GenerateMNOBD()
 												
 						/* Create PDO_TxCommParam_XXh_REC 1800 INdex*/
 						strcpy(pbMNIndex, "14");
-						pbIdx = _IntToAscii((objNode.getNodeId()-1), pbIdx, 16);
+                        /*if(true == bIsPresMN)
+                        {
+                                //if it is a PRes MN 1800 will be used for chained station
+                          pbIdx = _IntToAscii((objNode.getNodeId()), pbIdx, 16);
+                        }
+                        else
+                        {
+                          pbIdx = _IntToAscii((objNode.getNodeId()-1), pbIdx, 16);
+                        }*/
+                        pbIdx = _IntToAscii(iRxChannelCount, pbIdx, 16);
+                        iRxChannelCount++;
+						
+						//pbIdx = _IntToAscii((objNode.getNodeId()-1), pbIdx, 16);
 						pbIdx = padLeft(pbIdx, '0', 2);
 						pbMNIndex =strcat(pbMNIndex, pbIdx);
-										
+                        
 						stRetInfo = AddIndex(MN_NODEID, MN, pbMNIndex);
 						/* set bFlag to true for 1800*/
 						pobjIndex = objMNIndexCol->getIndexbyIndexValue(pbMNIndex);
 						if(pobjIndex != NULL)
 							pobjIndex->setFlagIfIncludedCdc(TRUE);
 						
-						iPrevSubIndex = 0;
-						iPrevSize = 0;
+						iInPrevSubIndex = 0;
+						iInPrevSize = 0;
 						if(stRetInfo.code != OCFM_ERR_SUCCESS)
 						{
 							objocfmException.ocfm_Excpetion(stRetInfo.code);
 							throw objocfmException;
 						}
 						
-						pbIdx = _IntToAscii(objNode.getNodeId(), pbIdx, 10);
+						//pbIdx = _IntToAscii(objNode.getNodeId(), pbIdx, 10);
+						pbMappIdx = _IntToAscii((objNode.getNodeId()), pbMappIdx, 10);
 						char* pbSidx =  new char[SUBINDEX_LEN];
 						strcpy(pbSidx, "01");
-						SetSubIndexAttributes(MN_NODEID, MN, pbMNIndex, pbSidx, pbIdx,(char*)"NodeID_U8", TRUE);
+						SetSubIndexAttributes(MN_NODEID, MN, pbMNIndex, pbSidx, pbMappIdx,(char*)"NodeID_U8", TRUE);
+						delete[] pbSidx;
 				
 							
 						strcpy(pbMNIndex, "16");
-						pbIdx = _IntToAscii((objNode.getNodeId()-1), pbIdx, 16);
-						pbIdx = padLeft(pbIdx, '0', 2);
+						//pbIdx = _IntToAscii((objNode.getNodeId()-1), pbIdx, 16);
+						//pbIdx = padLeft(pbIdx, '0', 2);
 						pbMNIndex =strcat(pbMNIndex, pbIdx);
 						/* Set the MN's PDO Index*/
 						stRetInfo = AddIndex(MN_NODEID, MN, pbMNIndex);
@@ -8038,20 +8380,23 @@ ocfmRetCode GenerateMNOBD()
 							stMNPdoVar = objNode.MNPDOINVarCollection[iLoopCount];		
 							pobjIndex = objMNIndexCol->getIndexbyIndexValue(pbMNIndex);					
 							pobjIndex->setFlagIfIncludedCdc(TRUE);
-							GetMNPDOSubIndex(stMNPdoVar, iPrevSubIndex, pobjIndex, pbMNIndex, iPrevSize);				
-							iPrevSize = iPrevSize + stMNPdoVar.DataSize ;	
+							GetMNPDOSubIndex(stMNPdoVar, iInPrevSubIndex, pobjIndex, pbMNIndex, iInPrevSize);				
+							iInPrevSize = iInPrevSize + stMNPdoVar.DataSize ;	
 						}
-						char* pbActVal = new char[4];
+						/*char* pbActVal = new char[4];
 						pbActVal = _IntToAscii(objNode.MNPDOINVarCollection.Count(), pbActVal, 16);
 						//pbActVal = padLeft(pbActVal, '0', 4);
 						pbActVal = ConvertToHexformat(pbActVal, 2, true);						
 						objSubIdex = pobjIndex->getSubIndexbyIndexValue((char*)"00");
-						objSubIdex->setActualValue(pbActVal);
+						objSubIdex->setActualValue(pbActVal);*/
 					
 					}
 				
 			}
 		}
+        setPresMNNodeAssigmentBits();
+        
+        delete[] pArrangedNodeIDbyStation;
 		setFlagForRequiredMNIndexes(MN_NODEID);
 	}
 	
@@ -10560,6 +10905,62 @@ char* setNodeAssigmentBits(CNode* pobjNode)
 	return pb1F81Data;
 }
 
+/***********************************************************************************************************************************************
+* Function Name: setPresMNNodeAssigmentBits
+* Description:Returns the 1F81 object data depending upon the  if Multiplex set bit 8, if chained set bit 14
+* Return value: void
+***********************************************************************************************************************************************/
+void setPresMNNodeAssigmentBits()
+{
+    int IndexPos;
+    int subIndexPos;
+    ocfmRetCode stErrStructInfo;
+    stErrStructInfo = IfSubIndexExists(MN_NODEID, MN, (char *)"1F81", (char *)"F0", &subIndexPos, &IndexPos);
+    
+    bool bIsPresMN = false;
+    bIsPresMN = IsPresMN();
+    if((false == bIsPresMN) && (OCFM_ERR_SUCCESS != stErrStructInfo.code))
+    {
+        return;
+    }
+    
+    char *pcSubIndex = new char[SUBINDEX_LEN];
+    strcpy(pcSubIndex, (char*)"F0");
+    if( OCFM_ERR_INDEXID_NOT_FOUND == stErrStructInfo.code)
+    {
+        AddIndex(240, MN, (char*)"1F81");
+        AddSubIndex(240, MN, (char*)"1F81", pcSubIndex);
+    }
+    else if(OCFM_ERR_SUBINDEXID_NOT_FOUND == stErrStructInfo.code)
+    {
+        AddSubIndex(240, MN, (char*)"1F81", pcSubIndex);
+    }
+    
+    CSubIndex* pobjSubindex;
+    pobjSubindex = getMNSubIndexValues((char*)"1F81", (char*)"F0");
+    if(NULL != pobjSubindex)
+    {
+        if(true == bIsPresMN)
+        {
+            char* pb1F81Data = NULL;
+            unsigned long ulValue;
+            pb1F81Data = new char[8 + STR_ALLOC_BUFFER];
+            ulValue =  EPL_NODEASSIGN_VALID | EPL_NODEASSIGN_NODE_EXISTS | EPL_NODEASSIGN_MN_PRES;
+            strcpy(pb1F81Data, (char *)"0x");
+            _IntToAscii(ulValue, &pb1F81Data[2], 16);
+            
+            pobjSubindex->setActualValue(pb1F81Data);
+            pobjSubindex->setFlagIfIncludedCdc(TRUE);
+            delete[] pb1F81Data;
+        }
+        else
+        {
+            //pobjSubindex->setActualValue((char *)"");
+        }
+    }
+    
+}
+
 /****************************************************************************************************
 * Function Name: RecalculateMultiplex
 * Description: recalculates the multiplex cycle for CNs
@@ -11540,6 +11941,7 @@ void UpdateMNNodeAssignmentIndex(CNode *pobjNode, INT32 CNsCount, char* pcIndex,
 	ocfmRetCode retCode;
 	CIndex *pobjIndex;
 	char* pbIndexNo = new char[3];
+    char* pbHexIndexNo = new char[5];
 				
 	pobjIdxCol = pobjNode->getIndexCollection();
 	char* pbMNIndex = new char[INDEX_LEN + ALLOC_BUFFER];
@@ -11601,7 +12003,9 @@ void UpdateMNNodeAssignmentIndex(CNode *pobjNode, INT32 CNsCount, char* pcIndex,
 		strcpy(pbSidx, "00");
 		pbIndexNo = _IntToAscii(CNsCount, pbIndexNo, 16);
 		pbIndexNo = padLeft(pbIndexNo, '0', 2);		
-		SetSIdxValue(pbMNIndex, pbSidx, pbIndexNo,pobjIdxCol, pobjNode->getNodeId(), MN, false);					
+        strcpy(pbHexIndexNo, "0x");
+        strcat(pbHexIndexNo, pbIndexNo);
+		SetSIdxValue(pbMNIndex, pbSidx, pbHexIndexNo,pobjIdxCol, pobjNode->getNodeId(), MN, false);					
 	}	
 }
 
@@ -11926,4 +12330,196 @@ bool ReactivateMappingPDO(CIndexCollection* pobjIndexCol, CIndex* pobjIndex)
     }
 
     return false;
+}
+
+/****************************************************************************************************
+* Function Name: SortNodeIDbyStation
+* Description:
+* Return value: INT32*
+****************************************************************************************************/
+INT32* ArrangeNodeIDbyStation()
+{
+    CNodeCollection* objNodeCol;
+    objNodeCol = CNodeCollection::getNodeColObjectPointer();
+    CNode* pobjNode;
+        
+    /* Check RPDO Mapped objects*/
+    INT32 iCNNodesCount = 0;
+    ocfmRetCode stRetInfo;
+    
+    iCNNodesCount = objNodeCol->getCNNodesCount();
+    
+    if(iCNNodesCount == 0)
+    {               
+        exit;
+    }
+
+    INT32 *piNodeIDColl = new INT32[iCNNodesCount];
+    INT32 iArrangedNodeIDCount = 0;
+    INT32 *piArrangedNodeIDColl = new INT32[iCNNodesCount];
+    EStationType *piStationTypeColl = new EStationType[iCNNodesCount];
+    INT32 iNodesCount = objNodeCol->getNumberOfNodes();
+    INT32 iLoopCount, iCNNodeLoopCnt=0;
+    for(iLoopCount = 0; iLoopCount < iNodesCount; iLoopCount++)
+    {
+        pobjNode = objNodeCol->getNodebyColIndex(iLoopCount);
+        if (MN == pobjNode->getNodeType())
+        {
+            continue;
+        }
+        piNodeIDColl[iCNNodeLoopCnt] = pobjNode->getNodeId();
+        piStationTypeColl[iCNNodeLoopCnt] = pobjNode->getStationType();
+        iCNNodeLoopCnt++;
+    }
+    /*
+	for(iLoopCount = 0; iLoopCount < iCNNodesCount ; iLoopCount++)
+        printf("piNodeIDColl[%d]=%d \n",iLoopCount, piNodeIDColl[iLoopCount] );
+    for(iLoopCount = 0; iLoopCount < iCNNodesCount ; iLoopCount++)
+        printf("piStationTypeColl[%d]=%d \n",iLoopCount, piStationTypeColl[iLoopCount] );
+	*/	
+    //get the number of poll response station and other station
+    INT32 iChainStnCnt = 0,iOtherStnCnt =0;
+    for(iLoopCount = 0; iLoopCount < iCNNodesCount ; iLoopCount++)
+    {
+        if(CHAINED == piStationTypeColl[iLoopCount])
+            iChainStnCnt++;
+    }
+    iOtherStnCnt = iCNNodesCount - iChainStnCnt;
+
+    //create arrays to store nodeid for chained station and other station
+    if(0 != iChainStnCnt)
+    {
+        INT32 *piChainStnColl = new INT32[iChainStnCnt];
+        INT32 iChainStnLoopCnt = 0;
+        for(iLoopCount = 0; iLoopCount < iCNNodesCount ; iLoopCount++)
+        {
+            if(CHAINED == piStationTypeColl[iLoopCount])
+            {
+                piChainStnColl[iChainStnLoopCnt] = piNodeIDColl[iLoopCount];
+                iChainStnLoopCnt++;
+            }
+        }
+		/*
+    for(iLoopCount = 0; iLoopCount < iChainStnLoopCnt ; iLoopCount++)
+        printf("piChainStnColl[%d]=%d \n",iLoopCount, piChainStnColl[iLoopCount] );
+		*/
+        //sort by station no
+        SortNodeID(piChainStnColl, iChainStnCnt);
+
+        //copy the poll response staion sorted in asscending order
+        for(iLoopCount = 0; iLoopCount < iChainStnCnt ; iLoopCount++)
+        {
+            piArrangedNodeIDColl[iArrangedNodeIDCount] = piChainStnColl[iLoopCount];
+            iArrangedNodeIDCount++;
+        }
+		/*
+    for(iLoopCount = 0; iLoopCount < iArrangedNodeIDCount ; iLoopCount++)
+        printf("piArrangedNodeIDColl[%d]=%d \n",iArrangedNodeIDCount, piArrangedNodeIDColl[iArrangedNodeIDCount] );
+		*/
+
+        delete[] piChainStnColl;
+    }
+
+    if(0 != iOtherStnCnt)
+    {
+        INT32 *piOtherStnColl = new INT32[iOtherStnCnt];
+        INT32 iOtherStnLoopCnt = 0;
+        for(iLoopCount = 0; iLoopCount < iCNNodesCount ; iLoopCount++)
+        {
+            if(CHAINED != piStationTypeColl[iLoopCount])
+            {
+                piOtherStnColl[iOtherStnLoopCnt] = piNodeIDColl[iLoopCount];
+                iOtherStnLoopCnt++;
+            }
+        }
+        //copy the other station after the poll response staion
+        for(iLoopCount = 0; iLoopCount < iOtherStnCnt ; iLoopCount++)
+        {
+            piArrangedNodeIDColl[iArrangedNodeIDCount] = piOtherStnColl[iLoopCount];
+            iArrangedNodeIDCount++;
+        }
+		/*
+    for(iLoopCount = 0; iLoopCount < iOtherStnCnt ; iLoopCount++)
+        printf("piOtherStnColl[%d]=%d \n",iLoopCount, piOtherStnColl[iLoopCount] );
+		*/
+        delete[] piOtherStnColl;
+    }
+    delete[] piNodeIDColl;
+    delete[] piStationTypeColl;
+
+	/*
+    for(iLoopCount = 0; iLoopCount < iCNNodesCount ; iLoopCount++)
+        printf("piArrangedNodeIDColl[%d]=%d \n",iLoopCount, piArrangedNodeIDColl[iLoopCount] );
+	*/	
+
+    return piArrangedNodeIDColl;
+}
+
+/****************************************************************************************************
+* Function Name: SortNodeID
+* Description:
+* Return value: void
+****************************************************************************************************/
+void SortNodeID(INT32 *piNodeIDColl, INT32 iColSize)
+{
+    INT32 iTemp =0;
+    for(INT32 iLoopCount = 0; iLoopCount < iColSize; iLoopCount++)
+    {
+        for(INT32 iSortCount=iLoopCount+1; iSortCount<=iLoopCount; iSortCount++)
+        {
+            if(piNodeIDColl[iLoopCount] > piNodeIDColl[iSortCount])
+            {
+                iTemp = piNodeIDColl[iLoopCount];
+                piNodeIDColl[iLoopCount] = piNodeIDColl[iSortCount];
+                piNodeIDColl[iSortCount] = iTemp;
+            }
+        }
+    }
+}
+
+/****************************************************************************************************
+* Function Name: IsPresMN
+* Description:
+* Return value: bool
+****************************************************************************************************/
+bool IsPresMN()
+{
+    CNodeCollection* objNodeCol;
+    objNodeCol = CNodeCollection::getNodeColObjectPointer();
+    CNode* pobjNode;
+    INT32 iLoopCount;
+    INT32 iNodesCount = objNodeCol->getNumberOfNodes();
+    for(iLoopCount = 0; iLoopCount < iNodesCount; iLoopCount++)
+    {
+        pobjNode = objNodeCol->getNodebyColIndex(iLoopCount);
+        if (MN == pobjNode->getNodeType())
+        {
+            continue;
+        }
+        if(CHAINED ==  pobjNode->getStationType())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+/****************************************************************************************************
+* Function Name: SetPresMNActPayload
+* Description:
+* Return value: 
+****************************************************************************************************/
+void SetPresMNActPayload(INT32 iCalcPresMNPayload)
+{
+    iPresMNPayload = iCalcPresMNPayload;
+}
+
+/****************************************************************************************************
+* Function Name: GetPresMNActPayload
+* Description:
+* Return value: INT32
+****************************************************************************************************/
+INT32 GetPresMNActPayload()
+{
+  return iPresMNPayload;
 }

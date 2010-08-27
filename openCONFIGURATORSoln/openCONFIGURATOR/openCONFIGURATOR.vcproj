@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="openConfigurator"
 	ProjectGUID="{0141C9C5-E267-4AD0-9E6C-1E80ECF5E438}"
 	RootNamespace="openCONFIGURATOR"
@@ -60,6 +60,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				UseLibraryDependencyInputs="true"
 				AdditionalDependencies="..\libxml2\lib\libxml2.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				AdditionalLibraryDirectories="..\libxml2\lib"
@@ -164,9 +165,6 @@
 		</Configuration>
 	</Configurations>
 	<References>
-		<ProjectReference
-			ReferencedProjectIdentifier="{189CB09C-9C74-431B-BF87-FAE01596BD83}"
-		/>
 	</References>
 	<Files>
 		<Filter

@@ -69,10 +69,10 @@ SYSTEM = isystem
 DIR = /usr/include/tcl8.4
 XMLFLAG1 = `xml2-config --cflags`
 XMLFLAG2 = `xml2-config --libs`
-INPUT = Tcl_WrapperMain_wrap.cxx
+INPUT = openconfiguratorWrapper_wrap.cxx
 SOURCE = /usr/lib/openCONFIGURATOR.so
-TARGET = Tcl_WrapperMain.so
-INPUT1 = Tcl_WrapperMain.i
+TARGET = openConfiguratorWrapper.so
+INPUT1 = openconfiguratorWrapper.i
 
 $(TARGET):	$(INPUT)
 		$(CC) -$(SHARE) -$(SYSTEM) $(DIR) $(XMLFLAG1) $(INPUT) $(SOURCE) -o $(TARGET) $(XMLFLAG2)
@@ -87,5 +87,5 @@ $(INPUT): $(INPUT1)
 
 clean:
 	rm -f *.cxx
-	rm -f Tcl_WrapperMain.so
+	rm -f openConfiguratorWrapper.so
 

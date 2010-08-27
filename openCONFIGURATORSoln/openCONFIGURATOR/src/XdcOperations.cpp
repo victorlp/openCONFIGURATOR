@@ -2190,6 +2190,7 @@ void setFlagForRequiredCNIndexes(INT32 iNodeId)
 		
 		if(CheckIfNotPDO((char*)pobjIndex->getIndexValue()) == false ||
 		strcmp((char*)pobjIndex->getIndexValue(),"1F98") == 0 ||
+        strcmp((char*)pobjIndex->getIndexValue(),"1C14") == 0 ||
 		strcmp((char*)pobjIndex->getIndexValue(),"1020") == 0 ||
 		strcmp((char*)pobjIndex->getIndexValue(),"1006") == 0 ||
 		CheckIfManufactureSpecificObject((char*)pobjIndex->getIndexValue()))
@@ -2232,6 +2233,7 @@ void setFlagForRequiredMNIndexes(INT32 iNodeId)
 		strcmp((char*)pobjIndex->getIndexValue(),"1300") == 0 ||
 		strcmp((char*)pobjIndex->getIndexValue(),"1C02") == 0 ||
 		strcmp((char*)pobjIndex->getIndexValue(),"1C09") == 0 ||
+        strcmp((char*)pobjIndex->getIndexValue(),"1C14") == 0 ||
 		strcmp((char*)pobjIndex->getIndexValue(),"1F26") == 0 ||
 		strcmp((char*)pobjIndex->getIndexValue(),"1F27") == 0 ||
 		strcmp((char*)pobjIndex->getIndexValue(),"1F84") == 0 ||

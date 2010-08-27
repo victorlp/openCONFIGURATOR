@@ -748,6 +748,11 @@ bool checkIfValueZero(char* pcValue)
         return false;
 }
 
+/**************************************************************************************************
+* Function Name: GetDecimalValue
+* Description: 
+* Return value: INT32
+***************************************************************************************************/
 INT32 GetDecimalValue(char* pcValue)
 {
     if(pcValue == NULL || strcmp(pcValue,"") == 0 )
@@ -762,6 +767,11 @@ INT32 GetDecimalValue(char* pcValue)
     return iValue;
 }
 
+/**************************************************************************************************
+* Function Name: CheckAccessTypeForInclude
+* Description: 
+* Return value: bool
+***************************************************************************************************/
 bool CheckAccessTypeForInclude(char* pcAccesstype)
 {
     if(NULL == pcAccesstype)
@@ -775,5 +785,26 @@ bool CheckAccessTypeForInclude(char* pcAccesstype)
     else
     {
         return true;
+    }
+}
+
+/**************************************************************************************************
+* Function Name: CheckToolVersion
+* Description: 
+* Return value: bool
+***************************************************************************************************/
+bool CheckToolVersion(char* pcCurrentToolVersion)
+{
+  char* pcUpperCurrentToolVersion = ConvertToUpper(pcCurrentToolVersion);
+  if( (strcmp(pcUpperCurrentToolVersion, TOOL_VERSION) == FALSE) ||
+       (strcmp(pcUpperCurrentToolVersion, PREV_TOOL_VERSION_1) == FALSE)  ||
+       (strcmp(pcUpperCurrentToolVersion, PREV_TOOL_VERSION_2) == FALSE)  || (strcmp(pcUpperCurrentToolVersion, PREV_TOOL_VERSION_3) == FALSE)  || 
+       (strcmp(pcUpperCurrentToolVersion, LAST_TOOL_VERSION) == FALSE)  || (strcmp(pcUpperCurrentToolVersion, TOOL_INTER_REL_VERSION_1) == FALSE)  || (strcmp(pcUpperCurrentToolVersion, TOOL_INTER_REL_VERSION_2) == FALSE) )
+    {
+        return true;
+    }
+    else
+    {
+        return false;
     }
 }

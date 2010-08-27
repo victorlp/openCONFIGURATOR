@@ -87,11 +87,14 @@
 /*******************************************************************e *****************************
 * Defines
 ************************************************************************************************/
-#define TOOL_VERSION "1.1.2"
-#define LAST_TOOL_VERSION "1.1.1"
+#define TOOL_VERSION "1.1.2.3"
 #define PREV_TOOL_VERSION_1 "1.1.0"
 #define PREV_TOOL_VERSION_2 "1.0.1"
 #define PREV_TOOL_VERSION_3 "1.0.0"
+#define PREV_TOOL_VERSION_4 "1.1.1"
+#define LAST_TOOL_VERSION "1.1.2"
+#define TOOL_INTER_REL_VERSION_1 "1.1.2.1"
+#define TOOL_INTER_REL_VERSION_2 "1.1.2.2"
 #define ALLOC_BUFFER 5
 #define INDEX_LEN 5
 #define SUBINDEX_LEN 3
@@ -116,6 +119,7 @@
 #define EPL_NODEASSIGN_MN_PRES          0x00001000L // Bit 12
 #define EPL_NODEASSIGN_CHAINED_CN       0x00004000L // Bit 14
 #define EPL_NODEASSIGN_VALID            0x80000000L // Bit 31
+
 /************************************************************************************************
 * Enumerations
 ************************************************************************************************/
@@ -150,6 +154,8 @@ void ProcessUniqueIDRefs();
 char* subString(char* str, int startpos, int len);
 char* reverse(char* str);
 ocfmRetCode ProcessPDONodes();
+ocfmRetCode ProcessPDONodes(bool IsBuild);
+ocfmRetCode GenerateMNOBD(bool IsBuild);
 bool CheckIfManufactureSpecificObject(char* Index);
 bool IsAscii(char c);
 int lenOfCNBuffer(char* Buffer);
@@ -246,4 +252,12 @@ bool ReactivateMappingPDO(CIndexCollection* pobjIndexCol, CIndex* pobjIndex);
 void BRSpecificFormatCdc(CIndexCollection *objIndexCollection, char* Buffer1, FILE* fileptr, ENodeType eNodeType, int iNodeId );
 void BRSpecificGetIndexData(CIndex* objIndex, char* Buffer, int iNodeId );
 INT32 BRSpecificgetCNsTotalIndexSubIndex(INT32 iNodeID);
+void UpdateCNSoCTolerance(CIndexCollection  *pobjIdxCol,char* pbSocTolerance);
+INT32* ArrangeNodeIDbyStation();
+void SortNodeID(INT32 *piNodeIDColl, INT32 iColSize);
+bool IsPresMN();
+void SetPresMNActPayload(INT32 iCalcPresMNPayload);
+INT32 GetPresMNActPayload();
+void setPresMNNodeAssigmentBits();
+bool CheckToolVersion(char* pcCurrentToolVersion);
 #endif // internal_h

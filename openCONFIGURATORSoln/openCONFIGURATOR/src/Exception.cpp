@@ -72,6 +72,7 @@
 ****************************************************************************************************/
 #include <iostream>
 #include <exception>
+#include <string.h>
 #include <libxml/xmlerror.h>
 #include "../Include/Exception.h"
 
