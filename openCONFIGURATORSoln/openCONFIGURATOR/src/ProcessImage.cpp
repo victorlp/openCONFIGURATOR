@@ -93,18 +93,18 @@ INT32 iInVars =0;
 INT32 iOutVars = 0;
 
 static tADDRESSTABLE AddressTable[NO_OF_PI_ENTERIES] = {
-														{"A000", INTEGER8,		INPUT},
-														{"A040", UNSIGNED8,			INPUT},
-														{"A0C0", INTEGER16, INPUT},
-														{"A100", UNSIGNED16,		INPUT},
-														{"A1C0", INTEGER32, INPUT},
-														{"A200", UNSIGNED32,		INPUT},
-														{"A480", INTEGER8,		OUTPUT},
-														{"A4C0", UNSIGNED8,			OUTPUT},
-														{"A540", INTEGER16, OUTPUT},
-														{"A580", UNSIGNED16,		OUTPUT},
-														{"A640", INTEGER32, OUTPUT},
-														{"A680", UNSIGNED32,			OUTPUT},
+                                                        {"A000", INTEGER8, OUTPUT},
+                                                        {"A040", UNSIGNED8,	OUTPUT},
+                                                        {"A0C0", INTEGER16, OUTPUT},
+                                                        {"A100", UNSIGNED16, OUTPUT},
+                                                        {"A1C0", INTEGER32, OUTPUT},
+                                                        {"A200", UNSIGNED32, OUTPUT},
+                                                        {"A480", INTEGER8, INPUT},
+                                                        {"A4C0", UNSIGNED8,	INPUT},
+                                                        {"A540", INTEGER16, INPUT},
+                                                        {"A580", UNSIGNED16, INPUT},
+                                                        {"A640", INTEGER32, INPUT},
+                                                        {"A680", UNSIGNED32, INPUT},
 																												
 													   };
 ModuleCol astModuleInfo[TOTAL_MODULES]; 
@@ -645,7 +645,7 @@ void WriteXAPHeaderContents(ProcessImage objProcessImage[], INT32 iNumberOfVars,
 
 	if(iNumberOfVars != 0 )
 	{
-		strcpy(pbBuffer, "\ntypedef struct { \n");	
+		strcpy(pbBuffer, "\ntypedef struct \n{\n");	
 		iModuleNo = 0;
 		for(INT32 iLoopCount = 0; iLoopCount<iNumberOfVars ; iLoopCount++)
 		{					
@@ -668,7 +668,7 @@ void WriteXAPHeaderContents(ProcessImage objProcessImage[], INT32 iNumberOfVars,
 					INT32 iFilledBits = iDataSize - (iTotalsize % iDataSize);
 					
 					iTotalsize =  iTotalsize + iFilledBits;
-					strcat(pbBuffer,"unsigned");
+					strcat(pbBuffer,"\tunsigned");
 					strcat(pbBuffer," ");
 					strcat(pbBuffer,"PADDING_VAR_");		
 					strcat(pbBuffer,_IntToAscii(iHoleFilledIdNo, abHoleid, 10));												
@@ -688,7 +688,7 @@ void WriteXAPHeaderContents(ProcessImage objProcessImage[], INT32 iNumberOfVars,
 			strcpy(pbModName, objProcessImage[iLoopCount].ModuleName);
 				
 			//printf("\n Module Name: %s",pbModName);
-			strcat(pbBuffer,"unsigned");
+			strcat(pbBuffer,"\tunsigned");
 			strcat(pbBuffer," ");
 			char* pbVarName = new char[100];
 			strcpy(pbVarName, "CN");
@@ -735,7 +735,7 @@ void WriteXAPHeaderContents(ProcessImage objProcessImage[], INT32 iNumberOfVars,
 			INT32 iFilledBits = 32 - (iTotalsize % 32);
 			
 			iTotalsize =  iTotalsize + iFilledBits;
-			strcat(pbBuffer,"unsigned");
+			strcat(pbBuffer,"\tunsigned");
 			strcat(pbBuffer," ");
 			strcat(pbBuffer,"PADDING_VAR_");		
 			strcat(pbBuffer,_IntToAscii(iHoleFilledIdNo, abHoleid, 10));												
@@ -750,14 +750,14 @@ void WriteXAPHeaderContents(ProcessImage objProcessImage[], INT32 iNumberOfVars,
 		
 		if(enumDirType == INPUT)
 		{
-			strcpy(pbBuffer1, "# define COMPUTED_PI_IN_SIZE ");			
-			strcat(pbBuffer, " PI_IN;");	
+            strcpy(pbBuffer1, "# define COMPUTED_PI_OUT_SIZE ");			
+            strcat(pbBuffer, " PI_OUT;");   
 		}	
 		else if(enumDirType == OUTPUT)
 		{				
 			
-			strcpy(pbBuffer1, "\n\n# define COMPUTED_PI_OUT_SIZE ");		
-			strcat(pbBuffer, " PI_OUT;");	
+            strcpy(pbBuffer1, "\n\n# define COMPUTED_PI_IN_SIZE ");		
+            strcat(pbBuffer, " PI_IN;");    
 			strcat(pbBuffer, "\n");
 		}
 	}
@@ -827,11 +827,11 @@ void GenerateNETHeaderFile(char* pbFileName, ProcessImage objPIInCol[], ProcessI
 		 /*Writng Header of .NET Interface*/
 		char* pbBuffer 		= new char[HEADER_FILE_BUFFER];
 		strcpy(pbBuffer, "using System;\n");
-		strcat(pbBuffer, "using System.Collections.Generic;\n");
-		strcat(pbBuffer, "using System.Text;\n");
+		//strcat(pbBuffer, "using System.Collections.Generic;\n");
+		//strcat(pbBuffer, "using System.Text;\n");
 		strcat(pbBuffer, "using System.Runtime.InteropServices;\n");
-		strcat(pbBuffer, "using openPOWERLINK;\n");
-		strcat(pbBuffer, "namespace openPOWERLINK.Demo\n");
+		//strcat(pbBuffer, "using openPOWERLINK;\n");
+		strcat(pbBuffer, "\nnamespace openPOWERLINK\n");
 		strcat(pbBuffer, "{\n");
 		UINT32 uiStrLength =  strlen(pbBuffer);
 		
@@ -932,12 +932,14 @@ void WriteNETHeaderContents(ProcessImage objProcessImage[], INT32 iNumberOfVars,
 	if(enumDirType == INPUT)
 	{
 		strcpy(pbBuffer1, "\n\t/// <summary>\n");
-		strcat(pbBuffer1, "\t/// Struct : ProcessImage In\n");
+		//strcat(pbBuffer1, "\t/// Struct : ProcessImage In\n");
+        strcat(pbBuffer1, "\t/// Struct : ProcessImage Out\n");
 		strcat(pbBuffer1, "\t/// </summary>\n");
 		strcat(pbBuffer1, "\t[StructLayout(LayoutKind.Explicit, Pack = 1, Size = ");
         strcat(pbBuffer1, abTotalsize);
         strcat(pbBuffer1, ")]\n");
-		strcat(pbBuffer1, "\tpublic struct AppProcessImageIn\n");
+		//strcat(pbBuffer1, "\tpublic struct AppProcessImageIn\n");
+        strcat(pbBuffer1, "\tpublic struct AppProcessImageOut\n");
 		strcat(pbBuffer1, "\t{\n");
 
 		//strcpy(pbBuffer2, "\t\tprivate static UInt16 uiPIInSize = ");
@@ -947,12 +949,14 @@ void WriteNETHeaderContents(ProcessImage objProcessImage[], INT32 iNumberOfVars,
 	{				
 		
 		strcpy(pbBuffer1, "\n\t/// <summary>\n");
-		strcat(pbBuffer1, "\t/// Struct : ProcessImage Out\n");
+		//strcat(pbBuffer1, "\t/// Struct : ProcessImage Out\n");
+        strcat(pbBuffer1, "\t/// Struct : ProcessImage In\n");
 		strcat(pbBuffer1, "\t/// </summary>\n");
 		strcat(pbBuffer1, "\t[StructLayout(LayoutKind.Explicit, Pack = 1, Size = ");
         strcat(pbBuffer1, abTotalsize);
         strcat(pbBuffer1, ")]\n");
-		strcat(pbBuffer1, "\tpublic struct AppProcessImageOut\n");
+		//strcat(pbBuffer1, "\tpublic struct AppProcessImageOut\n");
+        strcat(pbBuffer1, "\tpublic struct AppProcessImageIn\n");
 		strcat(pbBuffer1, "\t{\n");
 
 		//strcpy(pbBuffer2, "\t\tprivate static UInt16 uiPIOutSize = ");
