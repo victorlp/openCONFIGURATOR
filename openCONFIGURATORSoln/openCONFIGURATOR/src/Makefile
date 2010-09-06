@@ -61,10 +61,10 @@
 ####################################################################################################
 
 
-GCC 		  =	 	g++ 
-XMLFLAGS 	=		-shared `xml2-config --cflags` `xml2-config --libs`  
-INCLUDE 	= 	../Include
-TARGET 		= 	openCONFIGURATOR.so
+GCC	=	g++ 
+FLAGS	=	-fPIC -shared `xml2-config --cflags` `xml2-config --libs`  
+INCLUDE	= 	../Include
+TARGET	= 	openCONFIGURATOR.so
 
 
 
@@ -85,12 +85,12 @@ OBJECTS		=   APIOperations.o ApplicationProcess.o BaseIndex.o \
 
 
 $(TARGET):	$(OBJECTS)
-		$(GCC) -fPIC $(XMLFLAGS) -I $(INCLUDE) -o $(TARGET) $(OBJECTS)
+		$(GCC) $(FLAGS) -I $(INCLUDE) -o $(TARGET) $(OBJECTS)
 		@echo 'Finished building target: $@'
 	
 
 %.o: %.cpp
-		$(GCC) -fPIC $(XMLFLAGS) -I $(INCLUDE) -c $< 
+		$(GCC) $(FLAGS) -I $(INCLUDE) -c $< 
 		@echo 'Finished building: $<'
 
 .PHONY:     clean

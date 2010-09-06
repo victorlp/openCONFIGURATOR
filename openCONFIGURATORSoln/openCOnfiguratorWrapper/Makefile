@@ -59,33 +59,38 @@
 #  REVISION HISTORY:
 #  
 ####################################################################################################
-TCL = tcl
-SWG = swig
-CPP = c++
+TCL                 =   tcl
+SWG                 =   swig
+CPP                 =   c++
 
-CC = g++
-SHARE = shared
-SYSTEM = isystem
-DIR = /usr/include/tcl8.4
-XMLFLAG1 = `xml2-config --cflags`
-XMLFLAG2 = `xml2-config --libs`
-INPUT = openconfiguratorWrapper_wrap.cxx
-SOURCE = /usr/lib/openCONFIGURATOR.so
-TARGET = openConfiguratorWrapper.so
-INPUT1 = openconfiguratorWrapper.i
+GCC                 =   g++ 
+TCL_INCLUDE_FILE    =   /usr/include/tcl8.4
+INDEPENDENT         =   fPIC
+SHARE               =   shared
+SYSTEM              =   isystem
+XMLFLAGS 	    =	`xml2-config --cflags` `xml2-config --libs`
 
-$(TARGET):	$(INPUT)
-		$(CC) -$(SHARE) -$(SYSTEM) $(DIR) $(XMLFLAG1) $(INPUT) $(SOURCE) -o $(TARGET) $(XMLFLAG2)
-		@echo "Successfully created TCL So File"
+SWIGFILE	    =	openconfiguratorWrapper
+SO_SOURCE	    =	/usr/lib/openCONFIGURATOR.so
+WRAP_SOURCE	    =	$(SWIGFILE)_wrap.cxx
+WRAP_INCLUDE	    =	$(SWIGFILE).i 
+WRAP_OUTPUT	    =	openConfiguratorWrapper.so 
 
-$(INPUT): $(INPUT1)
-		$(SWG) -$(TCL) -$(CPP) $(INPUT1)
-		@echo "Created .cxx file"
-		
-		
-.PHONY: clean
+.PHONY: create compile clean all
+
+all: create compile
+
+create:
+	$(SWG) -$(TCL) -$(CPP) $(WRAP_INCLUDE)
+	@echo 'Finished creating wrapper: $(WRAP_SOURCE)'
+        
+
+
+compile:
+	$(GCC) -$(INDEPENDENT) -$(SHARE) -$(SYSTEM) $(TCL_INCLUDE_FILE) $(XMLFLAGS) $(WRAP_SOURCE) $(SO_SOURCE) -o $(WRAP_OUTPUT)
+	@echo 'Finished compiling wrapper: $(WRAP_OUTPUT)'
 
 clean:
-	rm -f *.cxx
-	rm -f openConfiguratorWrapper.so
-
+	rm -vf $(WRAP_SOURCE)
+	rm -vf $(WRAP_OUTPUT)
+	@echo ' '
