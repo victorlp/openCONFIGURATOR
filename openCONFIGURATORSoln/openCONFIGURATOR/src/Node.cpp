@@ -523,48 +523,101 @@ char* CNode::getForcedCycle()
 * Description: sets the cycle of the Node
 * Return value: void
 ****************************************************************************************************/
-void CNode::setForcedCycle(char* pbForcedCycle)
+ocfmRetCode CNode::setForcedCycle(char* pbForcedCycle)
 {	
 
 	//add or update 1f9b
-	ocfmRetCode stErrorInfo;
+	ocfmRetCode stErrorInfo, stErrorResult, stErrorInfoMN, stErrorInfoCN;
 	int IndexPos;
-	char* strConvertedValue;
+    int subIndexPos;
+	
+    char strCustomErrString [200];
+    char strCustomErrStringMN [100];
+    strCustomErrStringMN[0] = 0;
+    char strCustomErrStringCN [100];
+    strCustomErrStringCN[0] = 0;
+    
+    char* strConvertedValue;
 	strConvertedValue = new char[SUBINDEX_LEN];
 	char acMultiCycleAssignObj[] = MULTIPL_CYCLE_ASSIGN_OBJECT;
-    if(OCFM_ERR_SUCCESS != (IfIndexExists(this->getNodeId(), CN, acMultiCycleAssignObj, &IndexPos)).code)
-    {
-        return;
-    }
-	stErrorInfo = IfIndexExists(240, MN, acMultiCycleAssignObj, &IndexPos);
+
+    stErrorResult.code = OCFM_ERR_SUCCESS;
+
 	strConvertedValue = _IntToAscii(this->getNodeId(), strConvertedValue, 16);
 	strConvertedValue = padLeft(strConvertedValue, '0', 2);
+
+    stErrorInfoMN = IfSubIndexExists(MN_NODEID, MN, acMultiCycleAssignObj, strConvertedValue,  &subIndexPos, &IndexPos);
+    stErrorInfoCN = IfSubIndexExists(this->getNodeId(), CN, acMultiCycleAssignObj, strConvertedValue,  &subIndexPos, &IndexPos);
+    if( (OCFM_ERR_SUCCESS == stErrorInfoMN.code) && (OCFM_ERR_SUCCESS == stErrorInfoCN.code) )
+    {
+      // both the index and subindex are present continue
+    }
+    else
+    {
+        if(OCFM_ERR_INDEXID_NOT_FOUND == stErrorInfoMN.code)
+        {
+          strcpy((char*)strCustomErrStringMN, "The Index 1F9B does not exist in MN. ");
+        }
+        if(OCFM_ERR_INDEXID_NOT_FOUND == stErrorInfoCN.code)
+        {
+          strcpy((char*)strCustomErrStringCN, "The Index 1F9B does not exist in CN. ");
+        }
+        if(OCFM_ERR_SUBINDEXID_NOT_FOUND == stErrorInfoMN.code)
+        {
+          sprintf(strCustomErrStringMN, "The Subindex %s in Index 1F9B does not exist in MN. ", strConvertedValue);
+        }
+        if(OCFM_ERR_SUBINDEXID_NOT_FOUND == stErrorInfoCN.code)
+        {
+          sprintf(strCustomErrStringCN, "The Subindex %s in Index 1F9B does not exist in CN. ", strConvertedValue);
+        }
+        strcpy(strCustomErrString, strCustomErrStringMN);
+        strcat(strCustomErrString, strCustomErrStringCN);
+        strcat(strCustomErrString, "Unable to assign the multiplexing cycle");
+        
+        stErrorResult.code = OCFM_ERR_MULTIPLEX_ASSIGN_ERROR;
+        CopyCustomErrorString(&stErrorResult, (char*)&strCustomErrString);
+        return stErrorResult;
+    }
+
+
+
+//     if(OCFM_ERR_SUCCESS != (IfIndexExists(this->getNodeId(), CN, acMultiCycleAssignObj, &IndexPos)).code)
+//     {
+//         return;
+//     }
+//     stErrorInfo = IfIndexExists(240, MN, acMultiCycleAssignObj, &IndexPos);
 
     char* subIndName = new char[50];
     subIndName[0] = 0;
     INT32 iCNsubIndFlag = 0;
-	if(stErrorInfo.code == OCFM_ERR_SUCCESS)
-	{
-		//Index exists
-		int subIndexPos;		
-		stErrorInfo = IfSubIndexExists(MN_NODEID, MN, acMultiCycleAssignObj, strConvertedValue,  &subIndexPos, &IndexPos);
-		if(stErrorInfo.code == OCFM_ERR_SUCCESS)
-		{			
-
-		}
-		else
-		{			
-			stErrorInfo = AddSubIndex(MN_NODEID, MN, (char*)"1F9B", strConvertedValue);
-		}
-		
-	}
-	else
-	{
-        return;
-		/*stErrorInfo = AddIndex(MN_NODEID, MN, acMultiCycleAssignObj);
-	    stErrorInfo = AddSubIndex(MN_NODEID, MN, acMultiCycleAssignObj, strConvertedValue);*/
-		
-	}
+// 	if(stErrorInfo.code == OCFM_ERR_SUCCESS)
+// 	{
+// 		//Index exists
+// 		int subIndexPos;		
+// 		stErrorInfo = IfSubIndexExists(MN_NODEID, MN, acMultiCycleAssignObj, strConvertedValue,  &subIndexPos, &IndexPos);
+// 		if(stErrorInfo.code == OCFM_ERR_SUCCESS)
+// 		{			
+// 
+// 		}
+// 		else
+// 		{			
+// 			//stErrorInfo = AddSubIndex(MN_NODEID, MN, (char*)"1F9B", strConvertedValue);
+//             stErrorInfo.code = OCFM_ERR_MULTIPLEX_ASSIGN_ERROR;
+//             sprintf(strCustomErrString, "The Subindex %s Index 1F98 does not exist unable to assign the multiplexing cycle", strConvertedValue);
+//             CopyCustomErrorString(&stErrorInfo, (char*)&strCustomErrString);
+//             return;
+// 		}
+// 		
+// 	}
+// 	else
+// 	{
+//         stErrorInfo.code = OCFM_ERR_MULTIPLEX_ASSIGN_ERROR;
+//         CopyCustomErrorString(&stErrorInfo, (char*)"The Index 1F98 does not exist unable to assign the multiplexing cycle");
+//         return stErrorInfo;
+// 		/*stErrorInfo = AddIndex(MN_NODEID, MN, acMultiCycleAssignObj);
+// 	    stErrorInfo = AddSubIndex(MN_NODEID, MN, acMultiCycleAssignObj, strConvertedValue);*/
+// 		
+// 	}
     GetSubIndexAttributes(240, MN, acMultiCycleAssignObj, strConvertedValue, NAME, subIndName);
     //char* subIndFlag = new char[10];
     //GetSubIndexAttributes(240, MN, acMultiCycleAssignObj, strConvertedValue, FLAGIFINCDC, subIndFlag);
@@ -589,16 +642,16 @@ void CNode::setForcedCycle(char* pbForcedCycle)
     //if(stErrorInfo.code == OCFM_ERR_SUCCESS)
     //{
         //Index exists
-        int subIndexPos;        
-        stErrorInfo = IfSubIndexExists(this->getNodeId(), CN, acMultiCycleAssignObj, strConvertedValue,  &subIndexPos, &IndexPos);
-        if(stErrorInfo.code == OCFM_ERR_SUCCESS)
-        {           
-
-        }
-        else
-        {           
-            stErrorInfo = AddSubIndex(this->getNodeId(), CN, (char*)"1F9B", strConvertedValue);
-        }
+        
+//         stErrorInfo = IfSubIndexExists(this->getNodeId(), CN, acMultiCycleAssignObj, strConvertedValue,  &subIndexPos, &IndexPos);
+//         if(stErrorInfo.code == OCFM_ERR_SUCCESS)
+//         {           
+// 
+//         }
+//         else
+//         {           
+//             stErrorInfo = AddSubIndex(this->getNodeId(), CN, (char*)"1F9B", strConvertedValue);
+//         }
         
     //}
     //else
@@ -630,6 +683,7 @@ void CNode::setForcedCycle(char* pbForcedCycle)
 
     delete[] subIndName;
     //delete[] subIndFlag;
+    return stErrorResult;
 }
 
 /**************************************************************************************************
@@ -641,6 +695,14 @@ void CNode::resetForcedCycleValue()
 {
     m_ForcedCycle = new char[strlen("") + ALLOC_BUFFER];
     strcpy((char*)m_ForcedCycle, "");
+    
+    char* cSIdx = new char[SUBINDEX_LEN];
+    cSIdx = _IntToAscii(m_NodeId, cSIdx, 16);
+    cSIdx = padLeft(cSIdx, '0', 2);
+    copySubIndexDefToAct(MN_NODEID, MN, true, (char *)MULTIPL_CYCLE_ASSIGN_OBJECT, cSIdx);
+    copySubIndexDefToAct(m_NodeId, m_NodeType, true, (char *)MULTIPL_CYCLE_ASSIGN_OBJECT, cSIdx);
+    
+    delete[] cSIdx;
 }
 /**************************************************************************************************
 * Function Name: CNode::setPollResponseTimeout
@@ -655,21 +717,27 @@ void CNode::setPollResponseTimeout(char* pbPollResponseTimeout)
 	//add or update 1f92 subobjects in MN
 	ocfmRetCode stErrorInfo;
 	int IndexPos;
+    int subIndexPos;
 	char* strConvertedValue;
 	strConvertedValue = new char[SUBINDEX_LEN];
 	char acMNCNPollresponseTimeoutObj[] = MNCN_POLLRESPONSE_TIMEOUT_OBJECT;
-	stErrorInfo = IfIndexExists(MN_NODEID, MN, acMNCNPollresponseTimeoutObj, &IndexPos);
-	strConvertedValue = _IntToAscii(this->getNodeId(), strConvertedValue, 16);
 
+	strConvertedValue = _IntToAscii(this->getNodeId(), strConvertedValue, 16);
 	strConvertedValue = padLeft(strConvertedValue, '0', 2);
 
+    stErrorInfo = IfSubIndexExists(MN_NODEID, MN, acMNCNPollresponseTimeoutObj, strConvertedValue,  &subIndexPos, &IndexPos);
+    if(OCFM_ERR_SUCCESS != stErrorInfo.code)
+    {
+        return;
+    }
+    
     char* subIndName = new char[50];
     subIndName[0] = 0;
     INT32 iCNsubIndFlag = 0;
-	if(stErrorInfo.code == OCFM_ERR_SUCCESS)
+	/*if(stErrorInfo.code == OCFM_ERR_SUCCESS)
 	{
 		//Index exists
-		int subIndexPos;		
+				
 		stErrorInfo = IfSubIndexExists(MN_NODEID, MN, acMNCNPollresponseTimeoutObj, strConvertedValue,  &subIndexPos, &IndexPos);
 		if(stErrorInfo.code == OCFM_ERR_SUCCESS)
 		{
@@ -683,9 +751,9 @@ void CNode::setPollResponseTimeout(char* pbPollResponseTimeout)
 	else
 	{
         return;
-		/*stErrorInfo = AddIndex(MN_NODEID, MN, acMNCNPollresponseTimeoutObj);
-		stErrorInfo = AddSubIndex(MN_NODEID, MN, acMNCNPollresponseTimeoutObj, strConvertedValue);		*/
-	}
+		//stErrorInfo = AddIndex(MN_NODEID, MN, acMNCNPollresponseTimeoutObj);
+		//stErrorInfo = AddSubIndex(MN_NODEID, MN, acMNCNPollresponseTimeoutObj, strConvertedValue);
+	}*/
 
     GetSubIndexAttributes(240, MN, acMNCNPollresponseTimeoutObj, strConvertedValue, NAME, subIndName);
     //char* subIndFlag = new char[10];

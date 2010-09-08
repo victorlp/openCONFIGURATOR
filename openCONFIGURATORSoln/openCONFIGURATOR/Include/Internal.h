@@ -211,7 +211,7 @@ void AuotgenerateOtherIndexs(CNode* objNode);
 void UpdatedCNDateORTime(CIndex* pobjMNIndex, int iNodeId, EDateTime eDT);
 void copyPDODefToAct(int iNodeID, ENodeType enumNodeType);
 void copyMNPropDefToAct(int iNodeID, ENodeType enumNodeType);
-void copySubIndexDefToAct(int iNodeID, ENodeType enumNodeType, char *indexId, char *subIndexId );
+void copySubIndexDefToAct(int iNodeID, ENodeType enumNodeType, bool bForce, char *indexId, char *subIndexId );
 void copyIndexDefToAct(int iNodeID, ENodeType enumNodeType, char *indexId );
 void setFlagForRequiredMNIndexes(INT32 iNodeId);
 bool CheckAllowedDTForMapping(char* dtName);

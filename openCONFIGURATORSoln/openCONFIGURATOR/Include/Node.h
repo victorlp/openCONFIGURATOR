@@ -154,7 +154,7 @@ class DllExport CNode
 
 		char* getForcedCycle();
 		bool getForceCycleFlag();
-		void setForcedCycle(char* ForcedCycle);
+        ocfmRetCode setForcedCycle(char* ForcedCycle);
         void resetForcedCycleValue();
 		void setForceCycleFlag(bool bForceCycleFlag);
 		void setPollResponseTimeout(char* pbPollResponseTimeout);
