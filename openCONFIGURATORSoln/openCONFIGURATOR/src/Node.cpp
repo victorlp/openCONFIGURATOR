@@ -775,13 +775,65 @@ void CNode::setPollResponseTimeout(char* pbPollResponseTimeout)
     //delete[] subIndFlag;
 }
 
+/**************************************************************************************************
+* Function Name: CNode::setPollResponseTimeout
+* Description: 
+* Return value: void
+****************************************************************************************************/
 bool CNode::getForceCycleFlag()
 {
 	return m_ForcedCycleFlag;
 }
 
+/**************************************************************************************************
+* Function Name: CNode::setPollResponseTimeout
+* Description: 
+* Return value: void
+****************************************************************************************************/
 void CNode::setForceCycleFlag(bool bForceCycleFlag)
 {
 	m_ForcedCycleFlag = bForceCycleFlag;
 }
+
+/**************************************************************************************************
+* Function Name: CNode::setPResActPayloadValue
+* Description: 
+* Return value: void
+****************************************************************************************************/
+void CNode::setPResActPayloadValue(int iValue)
+{
+    m_PResActPayload = iValue;
+}
+
+/**************************************************************************************************
+* Function Name: CNode::getPResActPayloadValue
+* Description: 
+* Return value: int
+****************************************************************************************************/
+int CNode::getPResActPayloadValue()
+{
+    return m_PResActPayload;
+}
+
+/**************************************************************************************************
+* Function Name: CNode::setPReqActPayloadValue
+* Description: 
+* Return value: void
+****************************************************************************************************/
+void CNode::setPReqActPayloadValue(int iValue)
+{
+    m_PReqActPayload = iValue;
+
+}
+
+/**************************************************************************************************
+* Function Name: CNode::getPReqActPayloadValue
+* Description: 
+* Return value: int
+****************************************************************************************************/
+int CNode::getPReqActPayloadValue()
+{
+    return m_PReqActPayload;
+}
+
 #pragma endregion Properties

@@ -104,6 +104,8 @@ class DllExport CNode
 		char*			m_ForcedCycle;
 		bool			m_ForcedCycleFlag;
 		char*			m_PollResponseTimeout;
+        int             m_PResActPayload;
+        int             m_PReqActPayload;
 		/*	typedef TCollection<ProcessImage> PICollection;*/
 	public:
 		/*typedef _PICollection PICollection;*/
@@ -160,5 +162,9 @@ class DllExport CNode
 		void setPollResponseTimeout(char* pbPollResponseTimeout);
 		bool isNull();
 		void DeleteCollectionsForNETPI();
+        void setPResActPayloadValue(int);
+        int getPResActPayloadValue();
+        void setPReqActPayloadValue(int);
+        int getPReqActPayloadValue();
 };
 #endif // Node_h

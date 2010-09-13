@@ -261,4 +261,7 @@ void SetPresMNActPayload(INT32 iCalcPresMNPayload);
 INT32 GetPresMNActPayload();
 void setPresMNNodeAssigmentBits();
 bool CheckToolVersion(char* pcCurrentToolVersion);
+void UpdateCNPreqActLoad(CNode*  pobjNode, EAutoGenerate ePjtSetting);
+void UpdateCNPresActLoad(CNode*  pobjNode );
+void UpdateCNPresMNActLoad(CNode*  pobjNode);
 #endif // internal_h
