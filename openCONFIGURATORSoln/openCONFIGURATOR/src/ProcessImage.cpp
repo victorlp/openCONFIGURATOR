@@ -1270,15 +1270,16 @@ void AddPDOIndexsToMN(char* pbIndex, char* pbSubIndex, EPDOType enumPdoType)
 		if(pobjIndex != NULL && (stRetCode.code != OCFM_ERR_INDEX_ALREADY_EXISTS) )
 		{
 			pobjIndex->setObjectType((char*)"ARRAY");
+			//name from network point of view
 			if(enumPdoType == PDO_RPDO)
 			{			
-				strcpy(abObjectName, "PI_OUTPUTS_A");
+				strcpy(abObjectName, "PI_INPUTS_A");
 				strcat(abObjectName, getPIName(pbIndex));		
 				pobjIndex->setName(abObjectName);
 			}
 			else if(enumPdoType == PDO_TPDO)
 			{							
-				strcpy(abObjectName, "PI_INPUTS_A");
+				strcpy(abObjectName, "PI_OUTPUTS_A");
 				strcat(abObjectName, getPIName(pbIndex));	
 				pobjIndex->setName(abObjectName);
 			}
@@ -1309,19 +1310,20 @@ void AddPDOIndexsToMN(char* pbIndex, char* pbSubIndex, EPDOType enumPdoType)
 			if(enumPdoType == PDO_RPDO)
 			{								
 				strcpy(pbPdoMap, "TPDO");
-				strcpy(abObjectName, "PI_OUTPUTS_");
+				strcpy(abObjectName, "PI_INPUTS_");
 				strcat(abObjectName, getPIName(pbIndex));								
-				pobjSIdx->setAccessType((char*)"wo");
+				pobjSIdx->setAccessType((char*)"ro");
 				
 				pobjSIdx->setName(abObjectName);
 				pobjSIdx->setPDOMapping(pbPdoMap);
 			}
 			else if(enumPdoType == PDO_TPDO)
 			{				
-				strcpy(pbPdoMap, "RPDO");				
-				strcpy(abObjectName, "PI_INPUTS_");
+				strcpy(pbPdoMap, "RPDO");
+
+				strcpy(abObjectName, "PI_OUTPUTS_");
 				strcat(abObjectName, getPIName(pbIndex));	
-				pobjSIdx->setAccessType((char*)"ro");
+				pobjSIdx->setAccessType((char*)"rw");
 				
 				pobjSIdx->setName(abObjectName);
 				pobjSIdx->setPDOMapping(pbPdoMap);
