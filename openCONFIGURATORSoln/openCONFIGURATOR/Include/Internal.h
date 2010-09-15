@@ -83,6 +83,7 @@
 #include "Node.h"
 #include "IndexCollection.h"
 #include "NetworkManagement.h"
+#include "Exception.h"
 
 /*******************************************************************e *****************************
 * Defines
@@ -261,7 +262,11 @@ void SetPresMNActPayload(INT32 iCalcPresMNPayload);
 INT32 GetPresMNActPayload();
 void setPresMNNodeAssigmentBits();
 bool CheckToolVersion(char* pcCurrentToolVersion);
-void UpdateCNPreqActLoad(CNode*  pobjNode, EAutoGenerate ePjtSetting);
-void UpdateCNPresActLoad(CNode*  pobjNode );
+void UpdatePreqActLoad(CNode*  pobjNode, EAutoGenerate ePjtSetting);
+void UpdatePresActLoad(CNode*  pobjNode );
 void UpdateCNPresMNActLoad(CNode*  pobjNode);
+void UpdateCNVisibleNode(CNode*  pobjNode) throw(ocfmException);
+bool ISCNNodeAssignmentValid(CNode*  pobjNode);
+bool CopyMNSubindexToCN(CNode*  pobjNode, char *pcIndex, char *pcSubIndex);
+void CalculatePayload();
 #endif // internal_h

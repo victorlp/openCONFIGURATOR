@@ -85,8 +85,8 @@
 	#include <sys/stat.h>
 #endif
 #include "../Include/openCONFIGURATOR.h"
-#include "../Include/Internal.h"
 #include "../Include/Exception.h"
+#include "../Include/Internal.h"
 #include "../Include/ObjectDictionary.h"
 #include "../Include/ProcessImage.h"
 #include "../Include/Declarations.h"
@@ -1785,7 +1785,7 @@ void UpdateCNNodeAssignment(CNode*  pobjNode)
     int iNodeId = pobjNode->getNodeId();
     ENodeType enumNodeType = pobjNode->getNodeType();
 
-    stErrorInfo = IfIndexExists(iNodeId, enumNodeType, (char*)"1F9B", &iIndexPos);
+    /*stErrorInfo = IfIndexExists(iNodeId, enumNodeType, (char*)"1F9B", &iIndexPos);
     if( OCFM_ERR_SUCCESS == stErrorInfo.code )
     {
         stErrorInfo = IfSubIndexExists(iNodeId, enumNodeType, (char*)"1F98", (char*)"07", &iSubIndexPos, &iIndexPos);
@@ -1808,8 +1808,10 @@ void UpdateCNNodeAssignment(CNode*  pobjNode)
     if( OCFM_ERR_SUCCESS == (IfIndexExists(iNodeId, enumNodeType, (char*)"1F8D", &iIndexPos)).code)
     {
         bCopy1F81 = true;
-    }
+    }*/
 
+    bCopy1F81 = ISCNNodeAssignmentValid(pobjNode);
+        
     if(true == bCopy1F81)
     {
         CIndexCollection* objCNIndexCollection;
@@ -1878,6 +1880,46 @@ void UpdateCNNodeAssignment(CNode*  pobjNode)
     }
 }
 
+/****************************************************************************************************
+* Function Name: ISCNNodeAssignmentValid
+* Description: checks whether the CN can implement 1F81 object
+* Return value: bool
+****************************************************************************************************/
+bool ISCNNodeAssignmentValid(CNode*  pobjNode)
+{
+    ocfmRetCode stErrorInfo;
+    INT32 iIndexPos, iSubIndexPos;
+    bool bCopy1F81 = false;
+    int iNodeId = pobjNode->getNodeId();
+    ENodeType enumNodeType = pobjNode->getNodeType();
+    
+    stErrorInfo = IfIndexExists(iNodeId, enumNodeType, (char*)"1F9B", &iIndexPos);
+    if( OCFM_ERR_SUCCESS == stErrorInfo.code )
+    {
+        stErrorInfo = IfSubIndexExists(iNodeId, enumNodeType, (char*)"1F98", (char*)"07", &iSubIndexPos, &iIndexPos);
+        if( OCFM_ERR_SUCCESS == stErrorInfo.code )
+        {
+        char* pcMultiplCycleCnt = new char[20];
+        if( OCFM_ERR_SUCCESS == (GetSubIndexAttributes(iNodeId, enumNodeType, (char*)"1F98", (char*)"07", ACTUALVALUE, pcMultiplCycleCnt)).code )
+        {
+            if( ( pcMultiplCycleCnt != NULL ) && ( 0 != strcmp(pcMultiplCycleCnt,"") ) && !(checkIfValueZero(pcMultiplCycleCnt)) )
+            {
+            bCopy1F81 = true;
+            }
+        }
+        }
+    } 
+    if( OCFM_ERR_SUCCESS == (IfIndexExists(iNodeId, enumNodeType, (char*)"1016", &iIndexPos)).code)
+    {
+        bCopy1F81 = true;
+    }
+    if( OCFM_ERR_SUCCESS == (IfIndexExists(iNodeId, enumNodeType, (char*)"1F8D", &iIndexPos)).code)
+    {
+        bCopy1F81 = true;
+    }
+    
+    return bCopy1F81;
+}
 /****************************************************************************************************
 * Function Name: UpdateCNMultipleCycleAssign
 * Description: copies all the subobjects of 1F9B in MN to CN if conditions are satisfied
@@ -2020,11 +2062,11 @@ void UpdateCNPresMNActLoad(CNode*  pobjNode, EAutoGenerate ePjtSetting)
 }
 
 /****************************************************************************************************
-* Function Name: UpdateCNPreqActLoad
+* Function Name: UpdatePreqActLoad
 * Description: set the calculated Preq load value in CN 
 * Return value: void
 ****************************************************************************************************/
-void UpdateCNPreqActLoad(CNode*  pobjNode)
+void UpdatePreqActLoad(CNode*  pobjNode)
 {
     ocfmRetCode stErrStructInfo;
     CIndex *pobjIndex;
@@ -2066,7 +2108,7 @@ void UpdateCNPreqActLoad(CNode*  pobjNode)
           pobjSubIndex->setFlagIfIncludedCdc(TRUE);
           
           //set the value in MN
-          //if( 36 < pobjNode->getPReqActPayloadValue() )
+          if( (CN == pobjNode->getNodeId() ) && (PREQ_DEFAULT_PAYLOAD < pobjNode->getPReqActPayloadValue()) )
           {
             _IntToAscii( pobjNode->getNodeId(), pcSubindexId, 16);
             pcSubindexId = padLeft(pcSubindexId, '0', 2);
@@ -2094,11 +2136,11 @@ void UpdateCNPreqActLoad(CNode*  pobjNode)
 }
 
 /****************************************************************************************************
-* Function Name: UpdateCNPresActLoad
+* Function Name: UpdatePresActLoad
 * Description: set the calculated Pres load value in CN 
 * Return value: void
 ****************************************************************************************************/
-void UpdateCNPresActLoad(CNode*  pobjNode)
+void UpdatePresActLoad(CNode*  pobjNode)
 {
     ocfmRetCode stErrStructInfo;
     CIndex *pobjIndex;
@@ -2140,7 +2182,7 @@ void UpdateCNPresActLoad(CNode*  pobjNode)
         pobjSubIndex->setFlagIfIncludedCdc(TRUE);
           
           //set the value in MN
-        //if( 36 < pobjNode->getPReqActPayloadValue() )
+        if( (CN == pobjNode->getNodeId() ) && ( PRES_DEFAULT_PAYLOAD < pobjNode->getPResActPayloadValue() ) )
         {
           _IntToAscii( pobjNode->getNodeId(), pcSubindexId, 16);
           pcSubindexId = padLeft(pcSubindexId, '0', 2);
@@ -2167,6 +2209,159 @@ void UpdateCNPresActLoad(CNode*  pobjNode)
     }
     delete[] pcSubindexId;
 }
+
+/****************************************************************************************************
+* Function Name: UpdateCNVisibleNode
+* Description: Updates 1F81 and 1F8D of cross trafficked station 
+* Return value: void
+****************************************************************************************************/
+void UpdateCNVisibleNode(CNode*  pobjNode) throw(ocfmException)
+{
+    CIndexCollection* objPDOCollection;
+    objPDOCollection = pobjNode->getPDOIndexCollection();
+    
+    if(NULL == objPDOCollection)
+    {
+      return;
+    }
+
+    CIndex *pobjIndex, *pobjCommIndex;
+    CSubIndex *pobjEntriesSubIndex, *pobjNodeIDSubIndex;
+    char *pcIdx;
+    char *pcCommIdx = new char[INDEX_SIZE];
+    char *pcMappedNodeId;
+    
+    int iCrossStnCnt = 0;
+    
+    for(INT32 iLoopCount = 0; iLoopCount < objPDOCollection -> getNumberofIndexes(); iLoopCount++)
+    {
+        pobjIndex = objPDOCollection -> getIndex(iLoopCount);
+        if( (NULL != pobjIndex) && (0 == strncmp(pobjIndex->getIndexValue(), "16", 2)) )
+        {
+            pobjEntriesSubIndex = pobjIndex -> getSubIndexbyIndexValue( (char *)"00" );
+            
+            if(NULL != pobjEntriesSubIndex)
+            {
+                if ( (NULL != pobjEntriesSubIndex -> getActualValue()) && (0 != strcmp( pobjEntriesSubIndex -> getActualValue(), "" )) && !( checkIfValueZero((char*)pobjEntriesSubIndex -> getActualValue())) )
+                {   
+                    pcIdx = subString((char *)pobjIndex->getIndexValue(), 2, 2);
+                    strcpy(pcCommIdx, (char *)"14");
+                    strcat(pcCommIdx, pcIdx);
+                    delete [] pcIdx;
+                    
+                    pobjCommIndex = objPDOCollection->getIndexbyIndexValue(pcCommIdx);
+                    if(NULL != pobjCommIndex)
+                    {
+                        pobjNodeIDSubIndex = pobjCommIndex->getSubIndexbyIndexValue((char *)"01");
+                        if(NULL != pobjNodeIDSubIndex)
+                        {
+                            if ( (NULL != pobjNodeIDSubIndex -> getActualValue()) && (0 != strcmp( pobjNodeIDSubIndex -> getActualValue(), "" )) && !(checkIfValueZero ( (char*)pobjNodeIDSubIndex -> getActualValue())) )
+                            {   
+                                iCrossStnCnt++;
+                                if(MAX_CN_CROSS_TRAFFIC_STN < iCrossStnCnt)
+                                {
+                                    ocfmException objocfmException;
+                                    objocfmException._ocfmRetCode.code = OCFM_ERR_CN_EXCEEDS_CROSS_TRAFFIC_STN;
+                                    char acCustomError[200] = {0};
+                                    sprintf(acCustomError, "The cross trafficking in CN Node ID:%d excceds the maximum permissible station %d",  pobjNode->getNodeId(), MAX_CN_CROSS_TRAFFIC_STN);
+                                    CopyCustomErrorString(&(objocfmException._ocfmRetCode), acCustomError);
+    
+                                    throw objocfmException;
+                                }
+                                  
+                                //copy the MN objects
+                                if(CheckIfHex((char*)pobjNodeIDSubIndex -> getActualValue()))
+                                {
+                                    pcMappedNodeId = subString((char *)pobjNodeIDSubIndex -> getActualValue(), 2, 2);
+                                }
+                                else
+                                {
+                                    pcMappedNodeId = new char[SUBINDEX_LEN];
+                                    strcpy(pcMappedNodeId, pobjNodeIDSubIndex -> getActualValue());
+                                }
+                                pcMappedNodeId = padLeft(pcMappedNodeId, '0', 2);
+                                
+                                if( true == ISCNNodeAssignmentValid( pobjNode ))
+                                {
+                                    if( true == CopyMNSubindexToCN( pobjNode, (char *)"1F81", pcMappedNodeId))
+                                    {
+                                        CopyMNSubindexToCN( pobjNode, (char *)"1F8D", pcMappedNodeId);
+                                    }
+                                }
+                                
+                                delete [] pcMappedNodeId;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+}
+
+/****************************************************************************************************
+* Function Name: CopyMNSubindexToCN
+* Description: copies the MN subindex value into corresponding CN subindex
+* Return value: bool
+****************************************************************************************************/
+bool CopyMNSubindexToCN(CNode*  pobjNode, char *pcIndex, char *pcSubIndex)
+{
+    bool bCopied = false;
+    
+    CIndexCollection *pobjIndexCollection;
+    CIndex *pobjMNIndex, *pobjCNIndex;
+    CSubIndex *pobjMNSubindex, *pobjCNSubindex;
+    
+    pobjIndexCollection = pobjNode->getIndexCollection();
+    pobjCNIndex = pobjIndexCollection -> getIndexbyIndexValue(pcIndex);
+    if(NULL != pobjCNIndex)
+    {
+        pobjCNSubindex = pobjCNIndex -> getSubIndexbyIndexValue( pcSubIndex );
+        if(NULL != pobjCNSubindex)
+        {
+            
+        }
+        else
+        {
+            return bCopied;
+        }
+      
+    }
+    else
+    {
+        return bCopied;
+    }
+    
+    pobjMNIndex = getMNIndexValues(pcIndex);
+    if(NULL != pobjMNIndex)
+    {
+        pobjMNSubindex = pobjMNIndex -> getSubIndexbyIndexValue( pcSubIndex );
+        if(NULL != pobjMNSubindex)
+        {
+                
+        }
+        else
+        {
+            return bCopied;
+        }
+      
+    }
+    else
+    {
+        return bCopied;
+    }
+    
+    if(NULL != pobjMNSubindex->getActualValue())
+    {
+      pobjCNSubindex -> setActualValue( (char *)pobjMNSubindex -> getActualValue());
+      pobjCNSubindex -> setFlagIfIncludedCdc(TRUE);
+      pobjCNIndex -> setFlagIfIncludedCdc(TRUE);
+      return true;
+    }
+    return bCopied;
+}
+
 /****************************************************************************************************
 * Function Name: GetIndexData
 * Description: 
@@ -2890,11 +3085,12 @@ void BRSpecificGetIndexData(CIndex* objIndex, char* Buffer, int iNodeId )
                                     UpdateCNMultipleCycleAssign( &objNode);
                             }
 
-                            objIndex = getMNIndexValues((char*)"1F81");
+                            /*objIndex = getMNIndexValues((char*)"1F81");
                             if(objIndex != NULL)
                             {
                                     UpdateCNNodeAssignment( &objNode);
-                            }
+                            }*/
+                            UpdateCNVisibleNode( &objNode);
                             UpdateCNPresMNActLoad(&objNode, ePjtSetting);
                             
                             //printf("1F98/4 CN-%d is:%d \n", objNode.getNodeId(), objNode.getPReqActPayloadValue());
@@ -3523,6 +3719,9 @@ INT32 BRSpecificgetCNsTotalIndexSubIndex(INT32 iNodeID)
 
                 UpdateMNNodeAssignmentIndex(&objNodeCollection->getMNNode(), objNodeCollection->getCNNodesCount(), (char*)"1F81", true );
                 UpdateMNNodeAssignmentIndex(&objNodeCollection->getMNNode(), objNodeCollection->getCNNodesCount(), (char*)"1F92", false );
+                UpdateMNNodeAssignmentIndex(&objNodeCollection->getMNNode(), objNodeCollection->getCNNodesCount(), (char*)"1F8D", true );
+                
+                CalculatePayload();
 
 				//Buffer1 = (char*)malloc(CDC_BUFFER);
 				Buffer1 = new char[CDC_BUFFER];
@@ -4577,7 +4776,7 @@ ocfmRetCode ProcessPDONodes(bool IsBuild)
 	iNodesCount = objNodeCol->getCNNodesCount();
 	
 		#if defined DEBUG	
-					cout<< "Nodes cunt"<<iNodesCount<< endl;
+					cout<< "Nodes count"<<iNodesCount<< endl;
 				#endif
                     
     
@@ -5080,15 +5279,16 @@ ocfmRetCode ProcessPDONodes(bool IsBuild)
 								}
 							}
 						}
-						UpdateCNPreqActLoad(pobjNode);
-						UpdateCNPresActLoad(pobjNode);
+						UpdatePreqActLoad(pobjNode);
+						UpdatePresActLoad(pobjNode);
 					}
 				}
         if(true == IsBuild)
         {
-          if(NULL != pobjMNNode)
+          if( (NULL != pobjMNNode) && (true == IsPresMN()) )
           {
                 pobjMNNode->setPResActPayloadValue(iTotalChainedBytesMapped / 8);
+                UpdatePresActLoad(pobjMNNode);
           }
         }
 		delete[] pArrangedNodeIDbyStation;
@@ -5101,6 +5301,204 @@ ocfmRetCode ProcessPDONodes(bool IsBuild)
 	}
 }
 
+/****************************************************************************************************
+* Function Name: CalculatePayload
+* Description: calculates the PReq and PRes payload for node
+* Return value: void
+****************************************************************************************************/
+void CalculatePayload()
+{
+    CNodeCollection* objNodeCol;
+    ocfmException objocfmException;
+    objNodeCol = CNodeCollection::getNodeColObjectPointer();
+    CNode *pobjNode, *pobjMNNode = NULL;
+    INT32 iTotalBytesMapped = 0;
+    INT32 iTotalChainedBytesMapped = 0;
+    INT32 iNodeMappedTotalBytes = 0;
+            
+    CIndexCollection* objPDOCollection;
+    CIndexCollection* pobjIndexCollection;
+    /* Check RPDO Mapped objects*/
+    INT32 iNodesCount = 0;
+    ocfmRetCode stRetInfo;
+        
+    iNodesCount = objNodeCol->getCNNodesCount();
+                        
+        
+    //try
+    //{
+        if(iNodesCount == 0)
+        {               
+        exit;
+        }
+
+        INT32* pArrangedNodeIDbyStation;
+        pArrangedNodeIDbyStation = ArrangeNodeIDbyStation();
+        for(INT32 iLoopCount = 0; iLoopCount < objNodeCol->getNumberOfNodes(); iLoopCount++)
+            //for(INT32 iLoopCount = 0; iLoopCount < iNodesCount; iLoopCount++)
+        {
+        
+            pobjNode = objNodeCol->getNodebyColIndex(iLoopCount);
+                    //pobjNode = objNodeCol->getNodebyColIndex(pArrangedNodeIDbyStation[iLoopCount]);
+            /* Process PDO Objects for CN*/
+                
+            if (pobjNode->getNodeType() == MN )
+            {
+                pobjMNNode = pobjNode;
+            }
+            else
+            {
+                if(!(pobjNode->HasPdoObjects()))    
+                {
+                    continue;
+                }
+                
+                EStationType eNodeStation = pobjNode->getStationType();
+
+                objPDOCollection = pobjNode->getPDOIndexCollection();
+
+                if(objPDOCollection!= NULL)
+                {
+                            
+                    pobjIndexCollection = pobjNode->getIndexCollection();
+                                    
+                    pobjNode->setPReqActPayloadValue(0);
+                    pobjNode->setPResActPayloadValue(0);
+                                    
+                    for(INT32 iLoopCount = 0; iLoopCount<objPDOCollection->getNumberofIndexes(); iLoopCount++)
+                    {
+                        CIndex* pobjBforeSortIndex;
+                        CIndex objIndex;
+                        pobjBforeSortIndex = objPDOCollection->getIndex(iLoopCount);
+                        if(!(CheckIfMappingPDO((char*)pobjBforeSortIndex->getIndexValue())))
+                        {
+                            continue;
+                        }
+                        iNodeMappedTotalBytes = 0;
+                        
+                        if(pobjBforeSortIndex->getNumberofSubIndexes() > 0)
+                        {
+                            /* Sort the pdo collection */
+                            objIndex = getPDOIndexByOffset(pobjBforeSortIndex);
+                            INT32 iSiCount = 1;
+                            INT32 iSiTotal = objIndex.getNumberofSubIndexes();
+
+                            bool bSetPReqPayload = false;
+                            if(strncmp(objIndex.getIndexValue(), "16", 2) == 0)
+                            {
+                                CIndex *pobjCommIndex;
+                                CSubIndex *pobjNodeIDSubIndex;
+                                char *pcIdx = subString((char *)objIndex.getIndexValue(), 2, 4);
+                                char *pcCommIdx = new char[INDEX_SIZE];
+                                strcpy(pcCommIdx, (char *)"14");
+                                strcat(pcCommIdx, pcIdx);
+                                pobjCommIndex = pobjIndexCollection->getIndexbyIndexValue(pcCommIdx);
+                                if(NULL != pobjCommIndex)
+                                {
+                                    pobjNodeIDSubIndex = pobjCommIndex->getSubIndexbyIndexValue((char *)"01");
+                                    if(NULL != pobjNodeIDSubIndex)
+                                    {
+                                        if(0 == GetDecimalValue((char*)pobjNodeIDSubIndex->getActualValue()))
+                                        {
+                                            bSetPReqPayload = true;
+                                        }
+                                    }
+                                }
+                                delete [] pcCommIdx;
+                                delete [] pcIdx;
+                            }
+
+                            
+                            while(iSiCount< iSiTotal)
+                            {
+                                
+                                CSubIndex* pobjSubIdx;
+                                pobjSubIdx = objIndex.getSubIndex(iSiCount);
+                                
+                                iSiCount++;
+                                
+                                
+                                if ( (pobjSubIdx->getActualValue()==NULL) || (0 == strcmp(pobjSubIdx->getActualValue(),"")) || (checkIfValueZero((char*)pobjSubIdx->getActualValue())) )
+                                {
+                                    continue;
+                                }
+                                
+                                const char* pbActualVal = pobjSubIdx->getActualValue();
+                                
+
+                                if(strncmp(objIndex.getIndexValue(), "16", 2) == 0)
+                                {
+                                    char* pbModOffset = new char[strlen(pbActualVal) + 1];
+                                    strcpy(pbModOffset, pbActualVal);
+                                    INT32 iLength = 0, iOffset = 0;
+    
+                                    char* pcLength = NULL;
+                                    pcLength = subString((char *)pbActualVal, 2, 4);
+                                    iLength = hex2int(pcLength);
+    
+                                    char* offset = NULL;
+                                    offset = subString((char *)pbActualVal, 6, 4);
+                                    iOffset = hex2int(offset);
+    
+                                    iNodeMappedTotalBytes = iOffset + iLength;
+    
+                                    if(CHAINED == eNodeStation)
+                                    {
+                                        iTotalChainedBytesMapped =  iOffset +  iLength;
+                                    }
+                                    
+                                    if(true == bSetPReqPayload)
+                                    {
+                                        pobjNode->setPReqActPayloadValue( (iOffset +  iLength) / 8);
+                                    }
+                    
+                                    delete[] pbModOffset;
+                                    delete[] pcLength;
+                                    delete[] offset;
+                
+                                }
+                                if(strncmp(objIndex.getIndexValue(), "1A", 2) == 0)
+                                {
+                                    char* pbModOffset = new char[strlen(pbActualVal) + 1];
+                                    strcpy(pbModOffset, pbActualVal);
+                                    INT32 iLength = 0;
+                                    char* pcLength = NULL;
+                                    pcLength = subString((char *)pbActualVal, 2, 4);
+                                    iLength = hex2int(pcLength);
+                        
+                                    char* pcOffset = NULL;
+                                    pcOffset = subString((char *)pbActualVal, 6, 4);
+                                    INT32 iOffset = 0;
+                                    iOffset = hex2int(pcOffset);
+                                    
+                                    pobjNode->setPResActPayloadValue((iOffset + iLength) / 8);
+                                                                    
+                                    delete[] pbModOffset;
+                                    delete[] pcLength;
+                                    delete[] pcOffset;
+                                }
+                            }
+                        }
+                    }
+                }
+                UpdatePreqActLoad(pobjNode);
+                UpdatePresActLoad(pobjNode);
+            }
+        }
+        if( (NULL != pobjMNNode) && (true == IsPresMN()) )
+        {
+            pobjMNNode->setPResActPayloadValue(iTotalChainedBytesMapped / 8);
+            UpdatePresActLoad(pobjMNNode);
+        }
+        delete[] pArrangedNodeIDbyStation;
+//         stRetInfo.code = OCFM_ERR_SUCCESS ;
+//         return stRetInfo;
+//     }
+//     catch(ocfmException& ex)
+//     {
+//         return ex._ocfmRetCode;
+//     }
+}
 /****************************************************************************************************
 * Function Name: getCNDataLen
 * Description: 
@@ -11333,12 +11731,14 @@ void UpdateMNNodeAssignmentIndex(CNode *pobjNode, INT32 CNsCount, char* pcIndex,
             }
 			
 		}
+        /*
 		strcpy(pbSidx, "00");
 		pbIndexNo = _IntToAscii(CNsCount, pbIndexNo, 16);
 		pbIndexNo = padLeft(pbIndexNo, '0', 2);		
         strcpy(pbHexIndexNo, "0x");
         strcat(pbHexIndexNo, pbIndexNo);
 		SetSIdxValue(pbMNIndex, pbSidx, pbHexIndexNo,pobjIdxCol, pobjNode->getNodeId(), MN, false);					
+        */
 	}	
 }
 

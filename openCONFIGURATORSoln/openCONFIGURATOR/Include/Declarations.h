@@ -104,6 +104,9 @@ const int OFFSET_UNSIGNED_INTEGER_8 = 0;
 #define MULTIPL_CYCLE_ASSIGN_OBJECT "1F9B"
 #define MNCN_POLLRESPONSE_TIMEOUT_OBJECT "1F92"
 #define PI_VAR_COUNT 4000
+#define PRES_DEFAULT_PAYLOAD 36
+#define PREQ_DEFAULT_PAYLOAD 36
+#define MAX_CN_CROSS_TRAFFIC_STN 3
 //#define CLEANPTR(ptr); if (ptr != NULL) {delete ptr; ptr = NULL;}
 /****************************************************************************************************
 * Typedefs
