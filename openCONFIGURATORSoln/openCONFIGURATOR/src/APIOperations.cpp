@@ -2247,6 +2247,9 @@ void UpdateCNVisibleNode(CNode*  pobjNode) throw(ocfmException)
     char *pcMappedNodeId;
     
     int iCrossStnCnt = 0;
+	ResetAllSubIndexFlag ( (pobjNode -> getIndexCollection()) -> getIndexbyIndexValue( (char *)"1F81" ) );
+	ResetAllSubIndexFlag ( (pobjNode -> getIndexCollection()) -> getIndexbyIndexValue( (char *)"1F8D" ) );
+
     
     for(INT32 iLoopCount = 0; iLoopCount < objPDOCollection -> getNumberofIndexes(); iLoopCount++)
     {
@@ -2377,6 +2380,28 @@ bool CopyMNSubindexToCN(CNode*  pobjNode, char *pcIndex, char *pcSubIndex)
     return bCopied;
 }
 
+/****************************************************************************************************
+* Function Name: ResetAllSubIndexFlag
+* Description: 
+* Return value: void
+****************************************************************************************************/
+void ResetAllSubIndexFlag(CIndex *pobjIndex)
+{
+	if(NULL == pobjIndex)
+	{
+		return;
+	}
+	CSubIndex *pobjSubIndex;
+	for (INT32 iLoopCount = 0; iLoopCount < pobjIndex->getNumberofSubIndexes();  iLoopCount++)
+	{
+		pobjSubIndex = pobjIndex->getSubIndex(iLoopCount);
+		if(NULL != pobjSubIndex)
+		{
+			pobjSubIndex -> setFlagIfIncludedCdc(FALSE);
+		}
+	}
+	pobjIndex -> setFlagIfIncludedCdc(FALSE);
+}
 /****************************************************************************************************
 * Function Name: GetIndexData
 * Description: 

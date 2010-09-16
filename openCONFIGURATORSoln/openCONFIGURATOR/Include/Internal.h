@@ -269,4 +269,5 @@ bool ISCNNodeAssignmentValid(CNode*  pobjNode);
 bool CopyMNSubindexToCN(CNode*  pobjNode, char *pcIndex, char *pcSubIndex);
 void CalculatePayload();
 void SetCNLossObjects(int iNodeID, ENodeType enumNodeType);
+void ResetAllSubIndexFlag(CIndex *pobjIndex);
 #endif // internal_h
