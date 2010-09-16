@@ -760,6 +760,7 @@ ocfmRetCode ImportXML(char *pbFileName, INT32 iNodeID, ENodeType enumNodeType)
 		copyPDODefToAct(iNodeID, enumNodeType);	
         copyMNPropDefToAct(iNodeID, enumNodeType);
 		calculateCNPollResponse(iNodeID, enumNodeType);
+        SetCNLossObjects(iNodeID, enumNodeType);
 		stErrStruct.code = OCFM_ERR_SUCCESS;
 		return stErrStruct;
 	}
@@ -1090,6 +1091,7 @@ ocfmRetCode ReImportXML(char* pbFileName, INT32 iNodeID, ENodeType enumNodeType)
 			copyPDODefToAct(iNodeID, enumNodeType);
             copyMNPropDefToAct(iNodeID, enumNodeType);
 		    calculateCNPollResponse(iNodeID, enumNodeType);
+            SetCNLossObjects(iNodeID, enumNodeType);
             if(enumNodeType == MN)
                 RecalculateMultiplex();
 			ErrStruct.code = OCFM_ERR_SUCCESS;

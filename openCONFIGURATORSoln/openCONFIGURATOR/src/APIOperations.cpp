@@ -456,7 +456,7 @@ ocfmRetCode NewProjectNode(INT32 iNodeID, ENodeType enumNodeType, char* pbNodeNa
 
         if(MN == enumNodeType)
         {
-            //set the loss of SoC tolerance to 10 ms
+            //set the loss of SoC tolerance to 50 ms
             INT32 iIndexPos;
             stErrorInfo = IfIndexExists(iNodeID, enumNodeType, (char *)"1C14", &iIndexPos);
             if(OCFM_ERR_SUCCESS == stErrorInfo.code)
@@ -467,7 +467,7 @@ ocfmRetCode NewProjectNode(INT32 iNodeID, ENodeType enumNodeType, char* pbNodeNa
                 pobjIndex = getMNIndexValues((char*) "1C14");
                 if( (NULL != pobjIndex) && (NULL == pobjIndex->getActualValue()))
                 {
-                    pobjIndex->setActualValue((char *)"10000000");
+                    pobjIndex->setActualValue((char *)"50000000");
                 }
             }
         }
@@ -12244,21 +12244,73 @@ bool IsPresMN()
 }
 
 /****************************************************************************************************
-* Function Name: SetPresMNActPayload
-* Description:
+* Function Name: SetCNLossObjects
+* Description: sets value to 1COB, 1C0C and 1C0D objects
 * Return value: 
 ****************************************************************************************************/
-void SetPresMNActPayload(INT32 iCalcPresMNPayload)
+void SetCNLossObjects(int iNodeID, ENodeType enumNodeType)
 {
-    iPresMNPayload = iCalcPresMNPayload;
-}
+    if(enumNodeType != CN)
+    {
+        return;
+    }
 
-/****************************************************************************************************
-* Function Name: GetPresMNActPayload
-* Description:
-* Return value: INT32
-****************************************************************************************************/
-INT32 GetPresMNActPayload()
-{
-  return iPresMNPayload;
+    CNode *pobjNode;
+    CNodeCollection *objNodeCollection = NULL;
+    CIndexCollection* pobjIdxCol;
+    CIndex* pobjIndex;
+    CSubIndex* pobjSIndex;
+    
+    objNodeCollection = CNodeCollection::getNodeColObjectPointer();
+    pobjNode = objNodeCollection->getNodePtr(enumNodeType, iNodeID);
+    pobjIdxCol = pobjNode->getIndexCollection();
+        
+    
+    //loss of SoC
+    pobjIndex = pobjIdxCol->getIndexbyIndexValue((char*)"1C0B");
+    if(NULL != pobjIndex)
+    {
+        pobjSIndex = pobjIndex->getSubIndexbyIndexValue((char*)"03");
+        if(NULL != pobjSIndex)
+        {
+            if(pobjSIndex->getActualValue() == NULL || strcmp(pobjSIndex->getActualValue(),"") == 0)
+            { 
+              pobjSIndex->setActualValue("0x50");
+              pobjSIndex->setFlagIfIncludedCdc(TRUE);
+              pobjIndex->setFlagIfIncludedCdc(TRUE);
+            }
+        }
+    }
+    
+    //loss of SoA
+    pobjIndex = pobjIdxCol->getIndexbyIndexValue((char*)"1C0C");
+    if(NULL != pobjIndex)
+    {
+      pobjSIndex = pobjIndex->getSubIndexbyIndexValue((char*)"03");
+      if(NULL != pobjSIndex)
+      {
+        if(pobjSIndex->getActualValue() == NULL || strcmp(pobjSIndex->getActualValue(),"") == 0)
+        { 
+          pobjSIndex->setActualValue("0x50");
+          pobjSIndex->setFlagIfIncludedCdc(TRUE);
+          pobjIndex->setFlagIfIncludedCdc(TRUE);
+        }
+      }
+    }
+    
+    //loss of PReq
+    pobjIndex = pobjIdxCol->getIndexbyIndexValue((char*)"1C0D");
+    if(NULL != pobjIndex)
+    {
+      pobjSIndex = pobjIndex->getSubIndexbyIndexValue((char*)"03");
+      if(NULL != pobjSIndex)
+      {
+        if(pobjSIndex->getActualValue() == NULL || strcmp(pobjSIndex->getActualValue(),"") == 0)
+        { 
+          pobjSIndex->setActualValue("0x50");
+          pobjSIndex->setFlagIfIncludedCdc(TRUE);
+          pobjIndex->setFlagIfIncludedCdc(TRUE);
+        }
+      }
+    }
 }

@@ -258,8 +258,6 @@ void UpdateCNSoCTolerance(CIndexCollection  *pobjIdxCol,char* pbSocTolerance);
 INT32* ArrangeNodeIDbyStation();
 void SortNodeID(INT32 *piNodeIDColl, INT32 iColSize);
 bool IsPresMN();
-void SetPresMNActPayload(INT32 iCalcPresMNPayload);
-INT32 GetPresMNActPayload();
 void setPresMNNodeAssigmentBits();
 bool CheckToolVersion(char* pcCurrentToolVersion);
 void UpdatePreqActLoad(CNode*  pobjNode, EAutoGenerate ePjtSetting);
@@ -269,4 +267,5 @@ void UpdateCNVisibleNode(CNode*  pobjNode) throw(ocfmException);
 bool ISCNNodeAssignmentValid(CNode*  pobjNode);
 bool CopyMNSubindexToCN(CNode*  pobjNode, char *pcIndex, char *pcSubIndex);
 void CalculatePayload();
+void SetCNLossObjects(int iNodeID, ENodeType enumNodeType);
 #endif // internal_h
