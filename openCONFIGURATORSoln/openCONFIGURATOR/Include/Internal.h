@@ -88,7 +88,7 @@
 /*******************************************************************e *****************************
 * Defines
 ************************************************************************************************/
-#define TOOL_VERSION "1.1.2.4"
+#define TOOL_VERSION "1.1.2.5"
 #define LAST_TOOL_VERSION "1.1.2"
 #define PREV_TOOL_VERSION_1 "1.1.0"
 #define PREV_TOOL_VERSION_2 "1.0.1"
@@ -97,6 +97,7 @@
 #define TOOL_INTER_REL_VERSION_1 "1.1.2.1"
 #define TOOL_INTER_REL_VERSION_2 "1.1.2.2"
 #define TOOL_INTER_REL_VERSION_3 "1.1.2.3"
+#define TOOL_INTER_REL_VERSION_4 "1.1.2.4"
 #define ALLOC_BUFFER 5
 #define INDEX_LEN 5
 #define SUBINDEX_LEN 3

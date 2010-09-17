@@ -1,1 +1,2 @@
-swig -tcl -c++ openconfiguratorWrapper.i
+#swig -tcl -c++ openconfiguratorWrapper.i
+make create

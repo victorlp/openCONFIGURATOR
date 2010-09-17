@@ -3020,7 +3020,7 @@ void BRSpecificGetIndexData(CIndex* objIndex, char* Buffer, int iNodeId )
 							comment = strcat(comment,c);
 							comment = strcat(comment,"\n");
 							len = strlen(comment);
-							if((fwrite(comment, sizeof(char),len,fileptr))!=NULL)
+							if((fwrite(comment, sizeof(char),len,fileptr))!=0)
 							{
 								//printf("\nComments for CN-%d",count);
 								fclose(fileptr);
@@ -3176,7 +3176,7 @@ void BRSpecificGetIndexData(CIndex* objIndex, char* Buffer, int iNodeId )
 							{
 								//cout << "Problem" <<endl;
 							}
-							if((fwrite(Buffer3, sizeof(char),len,fileptr))!=NULL)
+							if((fwrite(Buffer3, sizeof(char),len,fileptr))!=0)
 								{
 									fclose(fileptr);																							
 								}
@@ -4880,11 +4880,11 @@ ocfmRetCode ProcessPDONodes(bool IsBuild)
                                         {
                                             if(CHAINED == eNodeStation)
                                             {
-                                                pobjNodeIDSubIndex->setActualValue("0xF0");
+                                                pobjNodeIDSubIndex->setActualValue((char *)"0xF0");
                                             }
                                             else
                                             {
-                                                pobjNodeIDSubIndex->setActualValue("0x0");
+                                                pobjNodeIDSubIndex->setActualValue((char *)"0x0");
                                             }
                                         }
                                     }
@@ -9304,11 +9304,11 @@ if (iBytesWritten < 0)
 	//if(0 != strlen(pobjPjtSettings->getGenerateAttr()))
 	{
 		//cout << "\n\n\nstPjtSettings->getGenerateAttr():" << pobjPjtSettings->getGenerateAttr() << endl;
-		if(pobjPjtSettings->getGenerateAttr() == AUTOGENERATE)
+        if(pobjPjtSettings->getGenerateAttr() == NO_AG)
 		{
 			iBytesWritten = xmlTextWriterWriteAttribute(pxtwWriter, BAD_CAST "Generate", BAD_CAST "NO");
 		}
-		else if(pobjPjtSettings->getGenerateAttr() == AUTOSAVE)
+        else if(pobjPjtSettings->getGenerateAttr() == YES_AG)
 		{
 			iBytesWritten = xmlTextWriterWriteAttribute(pxtwWriter, BAD_CAST "Generate", BAD_CAST "YES");
 		}
@@ -11714,7 +11714,7 @@ void UpdateMNNodeAssignmentIndex(CNode *pobjNode, INT32 CNsCount, char* pcIndex,
                     //pobjSubIndex->setActualValue("0");
                     //pobjIndex->deleteSubIndex(iSidxCount);
                     if(NULL == pobjSubIndex -> getDefaultValue())
-                        pobjSubIndex->setActualValue("");
+                        pobjSubIndex->setActualValue((char *)"");
                     else
                         pobjSubIndex->setActualValue((char *)pobjSubIndex -> getDefaultValue());
                 }
@@ -11725,7 +11725,7 @@ void UpdateMNNodeAssignmentIndex(CNode *pobjNode, INT32 CNsCount, char* pcIndex,
                 //pobjSubIndex->setActualValue("0");
                 //pobjIndex->deleteSubIndex(iSidxCount);
                 if(NULL == pobjSubIndex -> getDefaultValue())
-                    pobjSubIndex->setActualValue("");
+                    pobjSubIndex->setActualValue((char *)"");
                 else
                     pobjSubIndex->setActualValue((char *)pobjSubIndex -> getDefaultValue());
             }
@@ -12275,7 +12275,7 @@ void SetCNLossObjects(int iNodeID, ENodeType enumNodeType)
         {
             if(pobjSIndex->getActualValue() == NULL || strcmp(pobjSIndex->getActualValue(),"") == 0)
             { 
-              pobjSIndex->setActualValue("0x50");
+              pobjSIndex->setActualValue((char*)"0x50");
               pobjSIndex->setFlagIfIncludedCdc(TRUE);
               pobjIndex->setFlagIfIncludedCdc(TRUE);
             }
@@ -12291,7 +12291,7 @@ void SetCNLossObjects(int iNodeID, ENodeType enumNodeType)
       {
         if(pobjSIndex->getActualValue() == NULL || strcmp(pobjSIndex->getActualValue(),"") == 0)
         { 
-          pobjSIndex->setActualValue("0x50");
+          pobjSIndex->setActualValue((char*)"0x50");
           pobjSIndex->setFlagIfIncludedCdc(TRUE);
           pobjIndex->setFlagIfIncludedCdc(TRUE);
         }
@@ -12307,7 +12307,7 @@ void SetCNLossObjects(int iNodeID, ENodeType enumNodeType)
       {
         if(pobjSIndex->getActualValue() == NULL || strcmp(pobjSIndex->getActualValue(),"") == 0)
         { 
-          pobjSIndex->setActualValue("0x50");
+          pobjSIndex->setActualValue((char*)"0x50");
           pobjSIndex->setFlagIfIncludedCdc(TRUE);
           pobjIndex->setFlagIfIncludedCdc(TRUE);
         }
