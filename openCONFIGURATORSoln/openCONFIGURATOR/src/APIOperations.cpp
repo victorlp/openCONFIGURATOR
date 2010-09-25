@@ -1989,10 +1989,10 @@ void UpdateCNMultipleCycleAssign(CNode*  pobjNode)
 * Description:  set the calculated PresMN load value in CN 1F8D object
 * Return value: void
 ****************************************************************************************************/
-void UpdateCNPresMNActLoad(CNode*  pobjNode, EAutoGenerate ePjtSetting)
+void UpdateCNPresMNActLoad(CNode*  pobjNode)
 {
-    if(YES_AG == ePjtSetting)
-    {
+    //if(YES_AG == ePjtSetting)
+    //{
         ocfmRetCode stErrStructInfo;
         CIndex *pobjIndex;
         CSubIndex *pobjSubIndex;
@@ -2010,6 +2010,11 @@ void UpdateCNPresMNActLoad(CNode*  pobjNode, EAutoGenerate ePjtSetting)
         {
           return;
         }
+		if( PRES_DEFAULT_PAYLOAD > (objNodeCol->getMNNode()).getPResActPayloadValue() )
+		{	
+			return;
+		}
+
         char * pcSubindexId = new char[SUBINDEX_LEN+1];
         strcpy(pcSubindexId, (char *)"F0");
         
@@ -2058,7 +2063,7 @@ void UpdateCNPresMNActLoad(CNode*  pobjNode, EAutoGenerate ePjtSetting)
             }
         }
         delete[] pcSubindexId;
-    }
+    //}
 }
 
 /****************************************************************************************************
@@ -2090,6 +2095,10 @@ void UpdatePreqActLoad(CNode*  pobjNode)
     {
       return;
     }
+	if( PREQ_DEFAULT_PAYLOAD > pobjNode->getPReqActPayloadValue() )
+	{
+		return;
+	}
     
     char * pcSubindexId = new char[SUBINDEX_LEN+1];
     strcpy(pcSubindexId, (char *)"04");
@@ -2108,7 +2117,7 @@ void UpdatePreqActLoad(CNode*  pobjNode)
           pobjSubIndex->setFlagIfIncludedCdc(TRUE);
           
           //set the value in MN
-          if( (CN == pobjNode->getNodeId() ) && (PREQ_DEFAULT_PAYLOAD < pobjNode->getPReqActPayloadValue()) )
+          if( CN == pobjNode->getNodeId() )
           {
             _IntToAscii( pobjNode->getNodeId(), pcSubindexId, 16);
             pcSubindexId = padLeft(pcSubindexId, '0', 2);
@@ -2164,6 +2173,10 @@ void UpdatePresActLoad(CNode*  pobjNode)
     {
       return;
     }
+	if( PRES_DEFAULT_PAYLOAD > pobjNode->getPResActPayloadValue() )
+	{
+		return;
+	}
     
     char * pcSubindexId = new char[SUBINDEX_LEN+1];
     strcpy(pcSubindexId, (char *)"05");
@@ -2182,7 +2195,7 @@ void UpdatePresActLoad(CNode*  pobjNode)
         pobjSubIndex->setFlagIfIncludedCdc(TRUE);
           
           //set the value in MN
-        if( (CN == pobjNode->getNodeId() ) && ( PRES_DEFAULT_PAYLOAD < pobjNode->getPResActPayloadValue() ) )
+        if( CN == pobjNode->getNodeId() )
         {
           _IntToAscii( pobjNode->getNodeId(), pcSubindexId, 16);
           pcSubindexId = padLeft(pcSubindexId, '0', 2);
@@ -3091,7 +3104,7 @@ void BRSpecificGetIndexData(CIndex* objIndex, char* Buffer, int iNodeId )
                                     UpdateCNNodeAssignment( &objNode);
                             }*/
                             UpdateCNVisibleNode( &objNode);
-                            UpdateCNPresMNActLoad(&objNode, ePjtSetting);
+                            UpdateCNPresMNActLoad(&objNode);
                             
                             //printf("1F98/4 CN-%d is:%d \n", objNode.getNodeId(), objNode.getPReqActPayloadValue());
                             //printf("1F98/5 CN-%d is:%d \n", objNode.getNodeId(), objNode.getPResActPayloadValue());
@@ -4766,12 +4779,15 @@ ocfmRetCode ProcessPDONodes(bool IsBuild)
 	INT32 iTotalBytesMapped = 0;
 	INT32 iTotalChainedBytesMapped = 0;
     INT32 iNodeMappedTotalBytes = 0;
+	INT32 iNodeRPDOMappedNodeID = 0;
 		
 	CIndexCollection* objPDOCollection;
 	CIndexCollection* pobjIndexCollection;
 	/* Check RPDO Mapped objects*/
 	INT32 iNodesCount = 0;
 	ocfmRetCode stRetInfo;
+    
+    bool bChangeOffset = false;
 	
 	iNodesCount = objNodeCol->getCNNodesCount();
 	
@@ -4824,7 +4840,6 @@ ocfmRetCode ProcessPDONodes(bool IsBuild)
 				
 						continue;
 					}
-				
                     EStationType eNodeStation = pobjNode->getStationType();
 
 					/* Empty ProcessImage collection*/
@@ -4843,6 +4858,7 @@ ocfmRetCode ProcessPDONodes(bool IsBuild)
                         
 						for(INT32 iLoopCount = 0; iLoopCount<objPDOCollection->getNumberofIndexes(); iLoopCount++)
 					    {
+                          
 							CIndex* pobjBforeSortIndex;
 							CIndex objIndex;
 							pobjBforeSortIndex = objPDOCollection->getIndex(iLoopCount);
@@ -4853,44 +4869,18 @@ ocfmRetCode ProcessPDONodes(bool IsBuild)
 							else
 							{
 								#if defined DEBUG	
-						            cout<< "index:"<<(char*)pobjIndex->getIndexValue() << endl;
+                              cout<< "index:"<<(char*)pobjBforeSortIndex->getIndexValue() << endl;
 					            #endif
 							}
                             iNodeMappedTotalBytes = 0;
+                            bChangeOffset = false;
+                            
+                           
 							if(pobjBforeSortIndex->getNumberofSubIndexes() > 0)
 							{
 							
 								/* Sort the pdo collection */
 								objIndex = getPDOIndexByOffset(pobjBforeSortIndex);
-                                
-                                //set the correponding 14xx/01 to f0
-                                if((true == IsBuild) && (strncmp(objIndex.getIndexValue(), "16", 2) == 0))
-                                {
-                                    CIndex *pobjCommIndex;
-                                    CSubIndex *pobjNodeIDSubIndex;
-                                    char *pcIdx = subString((char *)objIndex.getIndexValue(), 2, 4);
-                                    char *pcCommIdx = new char[INDEX_SIZE];
-                                    strcpy(pcCommIdx, (char *)"14");
-                                    strcat(pcCommIdx, pcIdx);
-                                    pobjCommIndex = pobjIndexCollection->getIndexbyIndexValue(pcCommIdx);
-                                    if(NULL != pobjCommIndex)
-                                    {
-                                        pobjNodeIDSubIndex = pobjCommIndex->getSubIndexbyIndexValue((char *)"01");
-                                        if(NULL != pobjNodeIDSubIndex)
-                                        {
-                                            if(CHAINED == eNodeStation)
-                                            {
-                                                pobjNodeIDSubIndex->setActualValue((char *)"0xF0");
-                                            }
-                                            else
-                                            {
-                                                pobjNodeIDSubIndex->setActualValue((char *)"0x0");
-                                            }
-                                        }
-                                    }
-                                    delete [] pcCommIdx;
-                                    delete [] pcIdx;
-                                }
 								
 								INT32 iSiCount = 1;
 								INT32 iSiTotal = objIndex.getNumberofSubIndexes();
@@ -4898,6 +4888,44 @@ ocfmRetCode ProcessPDONodes(bool IsBuild)
 								#if defined DEBUG	
 						            cout<< "iSiTotal:"<<iSiTotal << endl;
 					            #endif
+
+								//set the correponding 14xx/01 to f0
+								if((true == IsBuild) && (strncmp(objIndex.getIndexValue(), "16", 2) == 0))
+								{
+								  CIndex *pobjCommIndex;
+								  CSubIndex *pobjNodeIDSubIndex;
+								  char *pcIdx = subString((char *)objIndex.getIndexValue(), 2, 4);
+								  char *pcCommIdx = new char[INDEX_SIZE];
+								  strcpy(pcCommIdx, (char *)"14");
+								  strcat(pcCommIdx, pcIdx);
+								  pobjCommIndex = pobjIndexCollection->getIndexbyIndexValue(pcCommIdx);
+								  if(NULL != pobjCommIndex)
+								  {
+									pobjNodeIDSubIndex = pobjCommIndex->getSubIndexbyIndexValue((char *)"01");
+									if(NULL != pobjNodeIDSubIndex)
+									{
+									  if((NULL != pobjNodeIDSubIndex->getActualValue()) && (0 != strcmp(pobjNodeIDSubIndex->getActualValue(), "")))
+									  {
+										iNodeRPDOMappedNodeID = GetDecimalValue( (char *) pobjNodeIDSubIndex -> getActualValue());
+										if( (CHAINED == eNodeStation) && (BROADCAST_NODEID ==  iNodeRPDOMappedNodeID) )
+										{
+										  pobjNodeIDSubIndex->setActualValue((char *)"0xF0");
+										  bChangeOffset = true;
+										}
+	                                                
+										if((CHAINED != eNodeStation) && (MN_NODEID == iNodeRPDOMappedNodeID ))
+										{
+										  pobjNodeIDSubIndex->setActualValue((char *)"0x0");
+										  bChangeOffset = true;
+										}
+									  }
+									}
+								  }
+								  delete [] pcCommIdx;
+								  delete [] pcIdx;
+								}
+
+
 								while(iSiCount< iSiTotal)
 								{
 									CSubIndex* pobjSubIdx;
@@ -5178,7 +5206,11 @@ ocfmRetCode ProcessPDONodes(bool IsBuild)
 												delete[] pbSIdxName;
 											}
                                             
-                                            if((true == IsBuild) &&  (strncmp(objIndex.getIndexValue(), "16", 2) == 0))
+                                            if( \
+												(true == IsBuild) \
+												&& (strncmp(objIndex.getIndexValue(), "16", 2) == 0) \
+												&& ( (MN_NODEID == iNodeRPDOMappedNodeID ) || (BROADCAST_NODEID ==  iNodeRPDOMappedNodeID) ) \
+												)
 											{
                                                 char* pbModOffset = new char[strlen(pbActualVal) + 1];
                                                 strcpy(pbModOffset, pbActualVal);
@@ -5188,7 +5220,7 @@ ocfmRetCode ProcessPDONodes(bool IsBuild)
                                                 pcLength = subString((char *)pbActualVal, 2, 4);
                                                 iLength = hex2int(pcLength);
                                                 
-                                                bool bSetPReqPayload = false;
+                                                /*bool bSetPReqPayload = false;
                                                 CIndex *pobjCommIndex;
                                                 CSubIndex *pobjNodeIDSubIndex;
                                                 char *pcIdx = subString((char *)objIndex.getIndexValue(), 2, 4);
@@ -5206,7 +5238,7 @@ ocfmRetCode ProcessPDONodes(bool IsBuild)
                                                             bSetPReqPayload = true;
                                                         }
                                                     }
-                                                }
+                                                }*/
                                                   
 
 												char* offset = new char[5];
@@ -5235,7 +5267,7 @@ ocfmRetCode ProcessPDONodes(bool IsBuild)
                                                     iTotalChainedBytesMapped =  iTotalChainedBytesMapped +  iLength;
                                                     
                                                 }
-                                                if(true == bSetPReqPayload)
+                                                /*if(true == bSetPReqPayload)
                                                 {
                                                     if(CHAINED == eNodeStation)
                                                     {
@@ -5245,15 +5277,15 @@ ocfmRetCode ProcessPDONodes(bool IsBuild)
                                                     {
                                                         pobjNode->setPReqActPayloadValue(iNodeMappedTotalBytes/8);
                                                     }
-                                                }
+                                                }*/
                                                 
 												delete[] pbModOffset;
                                                 delete[] pcLength;
                                                 delete[] offset;
-                                                delete [] pcCommIdx;
-                                                delete [] pcIdx;
+                                                //delete [] pcCommIdx;
+                                                //delete [] pcIdx;
 											}
-                                            if((true == IsBuild) &&  (strncmp(objIndex.getIndexValue(), "1A", 2) == 0))
+                                            /*if((true == IsBuild) &&  (strncmp(objIndex.getIndexValue(), "1A", 2) == 0))
                                             {
                                                 char* pbModOffset = new char[strlen(pbActualVal) + 1];
                                                 strcpy(pbModOffset, pbActualVal);
@@ -5272,25 +5304,25 @@ ocfmRetCode ProcessPDONodes(bool IsBuild)
                                                 delete[] pbModOffset;
                                                 delete[] pcLength;
                                                 delete[] pcOffset;
-                                            }
+                                            }*/
 									}
 									iSiCount++;
 									}
 								}
 							}
 						}
-						UpdatePreqActLoad(pobjNode);
-						UpdatePresActLoad(pobjNode);
+						//UpdatePreqActLoad(pobjNode);
+						//UpdatePresActLoad(pobjNode);
 					}
 				}
-        if(true == IsBuild)
+        /*if(true == IsBuild)
         {
           if( (NULL != pobjMNNode) && (true == IsPresMN()) )
           {
                 pobjMNNode->setPResActPayloadValue(iTotalChainedBytesMapped / 8);
                 UpdatePresActLoad(pobjMNNode);
           }
-        }
+        }*/
 		delete[] pArrangedNodeIDbyStation;
         stRetInfo.code = OCFM_ERR_SUCCESS ;
 		return stRetInfo;
@@ -5308,6 +5340,7 @@ ocfmRetCode ProcessPDONodes(bool IsBuild)
 ****************************************************************************************************/
 void CalculatePayload()
 {
+	printf("CalculatePayload \n");
     CNodeCollection* objNodeCol;
     ocfmException objocfmException;
     objNodeCol = CNodeCollection::getNodeColObjectPointer();
@@ -5348,6 +5381,7 @@ void CalculatePayload()
             }
             else
             {
+				printf("CN-%d \n", pobjNode->getNodeId());
                 if(!(pobjNode->HasPdoObjects()))    
                 {
                     continue;
@@ -5384,6 +5418,7 @@ void CalculatePayload()
                             INT32 iSiTotal = objIndex.getNumberofSubIndexes();
 
                             bool bSetPReqPayload = false;
+							printf("\tIndex id:%s \n", objIndex.getIndexValue());
                             if(strncmp(objIndex.getIndexValue(), "16", 2) == 0)
                             {
                                 CIndex *pobjCommIndex;
@@ -5398,10 +5433,16 @@ void CalculatePayload()
                                     pobjNodeIDSubIndex = pobjCommIndex->getSubIndexbyIndexValue((char *)"01");
                                     if(NULL != pobjNodeIDSubIndex)
                                     {
-                                        if(0 == GetDecimalValue((char*)pobjNodeIDSubIndex->getActualValue()))
+										printf("%s 01 actual:%s \n", pcCommIdx, (char*)pobjNodeIDSubIndex->getActualValue());
+                                        if(BROADCAST_NODEID == GetDecimalValue((char*)pobjNodeIDSubIndex->getActualValue()))
                                         {
                                             bSetPReqPayload = true;
                                         }
+										//else
+										//{	
+										//	//CN RPDO cross trafficked with other node
+										//	continue;
+										//}
                                     }
                                 }
                                 delete [] pcCommIdx;
@@ -5418,7 +5459,11 @@ void CalculatePayload()
                                 iSiCount++;
                                 
                                 
-                                if ( (pobjSubIdx->getActualValue()==NULL) || (0 == strcmp(pobjSubIdx->getActualValue(),"")) || (checkIfValueZero((char*)pobjSubIdx->getActualValue())) )
+                                if ( \
+									(pobjSubIdx->getActualValue()==NULL) \
+									|| (0 == strcmp(pobjSubIdx->getActualValue(),"")) \
+									|| (checkIfValueZero((char*)pobjSubIdx->getActualValue())) \
+									)
                                 {
                                     continue;
                                 }
@@ -5426,7 +5471,10 @@ void CalculatePayload()
                                 const char* pbActualVal = pobjSubIdx->getActualValue();
                                 
 
-                                if(strncmp(objIndex.getIndexValue(), "16", 2) == 0)
+                                if( \
+									(strncmp(objIndex.getIndexValue(), "16", 2) == 0) \
+									&& (true == bSetPReqPayload) \
+									) 
                                 {
                                     char* pbModOffset = new char[strlen(pbActualVal) + 1];
                                     strcpy(pbModOffset, pbActualVal);
@@ -5446,11 +5494,12 @@ void CalculatePayload()
                                     {
                                         iTotalChainedBytesMapped =  iOffset +  iLength;
                                     }
-                                    
-                                    if(true == bSetPReqPayload)
-                                    {
+									printf("Idx:%s SIdx:%s iOffset=%d iLength=%d iNodeMappedTotalBytes:%d iTotalChainedBytesMapped=%d \n", objIndex.getIndexValue(), pobjSubIdx->getIndexValue(), iOffset,  iLength, iNodeMappedTotalBytes, iTotalChainedBytesMapped);
+                                    //if(true == bSetPReqPayload)
+                                    //{
                                         pobjNode->setPReqActPayloadValue( (iOffset +  iLength) / 8);
-                                    }
+                                    //}
+										printf("PReqLoad: %d \n", (iOffset +  iLength) / 8);
                     
                                     delete[] pbModOffset;
                                     delete[] pcLength;

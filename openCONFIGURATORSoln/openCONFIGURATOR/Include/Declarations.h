@@ -81,6 +81,7 @@
 * Constants
 ************************************************************************************************/
 #define MN_NODEID 240
+#define BROADCAST_NODEID 0
 const int OFFSET_INTEGER_8 = 0;
 const int OFFSET_UNSIGNED_INTEGER_8 = 0;
 
