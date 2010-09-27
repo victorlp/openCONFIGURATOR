@@ -949,6 +949,8 @@ ocfmRetCode AddIndex(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID)
 					}
 	
 					objIndex.setName(pobjOBD->getIndexName(subString(pbIndexID,2,4),(char*)objIndex.getName()));
+					//update the no of entries for the subindex added
+					UpdateNumberOfEnteriesSIdx(&objIndex, enumNodeType);
 					pobjIndexCollection->addIndex(objIndex);
 				}
 				else if((enumNodeType == MN) && CheckIfProcessImageIdx(pbIndexID))
