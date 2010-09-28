@@ -3712,6 +3712,8 @@ INT32 BRSpecificgetCNsTotalIndexSubIndex(INT32 iNodeID)
 				/*else
 					checkFlag = false;*/
 			}
+			//test update mn node assignment
+			//setPresMNNodeAssigmentBits(); // working
 		
 
 			FILE* fileptr = new FILE();
@@ -5367,7 +5369,7 @@ ocfmRetCode ProcessPDONodes(bool IsBuild)
 ****************************************************************************************************/
 void CalculatePayload()
 {
-	printf("CalculatePayload \n");
+	//printf("CalculatePayload \n");
     CNodeCollection* objNodeCol;
     ocfmException objocfmException;
     objNodeCol = CNodeCollection::getNodeColObjectPointer();
@@ -5408,7 +5410,7 @@ void CalculatePayload()
             }
             else
             {
-				printf("CN-%d \n", pobjNode->getNodeId());
+				//printf("CN-%d \n", pobjNode->getNodeId());
                 if(!(pobjNode->HasPdoObjects()))    
                 {
                     continue;
@@ -5445,7 +5447,7 @@ void CalculatePayload()
                             INT32 iSiTotal = objIndex.getNumberofSubIndexes();
 
                             bool bSetPReqPayload = false;
-							printf("\tIndex id:%s \n", objIndex.getIndexValue());
+							//printf("\tIndex id:%s \n", objIndex.getIndexValue());
                             if(strncmp(objIndex.getIndexValue(), "16", 2) == 0)
                             {
                                 CIndex *pobjCommIndex;
@@ -5460,7 +5462,7 @@ void CalculatePayload()
                                     pobjNodeIDSubIndex = pobjCommIndex->getSubIndexbyIndexValue((char *)"01");
                                     if(NULL != pobjNodeIDSubIndex)
                                     {
-										printf("%s 01 actual:%s \n", pcCommIdx, (char*)pobjNodeIDSubIndex->getActualValue());
+										//printf("%s 01 actual:%s \n", pcCommIdx, (char*)pobjNodeIDSubIndex->getActualValue());
                                         if(BROADCAST_NODEID == GetDecimalValue((char*)pobjNodeIDSubIndex->getActualValue()))
                                         {
                                             bSetPReqPayload = true;
@@ -5521,12 +5523,12 @@ void CalculatePayload()
                                     {
                                         iTotalChainedBytesMapped =  iOffset +  iLength;
                                     }
-									printf("Idx:%s SIdx:%s iOffset=%d iLength=%d iNodeMappedTotalBytes:%d iTotalChainedBytesMapped=%d \n", objIndex.getIndexValue(), pobjSubIdx->getIndexValue(), iOffset,  iLength, iNodeMappedTotalBytes, iTotalChainedBytesMapped);
+									//printf("Idx:%s SIdx:%s iOffset=%d iLength=%d iNodeMappedTotalBytes:%d iTotalChainedBytesMapped=%d \n", objIndex.getIndexValue(), pobjSubIdx->getIndexValue(), iOffset,  iLength, iNodeMappedTotalBytes, iTotalChainedBytesMapped);
                                     //if(true == bSetPReqPayload)
                                     //{
                                         pobjNode->setPReqActPayloadValue( (iOffset +  iLength) / 8);
                                     //}
-										printf("PReqLoad: %d \n", (iOffset +  iLength) / 8);
+										//printf("PReqLoad: %d \n", (iOffset +  iLength) / 8);
                     
                                     delete[] pbModOffset;
                                     delete[] pcLength;
@@ -10698,13 +10700,77 @@ void setPresMNNodeAssigmentBits()
     ocfmRetCode stErrStructInfo;
     stErrStructInfo = IfSubIndexExists(MN_NODEID, MN, (char *)"1F81", (char *)"F0", &subIndexPos, &IndexPos);
     
-    bool bIsPresMN = false;
-    bIsPresMN = IsPresMN();
-    if((false == bIsPresMN) || (OCFM_ERR_SUCCESS != stErrStructInfo.code))
+    if(OCFM_ERR_SUCCESS != stErrStructInfo.code)
     {
         return;
     }
+
+	bool bIsPresMN = false;
+	bool bIsMNBroadcastingPRes = false;
+	INT32 iNodeTPDOMappedNodeID;
+	
+    bIsPresMN = IsPresMN();
     
+	//check whether Pres activated in MN
+	CNodeCollection* pobjNodeCol;
+	CNode objMNNode;
+	CIndexCollection* objPDOCollection;
+	CIndexCollection* pobjIndexCollection;
+
+    pobjNodeCol = CNodeCollection::getNodeColObjectPointer();
+	objMNNode = pobjNodeCol->getMNNode();
+
+	objPDOCollection = objMNNode.getPDOIndexCollection();
+	if(objPDOCollection!= NULL)
+	{
+		pobjIndexCollection = objMNNode.getIndexCollection();
+		CIndex* pobjIndex;
+		for(INT32 iLoopCount = 0; iLoopCount<objPDOCollection->getNumberofIndexes(); iLoopCount++)
+	    {
+			pobjIndex = objPDOCollection->getIndex(iLoopCount);
+			if(0 == strncmp(pobjIndex->getIndexValue(), "1A", 2))
+			{
+				//CIndex* pobjIndex;
+				CIndex *pobjCommIndex;
+				CSubIndex *pobjNodeIDSubIndex;
+				char *pcIdx = subString((char *)pobjIndex->getIndexValue(), 2, 4);
+				char *pcCommIdx = new char[INDEX_SIZE];
+				strcpy(pcCommIdx, (char *)"18");
+				strcat(pcCommIdx, pcIdx);
+				pobjCommIndex = pobjIndexCollection->getIndexbyIndexValue(pcCommIdx);
+				if(NULL != pobjCommIndex)
+				{
+					pobjNodeIDSubIndex = pobjCommIndex->getSubIndexbyIndexValue((char *)"01");
+					if(NULL != pobjNodeIDSubIndex)
+					{
+					  if((NULL != pobjNodeIDSubIndex->getActualValue()) && (0 != strcmp(pobjNodeIDSubIndex->getActualValue(), "")))
+					  {
+						iNodeTPDOMappedNodeID = GetDecimalValue( (char *) pobjNodeIDSubIndex -> getActualValue());
+						if(BROADCAST_NODEID ==  iNodeTPDOMappedNodeID)
+						{
+							bIsMNBroadcastingPRes = true;
+							break;
+						}
+					  }
+					}
+				  }
+				  delete [] pcCommIdx;
+				  delete [] pcIdx;
+			}
+		}
+	}
+
+
+	//check whether MN is transmitting PRes
+	//printf("bIsPresMN=%d bIsMNBroadcastingPRes=%d \n", bIsPresMN, bIsMNBroadcastingPRes);
+	if( (false == bIsPresMN) \
+		&& (false == bIsMNBroadcastingPRes) \
+	  )
+	{
+		return;
+	}
+
+
     char *pcSubIndex = new char[SUBINDEX_LEN];
     strcpy(pcSubIndex, (char*)"F0");
     /*if( OCFM_ERR_INDEXID_NOT_FOUND == stErrStructInfo.code)
@@ -10721,7 +10787,9 @@ void setPresMNNodeAssigmentBits()
     pobjSubindex = getMNSubIndexValues((char*)"1F81", (char*)"F0");
     if(NULL != pobjSubindex)
     {
-        if(true == bIsPresMN)
+        if( (true == bIsPresMN) \
+			|| (true == bIsMNBroadcastingPRes) \
+			)
         {
             char* pb1F81Data = NULL;
             unsigned long ulValue;
