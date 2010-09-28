@@ -536,12 +536,14 @@ ocfmRetCode DeleteNode(INT32 iNodeID, ENodeType enumNodeType)
             stErrStructInfo = IfSubIndexExists(MN_NODEID, MN, (char *)MULTIPL_CYCLE_ASSIGN_OBJECT, cSIdx, &subIndexPos, &IndexPos);
             if(stErrStructInfo.code == OCFM_ERR_SUCCESS)
             {
-                DeleteSubIndex(MN_NODEID, MN, (char *)MULTIPL_CYCLE_ASSIGN_OBJECT, cSIdx);
+                //DeleteSubIndex(MN_NODEID, MN, (char *)MULTIPL_CYCLE_ASSIGN_OBJECT, cSIdx);
+				SetSubIndexAttributesByAttribute(MN_NODEID, MN, (char *)MULTIPL_CYCLE_ASSIGN_OBJECT, cSIdx, ACTUALVALUE, (char*)"");
             }
             stErrStructInfo = IfSubIndexExists(MN_NODEID, MN, (char *)MNCN_POLLRESPONSE_TIMEOUT_OBJECT, cSIdx, &subIndexPos, &IndexPos);
             if(stErrStructInfo.code == OCFM_ERR_SUCCESS)
             {
-                DeleteSubIndex(MN_NODEID, MN, (char *)MNCN_POLLRESPONSE_TIMEOUT_OBJECT, cSIdx);
+                //DeleteSubIndex(MN_NODEID, MN, (char *)MNCN_POLLRESPONSE_TIMEOUT_OBJECT, cSIdx);
+				SetSubIndexAttributesByAttribute(MN_NODEID, MN, (char *)MULTIPL_CYCLE_ASSIGN_OBJECT, cSIdx, ACTUALVALUE, (char*)"");
             }
         }
 		pobjNodeCollection->deleteNode(iNodePos);
@@ -1473,7 +1475,136 @@ ocfmRetCode SetAllSubIndexAttributes(INT32 iNodeID,
 			return ex._ocfmRetCode;
 		}
 }
+/**************************************************************************************************
+* Function Name: SetSubIndexAttributesByAttribute
+* Description:
+* Return value: ocfmRetCode
+****************************************************************************************************/
+ocfmRetCode SetSubIndexAttributesByAttribute(
+	INT32 			iNodeID, 
+	ENodeType 		enumNodeType, 
+	char* 			pbIndexID, 
+	char* 			pbSubIndexID, 
+	EAttributeType 	enumAttributeType, 
+	char* 			pbInAttributeValue)
+{
+		CNode objNode;		
+		CNodeCollection *pobjNodeCollection;
+		CIndexCollection *pobjIndexCollection;
+		CIndex* pobjIndex;
+		INT32 iSubIndexPos;
+		INT32 iIndexPos;
+		ocfmRetCode stErrorInfo;
+		
+		try
+		{
+		
+			stErrorInfo = IfSubIndexExists(iNodeID, enumNodeType, pbIndexID, pbSubIndexID, &iSubIndexPos, &iIndexPos);
+			if(stErrorInfo.code == OCFM_ERR_SUCCESS)
+			{
+				//iSubIndexPos = Tmp_stErrorInfo.returnValue;
+			}
+			else
+			{
+				//OCFM_ERR_INVALID_SUBINDEXID;
+				return stErrorInfo;
+				//ocfmException objException;				
+				//objException.ocfm_Excpetion(OCFM_ERR_INVALID_SUBINDEXID);
+				//throw objException;
+			}
 
+			pobjNodeCollection= CNodeCollection::getNodeColObjectPointer();
+			objNode = pobjNodeCollection->getNode(enumNodeType, iNodeID);
+
+			pobjIndexCollection = objNode.getIndexCollection();
+			pobjIndex =pobjIndexCollection->getIndex(iIndexPos);
+			
+			//cout << "NumberofSubIndexes:" << objIndex.getNumberofSubIndexes()<< endl;
+
+			CSubIndex* pobjSubIndexPtr;
+			pobjSubIndexPtr = pobjIndex->getSubIndex(iSubIndexPos);	
+			
+			switch(enumAttributeType)
+			{
+				case NAME:						
+						/*if(pobjSubIndexPtr->getName() != NULL)
+							strcpy(pbOutAttributeValue, (char *)pobjSubIndexPtr->getName());
+						else
+							strcpy(pbOutAttributeValue, "");*/
+						break;
+				case OBJECTTYPE:
+						/*if(pobjSubIndexPtr->getObjectType() != NULL)
+							strcpy(pbOutAttributeValue, (char *)pobjSubIndexPtr->getObjectType());
+						else
+							strcpy(pbOutAttributeValue, "");*/
+						break;
+				case DATATYPE:
+						/*DataType objTmpDataType;
+						objTmpDataType = pobjSubIndexPtr->getDataType();										
+						if(objTmpDataType.Name != NULL)
+							strcpy(pbOutAttributeValue, objTmpDataType.Name);
+						else
+							strcpy(pbOutAttributeValue, "");*/					
+						break;		
+				case ACCESSTYPE:
+						/*if(pobjSubIndexPtr->getAccessType() != NULL)
+							strcpy(pbOutAttributeValue, (char *)pobjSubIndexPtr->getAccessType());
+						else
+							strcpy(pbOutAttributeValue, "");*/
+						break;
+				case DEFAULTVALUE:
+						/*if(pobjSubIndexPtr->getDefaultValue() != NULL)
+							strcpy(pbOutAttributeValue, (char *) pobjSubIndexPtr->getDefaultValue());
+						else
+							strcpy(pbOutAttributeValue, "");*/
+						break;
+				case ACTUALVALUE:
+						if(NULL != pbInAttributeValue)
+							pobjSubIndexPtr->setActualValue(pbInAttributeValue);
+						else
+							pobjSubIndexPtr->setActualValue((char *)"");
+						break;
+				case PDOMAPPING:
+						/*if(pobjSubIndexPtr->getPDOMapping() != NULL)
+							strcpy(pbOutAttributeValue, (char *) pobjSubIndexPtr->getPDOMapping());
+						else
+							strcpy(pbOutAttributeValue, "");*/
+						break;
+				case LOWLIMIT:
+						/*if(pobjSubIndexPtr->getLowLimit() != NULL)
+							strcpy(pbOutAttributeValue, (char *) pobjSubIndexPtr->getLowLimit());
+						else
+							strcpy(pbOutAttributeValue, "");*/
+						break;
+				case HIGHLIMIT:
+						/*if(pobjSubIndexPtr->getHighLimit() != NULL)
+							strcpy(pbOutAttributeValue, (char *) pobjSubIndexPtr->getHighLimit());
+						else
+							strcpy(pbOutAttributeValue, "");*/
+						break;
+				case FLAGIFINCDC:
+						/*if(pobjSubIndexPtr->getFlagIfIncludedCdc() == TRUE)
+							strcpy(pbOutAttributeValue, "1");
+						else
+							strcpy(pbOutAttributeValue, "0");*/			
+						break;							
+				default:
+						//cout << "invalid Attribute Type" << endl;
+						//stErrorInfo.code = OCFM_ERR_INVALID_ATTRIBUTETYPE;
+						//return stErrorInfo;
+						ocfmException objException;				
+						objException.ocfm_Excpetion(OCFM_ERR_INVALID_SUBINDEXID);
+						throw objException;
+			}		
+			
+			stErrorInfo.code = OCFM_ERR_SUCCESS;
+			return stErrorInfo;
+		}
+		catch(ocfmException* ex)
+		{
+			return ex->_ocfmRetCode;
+		}
+}
 
 ocfmRetCode CheckUpperAndLowerLimits(char* pcLowLimit, char* pcHighLimit)
 {
@@ -1729,6 +1860,7 @@ void EnableDisableMappingPDO(CIndexCollection* pobjIdxCol, CIndex* objIndex, cha
         if(pobjIndex!= NULL)
         {
             pobjIndex->setActualValue(pbSocTolerance);
+			pobjIndex->setFlagIfIncludedCdc(TRUE);
         }
         
     }
@@ -10474,7 +10606,7 @@ ocfmRetCode UpdateNodeParams(INT32 iCurrNodeId, INT32 iNewNodeID, ENodeType eNod
             }
 		}	
 
-        if(eStationType != MULTIPLEXED ||( iNewNodeID != iCurrNodeId && eStationType == MULTIPLEXED))
+        if((eStationType != MULTIPLEXED) ||( (iNewNodeID != iCurrNodeId) && (eStationType == MULTIPLEXED)))
         {   
             char* cSIdx = new char[SUBINDEX_LEN];
             cSIdx = _IntToAscii(iCurrNodeId, cSIdx, 16);
@@ -10483,11 +10615,11 @@ ocfmRetCode UpdateNodeParams(INT32 iCurrNodeId, INT32 iNewNodeID, ENodeType eNod
             //DeleteSubIndex(MN_NODEID, MN, (char *)MULTIPL_CYCLE_ASSIGN_OBJECT, cSIdx);
             //set to default value
 			//TODO: CopyOld... fn
-            copySubIndexDefToAct(iCurrNodeId, eNodeType, true, (char *)MULTIPL_CYCLE_ASSIGN_OBJECT, cSIdx);
+            //copySubIndexDefToAct(iCurrNodeId, eNodeType, true, (char *)MULTIPL_CYCLE_ASSIGN_OBJECT, cSIdx);
             pobjNode->resetForcedCycleValue();
         }
 
-        if(eNodeType == CN && !(PollResponseTimeout == NULL || strcmp(PollResponseTimeout,"") == 0) )
+        if((eNodeType == CN) && !((PollResponseTimeout == NULL) || (strcmp(PollResponseTimeout,"") == 0)) )
         {
           pobjNode->setPollResponseTimeout(PollResponseTimeout);
         }
@@ -12021,7 +12153,8 @@ void CopyOldNodeIdAssignmentObjectSubindex(CNode* pobjNode, INT32 iOldNodeId, ch
             {   
                 if(NULL != (char*)pobjMNOldCNNodeIdSubIndex->getActualValue())
                 {
-                    TempOldActualValue = new char[strlen((char*)pobjMNOldCNNodeIdSubIndex->getActualValue()) + STR_ALLOC_BUFFER];     strcpy((char*)TempOldActualValue, (char*)pobjMNOldCNNodeIdSubIndex->getActualValue());
+                    TempOldActualValue = new char[strlen((char*)pobjMNOldCNNodeIdSubIndex->getActualValue()) + STR_ALLOC_BUFFER];
+					strcpy((char*)TempOldActualValue, (char*)pobjMNOldCNNodeIdSubIndex->getActualValue());
                     TempOldFlg = pobjMNOldCNNodeIdSubIndex->getFlagIfIncludedCdc();
                 }
                 stErrorInfo = IfSubIndexExists(MN_NODEID, MN, pcIndex, pcCNNodeId, &iSubIndexPos, &iIndexPos);
@@ -12047,14 +12180,15 @@ void CopyOldNodeIdAssignmentObjectSubindex(CNode* pobjNode, INT32 iOldNodeId, ch
                 pobjMNCNNodeIdSubIndex->setActualValue((char*)"");
                 }
 
-                 if (NULL != pobjMNCNNodeIdSubIndex && NULL != TempOldActualValue )
+                 if ((NULL != pobjMNCNNodeIdSubIndex) && (NULL != TempOldActualValue ))
                  {
                     //copy the actual value to here
                     pobjMNCNNodeIdSubIndex->setActualValue(TempOldActualValue);
                     pobjMNCNNodeIdSubIndex->setFlagIfIncludedCdc(TempOldFlg);
                  }
                  // reset the actual value of the old node id subindex
-                 copySubIndexDefToAct(pobjNode->getNodeId(), pobjNode->getNodeType(), true, pcIndex, pcCNOldNodeId);
+                 //copySubIndexDefToAct(pobjNode->getNodeId(), pobjNode->getNodeType(), true, pcIndex, pcCNOldNodeId);
+				 SetSubIndexAttributesByAttribute(MN_NODEID, MN, pcIndex, pcCNOldNodeId, ACTUALVALUE, (char*)"");
             }
     }
     else

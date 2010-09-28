@@ -699,8 +699,10 @@ void CNode::resetForcedCycleValue()
     char* cSIdx = new char[SUBINDEX_LEN];
     cSIdx = _IntToAscii(m_NodeId, cSIdx, 16);
     cSIdx = padLeft(cSIdx, '0', 2);
-    copySubIndexDefToAct(MN_NODEID, MN, true, (char *)MULTIPL_CYCLE_ASSIGN_OBJECT, cSIdx);
-    copySubIndexDefToAct(m_NodeId, m_NodeType, true, (char *)MULTIPL_CYCLE_ASSIGN_OBJECT, cSIdx);
+    //copySubIndexDefToAct(MN_NODEID, MN, true, (char *)MULTIPL_CYCLE_ASSIGN_OBJECT, cSIdx);
+	SetSubIndexAttributesByAttribute(MN_NODEID, MN, (char *)MULTIPL_CYCLE_ASSIGN_OBJECT, cSIdx, ACTUALVALUE, (char*)"");
+    //copySubIndexDefToAct(m_NodeId, m_NodeType, true, (char *)MULTIPL_CYCLE_ASSIGN_OBJECT, cSIdx);
+	SetSubIndexAttributesByAttribute(m_NodeId, m_NodeType, (char *)MULTIPL_CYCLE_ASSIGN_OBJECT, cSIdx, ACTUALVALUE, (char*)"");
     
     delete[] cSIdx;
 }
