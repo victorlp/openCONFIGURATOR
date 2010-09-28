@@ -2012,10 +2012,6 @@ void UpdateCNPresMNActLoad(CNode*  pobjNode)
         {
           return;
         }
-		if( PRES_DEFAULT_PAYLOAD > (objNodeCol->getMNNode()).getPResActPayloadValue() )
-		{	
-			return;
-		}
 
         char * pcSubindexId = new char[SUBINDEX_LEN+1];
         strcpy(pcSubindexId, (char *)"F0");
@@ -2047,7 +2043,20 @@ void UpdateCNPresMNActLoad(CNode*  pobjNode)
                     memset(convalue, 0, 20*sizeof(char));
                     char actvalue[22];
                     memset(actvalue, 0, 22*sizeof(char));
-                    _IntToAscii( (objNodeCol->getMNNode()).getPResActPayloadValue() , convalue, 16);
+
+					if( 0 == (objNodeCol->getMNNode()).getPResActPayloadValue())
+					{
+						_IntToAscii( 0 , convalue, 16);
+					}
+					else if( PRES_DEFAULT_PAYLOAD > (objNodeCol->getMNNode()).getPResActPayloadValue() )
+					{
+						_IntToAscii( PRES_DEFAULT_PAYLOAD , convalue, 16);
+					}
+					else
+					{
+						_IntToAscii( (objNodeCol->getMNNode()).getPResActPayloadValue() , convalue, 16);
+					}
+                    //_IntToAscii( (objNodeCol->getMNNode()).getPResActPayloadValue() , convalue, 16);
                     strcpy(actvalue, (char *)"0x");
                     strcat(actvalue, convalue);
                     pobjSubIndex->setActualValue(actvalue);
@@ -2097,10 +2106,6 @@ void UpdatePreqActLoad(CNode*  pobjNode)
     {
       return;
     }
-	if( PREQ_DEFAULT_PAYLOAD > pobjNode->getPReqActPayloadValue() )
-	{
-		return;
-	}
     
     char * pcSubindexId = new char[SUBINDEX_LEN+1];
     strcpy(pcSubindexId, (char *)"04");
@@ -2111,7 +2116,20 @@ void UpdatePreqActLoad(CNode*  pobjNode)
       pobjSubIndex = pobjIndex->getSubIndexbyIndexValue((char *)"04");
       if(NULL != pobjSubIndex)
       {
-          _IntToAscii( pobjNode->getPReqActPayloadValue() , convalue, 16);
+		  if( 0 == pobjNode->getPReqActPayloadValue())
+		  {
+			  _IntToAscii( 0 , convalue, 16);
+		  }
+		  else if( PREQ_DEFAULT_PAYLOAD > pobjNode->getPReqActPayloadValue() )
+		  {
+			  _IntToAscii( PREQ_DEFAULT_PAYLOAD , convalue, 16);
+		  }
+		  else
+		  {
+			  _IntToAscii( pobjNode->getPReqActPayloadValue() , convalue, 16);
+		  }
+		
+          
           strcpy(actvalue, (char *)"0x");
           strcat(actvalue, convalue);
           pobjSubIndex->setActualValue(actvalue);
@@ -2119,7 +2137,7 @@ void UpdatePreqActLoad(CNode*  pobjNode)
           pobjSubIndex->setFlagIfIncludedCdc(TRUE);
           
           //set the value in MN
-          if( CN == pobjNode->getNodeId() )
+          if( CN == pobjNode->getNodeType() )
           {
             _IntToAscii( pobjNode->getNodeId(), pcSubindexId, 16);
             pcSubindexId = padLeft(pcSubindexId, '0', 2);
@@ -2175,10 +2193,6 @@ void UpdatePresActLoad(CNode*  pobjNode)
     {
       return;
     }
-	if( PRES_DEFAULT_PAYLOAD > pobjNode->getPResActPayloadValue() )
-	{
-		return;
-	}
     
     char * pcSubindexId = new char[SUBINDEX_LEN+1];
     strcpy(pcSubindexId, (char *)"05");
@@ -2189,7 +2203,19 @@ void UpdatePresActLoad(CNode*  pobjNode)
       pobjSubIndex = pobjIndex->getSubIndexbyIndexValue((char *)"05");
       if(NULL != pobjSubIndex)
       {
-        _IntToAscii( pobjNode->getPResActPayloadValue(), convalue, 16);
+		  if( 0 == pobjNode->getPResActPayloadValue())
+		  {
+			  _IntToAscii( 0 , convalue, 16);
+		  }
+		  else if( PRES_DEFAULT_PAYLOAD > pobjNode->getPResActPayloadValue() )
+		  {
+			  _IntToAscii( PRES_DEFAULT_PAYLOAD , convalue, 16);
+		  }
+		  else
+		  {
+			  _IntToAscii( pobjNode->getPResActPayloadValue() , convalue, 16);
+		  }
+        
         strcpy(actvalue, (char *)"0x");
         strcat(actvalue, convalue);
         pobjSubIndex->setActualValue(actvalue);
@@ -2197,7 +2223,7 @@ void UpdatePresActLoad(CNode*  pobjNode)
         pobjSubIndex->setFlagIfIncludedCdc(TRUE);
           
           //set the value in MN
-        if( CN == pobjNode->getNodeId() )
+        if( CN == pobjNode->getNodeType() )
         {
           _IntToAscii( pobjNode->getNodeId(), pcSubindexId, 16);
           pcSubindexId = padLeft(pcSubindexId, '0', 2);
@@ -5446,7 +5472,8 @@ void CalculatePayload()
                             INT32 iSiCount = 1;
                             INT32 iSiTotal = objIndex.getNumberofSubIndexes();
 
-                            bool bSetPReqPayload = false;
+                            //bool bSetPReqPayload = false;
+							INT32 iNodeRPDOMappedNodeID = -1;
 							//printf("\tIndex id:%s \n", objIndex.getIndexValue());
                             if(strncmp(objIndex.getIndexValue(), "16", 2) == 0)
                             {
@@ -5463,16 +5490,8 @@ void CalculatePayload()
                                     if(NULL != pobjNodeIDSubIndex)
                                     {
 										//printf("%s 01 actual:%s \n", pcCommIdx, (char*)pobjNodeIDSubIndex->getActualValue());
-                                        if(BROADCAST_NODEID == GetDecimalValue((char*)pobjNodeIDSubIndex->getActualValue()))
-                                        {
-                                            bSetPReqPayload = true;
-                                        }
-										//else
-										//{	
-										//	//CN RPDO cross trafficked with other node
-										//	continue;
-										//}
-                                    }
+										iNodeRPDOMappedNodeID = GetDecimalValue((char*)pobjNodeIDSubIndex->getActualValue());
+									}
                                 }
                                 delete [] pcCommIdx;
                                 delete [] pcIdx;
@@ -5502,7 +5521,7 @@ void CalculatePayload()
 
                                 if( \
 									(strncmp(objIndex.getIndexValue(), "16", 2) == 0) \
-									&& (true == bSetPReqPayload) \
+									&& ((MN_NODEID == iNodeRPDOMappedNodeID) || (BROADCAST_NODEID == iNodeRPDOMappedNodeID)) \
 									) 
                                 {
                                     char* pbModOffset = new char[strlen(pbActualVal) + 1];
@@ -5524,10 +5543,10 @@ void CalculatePayload()
                                         iTotalChainedBytesMapped =  iOffset +  iLength;
                                     }
 									//printf("Idx:%s SIdx:%s iOffset=%d iLength=%d iNodeMappedTotalBytes:%d iTotalChainedBytesMapped=%d \n", objIndex.getIndexValue(), pobjSubIdx->getIndexValue(), iOffset,  iLength, iNodeMappedTotalBytes, iTotalChainedBytesMapped);
-                                    //if(true == bSetPReqPayload)
-                                    //{
+                                    if(BROADCAST_NODEID == iNodeRPDOMappedNodeID)
+                                    {
                                         pobjNode->setPReqActPayloadValue( (iOffset +  iLength) / 8);
-                                    //}
+                                    }
 										//printf("PReqLoad: %d \n", (iOffset +  iLength) / 8);
                     
                                     delete[] pbModOffset;
