@@ -2248,11 +2248,7 @@ void UpdatePreqActLoad(CNode*  pobjNode)
       pobjSubIndex = pobjIndex->getSubIndexbyIndexValue((char *)"04");
       if(NULL != pobjSubIndex)
       {
-		  if( 0 == pobjNode->getPReqActPayloadValue())
-		  {
-			  _IntToAscii( 0 , convalue, 16);
-		  }
-		  else if( PREQ_DEFAULT_PAYLOAD > pobjNode->getPReqActPayloadValue() )
+		  if( PREQ_DEFAULT_PAYLOAD > pobjNode->getPReqActPayloadValue() )
 		  {
 			  _IntToAscii( PREQ_DEFAULT_PAYLOAD , convalue, 16);
 		  }
@@ -2335,11 +2331,7 @@ void UpdatePresActLoad(CNode*  pobjNode)
       pobjSubIndex = pobjIndex->getSubIndexbyIndexValue((char *)"05");
       if(NULL != pobjSubIndex)
       {
-		  if( 0 == pobjNode->getPResActPayloadValue())
-		  {
-			  _IntToAscii( 0 , convalue, 16);
-		  }
-		  else if( PRES_DEFAULT_PAYLOAD > pobjNode->getPResActPayloadValue() )
+		  if( PRES_DEFAULT_PAYLOAD > pobjNode->getPResActPayloadValue() )
 		  {
 			  _IntToAscii( PRES_DEFAULT_PAYLOAD , convalue, 16);
 		  }
@@ -5075,6 +5067,34 @@ ocfmRetCode ProcessPDONodes(bool IsBuild)
 								#if defined DEBUG	
 						            cout<< "iSiTotal:"<<iSiTotal << endl;
 					            #endif
+								//check whether the channel is activated
+
+								//if((true == IsBuild))
+								//{
+									CSubIndex *pobjNoofEntriesSubIndex;
+									pobjNoofEntriesSubIndex = pobjBforeSortIndex->getSubIndexbyIndexValue((char *)"00");
+									if(NULL != pobjNoofEntriesSubIndex)
+									{
+										if ( (pobjNoofEntriesSubIndex->getActualValue()!=NULL) 
+										&& (0 != strcmp(pobjNoofEntriesSubIndex->getActualValue(),"")) 
+										&& !(checkIfValueZero((char*)pobjNoofEntriesSubIndex->getActualValue())) )
+										{
+											//value is not zero the channel is activated
+										}
+										else
+										{
+											// PDO channel is deactivated
+											continue;
+										}
+										
+									}
+									else
+									{
+										//no of entries index does not exist
+										continue;
+									}
+
+								//}
 
 								//set the correponding 14xx/01 to f0
 								if((true == IsBuild) && (strncmp(objIndex.getIndexValue(), "16", 2) == 0))
@@ -5121,7 +5141,9 @@ ocfmRetCode ProcessPDONodes(bool IsBuild)
 						                cout<< "\n pobjSubIdx->getIndexValue():"<<pobjSubIdx->getIndexValue() << endl;
 							            cout<< "\n pobjSubIdx->getName():"<<pobjSubIdx->getName() << endl;
 					                #endif
-									if ( (pobjSubIdx->getActualValue()!=NULL) && (0 != strcmp(pobjSubIdx->getActualValue(),"")) && !(checkIfValueZero((char*)pobjSubIdx->getActualValue())) )
+									if ( (pobjSubIdx->getActualValue()!=NULL) 
+										&& (0 != strcmp(pobjSubIdx->getActualValue(),"")) 
+										&& !(checkIfValueZero((char*)pobjSubIdx->getActualValue())) )
 								    {
 										
 										const char* pbActualVal = pobjSubIdx->getActualValue();
@@ -10441,9 +10463,17 @@ CIndex getPDOIndexByOffset(CIndex* pobjIndex)
 		{
 					
 			pObjSIdx1 = objIndex.getSubIndex(iIdxLoopCount);
-			if(pObjSIdx1->getActualValue()!= NULL)
+			//if(pObjSIdx1->getActualValue()!= NULL)
+			if ( (pObjSIdx1->getActualValue()!=NULL) 
+				&& (0 != strcmp(pObjSIdx1->getActualValue(),"")) 
+				&& !(checkIfValueZero((char*)pObjSIdx1->getActualValue())) )
 			{
 				const char* pbActualVal1 = pObjSIdx1->getActualValue();
+
+				/*if(false == IsValidMappingLength(pbActualVal1))
+				{
+					continue;
+				}*/
 				INT32 iLength1 = strlen(pbActualVal1);
 				char* pbOffset1 = NULL;
 				INT32 iOffset1 = 0;
@@ -10453,12 +10483,16 @@ CIndex getPDOIndexByOffset(CIndex* pobjIndex)
 				iOffset1 = hex2int(pbOffset1);
 				//cout << "\n iOffset1" << iOffset1;
 				pObjSIdx2 = objIndex.getSubIndex(iIdxLoopCount + 1);
-				if(pObjSIdx2->getActualValue()!= NULL)
+				//if(pObjSIdx2->getActualValue()!= NULL)
+				if ( (pObjSIdx2->getActualValue()!=NULL) 
+					&& (0 != strcmp(pObjSIdx2->getActualValue(),"")) 
+					&& !(checkIfValueZero((char*)pObjSIdx2->getActualValue())) )
 				{
 					const char* pbActualVal2 = pObjSIdx2->getActualValue();
-					
-				
-					
+					/*if(false == IsValidMappingLength(pbActualVal2))
+					{
+						continue;
+					}*/
 					INT32 iLength2 = strlen(pbActualVal2);
 					char* pbOffset2 = NULL;
 					INT32 iOffset2 = 0;
