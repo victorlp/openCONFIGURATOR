@@ -106,7 +106,6 @@ CBaseIndex::CBaseIndex(void)
 CBaseIndex::~CBaseIndex(void)
 {
 	//Add destructor code here	
-	//delete m_DefaultValue;
 }
 #pragma region Properties
 
@@ -327,7 +326,6 @@ void CBaseIndex::setObjectType(char* pbObjectType)
 	char *pbStrBuff = new char[strlen(pbObjectType) + STR_ALLOC_BUFFER];
 
 	strcpy(pbStrBuff, pbObjectType);
-	//if(strcmp(pbObjectType, "5") == 0 || strcmp(ConvertToUpper(pbObjectType), "DEFTYPE") == 0 )
 	if(strcmp(pbStrBuff, "5") == 0 || strcmp(ConvertToUpper(pbStrBuff), "DEFTYPE") == 0 )
 	{
 		m_objectType = DEFTYPE;
@@ -450,8 +448,6 @@ void CBaseIndex::setDataType(char* pbDataTypeName)
 	{
 		m_dataType= *pobjDataType;
 	}
-	/*m_dataType.DataTypeValue =pobjDataType.DataTypeValue;
-	m_dataType.Name =pobjDataType.Name ;*/
 }
 
 /****************************************************************************************************
@@ -471,8 +467,6 @@ void CBaseIndex::setDataType(char* pbDataTypeName, int iNodeID)
 	pobjDataCol 	= objNode.getDataTypeCollection();
 	pobjDataType	= pobjDataCol->getDataTypeByName(pbDataTypeName);	
 	m_dataType		= *pobjDataType;
-	/*m_dataType.DataTypeValue = pobjDataType.DataTypeValue;
-	m_dataType.Name = pobjDataType.Name ;*/
 }
 	
 /****************************************************************************************************

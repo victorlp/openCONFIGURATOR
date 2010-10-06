@@ -280,7 +280,6 @@ void CNode::CreateDataTypeCollection()
 void CNode::addProcessImage(ProcessImage objProcessImage)
 {
 	INT32 iItemPosition = ProcessImageCollection.Add();
-	//*(ProcessImageCollection + i) = processImage;	
 	ProcessImageCollection[iItemPosition] 	  = objProcessImage;
 }
 
@@ -304,13 +303,11 @@ void CNode::addMNPDOvar(MNPdoVariable stPdoVar, EPDOType enumEpdoType)
 	if(enumEpdoType == PDO_RPDO)
 	{
 		INT32 iItemPosition = MNPDOOUTVarCollection.Add();
-		//*(ProcessImageCollection + i) = processImage;	
 		MNPDOOUTVarCollection[iItemPosition] = stPdoVar;
 	}
 	else if(enumEpdoType == PDO_TPDO)
 	{
 		INT32 iItemPosition = MNPDOINVarCollection.Add();
-		//*(ProcessImageCollection + i) = processImage;	
 		MNPDOINVarCollection[iItemPosition] = stPdoVar;
 	}
 }
@@ -380,7 +377,6 @@ CIndexCollection* CNode::getPDOIndexCollection()
 		if(pobjIndex->getPDOType() ==  PDO_TPDO || pobjIndex->getPDOType() ==  PDO_RPDO)
 		{
 			pobjPdoIndexCollection->addIndex(*pobjIndex);					
-			//printf("\nIndex:%s", pobjIndex->getIndexValue());
 		}
 	}
 	return pobjPdoIndexCollection;
@@ -408,11 +404,6 @@ CIndexCollection* CNode::getIndexCollectionWithoutPDO()
 	return pobjIndexCol;
 }
 	
-//CDTCollection* CNode::getComplexDTCollection()
-// {
-//	return collectionObjCDT;
-// }
-
 /**************************************************************************************************
 * Function Name: CNode::isNull
 * Description: 
@@ -429,9 +420,6 @@ bool CNode::isNull()
 		return false;
 	}
 }
-
-//CNode CNode::newNull()
-//{return new CNullObjectClass();}
 
 /**************************************************************************************************
 * Function Name: CNode::getPIbyParaIndex
@@ -475,7 +463,7 @@ void CNode::DeleteCollectionsForPI()
 	}
 }
 
-/********************
+/***************************************************************************************************
 * Function Name: CNode::DeleteCollectionsForPI
 * Description: 
 * Return value: void
@@ -580,48 +568,11 @@ ocfmRetCode CNode::setForcedCycle(char* pbForcedCycle)
     }
 
 
-
-//     if(OCFM_ERR_SUCCESS != (IfIndexExists(this->getNodeId(), CN, acMultiCycleAssignObj, &IndexPos)).code)
-//     {
-//         return;
-//     }
-//     stErrorInfo = IfIndexExists(240, MN, acMultiCycleAssignObj, &IndexPos);
-
     char* subIndName = new char[50];
     subIndName[0] = 0;
     INT32 iCNsubIndFlag = 0;
-// 	if(stErrorInfo.code == OCFM_ERR_SUCCESS)
-// 	{
-// 		//Index exists
-// 		int subIndexPos;		
-// 		stErrorInfo = IfSubIndexExists(MN_NODEID, MN, acMultiCycleAssignObj, strConvertedValue,  &subIndexPos, &IndexPos);
-// 		if(stErrorInfo.code == OCFM_ERR_SUCCESS)
-// 		{			
-// 
-// 		}
-// 		else
-// 		{			
-// 			//stErrorInfo = AddSubIndex(MN_NODEID, MN, (char*)"1F9B", strConvertedValue);
-//             stErrorInfo.code = OCFM_ERR_MULTIPLEX_ASSIGN_ERROR;
-//             sprintf(strCustomErrString, "The Subindex %s Index 1F98 does not exist unable to assign the multiplexing cycle", strConvertedValue);
-//             CopyCustomErrorString(&stErrorInfo, (char*)&strCustomErrString);
-//             return;
-// 		}
-// 		
-// 	}
-// 	else
-// 	{
-//         stErrorInfo.code = OCFM_ERR_MULTIPLEX_ASSIGN_ERROR;
-//         CopyCustomErrorString(&stErrorInfo, (char*)"The Index 1F98 does not exist unable to assign the multiplexing cycle");
-//         return stErrorInfo;
-// 		/*stErrorInfo = AddIndex(MN_NODEID, MN, acMultiCycleAssignObj);
-// 	    stErrorInfo = AddSubIndex(MN_NODEID, MN, acMultiCycleAssignObj, strConvertedValue);*/
-// 		
-// 	}
+
     GetSubIndexAttributes(240, MN, acMultiCycleAssignObj, strConvertedValue, NAME, subIndName);
-    //char* subIndFlag = new char[10];
-    //GetSubIndexAttributes(240, MN, acMultiCycleAssignObj, strConvertedValue, FLAGIFINCDC, subIndFlag);
-    //iCNsubIndFlag  = atoi(subIndFlag);
     SetSubIndexAttributes(240, MN, acMultiCycleAssignObj, strConvertedValue, pbForcedCycle, subIndName, TRUE);
 
     CIndex* objMN1F9BIndex;
@@ -637,40 +588,13 @@ ocfmRetCode CNode::setForcedCycle(char* pbForcedCycle)
     }
 
     strcpy(subIndName,"");
-    //strcpy(subIndFlag,"");
-    //stErrorInfo = IfIndexExists(this->getNodeId(), CN, acMultiCycleAssignObj, &IndexPos);
-    //if(stErrorInfo.code == OCFM_ERR_SUCCESS)
-    //{
-        //Index exists
-        
-//         stErrorInfo = IfSubIndexExists(this->getNodeId(), CN, acMultiCycleAssignObj, strConvertedValue,  &subIndexPos, &IndexPos);
-//         if(stErrorInfo.code == OCFM_ERR_SUCCESS)
-//         {           
-// 
-//         }
-//         else
-//         {           
-//             stErrorInfo = AddSubIndex(this->getNodeId(), CN, (char*)"1F9B", strConvertedValue);
-//         }
-        
-    //}
-    //else
-    //{
-    //    stErrorInfo = AddIndex(this->getNodeId(), CN, acMultiCycleAssignObj);
-    //    stErrorInfo = AddSubIndex(this->getNodeId(), CN, acMultiCycleAssignObj, strConvertedValue);     
-    //    
-    //}
     GetSubIndexAttributes(this->getNodeId(), CN, acMultiCycleAssignObj, strConvertedValue, NAME, subIndName);
-    //GetSubIndexAttributes(this->getNodeId(), CN, acMultiCycleAssignObj, strConvertedValue, FLAGIFINCDC, subIndFlag);
-    //iCNsubIndFlag  = atoi(subIndFlag);
-
     SetSubIndexAttributes(this->getNodeId(), CN, acMultiCycleAssignObj, strConvertedValue, pbForcedCycle, subIndName, TRUE);
 
     CIndex* objThis1F9BIndex;
     objThis1F9BIndex = this->m_IndexCollection->getIndexbyIndexValue( acMultiCycleAssignObj );
     if(NULL != objThis1F9BIndex)
     {
-        //UpdateNumberOfEnteriesSIdx(objMN1F92Index, MN);
         objThis1F9BIndex->setFlagIfIncludedCdc(TRUE);
         if( NULL != objThis1F9BIndex->getSubIndexbyIndexValue((char*)"00"))
         {
@@ -682,7 +606,6 @@ ocfmRetCode CNode::setForcedCycle(char* pbForcedCycle)
     strcpy((char*)m_ForcedCycle, pbForcedCycle);    
 
     delete[] subIndName;
-    //delete[] subIndFlag;
     return stErrorResult;
 }
 
@@ -699,10 +622,8 @@ void CNode::resetForcedCycleValue()
     char* cSIdx = new char[SUBINDEX_LEN];
     cSIdx = _IntToAscii(m_NodeId, cSIdx, 16);
     cSIdx = padLeft(cSIdx, '0', 2);
-    //copySubIndexDefToAct(MN_NODEID, MN, true, (char *)MULTIPL_CYCLE_ASSIGN_OBJECT, cSIdx);
-	SetSubIndexAttributesByAttribute(MN_NODEID, MN, (char *)MULTIPL_CYCLE_ASSIGN_OBJECT, cSIdx, ACTUALVALUE, (char*)"");
-    //copySubIndexDefToAct(m_NodeId, m_NodeType, true, (char *)MULTIPL_CYCLE_ASSIGN_OBJECT, cSIdx);
-	SetSubIndexAttributesByAttribute(m_NodeId, m_NodeType, (char *)MULTIPL_CYCLE_ASSIGN_OBJECT, cSIdx, ACTUALVALUE, (char*)"");
+    SetSubIndexAttributesByAttribute(MN_NODEID, MN, (char *)MULTIPL_CYCLE_ASSIGN_OBJECT, cSIdx, ACTUALVALUE, (char*)"");
+    SetSubIndexAttributesByAttribute(m_NodeId, m_NodeType, (char *)MULTIPL_CYCLE_ASSIGN_OBJECT, cSIdx, ACTUALVALUE, (char*)"");
     
     delete[] cSIdx;
 }
@@ -736,36 +657,11 @@ void CNode::setPollResponseTimeout(char* pbPollResponseTimeout)
     char* subIndName = new char[50];
     subIndName[0] = 0;
     INT32 iCNsubIndFlag = 0;
-	/*if(stErrorInfo.code == OCFM_ERR_SUCCESS)
-	{
-		//Index exists
-				
-		stErrorInfo = IfSubIndexExists(MN_NODEID, MN, acMNCNPollresponseTimeoutObj, strConvertedValue,  &subIndexPos, &IndexPos);
-		if(stErrorInfo.code == OCFM_ERR_SUCCESS)
-		{
-
-		}
-		else
-		{	
-			stErrorInfo = AddSubIndex(MN_NODEID, MN, acMNCNPollresponseTimeoutObj, strConvertedValue);
-		}
-	}
-	else
-	{
-        return;
-		//stErrorInfo = AddIndex(MN_NODEID, MN, acMNCNPollresponseTimeoutObj);
-		//stErrorInfo = AddSubIndex(MN_NODEID, MN, acMNCNPollresponseTimeoutObj, strConvertedValue);
-	}*/
-
+	
     GetSubIndexAttributes(240, MN, acMNCNPollresponseTimeoutObj, strConvertedValue, NAME, subIndName);
-    //char* subIndFlag = new char[10];
-    //GetSubIndexAttributes(240, MN, acMNCNPollresponseTimeoutObj, strConvertedValue, FLAGIFINCDC, subIndFlag);
-    //iCNsubIndFlag  = atoi(subIndFlag);
-
     SetSubIndexAttributes(MN_NODEID, MN, acMNCNPollresponseTimeoutObj, strConvertedValue, pbPollResponseTimeout, subIndName, TRUE);
 
-
-    CIndex* objMN1F92Index;
+	CIndex* objMN1F92Index;
     objMN1F92Index = getMNIndexValues(acMNCNPollresponseTimeoutObj);
     if(NULL != objMN1F92Index)
     {
@@ -774,7 +670,6 @@ void CNode::setPollResponseTimeout(char* pbPollResponseTimeout)
     }
 
     delete[] subIndName;
-    //delete[] subIndFlag;
 }
 
 /**************************************************************************************************

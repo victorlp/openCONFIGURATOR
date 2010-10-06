@@ -110,8 +110,6 @@ struct ProcessImage
 {
 	char*					Name;
 	char					Direction[5];
-	/*char*					DataType;
-	char					DataSize[5];*/
 	PIDataInfo DataInfo;
 	int								ByteOffset;
 	char*					Value;

@@ -76,15 +76,6 @@
 #include <libxml/xmlerror.h>
 #include "../Include/Exception.h"
 
-/*
-class ocfmException: public exception
-{
-	  virtual const char* what() const throw()
-  {
-    return "Node Exception Handled: Node does not exsist";
-  }
-} NodeEx;
-*/
 
 /****************************************************************************************************
 * FUNCTION DEFINITIONS

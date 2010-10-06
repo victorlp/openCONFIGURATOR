@@ -104,7 +104,6 @@ void CIndexCollection::addIndex(CIndex objIndex)
 {		
 	INT32 iItemPosition = collectionObj.Add();
 	char* substr = NULL;
-	//new char[3];
 	substr = subString((char*)objIndex.getIndexValue(), 0, 2);
 	if(strcmp(substr,"14")==0 ||strcmp(substr,"16") ==0)
 	{
@@ -127,7 +126,6 @@ void CIndexCollection::deleteIndex(int iIndexID)
 {
    collectionObj.Remove(iIndexID);
    m_IndexCount = collectionObj.Count();
-   //printf("\n\nAfter Delete - Count:%d\n\n", m_IndexCount);
 }
 	
 /****************************************************************************************************

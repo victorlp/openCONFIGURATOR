@@ -124,7 +124,6 @@ void SetPIOffsets(ProcessImage* pobjProcessImage, INT32& iStartByteOffset, INT32
 	{
 		if(iStartBitOffset  == -1)
 		{		
-			//StartByteOffset = StartByteOffset + 1;
 			pobjProcessImage->ByteOffset = iStartByteOffset;		
 		}
 		iStartBitOffset				 	= iStartBitOffset + 1;
@@ -138,72 +137,10 @@ void SetPIOffsets(ProcessImage* pobjProcessImage, INT32& iStartByteOffset, INT32
 	}
 	else
 	{		
-		//StartByteOffset = StartByteOffset + iPosition*(pobjProcessImage->DataInfo.DataSize);
 		pobjProcessImage->ByteOffset 	= iStartByteOffset;
 		iStartByteOffset 				=  iStartByteOffset + (pobjProcessImage->DataInfo.DataSize) / 8;
 	}	
 }
-//void CalculateOffsets(INT32 VarCount,  EPIDirectionType type)
-//{
-//	INT32 arrOfOffsets[6][2] = {{-1, -1}, {-1, -1},{-1, -1},{-1,-1},{-1, -1}, {-1, -1}};			/* Contain last offsets of size 1Bytes, 2 bytes, 4 bytes and 8 bytes*/	
-//	for(INT32 i=0; i<VarCount; i++)
-//	{
-//
-//		ProcessImage* pi;
-//		if(type==INPUT)
-//		pi = &PIInCol[i];
-//		else if(type == OUTPUT)
-//		pi = &PIOutCol[i];	
-//		INT32 Offset;
-//		INT32 BitOffset ;
-//		char* PIByteOffset = new char[7];
-//		char* PIBitOffset		= new char[5];
-//	
-//		/*if(strcmp(pi.DataType == "USINT"))*/
-//	
-//		
-//		if(pi->DataInfo._dt_enum ==BITSTRING)
-//		{
-//			if(arrOfOffsets[1][1] == 7)
-//			{
-//				Offset = arrOfOffsets[1][0] + 1;
-//				BitOffset = 0;				
-//				
-//			}
-//			else
-//			{
-//				if(arrOfOffsets[1][1] ==-1)
-//				Offset  = arrOfOffsets[1][0] + 1;
-//				else
-//				Offset  = arrOfOffsets[1][0];
-//				BitOffset = arrOfOffsets[1][1] + 1;				
-//			}		
-//			arrOfOffsets[1][1] = BitOffset;
-//			pi->BitOffset =  BitOffset;
-//			//printf("\nName: %s", pi->Name);
-//			//printf("\nBit Offset: %s", pi->BitOffset);
-//		}
-//			
-//			else	Offset = arrOfOffsets[1][0] + (pi->DataInfo.DataSize)/8;
-//			pi->ByteOffset = Offset;
-//						//printf("\nName: %s", pi->Name);
-//			//printf("\nByte Offset: %s", pi->ByteOffset);
-//			arrOfOffsets[1][0] = Offset;		
-//	}
-//}
-//INT32 TotalPIVarsCount()
-//{
-//	CNodeCollection* objNodeCol;
-//	objNodeCol =  CNodeCollection::getNodeColObjectPointer();
-//	INT32 PIVarsCount =0;
-//	for(INT32 i=0; i< objNodeCol->getCNNodesCount(); i++)
-//	{
-//		CNode objNode;
-//		objNode = objNodeCol->getNodebyCollectionIndex(i);	
-//		PIVarsCount = objNode.ProcessImageCollection.Count() + PIVarsCount;		
-//	}
-//	return PIVarsCount;
-//}
 
 /****************************************************************************************************
 * Function Name: GroupInOutPIVariables
@@ -212,15 +149,10 @@ void SetPIOffsets(ProcessImage* pobjProcessImage, INT32& iStartByteOffset, INT32
 ****************************************************************************************************/
 void GroupInOutPIVariables(ProcessImage aobjPIInCol[], ProcessImage aobjPIOutCol[])
 {
-	//INT32 count =  TotalPIVarsCount();
-
-	//aobjPIInCol = (ProcessImage*)malloc(1*sizeof(ProcessImage));
-	//aobjPIOutCol = (ProcessImage*)malloc(1*sizeof(ProcessImage));
 	
 	CNodeCollection* pobjNodeCol = NULL;
 	CNode*  objNode;
 	pobjNodeCol =  CNodeCollection::getNodeColObjectPointer();
-	//INT32 PIVarsCount =0;
 	iInVars = 0;
 	iOutVars = 0;
 	
@@ -234,13 +166,11 @@ void GroupInOutPIVariables(ProcessImage aobjPIInCol[], ProcessImage aobjPIOutCol
 			{
 				aobjPIInCol[iInVars]  = objNode->ProcessImageCollection[iInLoopCount];
 				iInVars++;
-				//aobjPIInCol = (ProcessImage*)realloc(aobjPIInCol,(size + 1)*sizeof(ProcessImage));			
 			}
 			else if(objNode->ProcessImageCollection[iInLoopCount].DirectionType == OUTPUT)
 			{			
 				aobjPIOutCol[iOutVars]  = objNode->ProcessImageCollection[iInLoopCount];
 				iOutVars++;
-				//aobjPIOutCol = (aobjPIOutCol *)realloc(aobjPIOutCol,(size + 1)*sizeof(ProcessImage));
 			}
 		}
 	}
@@ -272,190 +202,6 @@ INT32 GroupNETPIVariables( EPIDirectionType DirectionType, NETProcessImage aobjP
 	}
 	return NetPIVarsCount;
 }
-
-//void ComputeCompactPI(INT32 VarCount,  EPIDirectionType type)
-//{
-//	//INT32 arrOfOffsets[4][2] = {{-1, -1}, {-1, -1},{-1, -1},{-1,-1}};			/* Contain prev and current offsets of size 1Bytes, 2 bytes, 4 bytes and 8 bytes*/	
-//	stOffsets size8Offet			= {0, 0};
-//	stOffsets size16Offset = {0, 0};
-//	stOffsets size32Offset = {0, 0};
-//	stOffsets size64Offset = {0, 0};
-//	for(INT32 i=0; i<VarCount; i++)
-//	{
-//
-//		ProcessImage* pi;
-//		ProcessImage piPrev;
-//		INT32 Offset;
-//		INT32 BitOffset ;
-//		char* PIByteOffset = new char[7];
-//		char* PIBitOffset		= new char[5];
-//		
-//		
-//		if(type==INPUT)
-//		{
-//			pi = &PIInCol[i];
-//			piPrev = PIInCol[i-1];
-//		}
-//		else if(type == OUTPUT)
-//		{
-//			pi = &PIOutCol[i];	
-//			piPrev = PIOutCol[i-1];
-//		}
-//		
-//		INT32 dataSize;
-//		dataSize =  pi->DataInfo.DataSize;
-//		
-//		switch(dataSize)
-//		{
-//			/* Bitstring*/
-//			case 1:
-//				
-//				if(piPrev.DataInfo._dt_enum  == BITSTRING)
-//				{
-//					if(piPrev.BitOffset == 7)
-//					{
-//						pi->BitOffset = 0;
-//						pi->ByteOffset = piPrev.ByteOffset + 1;
-//					}
-//					else
-//					{
-//						pi->BitOffset = piPrev.BitOffset + 1;
-//						pi->ByteOffset = piPrev.ByteOffset;
-//					}
-//				}
-//				else
-//				{
-//						size8Offet.prevOffset = size8Offet.currOffset ;
-//					 pi->ByteOffset = size8Offet.currOffset;											
-//				}
-//				
-//			/*Unsigned8, Int8*/
-//			case 8:
-//						size8Offet.prevOffset = size8Offet.currOffset ;
-//						pi->ByteOffset = size8Offet.currOffset ;
-//						size8Offet.currOffset =	size8Offet.currOffset + 1;
-//						
-//						/* Set other DataType Offsets*/
-//						/* if greater no change*/
-//						if(size16Offset.currOffset >= size8Offet.currOffset)
-//						else
-//						{
-//								size16Offet.prevOffset = size16Offet.currOffset ;
-//								size16Offset.currOffset = size16Offset.currOffset + 2;
-//						}
-//						
-//						/* if greater no change*/
-//						if(size32.currOffset >= size8.currOffset)
-//						else
-//						{
-//								size32.prevOffset = size32.currOffset ;
-//								size32.currOffset = size32.currOffset + 4;
-//						}
-//						
-//						/* if greater no change*/
-//						if(size64Offset.currOffset >= size8Offet.currOffset)
-//						else
-//						{
-//								size64Offset.prevOffset = size64Offset.currOffset ;
-//								size64Offset.currOffset = size64Offset.currOffset + 8;
-//						}
-//						
-//			/*Unsigned16, Int16*/
-//			case 16:
-//						size16Offet.prevOffset = size16Offet.currOffset ;
-//						pi->ByteOffset = size16Offet.currOffset ;
-//						size8Offet.currOffset =	size8Offet.currOffset + 2;
-//					
-//			
-//							/* Set other DataType Offsets*/
-//							
-//							/* if greater no change*/
-//						if(size8Offset.currOffset >= size16Offet.currOffset)
-//						else
-//						{
-//								if((size8Offet.currOffset >= size16Offset.prevOffset) || (size8Offet.currOffset <= size16Offset.currOffset)
-//								{
-//									size8Offet.prevOffset = size8Offet.currOffset ;
-//									size8Offset.currOffset = size16Offset.currOffset;
-//								}
-//								else
-//								{
-//									size8Offet.prevOffset = size8Offet.currOffset;
-//									size8Offet.currOffset = size8Offet.currOffset + 1;
-//								}
-//						}
-//						
-//						/* if greater no change*/
-//						if(size32Offset.currOffset >= size16Offet.currOffset)
-//						else
-//						{
-//								size32Offset.prevOffset = size32Offset.currOffset ;
-//								size32Offset.currOffset = size32Offset.currOffset + 4;
-//						}
-//						
-//						/* if greater no change*/
-//						if(size64.currOffset >= size16.currOffset)
-//						else
-//						{
-//								size64Offset.prevOffset = size64Offset.currOffset ;
-//								size64Offset.currOffset = size64Offset.currOffset + 8;
-//						}						
-//					
-//			/*Unsigned32, Int32*/
-//			case 32:
-//						size32Offet.prevOffset = size32Offet.currOffset ;
-//						pi->ByteOffset = size32Offet.currOffset ;
-//						size32Offset.currOffset = size32Offset.currOffset + 4;
-//			
-//							/* Set other DataType Offsets*/
-//								/* if greater no change*/
-//						if(size8Offset.currOffset >= size32Offet.currOffset)
-//						else
-//						{
-//								if((size8Offet.currOffset >= size32Offset.prevOffset) || (size8Offet.currOffset <= size32Offset.currOffset)
-//								{
-//									size8Offet.prevOffset = size8Offet.currOffset ;
-//									size8Offset.currOffset = size32Offset.currOffset;
-//								}
-//								else
-//								{
-//									size8Offet.prevOffset = size8Offet.currOffset;
-//									size8Offet.currOffset = size8Offet.currOffset + 1;
-//								}
-//						}
-//						
-//							/* if greater no change*/
-//						if(size16Offset.currOffset >= size32Offet.currOffset)
-//						else
-//						{
-//								if((size16Offet.currOffset >= size32Offset.prevOffset) || (size16Offet.currOffset <= size32Offset.currOffset)
-//								{
-//									size16Offet.prevOffset = size16Offet.currOffset ;
-//									size16Offset.currOffset = size16Offset.currOffset;
-//								}
-//								else
-//								{
-//									size16Offet.prevOffset = size16Offet.currOffset;
-//									size16Offet.currOffset = size16Offet.currOffset + 2;
-//								}
-//						}
-//						/* if greater no change*/
-//						if(size64Offset.currOffset >= size8Offet.currOffset)
-//						else
-//						{
-//								size64Offset.prevOffset = size64Offset.currOffset ;
-//								size64Offset.currOffset = size64Offset.currOffset + 8;
-//						}
-//			/*Unsigned64, Int64*/
-//			case 64:
-//						size64Offet.prevOffset = size64Offet.currOffset ;
-//						pi->ByteOffset = size64Offet.currOffset ;
-//			
-//			break;
-//		}
-//	
-//		}
-//	}
 
 /****************************************************************************************************
 * Function Name: getIECDT
@@ -635,9 +381,7 @@ void WriteXAPHeaderContents(ProcessImage objProcessImage[], INT32 iNumberOfVars,
 {
 	char* pbBuffer 		= new char[HEADER_FILE_BUFFER];
 	char* pbBuffer1 	= new char[200];		
-	//char* strCNID = new char[NODE_ID + ALLOC_BUFFER];
 	INT32 iModuleNo 		= 0;
-	//INT32 LastModuleNo = 0;
 	INT32 iTotalsize 		= 0;
 	INT32 iDataSize  		= 0;
 	INT32 iHoleFilledIdNo 	= 1;									
@@ -653,7 +397,6 @@ void WriteXAPHeaderContents(ProcessImage objProcessImage[], INT32 iNumberOfVars,
 			char* pbStrCNID 	= new char[50];
 			char* pbModName		= new char[50];
 			char* pbStrModuleNo = new char[20];
-			//char* varNo = new char[10];				
 			
 			iDataSize  = objProcessImage[iLoopCount].DataInfo.DataSize;
 			/* Check if 8, 16, 32 bit aligned*/
@@ -687,7 +430,6 @@ void WriteXAPHeaderContents(ProcessImage objProcessImage[], INT32 iNumberOfVars,
 			strcpy(pbStrModuleNo, subString( objProcessImage[iLoopCount].ModuleIndex, 2, 2));
 			strcpy(pbModName, objProcessImage[iLoopCount].ModuleName);
 				
-			//printf("\n Module Name: %s",pbModName);
 			strcat(pbBuffer,"\tunsigned");
 			strcat(pbBuffer," ");
 			char* pbVarName = new char[100];
@@ -705,13 +447,6 @@ void WriteXAPHeaderContents(ProcessImage objProcessImage[], INT32 iNumberOfVars,
 			strcat(pbVarName, "_");
 			strcat(pbVarName, objProcessImage[iLoopCount].VarName);
 				
-			//if(strcmp(subString(objProcessImage[iLoopCount].VarName,0, 8), "Reserved")== 0)
-			//{
-			//	varNo =  _IntToAscii(iLoopCount, varNo, 10);
-			//	strcat(pbVarName, "_");
-			//	strcat(pbVarName, varNo);
-			//}
-			 
 			strcat(pbBuffer, pbVarName);									
 			strcat(pbBuffer, ":");
 			
@@ -816,7 +551,6 @@ void GenerateNETHeaderFile(char* pbFileName, ProcessImage objPIInCol[], ProcessI
 	CNodeCollection* pobjNodeCol = NULL;
 	CNode*  objNode;
 	pobjNodeCol =  CNodeCollection::getNodeColObjectPointer();
-	//INT32 NetPIVarsCount =0;
 	for(INT32 iNodeColLoopCount=0; iNodeColLoopCount < pobjNodeCol->getNumberOfNodes(); iNodeColLoopCount++)
 	{
 		objNode = pobjNodeCol->getNodebyColIndex(iNodeColLoopCount);	
@@ -827,10 +561,7 @@ void GenerateNETHeaderFile(char* pbFileName, ProcessImage objPIInCol[], ProcessI
 		 /*Writng Header of .NET Interface*/
 		char* pbBuffer 		= new char[HEADER_FILE_BUFFER];
 		strcpy(pbBuffer, "using System;\n");
-		//strcat(pbBuffer, "using System.Collections.Generic;\n");
-		//strcat(pbBuffer, "using System.Text;\n");
 		strcat(pbBuffer, "using System.Runtime.InteropServices;\n");
-		//strcat(pbBuffer, "using openPOWERLINK;\n");
 		strcat(pbBuffer, "\nnamespace openPOWERLINK\n");
 		strcat(pbBuffer, "{\n");
 		UINT32 uiStrLength =  strlen(pbBuffer);
@@ -848,21 +579,11 @@ void GenerateNETHeaderFile(char* pbFileName, ProcessImage objPIInCol[], ProcessI
 	if(iInVar !=0)
 	{			
 		WriteNETHeaderContents(objPIInCol, iInVar, INPUT, fpNetFile);
-		//fclose(fpNetFile);
 	}
 
-	//fclose(fpNetFile);
-	
 	/* write Output structure */
 	if(iOutVar !=0)
 	{
-		//if (( fpNetFile = fopen(pbNetFileName,"a+")) == NULL)
-		//{
-		//	ocfmException ex;
-		//	ex.ocfm_Excpetion(OCFM_ERR_CANNOT_OPEN_FILE);
-		//	delete [] pbNetFileName;
-		//	throw ex;
-		//}
 		WriteNETHeaderContents(objPIOutCol, iOutVar, OUTPUT, fpNetFile);	
 	}
 	if( (iInVar !=0) || (iOutVar !=0) )
@@ -932,63 +653,31 @@ void WriteNETHeaderContents(ProcessImage objProcessImage[], INT32 iNumberOfVars,
 	if(enumDirType == INPUT)
 	{
 		strcpy(pbBuffer1, "\n\t/// <summary>\n");
-		//strcat(pbBuffer1, "\t/// Struct : ProcessImage In\n");
         strcat(pbBuffer1, "\t/// Struct : ProcessImage Out\n");
 		strcat(pbBuffer1, "\t/// </summary>\n");
 		strcat(pbBuffer1, "\t[StructLayout(LayoutKind.Explicit, Pack = 1, Size = ");
         strcat(pbBuffer1, abTotalsize);
         strcat(pbBuffer1, ")]\n");
-		//strcat(pbBuffer1, "\tpublic struct AppProcessImageIn\n");
         strcat(pbBuffer1, "\tpublic struct AppProcessImageOut\n");
 		strcat(pbBuffer1, "\t{\n");
 
-		//strcpy(pbBuffer2, "\t\tprivate static UInt16 uiPIInSize = ");
         strcpy(pbBuffer2, "\t}\n");
 	}	
 	else if(enumDirType == OUTPUT)
 	{				
 		
 		strcpy(pbBuffer1, "\n\t/// <summary>\n");
-		//strcat(pbBuffer1, "\t/// Struct : ProcessImage Out\n");
         strcat(pbBuffer1, "\t/// Struct : ProcessImage In\n");
 		strcat(pbBuffer1, "\t/// </summary>\n");
 		strcat(pbBuffer1, "\t[StructLayout(LayoutKind.Explicit, Pack = 1, Size = ");
         strcat(pbBuffer1, abTotalsize);
         strcat(pbBuffer1, ")]\n");
-		//strcat(pbBuffer1, "\tpublic struct AppProcessImageOut\n");
         strcat(pbBuffer1, "\tpublic struct AppProcessImageIn\n");
 		strcat(pbBuffer1, "\t{\n");
 
-		//strcpy(pbBuffer2, "\t\tprivate static UInt16 uiPIOutSize = ");
         strcpy(pbBuffer2, "\t}\n");
 	}	
 	delete[] abTotalsize;
-	/*strcat(pbBuffer2,";\n");*/
-
-	/*if(enumDirType == INPUT)
-	{
-		strcat(pbBuffer2, "\n");
-        	strcat(pbBuffer2, "\t\t/// <summary>\n");
-        	strcat(pbBuffer2, "\t\t/// Constructor sets the size of ProcessImage In\n");
-        	strcat(pbBuffer2, "\t\t/// </summary>\n");
-        	strcat(pbBuffer2, "\t\tpublic AppProcessImageIn()\n");
-        	strcat(pbBuffer2, "\t\t{\n");
-            	strcat(pbBuffer2, "\t\t\tthis.Size = uiPIInSize;\n");
-        	strcat(pbBuffer2, "\t\t}\n");
-        	strcat(pbBuffer2, "\t}\n");
-	}	
-	else if(enumDirType == OUTPUT)
-	{
-		strcat(pbBuffer2, "\n");
-        	strcat(pbBuffer2, "\t\t/// <summary>\n");
-        	strcat(pbBuffer2, "\t\t/// Constructor sets the size of ProcessImage Out\n");
-        	strcat(pbBuffer2, "\t\t/// </summary>\n");
-        	strcat(pbBuffer2, "\t\tpublic AppProcessImageOut()\n");
-        	strcat(pbBuffer2, "\t\t{\n");
-            	strcat(pbBuffer2, "\t\t\tthis.Size = uiPIOutSize;\n");
-        	strcat(pbBuffer2, "\t\t}\n");
-        	strcat(pbBuffer2, "\t}\n");
-	}*/
 
 	UINT32 uiStrLength =  strlen(pbBuffer1);
 	
@@ -1129,32 +818,23 @@ INT32 GroupNETHeaderContents(ProcessImage objProcessImage[], INT32 iNumberOfVars
 						NetPICreated = true;
 						objNode->NETProcessImageCollection[iNETPIIndex].iTotalDataSize = objNode->NETProcessImageCollection[iNETPIIndex].iTotalDataSize + iDataSize;
 						objNode->NETProcessImageCollection[iNETPIIndex].count++;
- 						//if(objNode->NETProcessImageCollection[iNETPIIndex].LastName != NULL)
- 						//{
- 						//	delete[] objNode->NETProcessImageCollection[iNETPIIndex].LastName;
- 						//	objNode->NETProcessImageCollection[iNETPIIndex].LastName = NULL;
- 						//}
-						//CLEANPTR(objNode->NETProcessImageCollection[iNETPIIndex].LastName);
 						objNode->NETProcessImageCollection[iNETPIIndex].LastName = new char[strlen(objProcessImage[iLoopCount].VarName) + ALLOC_BUFFER];
 						strcpy( objNode->NETProcessImageCollection[iNETPIIndex].LastName , objProcessImage[iLoopCount].VarName );
 						if(objNode->NETProcessImageCollection[iNETPIIndex].iTotalDataSize == 8)
 						{
 							objNode->NETProcessImageCollection[iNETPIIndex].DataInfo._dt_enum = BYTE;
-							//CLEANPTR(objNode->NETProcessImageCollection[iNETPIIndex].DataInfo._dt_Name);
 							objNode->NETProcessImageCollection[iNETPIIndex].DataInfo._dt_Name = new char[strlen("byte") + ALLOC_BUFFER];
 							strcpy( objNode->NETProcessImageCollection[iNETPIIndex].DataInfo._dt_Name ,"byte");
 						}
                         else if(objNode->NETProcessImageCollection[iNETPIIndex].iTotalDataSize == 16)
                         {
                             objNode->NETProcessImageCollection[iNETPIIndex].DataInfo._dt_enum = UINT;
-                            //CLEANPTR(objNode->NETProcessImageCollection[iNETPIIndex].DataInfo._dt_Name);
                             objNode->NETProcessImageCollection[iNETPIIndex].DataInfo._dt_Name = new char[strlen("UInt16") + ALLOC_BUFFER];
                             strcpy( objNode->NETProcessImageCollection[iNETPIIndex].DataInfo._dt_Name ,"UInt16");
                         }
                         else if(objNode->NETProcessImageCollection[iNETPIIndex].iTotalDataSize == 32)
                         {
                             objNode->NETProcessImageCollection[iNETPIIndex].DataInfo._dt_enum = UDINT;
-                            //CLEANPTR(objNode->NETProcessImageCollection[iNETPIIndex].DataInfo._dt_Name);
                             objNode->NETProcessImageCollection[iNETPIIndex].DataInfo._dt_Name = new char[strlen("UInt32") + ALLOC_BUFFER];
                             strcpy( objNode->NETProcessImageCollection[iNETPIIndex].DataInfo._dt_Name ,"UInt32");
                         }
@@ -1287,17 +967,14 @@ void AddPDOIndexsToMN(char* pbIndex, char* pbSubIndex, EPDOType enumPdoType)
 			{
 				cout << "enumPdoType is not TPDO or RPDO _1\n" << endl;
 			}
-			//$SpobjIndex->setName(pbObjectName);
 			/* Add subindex 00 */
 			stRetCode = AddSubIndex(MN_NODEID, MN, pbIndex, (char*) "00");
 			if(stRetCode.code  ==  OCFM_ERR_SUCCESS)
 			{
-				//SetSubIndexAttributes(MN_NODEID, MN, Index, "00", NULL, "NumberOfEntries");
 			}
 		}
 	}
 	
-	//printf("\n after Add Index before subIndex : %s", pbIndex);
 	stRetCode = AddSubIndex(MN_NODEID, MN, pbIndex, pbSubIndex);
 	if(pobjIndex != NULL)
 	{
@@ -1373,7 +1050,6 @@ PIObject getPIAddress(PDODataType dt,  EPIDirectionType dirType, int iOffset, in
 		{
 			INT32 iTempDataSize = iDataSize/8;
 			subIndex = (iOffset)/ iTempDataSize + 1;
-				//printf("\n subindex %d", subIndex);
 			if(subIndex > 254)
 			{
 				int div = subIndex / 254;
@@ -1396,8 +1072,6 @@ PIObject getPIAddress(PDODataType dt,  EPIDirectionType dirType, int iOffset, in
 		}		
 	}
 	//Handled error case and returned dummy value to avoid warning
-	//cout << "Error in returning getPIAddress" << endl;
-	//return (char*) "Error";
 	return stPIObject;
 }
 
@@ -1449,7 +1123,6 @@ char* getPIDataTypeName(char* pbAddress)
 				default:
 				{
 					//Handled error case and returned dummy value to avoid warning
-					//cout << "Error in returning getPIDataTypeName" << endl;
 					pbRetString = (char*) "Error";
 					break;
 				}
@@ -1507,7 +1180,6 @@ char* getPIName(char* pbAddress)
 				default:
 				{
 					//Handled error case and returned dummy value to avoid warning
-					//cout << "Error in returning getPIDataTypeName" << endl;
 					pbRetString = (char*) "Err";
 					break;
 				}

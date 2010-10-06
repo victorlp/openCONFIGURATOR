@@ -98,16 +98,6 @@ char* ConvertToUpper(char* pbStrBuffer)
 		pbStrBuffer[uiLoopCount] = toupper(pbStrBuffer[uiLoopCount]);
 	}
 	return pbStrBuffer;
-	//int t;
-	//int len = strlen(str);
-	//char* str1;
-	//str1 = new char[len];
-	//for(t=0; t<strlen(str); ++t)
-	//{
-	//	str1[t] = toupper(str[t]);
-	//}		
-	//str1[t] = '\0';
-	//return str1;
 }
 	
 /****************************************************************************************************
@@ -164,7 +154,6 @@ char* padLeft(char* pbStrBuffer, char cPadChar, int iPadLength)
 	
 	if (iStringLen < iPadLength)
 	{
-		//temp = new char[iPadLength-iStringLen+1];		
 		pbStrBuffer = reverse(pbStrBuffer);
 		while(iLoopCount < (iPadLength-iStringLen))
 		{
@@ -252,7 +241,6 @@ char *_IntToAscii(long iValue, char *pbDigits, int iBaseValue)
         return NULL;
 	}
     if (iValue < 0) {
-        //*pbDigit++ = '-';
         uiValue = -((unsigned)iValue);
 		uiValue = ~uiValue + 1; // two's complement
 		
@@ -266,38 +254,6 @@ char *_IntToAscii(long iValue, char *pbDigits, int iBaseValue)
 	
     return pbDigits;
 }
-
-/**************************************************************************************************
-* Function Name: _IntToAscii
-* Description: Perform C++ style "_IntToAscii"
-* Return value: char*
-***************************************************************************************************/
-
-//char* _IntToAscii( int value, char* result, int base ) 
-//{
-//	// check that the base if valid
-//
-//	if (base < 2 || base > 16) 
-//	{ 
-//		*result = 0; return result; 
-//	}
-//	char* out = result;
-//	int quotient = value;
-//	do 
-//	{
-//		*out = "0123456789abcdef"[ abs( quotient % base ) ];
-//		++out;
-//		quotient /= base;
-//	} while ( quotient );
-//
-//	// Only apply negative sign for base 10
-//	
-//	if ( value < 0 && base == 10) *out++ = '-';
-//	result = reverse(out);
-//	printf("\nResult%s",result);
-//	*out = 0;
-//	return result;
-//}
 
 /**************************************************************************************************
 * Function Name: hex2int
@@ -486,21 +442,6 @@ bool CheckIfHex(char* pbValue)
 	}
 		
 }
-//char* ReplaceChars(char ch, int num, char* str)
-//{
-//		int t;
-//		char st[2];
-//		for(t=0; str[t] ; ++t)
-//		{
-//			for(int i =0; i<num ;i++)
-//			{
-//				strcpy(st[i], 
-//			}
-//			if(str[t] == ch)
-//			
-//		}
-//		return str;
-//}
 
 /**************************************************************************************************
 * Function Name: getConfigDate
@@ -567,38 +508,6 @@ int getConfigTime()
 }
 
 /**************************************************************************************************
-* Function Name: toupper
-* Description: 
-* Return value: CHAR
-***************************************************************************************************/
-//CHAR toupper (CHAR cArg)
-//{
-//	if (cArg >= 97 && cArg <= 122)
-//	{
-//		cArg = cArg - 32;
-//	}
-//	return cArg;
-//}
-
-/**************************************************************************************************
-* Function Name: tobin
-* Description: 
-* Return value: CHAR
-***************************************************************************************************/
-//CHAR tobin(CHAR cArg)
-//{
-//	if(cArg >= 65 && cArg <= 70)
-//	{
-//		cArg = cArg - 55;
-//	}
-//	else if ( cArg >=48 && cArg <= 57)
-//	{
-//		cArg = cArg - 48;
-//	}
-//	return cArg;
-//}
-
-/**************************************************************************************************
 * Function Name: reversedata
 * Description: 
 * Return value: int
@@ -663,9 +572,6 @@ char* getLastAvailableCycleNumber()
 	if(Ret.code == OCFM_ERR_SUCCESS)
 	{	
 
-		//printf(" \nactvalue %s",actValue);
-		
-		//printf("\ncycle %d", uiCycleNumber);
 		UINT32 iCycleValue;
 		if (strncmp(actValue,"0x",2) == 0 || strncmp(actValue,"0X",2) == 0)
 			iCycleValue  = hex2int(subString(actValue, 2,strlen(actValue) -2 ));

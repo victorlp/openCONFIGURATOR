@@ -150,7 +150,6 @@ void CObjectDictionary::ProcessObjectDictionary(xmlTextReaderPtr reader)
 			if(strcmp(((char*)name),"defType")==0)
 			{
 				CDataTypeCollection* objDataTypeCollection;			
-				//printf("createed Nodecol\n");
 				DataType objDataType;
 				if (xmlTextReaderHasAttributes(reader)==1)
 				{						
@@ -180,7 +179,6 @@ void CObjectDictionary::ProcessObjectDictionary(xmlTextReaderPtr reader)
 						bool hasPDO;
 						if(strcmp(ConvertToUpper((char*)name), "DATATYPE")==0)		
 						{			
-							//objIndex.setDataTypeValue((char*)value);
 							DataType *dt;
 							dt = objDictNode->getDataTypeCollection()->getDataType((char*)value);
 							objIndex.setDataTypeST(*dt);
@@ -220,7 +218,6 @@ void CObjectDictionary::ProcessObjectDictionary(xmlTextReaderPtr reader)
 						name = xmlTextReaderConstName(reader);	
 						if(strcmp(ConvertToUpper((char*)name), "DATATYPE")==0)		
 						{			
-							/*objSubIndex.setDataTypeValue((char*)value);*/
 							DataType *dt;
 							dt = objDictNode->getDataTypeCollection()->getDataType((char*)value);
 							objSubIndex.setDataTypeST(*dt);
@@ -318,7 +315,6 @@ CIndex* CObjectDictionary::getObjectDictIndex(char* pbIdx)
 	
 	if(pobjIndex != NULL)
 	{		
-		//pobjIndex->setName(getIndexName(subString(pbIdx,2,4), (char*)pobjIndex->getName()));
 		return pobjIndex;
 	}
 	else
@@ -333,8 +329,6 @@ CIndex* CObjectDictionary::getObjectDictIndex(char* pbIdx)
 				if(checkInTheRange(pbIdx, stAttrIdx.start_Index, stAttrIdx.end_Index))
 				{
 					pobjIndex = pobjIndexCol->getIndexbyIndexValue(stAttrIdx.start_Index);
-					//pobjIndex->setName(getIndexName(subString(pbIdx,2,4), (char*)pobjIndex->getName()));
-					//name = strchr(pobjIndex->getName(), "X");					
 					return pobjIndex;
 				}
 			}
@@ -492,7 +486,6 @@ INT32 CObjectDictionary::ifObjectDictSubIndexExists(char* pbIdx, char* pbSIdx)
 ****************************************************************************************************/
 char* CObjectDictionary::getIndexName(char* pbObjectIndex, char* pbObjectName)
 {
-	//char* pbName = new char[strlen(pbObjectName) +  ALLOC_BUFFER];
 	char* pbName = NULL;
 	char* pbModifiedName = new char[strlen(pbObjectName) +  ALLOC_BUFFER];		
 	
@@ -509,23 +502,9 @@ char* CObjectDictionary::getIndexName(char* pbObjectIndex, char* pbObjectName)
 	
 		int pos = strlen(pbName);
 		int iCount = strlen(pbObjectIndex) - iLen;
-		//int iLoopCount = 0;
 		strcpy(pbModifiedName, subString(pbObjectName, 0, strlen(pbObjectName)-pos));	
 		strcat(pbModifiedName, subString(pbObjectIndex, iCount, iLen ));
-		//while(iLoopCount < iLen)
-		//{
-		//	//if(Name[0] == 'X' && len==2)
-		//	if(pbName[0] == 'X')
-		//	{
-		//		
-		//		//pbName[0] = *(pbObjectIndex + iCount);
-		//	}
-		//	//pbName++;
-		//	iLoopCount++;	
-		//	iCount++;
-		//}
 		strcat(pbModifiedName, subString(pbName, iLen, strlen(pbName) - iLen));	
-		//printf("\n ModifiedName %s",pbModifiedName);
 		return pbModifiedName;
 	}
 	else

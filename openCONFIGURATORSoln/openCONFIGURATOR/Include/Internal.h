@@ -143,7 +143,6 @@ extern UINT32 uiCycleNumber;
 ************************************************************************************************/
 static const int g_simple_arr_size = 19;
 static bool ObjectDictLoaded = false;
-//static UINT32 uiCycleNumber = 0;
 static const UINT32 uiPreScalar =0;
 
 /****************************************************************************************************
@@ -200,8 +199,6 @@ int NodeId, ENodeType NodeType, bool setDefaultValue);
 ocfmRetCode AddOtherRequiredCNIndexes(int NodeId);
 void CreateMNPDOVar(int Offset, int dataSize,IEC_Datatype dtenum, EPDOType pdoType, CNode *objNode);
 int getCNsTotalIndexSubIndex(int NodeID);
-//CHAR toupper (CHAR ch);
-//CHAR tobin(CHAR ch);
 int reversedata(UINT8 *actemp1, UINT8 *actemp2, UINT32 size);
 char* StringToUpper(char* str);
 void setFlagForRequiredCNIndexes(int NodeId);

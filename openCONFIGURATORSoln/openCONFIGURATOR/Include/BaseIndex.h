@@ -135,7 +135,6 @@ class DllExport CBaseIndex
 
 		const char* getObjectType();
 		EObjectType getEObjectType();
-		//void setObjectType(int objectTypeValue);
 		void setObjectType(char* objectType);
 
 		int getNodeID();

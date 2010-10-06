@@ -100,6 +100,5 @@ class DllExport CComplexDataType
 			
 	public:
 		 void addVarDeclaration(varDeclaration VarDecl);
-		/* void updatePreviousCDT_UId(char* UniqueID, int Index);*/
 };
 #endif // complexdatatype_h

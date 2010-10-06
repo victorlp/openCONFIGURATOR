@@ -109,8 +109,6 @@ ocfmRetCode IfNodeExists(INT32 iNodeID, ENodeType iNodeType, INT32 *piNodePos, b
 				{
 					if(objNode.getNodeId() == iNodeID)
 					{
-						//printf("Node Pos:%d\n\n", iLoopCount);
-						//stErrStruct.returnValue = iLoopCount;
 						*piNodePos 		 = iLoopCount;
 						stErrStruct.code = OCFM_ERR_SUCCESS;
 						ExistfFlag		 = true;
@@ -119,8 +117,6 @@ ocfmRetCode IfNodeExists(INT32 iNodeID, ENodeType iNodeType, INT32 *piNodePos, b
 					}					
 				}						
 			}
-			/*stErrStruct.code = OCFM_ERR_NODEID_NOT_FOUND;
-			return stErrStruct;*/
 			ocfmException objException;
 			objException.ocfm_Excpetion(OCFM_ERR_NODEID_NOT_FOUND);
 			throw &objException;			
@@ -160,7 +156,7 @@ ocfmRetCode IfIndexExists(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID
 		
 		if (stErrStruct.code == OCFM_ERR_SUCCESS && bFlag == true) 
 		{		
-			//retPos = stErrStruct.returnValue;
+			//continue with process
 		}
 		else
 		{	
@@ -197,27 +193,24 @@ ocfmRetCode IfIndexExists(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID
 					objIndexPtr = pobjIndexCollection->getIndex(iIndexCount);				
 					if(objIndexPtr->getActualValue() == NULL)
 					{
-						//cout<< "objIndex.getActualValue():NULL" << endl;
+						//no operation
 					}
 					else
 					{
-						//cout<< "objIndex.getActualValue():" << objIndexPtr->getActualValue() << endl;
+						//no operation
 					}
-					//delete[] pbIndexValue;
 					*piIndexPos 	 = iIndexCount;
 					stErrStruct.code = OCFM_ERR_SUCCESS;
 					return stErrStruct;
 				}
 				else if(iIndexCount == (pobjIndexCollection->getNumberofIndexes() - 1))
 				{
-					//delete[] pbIndexValue;
 					// Index Doesn't Exist
 					stErrStruct.code = OCFM_ERR_INDEXID_NOT_FOUND;
 					return stErrStruct;
 				}
 				else
 				{
-					//delete[] pbIndexValue;
 				}
 			}
 		}
@@ -252,7 +245,7 @@ ocfmRetCode IfSubIndexExists(INT32 iNodeID, ENodeType enumNodeType, char* pbInde
 		
 		if (stErrStruct.code == 0)
 		{				
-			//piIndexPos = stErrStruct.returnValue;
+			//continue with process
 		}
 		else
 		{	
@@ -368,11 +361,6 @@ bool CheckIfSubIndexExists(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexI
 	objNode				= pobjNodeCollection->getNode(enumNodeType, iNodeID);
 	pobjIndexCollection = objNode.getIndexCollection();
 	pobjIdx 			= pobjIndexCollection->getIndexbyIndexValue(pbIndexID);
-	/*if(pobjIdx == NULL)
-	{
-		cout << "\n\nGOT NULL!!!!!!!!\n\n" << endl;
-		return false;	
-	}	*/	
 	
 	if(pobjIdx->getNumberofSubIndexes() == 0)
 	{
@@ -422,11 +410,6 @@ bool IfVersionNumberMatches(xmlTextReaderPtr pxReader)
 	// Check for Version Tool-Project Version
 	if(strcmp(ConvertToUpper((char*)pxcName), "VERSION") == FALSE)
 	{
-		/*if( (strcmp(ConvertToUpper((char*)pxcValue), TOOL_VERSION) == FALSE) ||
-			(strcmp(ConvertToUpper((char*)pxcValue), PREV_TOOL_VERSION_1) == FALSE)  ||
-			(strcmp(ConvertToUpper((char*)pxcValue), PREV_TOOL_VERSION_2) == FALSE)  || (strcmp(ConvertToUpper((char*)pxcValue), PREV_TOOL_VERSION_3) == FALSE)  || (strcmp(ConvertToUpper((char*)pxcValue), PREV_TOOL_VERSION_4) == FALSE)  ||
-			(strcmp(ConvertToUpper((char*)pxcValue), LAST_TOOL_VERSION) == FALSE) )
-        */
         if(true == CheckToolVersion((char*)pxcValue))
 		{
 			#if defined DEBUG

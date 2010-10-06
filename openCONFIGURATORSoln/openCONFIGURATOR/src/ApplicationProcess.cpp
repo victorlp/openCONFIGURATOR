@@ -219,8 +219,6 @@ CComplexDataType* CApplicationProcess::getCDTbyUniqueID(char *pbUniqueId)
 		CComplexDataType objCDT;
 		
 		objCDT = CDTCollection[iLoopCount];
-		//printf("\nUniqueID : %s",UniqueId);
-		//printf("\n%s",objCDT.name_id_attr->getUniqueID());
 		if(strcmp(pbUniqueId, objCDT.name_id_attr->getUniqueID()) == 0)
 		{
 			return &CDTCollection[iLoopCount];
@@ -307,7 +305,5 @@ INT32 CApplicationProcess::getCDTCount()
 ****************************************************************************************************/
 CComplexDataType* CApplicationProcess::getCDTbyCount(INT32 iIndex)
 {
-	//CComplexDataType objCDT;
-	//objCDT = CDTCollection[iIndex];
 	return &CDTCollection[iIndex];
 }

@@ -91,8 +91,6 @@ class DllExport CNetworkManagement
 
 	public:		
 		TCollection<Feature> FeatureCollection;	
-		/*UINT32				 m_NoOfMNFeatures;
-		UINT32				 m_NoOfCNFeatures;*/
 	private:
 		int			m_NodeID;
 	public:
@@ -102,8 +100,6 @@ class DllExport CNetworkManagement
 		char* getFeatureValue(EFeatureType featureType, char* featureName);
 		Feature* getFeature(UINT32 iCount);
 		UINT32 getNumberOfFeatures();
-		/*UINT32 getNumberOfMNFeatures();
-		UINT32 getNumberOfCNFeatures();*/
         void DeleteFeatureCollections();
 };
 

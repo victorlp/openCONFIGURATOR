@@ -136,7 +136,6 @@ void CIndex::deleteSubIndex(int iSubIndexID)
 {
 	collectionObj.Remove(iSubIndexID);
 	m_SubIndexCount = collectionObj.Count();
-	//printf("\n\nAfter Delete - SubIndexCount:%d\n\n", m_SubIndexCount);
 }
 
 /****************************************************************************************************
@@ -148,7 +147,6 @@ void CIndex::deleteSubIndexCollection()
 {
     collectionObj.Clear();
     m_SubIndexCount = collectionObj.Count();
-    //printf("\n\nAfter Delete - SubIndexCount:%d\n\n", m_SubIndexCount);
 }
 
 /****************************************************************************************************
@@ -209,7 +207,6 @@ void CIndex::UpdateArraySubObjects()
 	INT32 iLoopCount;
 	CSubIndex* pobjSIndex;
 
-	//it starts from 1 because datatype shouldnt be changed for subobject 0x00
 	for(iLoopCount =0; iLoopCount < collectionObj.Count(); iLoopCount++)
 	{			
 		pobjSIndex = &collectionObj[iLoopCount];

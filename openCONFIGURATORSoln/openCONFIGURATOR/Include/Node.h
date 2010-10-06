@@ -109,9 +109,7 @@ class DllExport CNode
 		/*	typedef TCollection<ProcessImage> PICollection;*/
 	public:
 		/*typedef _PICollection PICollection;*/
-		//template class DllExport TCollection<ProcessImage>;
 		TCollection<ProcessImage> ProcessImageCollection;
-		//template class DllExport TCollection<MNPdoVariable>;
 		TCollection<MNPdoVariable> MNPDOINVarCollection, MNPDOOUTVarCollection ;
 		TCollection<NETProcessImage> NETProcessImageCollection;
 	public:
@@ -150,7 +148,6 @@ class DllExport CNode
 		
 		ProcessImage* getPIbyParaIndex(int paraIndex);
 		void DeleteCollectionsForPI();
-		/*void UpdatePIOffset(char* ByteOffset);*/	
 		EStationType getStationType();
 		void setStationType(EStationType StationType);
 

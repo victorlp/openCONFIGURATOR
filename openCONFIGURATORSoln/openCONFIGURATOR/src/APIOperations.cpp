@@ -106,11 +106,7 @@
 ****************************************************************************************************/
 INT32 iLastVarIndex = -1;
 static bool bCDTCompleted = false;
-//static bool NotLoadedOBD = true;
-//static stOffsets size8Offset;
-//static stOffsets size16Offset;
-//static stOffsets size32Offset;
-//static stOffsets size64Offset;
+
 static stOffsets stSize8INOffset;
 static stOffsets stSize16INOffset;
 static stOffsets stSize32INOffset;
@@ -120,8 +116,6 @@ static stOffsets stSize16OUTOffset;
 static stOffsets stSize32OUTOffset;
 static stOffsets stSize64OUTOffset;
 
-static INT32 iPresMNPayload =0;
-    
 INT32 iNo8Offsets  = 0; 
 INT32 iNo16Offsets = 0;
 INT32 iNo32Offsets = 0; 
@@ -143,15 +137,7 @@ UINT32 uiCycleNumber;
 ****************************************************************************************************/
 static void AddIndexAttributes(char* pIndexID, CIndex* pobjIndex, CIndex* pobjDictIndex)
 {
-	// Setting the Index Value
-	//
-	//if(strcmp((char*) pobjIndex->getIndexValue(), pIndexID) != 0)
-	//{
-	//		exit;
-	//}
-	
-	//cout << "INDEXID" << pobjIndex->getIndexValue() << endl;
-	//cout << "RX pIndexID" << IndexID << endl;
+
 	pobjIndex->setIndexValue(pIndexID);
 	
 	//$S The Value for all the attributes has to come from ObjDict.xml
@@ -214,13 +200,9 @@ static void AddIndexAttributes(char* pIndexID, CIndex* pobjIndex, CIndex* pobjDi
 		strcpy(pbPdoMapStr, (char*) "");
 		pobjIndex->setPDOMapping(pbPdoMapStr);
 		delete [] pbPdoMapStr;
-		//pobjIndex->setPDOMapping("NO");
 	}
 		
-	////if(pobjIndex->getPDOMapping() != NULL)
-	////	ppobjIndex->setPDOMapping((char*) objIndex->getPDOMapping());
-	////else
-	////	pobjIndex->setPDOMapping("");
+
 	
 	if(pobjDictIndex->getDefaultValue() != NULL)
 	{
@@ -242,7 +224,6 @@ static void AddIndexAttributes(char* pIndexID, CIndex* pobjIndex, CIndex* pobjDi
 	//$STODO:
 	if(pobjDictIndex->getDataType().getName() != NULL)
 	{
-		//pobjIndex->setDataType((char*) objIndex->getDataTypeValue(), objIndex->getNodeID());
 		pobjIndex->setDataTypeST(pobjDictIndex->getDataType());
 	}
 	else
@@ -274,7 +255,6 @@ static void AddSubIndexAttributes (char* pSubIndexID, CSubIndex* pobjSubIndex, C
 	}
 	if(pobjDictSIndex->getObjectType() != NULL)
 	{
-		//ppobjSubIndex->setObjectType(atoi(objSubIndex->getObjectType()));
 		pobjSubIndex->setObjectType((char*) (pobjDictSIndex->getObjectType()));
 	}
 	else
@@ -310,15 +290,7 @@ static void AddSubIndexAttributes (char* pSubIndexID, CSubIndex* pobjSubIndex, C
 		pobjSubIndex->setAccessType((char*) "");
 	}
 			
-	//if(pobjSubIndex->getPDOMapping() != NULL)
-	//{
-	//	char *str = new char[50];
-	//	strcpy(str, (char*) pobjSubIndex->getPDOMapping());
-	//	pobjSubIndex->setPDOMapping(str);
-	//	delete [] str;
-	//}
-	//else
-	//	pobjSubIndex->setPDOMapping("");
+
 			
 	if(pobjDictSIndex->getDefaultValue() != NULL)
 	{
@@ -340,7 +312,6 @@ static void AddSubIndexAttributes (char* pSubIndexID, CSubIndex* pobjSubIndex, C
 	
 	if(pobjDictSIndex->getDataType().getName() != NULL)
 	{
-		//ppobjSubIndex->setDataType(objSubIndex->getDataTypeValue());
 		pobjSubIndex->setDataTypeST(pobjDictSIndex->getDataType());
 	}
 	else
@@ -368,8 +339,6 @@ ocfmRetCode CreateNode(INT32 iNodeID, ENodeType enumNodeType, char* pbNodeName)
 		// TODO:If Check is made when Zero nodes present, Seg Fault is happening
 		if(enumNodeType ==MN)
 		{
-			//cout << "loading od.xml"<< endl;
-			//printf("\n ObjectDictLoaded %d", ObjectDictLoaded);
 			char tmpCmdBuffer[LINUX_INSTALL_DIR_LEN];
 			if(!ObjectDictLoaded)
 			{
@@ -378,12 +347,10 @@ ocfmRetCode CreateNode(INT32 iNodeID, ENodeType enumNodeType, char* pbNodeName)
 				#else
 				{
 					sprintf(tmpCmdBuffer, "%s/od.xml", LINUX_INSTALL_DIR);
-					//printf("\n command Buffer %s", tmpCmdBuffer);
 					LoadObjectDictionary(tmpCmdBuffer);
 				}
 				#endif
 				ObjectDictLoaded = true;
-			//cout << "loaded xml" << endl;
 			}
 			uiCycleNumber = 0;
 		}
@@ -394,7 +361,6 @@ ocfmRetCode CreateNode(INT32 iNodeID, ENodeType enumNodeType, char* pbNodeName)
 								
 			if(stErrorInfo.code == OCFM_ERR_SUCCESS && bFlag == true)								
 			{
-				//cout << "from CreateNode OCFM_ERR_NODE_ALREADY_EXISTS:" << OCFM_ERR_NODE_ALREADY_EXISTS << endl;
 				ocfmException objException ;//= new ocfmException;
 				objException.ocfm_Excpetion(OCFM_ERR_NODE_ALREADY_EXISTS);		
 				throw &objException;
@@ -418,14 +384,12 @@ ocfmRetCode CreateNode(INT32 iNodeID, ENodeType enumNodeType, char* pbNodeName)
 		pobjNodeCollection = CNodeCollection::getNodeColObjectPointer();
 		pobjNodeCollection->addNode(objNode);
 		
-		//cout << "\nOut of Create Node\n" << endl;
 		
 		stErrorInfo.code = OCFM_ERR_SUCCESS;
 		return stErrorInfo;
 	}
 	catch(ocfmException* ex)
 	{
-		//cout << "\nOut of Create Node\n" << endl;
 		stErrorInfo = ex->_ocfmRetCode;
 		return stErrorInfo;
 	}
@@ -461,7 +425,6 @@ ocfmRetCode NewProjectNode(INT32 iNodeID, ENodeType enumNodeType, char* pbNodeNa
             stErrorInfo = IfIndexExists(iNodeID, enumNodeType, (char *)"1C14", &iIndexPos);
             if(OCFM_ERR_SUCCESS == stErrorInfo.code)
             {
-                //iIndexPos = stErrorInfo.returnValue;
                 CIndex* pobjIndex;
         
                 pobjIndex = getMNIndexValues((char*) "1C14");
@@ -477,7 +440,6 @@ ocfmRetCode NewProjectNode(INT32 iNodeID, ENodeType enumNodeType, char* pbNodeNa
     }
     catch(ocfmException* ex)
     {
-        //cout << "\nOut of Create Node\n" << endl;
         stErrorInfo = ex->_ocfmRetCode;
         return stErrorInfo;
     }
@@ -505,7 +467,6 @@ ocfmRetCode DeleteNode(INT32 iNodeID, ENodeType enumNodeType)
 			/* Function threw exception*/
 			else
 			{
-				//cout << "\n\nErrStruct.code:" << stErrorInfo.code << "\n\n!!!" << endl;
 				// Node Doesn't Exist
 				
 			}
@@ -516,7 +477,6 @@ ocfmRetCode DeleteNode(INT32 iNodeID, ENodeType enumNodeType)
 		CNode objNode;		
 		CNodeCollection *pobjNodeCollection;
 		pobjNodeCollection= CNodeCollection::getNodeColObjectPointer();	
-		//cout<< "Inside DeleteNode: \n" <<pobjNodeCollection->getNumberOfNodes()<<endl;
 		pobjNodeCollection = CNodeCollection::getNodeColObjectPointer();
         objNode = pobjNodeCollection->getNodebyCollectionIndex(iNodePos);
 
@@ -536,13 +496,11 @@ ocfmRetCode DeleteNode(INT32 iNodeID, ENodeType enumNodeType)
             stErrStructInfo = IfSubIndexExists(MN_NODEID, MN, (char *)MULTIPL_CYCLE_ASSIGN_OBJECT, cSIdx, &subIndexPos, &IndexPos);
             if(stErrStructInfo.code == OCFM_ERR_SUCCESS)
             {
-                //DeleteSubIndex(MN_NODEID, MN, (char *)MULTIPL_CYCLE_ASSIGN_OBJECT, cSIdx);
 				SetSubIndexAttributesByAttribute(MN_NODEID, MN, (char *)MULTIPL_CYCLE_ASSIGN_OBJECT, cSIdx, ACTUALVALUE, (char*)"");
             }
             stErrStructInfo = IfSubIndexExists(MN_NODEID, MN, (char *)MNCN_POLLRESPONSE_TIMEOUT_OBJECT, cSIdx, &subIndexPos, &IndexPos);
             if(stErrStructInfo.code == OCFM_ERR_SUCCESS)
             {
-                //DeleteSubIndex(MN_NODEID, MN, (char *)MNCN_POLLRESPONSE_TIMEOUT_OBJECT, cSIdx);
 				SetSubIndexAttributesByAttribute(MN_NODEID, MN, (char *)MULTIPL_CYCLE_ASSIGN_OBJECT, cSIdx, ACTUALVALUE, (char*)"");
             }
         }
@@ -617,7 +575,7 @@ ocfmRetCode DeleteSubIndex(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexI
 			stErrorInfo = IfSubIndexExists(iNodeID, enumNodeType, pbIndexID, pbSubIndexID, &iSubIndexPos, &iIndexPos);
 			if(stErrorInfo.code == OCFM_ERR_SUCCESS)
 			{
-				//iSubIndexPos = Tmp_stErrorInfo.returnValue;
+				//continue with process
 			}
 			else
 			{
@@ -635,7 +593,6 @@ ocfmRetCode DeleteSubIndex(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexI
 			pobjSIDx = pobjIndex->getSubIndex(iSubIndexPos);
 			
 			
-			//cout << "NumberofSubIndexes:" << pobjIndex.getNumberofSubIndexes()<< endl;
 			pobjIndex->deleteSubIndex(iSubIndexPos);
 			
 				/* Update subindex "00"*/
@@ -644,14 +601,6 @@ ocfmRetCode DeleteSubIndex(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexI
 				int iTotalSIdxs = 0;
 				/* subindexes excluding "00"*/
 				iTotalSIdxs = pobjIndex->getNumberofSubIndexes() - 1;
-
-					
-	
-				/*if(strcmp(pobjSIDx->getIndexValue(), "00")!=0)
-				{
-					pobjSIDx = pobjIndex->getSubIndexbyIndexValue((char*)"00");
-					SetSubIndexAttributes(iNodeID, CN, (char*)pobjIndex->getIndexValue(), (char*)pobjSIDx->getIndexValue(), _IntToAscii(iTotalSIdxs, pbAsciBuff, 16), (char*)pobjSIDx->getName(), TRUE);
-				}*/
 				UpdateNumberOfEnteriesSIdx(pobjIndex, enumNodeType);
 			}
 		
@@ -670,7 +619,6 @@ ocfmRetCode DeleteSubIndex(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexI
 ****************************************************************************************************/
 ocfmRetCode AddSubIndex(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID, char* pbSubIndexID)
 	{
-	//cout << "\nInside AddSubIndex\n" << endl;
 		CNode objNode;		
 		CNodeCollection *pobjNodeCollection;
 		CIndexCollection *pobjIndexCollection;
@@ -681,18 +629,10 @@ ocfmRetCode AddSubIndex(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID, 
 		
 		try
 		{
-			/*if(NotLoadedOBD)
-			{
-			cout << "loading od.xml..." << endl;
-				LoadObjectDictionary("od.xml");
-				cout << "loaded od.xml..." << endl;
-				NotLoadedOBD = false;
-			}*/
+
 			stErrorInfo = IfSubIndexExists(iNodeID, enumNodeType, pbIndexID, pbSubIndexID, &iSubIndexPos, &iIndexPos);
 			if( stErrorInfo.code == OCFM_ERR_SUCCESS )
 			{
-				//stErrorInfo.code = OCFM_ERR_SUBINDEX_ALREADY_EXISTS;
-				//return stErrorInfo;
 				ocfmException objException;				
 				objException.ocfm_Excpetion(OCFM_ERR_SUBINDEX_ALREADY_EXISTS);
 				throw objException;
@@ -710,23 +650,12 @@ ocfmRetCode AddSubIndex(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID, 
 				CSubIndex* objDictSIdx;
 				
 				pobjSubIndex = new CSubIndex;
-				//Set the iNodeID
-				//pobjSubIndex.setNodeID(objNode.getNodeId());
-				
+
 				/* Get the SubIndex from ObjectDictionary*/
 				CObjectDictionary* pobjOBD;
 				pobjOBD = CObjectDictionary::getObjDictPtr();
 				
-				//cout << "\n\nobjOBD->ifObjectDictSubIndexExists(ppIndexID, ppSubIndexID):" << pobjOBD->ifObjectDictSubIndexExists(IndexID, SubIndexID) << endl;
-				//if(pobjOBD->ifObjectDictSubIndexExists(pbIndexID, pbSubIndexID) == 1)
-				//{
-				//	//cout<< "\n\n\n$OCFM_ERR_INVALID_SUBINDEXID \n"<<endl;
-				//	//stErrorInfo.code = OCFM_ERR_INVALID_SUBINDEXID;
-				//	//return stErrorInfo;
-				//	ocfmException objException;				
-				//	objException.ocfm_Excpetion(OCFM_ERR_INVALID_SUBINDEXID);
-				//	throw objException;
-				//}	
+
 				objDictSIdx = pobjOBD->getObjectDictSubIndex(pbIndexID, pbSubIndexID);
 				if(objDictSIdx != NULL)
 				{
@@ -760,7 +689,6 @@ ocfmRetCode AddSubIndex(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID, 
                             //all the subobjects is of type VAR
                             pobjSubIndex->setObjectType((char*)"VAR");
 							pobjSubIndex->setFlagIfIncludedCdc(TRUE);
-							//printf(pobjIndexPtr->getIndexValue());
 							pobjIndexPtr->addSubIndex(*pobjSubIndex);
 						}
 				}
@@ -779,7 +707,6 @@ ocfmRetCode AddSubIndex(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID, 
 			
 				//AddSubIndexAttributes(pbSubIndexID, &pobjSubIndex);									
 				
-				//printf("Added SubIndex \n\n");
 				stErrorInfo.code = OCFM_ERR_SUCCESS;
 				return stErrorInfo;						
 			}
@@ -864,7 +791,7 @@ char* getIndexName(char* ObjectIndex, char* ObjectName)
 	char* ModifiedName = new char[strlen(ObjectName)];
 	
 	int len;
-	//printf("\nObjectName %s", ObjectName);
+
 	Name = strchr(ObjectName, 'X')	;
 	if(Name != NULL)
 	{
@@ -876,7 +803,6 @@ char* getIndexName(char* ObjectIndex, char* ObjectName)
 		int i = 0;
 		while(i < len)
 		{
-			//if(Name[0] == 'X' && len==2)
 			if(Name[0] == 'X')
 			{
 				Name[0] = *(ObjectIndex + i);
@@ -887,7 +813,6 @@ char* getIndexName(char* ObjectIndex, char* ObjectName)
 		Name = Name-i;
 		strcpy(ModifiedName, subString(ObjectName, 0, strlen(ObjectName)-pos));		
 		strcat(ModifiedName, Name);	
-		//printf("\n ModifiedName %s",ModifiedName);
 		return ModifiedName;
 	}
 	else
@@ -912,16 +837,10 @@ ocfmRetCode AddIndex(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID)
 		
 		try 
 		{		
-			//cout<< "Inside AddIndex \n"<<endl;
 			stErrorInfo = IfIndexExists(iNodeID, enumNodeType, pbIndexID, &iIndexPos);
-			
-			
-			//cout << "\n\nErrStruct.code from IfIndexExists:" << stErrorInfo.code << endl;
 			
 			if( stErrorInfo.code == OCFM_ERR_SUCCESS )
 			{
-				//stErrorInfo.code = OCFM_ERR_INDEX_ALREADY_EXISTS;
-				//return stErrorInfo;
 				ocfmException objException;				
 				objException.ocfm_Excpetion(OCFM_ERR_INDEX_ALREADY_EXISTS);
 				throw objException;
@@ -929,7 +848,6 @@ ocfmRetCode AddIndex(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID)
 			
 			if( (stErrorInfo.code == OCFM_ERR_NO_INDEX_FOUND) || (stErrorInfo.code == OCFM_ERR_INDEXID_NOT_FOUND) )
 			{	
-				//objIndex = new CIndex();
 				CIndex objIndex;
 				
 				pobjNodeCollection= CNodeCollection::getNodeColObjectPointer();
@@ -957,7 +875,6 @@ ocfmRetCode AddIndex(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID)
 				}
 				else if((enumNodeType == MN) && CheckIfProcessImageIdx(pbIndexID))
 				{	
-						//objIndex = new CIndex();
 						CIndex objIndex;
 						objIndex.setNodeID(iNodeID);
 						objIndex.setIndexValue(pbIndexID);
@@ -966,27 +883,18 @@ ocfmRetCode AddIndex(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID)
 				}
 				else if(CheckIfManufactureSpecificObject(pbIndexID))
 				{	
-						//objIndex = new CIndex();
 						CIndex objIndex;
 						objIndex.setNodeID(iNodeID);
 						objIndex.setIndexValue(pbIndexID);
 						objIndex.setFlagIfIncludedCdc(TRUE);
 						pobjIndexCollection->addIndex(objIndex);
-						//SetAllIndexAttributes(iNodeID, enumNodeType, pbIndexID, NULL ,NULL,"rw", NULL, NULL, NULL, NULL, NULL,"8",FALSE);
-						//stErrorInfo = AddSubIndex(iNodeID, enumNodeType, pbIndexID, "00");						
-						//SetAllSubIndexAttributes(iNodeID, enumNodeType, pbIndexID, "00","0","NumberOfEntries", "rw", "unsigned8" ,NULL,"0",NULL,NULL, "7", FALSE);
 				}
 				else 
 				{
-					//stErrorInfo.code = OCFM_ERR_INVALID_INDEXID;
-					//printf("\nAdded NOT Index \n\n");
-					//return stErrorInfo;
 					ocfmException objException;				
 					objException.ocfm_Excpetion(OCFM_ERR_INVALID_INDEXID);
 					throw objException;
 				}
-				//printf("Added Index \n\n");
-				//return OCFM_ERR_SUCCESS;
 								
 				stErrorInfo.code = OCFM_ERR_SUCCESS;
 				return stErrorInfo;
@@ -1014,12 +922,10 @@ ocfmRetCode SetIndexAttributes(INT32 iNodeID, ENodeType enumNodeType,
 		stErrorInfo = IfIndexExists(iNodeID, enumNodeType, pbIndexID, &iIndexPos);
 		if(stErrorInfo.code == OCFM_ERR_SUCCESS)
 		{
-			//iIndexPos = stErrorInfo.returnValue;
+			//continue wih operation
 		}
 		else
 		{
-			//OCFM_ERR_INDEXID_NOT_FOUND
-			//return stErrorInfo;
 			ocfmException objException;				
 			objException.ocfm_Excpetion(OCFM_ERR_INDEXID_NOT_FOUND);
 			throw objException;
@@ -1036,7 +942,6 @@ ocfmRetCode SetIndexAttributes(INT32 iNodeID, ENodeType enumNodeType,
 		objNode = pobjNodeCollection->getNode(enumNodeType, iNodeID);
 		pobjIndexCollection = objNode.getIndexCollection();
 		pobjIndexPtr =pobjIndexCollection->getIndex(iIndexPos);			
-		//cout << "EditIndexValue:Index Actual Value:" << pobjIndexPtr->getActualValue() << pbIndexValue << endl;
 		/* Check if the value is valid*/
 		if(pbIndexName != NULL)
 			pobjIndexPtr->setName(pbIndexName);
@@ -1049,13 +954,10 @@ ocfmRetCode SetIndexAttributes(INT32 iNodeID, ENodeType enumNodeType,
 		
 		if(pbIndexValue != NULL)
 		{
-			//cout << "\npbIndexValue:" << pbIndexValue << endl;
 			if(pobjIndexPtr->IsIndexVaueValid(pbIndexValue))
 			{
-				//printf("\nIndex value%s",pbIndexValue);
 				pobjIndexPtr->setActualValue(pbIndexValue);
 				
-			//printf("EditIndexValue:Index Actual Value:%s-%s\n", pobjIndexPtr->getActualValue(), pbIndexValue);
 				stErrorInfo.code = OCFM_ERR_SUCCESS;
 			}
 			else
@@ -1063,7 +965,6 @@ ocfmRetCode SetIndexAttributes(INT32 iNodeID, ENodeType enumNodeType,
 					ocfmException objException;				
 					objException.ocfm_Excpetion(OCFM_ERR_VALUE_NOT_WITHIN_RANGE);
 					throw objException;
-					//stErrorInfo.code = OCFM_ERR_VALUE_NOT_WITHIN_RANGE;
 			}
 			return stErrorInfo;
 		}
@@ -1095,22 +996,19 @@ ocfmRetCode SetSubIndexAttributes(INT32 iNodeID,
 		INT32 iIndexPos;
 		INT32 iSubIndexPos;
 		ocfmRetCode stErrorInfo;
-		//CSubIndex* pobjSubIndex;
 		
 		try
 		{
 			stErrorInfo = IfSubIndexExists(iNodeID, enumNodeType, pbIndexID, pbSubIndexID, &iSubIndexPos, &iIndexPos);
 			if(stErrorInfo.code == OCFM_ERR_SUCCESS)
 			{
-				//iSubIndexPos = Tmp_stErrorInfo.returnValue;
+				//continue with process
 			}
 			else
 			{
-				//OCFM_ERR_INVALID_SUBINDEXID
 				ocfmException objException;				
 				objException.ocfm_Excpetion(OCFM_ERR_INVALID_SUBINDEXID);
 				throw objException;
-//				return stErrorInfo;
 			}
 			
             if((iNodeID == 240) && (enumNodeType == MN ) && (strcmp(pbIndexID,"1F92") == 0) && (strcmp(pbSubIndexID,"00") != 0) )
@@ -1133,7 +1031,6 @@ ocfmRetCode SetSubIndexAttributes(INT32 iNodeID,
 			pobjSubIndex =pobjIndexCollection->getIndex(iIndexPos);
 			
 			pobjSubIndexPtr = pobjSubIndex->getSubIndex(iSubIndexPos);						
-			//printf("SubIndexValue:%s-%s\n", pobjSubIndexPtr->getName(), pbSubIndexID);
 			
 			if(pbIndexName !=NULL)
 			{
@@ -1146,7 +1043,6 @@ ocfmRetCode SetSubIndexAttributes(INT32 iNodeID,
 			{
 			if(pobjSubIndexPtr->IsIndexVaueValid(pbIndexValue))		
 				{
-				//printf("\nIndex value%s",pbIndexValue);
 				pobjSubIndexPtr->setActualValue(pbIndexValue);
 				stErrorInfo.code = OCFM_ERR_SUCCESS;
 				}
@@ -1156,11 +1052,7 @@ ocfmRetCode SetSubIndexAttributes(INT32 iNodeID,
 				ocfmException objException;				
 				objException.ocfm_Excpetion(OCFM_ERR_VALUE_NOT_WITHIN_RANGE);
 				throw objException;
-				//stErrorInfo.code =  OCFM_ERR_VALUE_NOT_WITHIN_RANGE;
 			}
-			//pobjSubIndexPtr->setName(pbIndexName);
-			//printf("SubIndexValue:%s-%s\n", objSubIndexPtr->getName(), SubIndexID);
-			/*ErrStruct.code = OCFM_ERR_SUCCESS;*/
 			if((iNodeID == 240) && (enumNodeType == MN ) && (strcmp(pbIndexID,"1F98") == 0) && (strcmp(pbSubIndexID,"07") == 0) )
 			{
 				RecalculateMultiplex();
@@ -1198,12 +1090,10 @@ ocfmRetCode SetAllIndexAttributes(INT32 iNodeID,
 		stErrorInfo = IfIndexExists(iNodeID, enumNodeType, pbIndexID, &iIndexPos);
 		if(stErrorInfo.code == OCFM_ERR_SUCCESS)
 		{
-			//iIndexPos = stErrorInfo.returnValue;
+			//continue with process
 		}
 		else
 		{
-			//OCFM_ERR_INDEXID_NOT_FOUND
-			//return stErrorInfo;
 			ocfmException objException;				
 			objException.ocfm_Excpetion(OCFM_ERR_INDEXID_NOT_FOUND);
 			throw objException;
@@ -1220,7 +1110,6 @@ ocfmRetCode SetAllIndexAttributes(INT32 iNodeID,
 		objNode = pobjNodeCollection->getNode(enumNodeType, iNodeID);
 		pobjIndexCollection = objNode.getIndexCollection();
 		pobjIndexPtr =pobjIndexCollection->getIndex(iIndexPos);			
-		//cout << "EditIndexValue:Index Actual Value:" << pobjIndexPtr->getActualValue() << pbIndexValue << endl;
 		/* Check if the value is valid*/
 		if(pbIndexName!= NULL)
 		{
@@ -1288,7 +1177,6 @@ ocfmRetCode SetAllIndexAttributes(INT32 iNodeID,
 					{
 						pobjIndexPtr->UpdateArraySubObjects();
 					}
-					//printf("\n name %s", objDataType.getName());
 				}
 				else
 				{
@@ -1302,10 +1190,8 @@ ocfmRetCode SetAllIndexAttributes(INT32 iNodeID,
 		{		
 		if(pobjIndexPtr->IsIndexVaueValid(pbActualValue))
 		{
-			//printf("\nIndex value%s",pbIndexValue);
 			pobjIndexPtr->setActualValue(pbActualValue);
 			
-		//printf("EditIndexValue:Index Actual Value:%s-%s\n", pobjIndexPtr->getActualValue(), pbIndexValue);
 			stErrorInfo.code = OCFM_ERR_SUCCESS;
 		}
 		else
@@ -1313,7 +1199,6 @@ ocfmRetCode SetAllIndexAttributes(INT32 iNodeID,
 				ocfmException objException;				
 				objException.ocfm_Excpetion(OCFM_ERR_VALUE_NOT_WITHIN_RANGE);
 				throw objException;
-				//stErrorInfo.code = OCFM_ERR_VALUE_NOT_WITHIN_RANGE;
 		}
 	}
 		return stErrorInfo;
@@ -1360,15 +1245,13 @@ ocfmRetCode SetAllSubIndexAttributes(INT32 iNodeID,
 			
 			if(stErrorInfo.code == OCFM_ERR_SUCCESS)
 			{
-				//iSubIndexPos = Tmp_stErrorInfo.returnValue;
+				//continue with process
 			}
 			else
 			{
-				//OCFM_ERR_INVALID_SUBINDEXID
 				ocfmException objException;				
 				objException.ocfm_Excpetion(OCFM_ERR_INVALID_SUBINDEXID);
 				throw objException;
-//				return stErrorInfo;
 			}
 			
 			CSubIndex* pobjSubIndexPtr;
@@ -1381,7 +1264,6 @@ ocfmRetCode SetAllSubIndexAttributes(INT32 iNodeID,
 			pobjSubIndex =pobjIndexCollection->getIndex(iIndexPos);
 			
 			pobjSubIndexPtr = pobjSubIndex->getSubIndex(iSubIndexPos);						
-			//printf("SubIndexValue:%s-%s\n", pobjSubIndexPtr->getName(), pbSubIndexID);
 			
 			if(pbIndexName!= NULL)
 			{
@@ -1435,7 +1317,6 @@ ocfmRetCode SetAllSubIndexAttributes(INT32 iNodeID,
 			{
 				if(pobjSubIndexPtr->IsIndexVaueValid(pbActualValue))		
 				{
-					//printf("\nIndex value%s",pbActualValue);
 					pobjSubIndexPtr->setActualValue(pbActualValue);
 					stErrorInfo.code = OCFM_ERR_SUCCESS;
 				}
@@ -1444,7 +1325,6 @@ ocfmRetCode SetAllSubIndexAttributes(INT32 iNodeID,
 					ocfmException objException;				
 					objException.ocfm_Excpetion(OCFM_ERR_VALUE_NOT_WITHIN_RANGE);
 					throw objException;
-					//stErrorInfo.code =  OCFM_ERR_VALUE_NOT_WITHIN_RANGE;
 				}
 			}
 			if(pbDataTypeName != NULL)
@@ -1465,9 +1345,6 @@ ocfmRetCode SetAllSubIndexAttributes(INT32 iNodeID,
 			}
 			
 
-			//pobjSubIndexPtr->setName(pbIndexName);
-			//printf("SubIndexValue:%s-%s\n", pobjSubIndexPtr->getName(), pbSubIndexID);
-			/*stErrorInfo.code = OCFM_ERR_SUCCESS;*/
 			return stErrorInfo;
 		}
 		catch(ocfmException& ex)
@@ -1502,15 +1379,11 @@ ocfmRetCode SetSubIndexAttributesByAttribute(
 			stErrorInfo = IfSubIndexExists(iNodeID, enumNodeType, pbIndexID, pbSubIndexID, &iSubIndexPos, &iIndexPos);
 			if(stErrorInfo.code == OCFM_ERR_SUCCESS)
 			{
-				//iSubIndexPos = Tmp_stErrorInfo.returnValue;
+				//continue with process
 			}
 			else
 			{
-				//OCFM_ERR_INVALID_SUBINDEXID;
 				return stErrorInfo;
-				//ocfmException objException;				
-				//objException.ocfm_Excpetion(OCFM_ERR_INVALID_SUBINDEXID);
-				//throw objException;
 			}
 
 			pobjNodeCollection= CNodeCollection::getNodeColObjectPointer();
@@ -1519,7 +1392,6 @@ ocfmRetCode SetSubIndexAttributesByAttribute(
 			pobjIndexCollection = objNode.getIndexCollection();
 			pobjIndex =pobjIndexCollection->getIndex(iIndexPos);
 			
-			//cout << "NumberofSubIndexes:" << objIndex.getNumberofSubIndexes()<< endl;
 
 			CSubIndex* pobjSubIndexPtr;
 			pobjSubIndexPtr = pobjIndex->getSubIndex(iSubIndexPos);	
@@ -1527,36 +1399,19 @@ ocfmRetCode SetSubIndexAttributesByAttribute(
 			switch(enumAttributeType)
 			{
 				case NAME:						
-						/*if(pobjSubIndexPtr->getName() != NULL)
-							strcpy(pbOutAttributeValue, (char *)pobjSubIndexPtr->getName());
-						else
-							strcpy(pbOutAttributeValue, "");*/
+						// No Operation
 						break;
 				case OBJECTTYPE:
-						/*if(pobjSubIndexPtr->getObjectType() != NULL)
-							strcpy(pbOutAttributeValue, (char *)pobjSubIndexPtr->getObjectType());
-						else
-							strcpy(pbOutAttributeValue, "");*/
+						// No Operation
 						break;
 				case DATATYPE:
-						/*DataType objTmpDataType;
-						objTmpDataType = pobjSubIndexPtr->getDataType();										
-						if(objTmpDataType.Name != NULL)
-							strcpy(pbOutAttributeValue, objTmpDataType.Name);
-						else
-							strcpy(pbOutAttributeValue, "");*/					
+						// No Operation
 						break;		
 				case ACCESSTYPE:
-						/*if(pobjSubIndexPtr->getAccessType() != NULL)
-							strcpy(pbOutAttributeValue, (char *)pobjSubIndexPtr->getAccessType());
-						else
-							strcpy(pbOutAttributeValue, "");*/
+						// No Operation
 						break;
 				case DEFAULTVALUE:
-						/*if(pobjSubIndexPtr->getDefaultValue() != NULL)
-							strcpy(pbOutAttributeValue, (char *) pobjSubIndexPtr->getDefaultValue());
-						else
-							strcpy(pbOutAttributeValue, "");*/
+						// No Operation
 						break;
 				case ACTUALVALUE:
 						if(NULL != pbInAttributeValue)
@@ -1565,33 +1420,18 @@ ocfmRetCode SetSubIndexAttributesByAttribute(
 							pobjSubIndexPtr->setActualValue((char *)"");
 						break;
 				case PDOMAPPING:
-						/*if(pobjSubIndexPtr->getPDOMapping() != NULL)
-							strcpy(pbOutAttributeValue, (char *) pobjSubIndexPtr->getPDOMapping());
-						else
-							strcpy(pbOutAttributeValue, "");*/
+						// No Operation
 						break;
 				case LOWLIMIT:
-						/*if(pobjSubIndexPtr->getLowLimit() != NULL)
-							strcpy(pbOutAttributeValue, (char *) pobjSubIndexPtr->getLowLimit());
-						else
-							strcpy(pbOutAttributeValue, "");*/
+						// No Operation
 						break;
 				case HIGHLIMIT:
-						/*if(pobjSubIndexPtr->getHighLimit() != NULL)
-							strcpy(pbOutAttributeValue, (char *) pobjSubIndexPtr->getHighLimit());
-						else
-							strcpy(pbOutAttributeValue, "");*/
+						// No Operation
 						break;
 				case FLAGIFINCDC:
-						/*if(pobjSubIndexPtr->getFlagIfIncludedCdc() == TRUE)
-							strcpy(pbOutAttributeValue, "1");
-						else
-							strcpy(pbOutAttributeValue, "0");*/			
+						// No Operation
 						break;							
 				default:
-						//cout << "invalid Attribute Type" << endl;
-						//stErrorInfo.code = OCFM_ERR_INVALID_ATTRIBUTETYPE;
-						//return stErrorInfo;
 						ocfmException objException;				
 						objException.ocfm_Excpetion(OCFM_ERR_INVALID_SUBINDEXID);
 						throw objException;
@@ -1672,15 +1512,11 @@ void DisplayNodeTree()
 					objNode = pobjNodeCollection->getNodebyCollectionIndex(iLoopCount);
 					if (objNode.getNodeType() == CN)
 					{						
-						//INT32 tmp_NodeID = objNode.getNodeId();
-						//objNode =pobjNodeCollection->getNode(CN,tmp_NodeID);
-						//printf("iNodePos:%d, iNodeID:%d\n", iLoopCount, objNode.getNodeId());
 					}						
 			}
 		}
 		else
 		{
-				//printf("No Nodes found!\n");
 				return;
 		}
 			
@@ -1720,7 +1556,6 @@ void EnableDisableMappingPDO(CIndexCollection* pobjIdxCol, CIndex* objIndex, cha
                         }
                         else
                             noOfSubIndexes = atoi(objSubIndex->getActualValue());
-                            //printf("\n GetIndexdata Indxeid=%s noOfSubIndexes=%d\n", objIndex->getIndexValue(), noOfSubIndexes);
 
                         /* No need to reinitailize mapping pdo to zero again */
                         if(noOfSubIndexes ==0 && true == EnableFlag)
@@ -1732,15 +1567,9 @@ void EnableDisableMappingPDO(CIndexCollection* pobjIdxCol, CIndex* objIndex, cha
                 int noOfValidSubIndexes = 0;
                 int noOFPdoAddedSubindex = 0;
                     
-                //objSubIndex = objIndex->getSubIndexbyIndexValue((char*)"00");
                 if( NULL == objSubIndex )
                     return;                
 
-                //if((objSubIndex->getActualValue() != NULL) && (objSubIndex->getFlagIfIncludedCdc() == TRUE) && ( (true == CheckAccessTypeForInclude((char*)objSubIndex->getAccessType())) || (true == CheckIfMappingPDO((char*)objIndex->getIndexValue())) ) )
-                ////if((objSubIndex->getActualValue() != NULL))
-
-                //if((objSubIndex->getActualValue() != NULL) && (objSubIndex->getFlagIfIncludedCdc() == TRUE) && ( (true == CheckAccessTypeForInclude((char*)objSubIndex->getAccessType())) ) )
-                //if((objSubIndex->getActualValue() != NULL) && (objSubIndex->getFlagIfIncludedCdc() == TRUE)  
                 if((objSubIndex->getActualValue() != NULL) && (objSubIndex->getFlagIfIncludedCdc() == TRUE)  && ((true == ReactivateMappingPDO(pobjIdxCol, objIndex)) || (true == IsDefaultActualNotEqual(objSubIndex))) )
                 {
 
@@ -1749,7 +1578,6 @@ void EnableDisableMappingPDO(CIndexCollection* pobjIdxCol, CIndex* objIndex, cha
                         len = strlen(Buffer);
                         strcat(Buffer,"\t");                
     
-                            /*if(objSubIndex->getActualValue() != NULL || objSubIndex->getDefaultValue()!=NULL)*/
                         strcat(Buffer, objSubIndex->getIndexValue());
                         strcat(Buffer,"\t");
                             //Add datatype
@@ -1791,7 +1619,6 @@ void EnableDisableMappingPDO(CIndexCollection* pobjIdxCol, CIndex* objIndex, cha
                                 strcpy(actvalue,"0");
                                 strcat(Buffer,padLeft(actvalue,'0',padLength));
                                 resetValueAdded = true;
-                                //i--;
                         }
                     }
                     else
@@ -1810,15 +1637,12 @@ void EnableDisableMappingPDO(CIndexCollection* pobjIdxCol, CIndex* objIndex, cha
                                                 strncpy(actvalue,(objSubIndex->getActualValue()+ 2),len-2 );
                                                 actvalue[len -2] ='\0';
                                             
-                                                //printf("\n ACT Value%s",actvalue);
                                                 strcat(Buffer,padLeft(actvalue,'0',padLength));
                                             
                                             }
                                                 else
                                                 {               
-                                                    //actvalue = new char[50];                                  
                                                     strcpy(actvalue, _IntToAscii(atoi(objSubIndex->getActualValue()),actvalue,16));
-                                                    //printf("\n ACT Value%s",actvalue);
                                         
                                                     strcat(Buffer,padLeft(actvalue, '0', padLength));
                                                 }
@@ -1919,31 +1743,6 @@ void UpdateCNNodeAssignment(CNode*  pobjNode)
     int iNodeId = pobjNode->getNodeId();
     ENodeType enumNodeType = pobjNode->getNodeType();
 
-    /*stErrorInfo = IfIndexExists(iNodeId, enumNodeType, (char*)"1F9B", &iIndexPos);
-    if( OCFM_ERR_SUCCESS == stErrorInfo.code )
-    {
-        stErrorInfo = IfSubIndexExists(iNodeId, enumNodeType, (char*)"1F98", (char*)"07", &iSubIndexPos, &iIndexPos);
-        if( OCFM_ERR_SUCCESS == stErrorInfo.code )
-        {
-            char* pcMultiplCycleCnt = new char[20];
-            if( OCFM_ERR_SUCCESS == (GetSubIndexAttributes(iNodeId, enumNodeType, (char*)"1F98", (char*)"07", ACTUALVALUE, pcMultiplCycleCnt)).code )
-            {
-                if( ( pcMultiplCycleCnt != NULL ) && ( 0 != strcmp(pcMultiplCycleCnt,"") ) && !(checkIfValueZero(pcMultiplCycleCnt)) )
-                {
-                    bCopy1F81 = true;
-                }
-            }
-        }
-    } 
-    if( OCFM_ERR_SUCCESS == (IfIndexExists(iNodeId, enumNodeType, (char*)"1016", &iIndexPos)).code)
-    {
-        bCopy1F81 = true;
-    }
-    if( OCFM_ERR_SUCCESS == (IfIndexExists(iNodeId, enumNodeType, (char*)"1F8D", &iIndexPos)).code)
-    {
-        bCopy1F81 = true;
-    }*/
-
     bCopy1F81 = ISCNNodeAssignmentValid(pobjNode);
         
     if(true == bCopy1F81)
@@ -1954,8 +1753,6 @@ void UpdateCNNodeAssignment(CNode*  pobjNode)
         objCNIndex = objCNIndexCollection->getIndexbyIndexValue((char*)"1F81");
         if(objCNIndex == NULL)
         {
-            //AddIndex(iNodeId, enumNodeType, (char*)"1F81");
-            //objCNIndex = objCNIndexCollection->getIndexbyIndexValue((char*)"1F81");
             return;
         }
         objCNIndex->setFlagIfIncludedCdc(TRUE);
@@ -1964,31 +1761,9 @@ void UpdateCNNodeAssignment(CNode*  pobjNode)
         objMNIndex = getMNIndexValues((char*)"1F81");
         CSubIndex* objCNSubIndex;
         CSubIndex* objMNSubIndex;
-        //objCNIndex->deleteSubIndexCollection();
 
         for(INT32 iLoopCount = 0; iLoopCount < objCNIndex->getNumberofSubIndexes(); iLoopCount++)
-        {
-          /*
-            objCNIndex->addSubIndex(*objMNIndex->getSubIndex(iLoopCount));
-            //objCNIndex->addSubIndex(*DuplicateSubIndexObject(objMNIndex->getSubIndex(iLoopCount)));
-//             objCNSubIndex = NULL;
-            objCNSubIndex = objCNIndex->getSubIndex(iLoopCount);
-            if(NULL != objCNSubIndex)
-                objCNSubIndex->setFlagIfIncludedCdc(TRUE);
-                
-//             if(NULL == objCNSubIndex)
-//             {
-//                 AddSubIndex(iNodeId, enumNodeType, (char*)"1F81", (char*)objMNIndex->getSubIndex(iLoopCount)->getIndexValue());
-//                 objCNSubIndex = objCNIndex->getSubIndexbyIndexValue((char*)objMNIndex->getSubIndex(iLoopCount)->getIndexValue());
-//             }
-             if(NULL != (char*)objMNIndex->getSubIndex(iLoopCount)->getActualValue())
-             {
-                 objCNSubIndex->setActualValue((char*)objMNIndex->getSubIndex(iLoopCount)->getActualValue());
-//                 printf("\niLoopCount=%d subindex value=%s\n", iLoopCount, (char*)objMNIndex->getSubIndex(iLoopCount)->getActualValue());
-             }
-             */
-
-            
+        {           
             objCNSubIndex = objCNIndex -> getSubIndex(iLoopCount);
             if(NULL == objCNSubIndex)
                 continue;
@@ -1997,8 +1772,6 @@ void UpdateCNNodeAssignment(CNode*  pobjNode)
 
             if(NULL == objMNSubIndex)
                 continue;
-            
-            //printf("iLoopCount =%d mn-subindex=%s MN-actualvalue=%s \n", iLoopCount, (char *)objMNSubIndex -> getIndexValue(), objMNSubIndex->getActualValue());
             
             if(NULL != objMNSubIndex->getActualValue() )
             {
@@ -2075,25 +1848,15 @@ void UpdateCNMultipleCycleAssign(CNode*  pobjNode)
     if(objCNIndex == NULL)
     {
         return;
-        //AddIndex(iNodeId, enumNodeType, (char*)"1F9B");
-        //objCNIndex = objCNIndexCollection->getIndexbyIndexValue((char*)"1F9B");
     }
     objCNIndex->setFlagIfIncludedCdc(TRUE);
 
     CIndex* objMNIndex;
     objMNIndex = getMNIndexValues((char*)"1F9B");
     CSubIndex *objCNSubIndex, *objMNSubIndex;
-    //objCNIndex->deleteSubIndexCollection();
 
     for(INT32 iLoopCount = 0; iLoopCount < objCNIndex->getNumberofSubIndexes(); iLoopCount++)
     {
-        /*
-        objCNIndex->addSubIndex(*objMNIndex->getSubIndex(iLoopCount));
-        //objCNIndex->addSubIndex(*DuplicateSubIndexObject(objMNIndex->getSubIndex(iLoopCount)));
-        objCNSubIndex = objCNIndex->getSubIndex(iLoopCount);
-        if(NULL != objCNSubIndex)
-            objCNSubIndex->setFlagIfIncludedCdc(TRUE);
-        */
       
         objCNSubIndex = objCNIndex -> getSubIndex(iLoopCount);
         if(NULL == objCNSubIndex)
@@ -2103,18 +1866,16 @@ void UpdateCNMultipleCycleAssign(CNode*  pobjNode)
     
         if(NULL == objMNSubIndex)
             continue;
-                
-                //printf("iLoopCount =%d mn-subindex=%s MN-actualvalue=%s \n", iLoopCount, (char *)objMNSubIndex -> getIndexValue(), objMNSubIndex->getActualValue());
-                
-        if(NULL != objMNSubIndex->getActualValue() )
+                               
+        if(NULL != objMNSubIndex -> getActualValue() )
         {
-            objCNSubIndex->setActualValue((char*)objMNSubIndex->getActualValue());
+            objCNSubIndex -> setActualValue((char*)objMNSubIndex -> getActualValue());
         }
         else
         {
             objCNSubIndex -> setActualValue((char*)"");
         }
-		objCNSubIndex->setFlagIfIncludedCdc(TRUE);
+		objCNSubIndex -> setFlagIfIncludedCdc(TRUE);
     }
 }
 
@@ -2125,8 +1886,6 @@ void UpdateCNMultipleCycleAssign(CNode*  pobjNode)
 ****************************************************************************************************/
 void UpdateCNPresMNActLoad(CNode*  pobjNode)
 {
-    //if(YES_AG == ePjtSetting)
-    //{
         ocfmRetCode stErrStructInfo;
         CIndex *pobjIndex;
         CSubIndex *pobjSubIndex;
@@ -2139,7 +1898,6 @@ void UpdateCNPresMNActLoad(CNode*  pobjNode)
         INT32 iNodeId = pobjNode->getNodeId();
         ENodeType eNodeType =  pobjNode->getNodeType();
         stErrStructInfo = IfSubIndexExists(iNodeId, eNodeType, (char *)"1F8D", (char *)"F0", &subIndexPos, &IndexPos);
-        //if((CHAINED != pobjNode->getStationType()) && (OCFM_ERR_SUCCESS != stErrStructInfo.code))
         if(OCFM_ERR_SUCCESS != stErrStructInfo.code)
         {
           return;
@@ -2147,20 +1905,6 @@ void UpdateCNPresMNActLoad(CNode*  pobjNode)
 
         char * pcSubindexId = new char[SUBINDEX_LEN+1];
         strcpy(pcSubindexId, (char *)"F0");
-        
-        /*if(CHAINED == pobjNode->getStationType())
-        {
-            if( OCFM_ERR_INDEXID_NOT_FOUND == stErrStructInfo.code)
-            {
-                stErrStructInfo = AddIndex(iNodeId, eNodeType, (char*)"1F8D");
-                
-                AddSubIndex(iNodeId, eNodeType, (char*)"1F8D", pcSubindexId);
-            }
-            else if(OCFM_ERR_SUBINDEXID_NOT_FOUND == stErrStructInfo.code)
-            {
-                AddSubIndex(iNodeId, eNodeType, (char*)"1F8D", pcSubindexId);
-            }
-        }*/
         
         pobjIndexColl = pobjNode->getIndexCollection();
         pobjIndex = pobjIndexColl->getIndexbyIndexValue((char *)"1F8D");
@@ -2176,11 +1920,7 @@ void UpdateCNPresMNActLoad(CNode*  pobjNode)
                     char actvalue[22];
                     memset(actvalue, 0, 22*sizeof(char));
 
-					if( 0 == (objNodeCol->getMNNode()).getPResActPayloadValue())
-					{
-						_IntToAscii( 0 , convalue, 16);
-					}
-					else if( PRES_DEFAULT_PAYLOAD > (objNodeCol->getMNNode()).getPResActPayloadValue() )
+					if( PRES_DEFAULT_PAYLOAD > (objNodeCol->getMNNode()).getPResActPayloadValue() )
 					{
 						_IntToAscii( PRES_DEFAULT_PAYLOAD , convalue, 16);
 					}
@@ -2188,7 +1928,6 @@ void UpdateCNPresMNActLoad(CNode*  pobjNode)
 					{
 						_IntToAscii( (objNodeCol->getMNNode()).getPResActPayloadValue() , convalue, 16);
 					}
-                    //_IntToAscii( (objNodeCol->getMNNode()).getPResActPayloadValue() , convalue, 16);
                     strcpy(actvalue, (char *)"0x");
                     strcat(actvalue, convalue);
                     pobjSubIndex->setActualValue(actvalue);
@@ -2206,7 +1945,6 @@ void UpdateCNPresMNActLoad(CNode*  pobjNode)
             }
         }
         delete[] pcSubindexId;
-    //}
 }
 
 /****************************************************************************************************
@@ -2233,7 +1971,6 @@ void UpdatePreqActLoad(CNode*  pobjNode)
     INT32 iNodeId = pobjNode->getNodeId();
     ENodeType eNodeType =  pobjNode->getNodeType();
     stErrStructInfo = IfSubIndexExists(iNodeId, eNodeType, (char *)"1F98", (char *)"04", &subIndexPos, &IndexPos);
-        //if((CHAINED != pobjNode->getStationType()) && (OCFM_ERR_SUCCESS != stErrStructInfo.code))
     if(OCFM_ERR_SUCCESS != stErrStructInfo.code)
     {
       return;
@@ -2316,7 +2053,6 @@ void UpdatePresActLoad(CNode*  pobjNode)
     INT32 iNodeId = pobjNode->getNodeId();
     ENodeType eNodeType =  pobjNode->getNodeType();
     stErrStructInfo = IfSubIndexExists(iNodeId, eNodeType, (char *)"1F98", (char *)"05", &subIndexPos, &IndexPos);
-        //if((CHAINED != pobjNode->getStationType()) && (OCFM_ERR_SUCCESS != stErrStructInfo.code))
     if(OCFM_ERR_SUCCESS != stErrStructInfo.code)
     {
       return;
@@ -2563,37 +2299,28 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
             bool IfStringDT = false;
             //Get the Index Value       
             
-            /*if(objIndex->getNumberofSubIndexes()==0 &&(objIndex->getDefaultValue()!= NULL ||
-                                                                                                                                                                                     objIndex->getActualValue()!=NULL))*/
             strcpy(Buffer,"");
             if(objIndex->getNumberofSubIndexes()==0 && objIndex->getActualValue()!=NULL)
             {
                 if(true == IsDefaultActualNotEqual(objIndex))
                 {
-                    //Buffer = (char*)malloc(sizeof(objIndex->getIndexValue()+1));
                     strcpy(Buffer,objIndex->getIndexValue());
 
                     //Place a tab           
                     len = strlen(Buffer);
-                    //Buffer =(char*)realloc(Buffer,2);
                     strcat(Buffer,"\t");
-                    //printf("\n%s",Buffer);
 
                     //If subindexes are none, add "00"
-                    //  Buffer =(char*)realloc(Buffer,4);
                         strcat(Buffer,"00");
                         strcat(Buffer,"\t");
 
                             //Add datatype
                             DataType dt;        
-                            //Buffer =(char*)realloc(Buffer,6); 
                             dt = objIndex->getDataType();
                             int padLength=0;
                             char* size = new char[8 + ALLOC_BUFFER];
                             if(dt.Name != NULL)
                             {
-                                //dt.DataSize = padLeft(dt.DataSize, '0', 4);
-                                //strcat(Buffer ,dt.DataSize);  
                                 if(!checkIfStringDatatypes(dt.Name)) 
                                 {
                                     size  = _IntToAscii(dt.DataSize, size, 16); 
@@ -2629,7 +2356,6 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
                                         else
                                         {
                                             if(CheckIfHex((char*)objIndex->getActualValue()))
-                                            //if(actvalue!=NULL)
                                             {
                                                 int len = strlen((char*)objIndex->getActualValue());
                                                 strncpy(actvalue,(objIndex->getActualValue()+ 2),len-2 );
@@ -2642,7 +2368,6 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
                                         {
                                      
                                             strcpy(actvalue, _IntToAscii(atoi(objIndex->getActualValue()),actvalue,16));
-                                            //printf("\n ACT Value%s",actvalue);                                                            
                                             strcat(Buffer,padLeft(actvalue, '0', padLength));
                                         
                                     }
@@ -2655,7 +2380,7 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
             /* If Subobjects present*/
             else
             {
-                int noOfSubIndexes = 0; //= objIndex->getNumberofSubIndexes();  
+                int noOfSubIndexes = 0; 
                 int noOfTotalSubIndexes = objIndex->getNumberofSubIndexes();
             
                 bool Indexadded  = false;               
@@ -2670,20 +2395,17 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
                     {
                         if(CheckIfHex((char*)objSubIndex->getActualValue()))
                         {
-                        //  cout << "hex value" << objSubIndex->getActualValue();
                             noOfSubIndexes = hex2int(subString((char*)objSubIndex->getActualValue(), 2, strlen(objSubIndex->getActualValue()) -2));
                             
                         }
                         else
                             noOfSubIndexes = atoi(objSubIndex->getActualValue());
-                            //printf("\n GetIndexdata Indxeid=%s noOfSubIndexes=%d\n", objIndex->getIndexValue(), noOfSubIndexes);
                             if(noOfSubIndexes ==0)
                             return;
                             noOfSubIndexes = noOfSubIndexes + 1;
                     }
                 }
 
-                //newly added
                 if(CheckIfMappingPDO((char*)objIndex->getIndexValue()))
                 {
                     if(objSubIndex->getActualValue() != NULL)
@@ -2695,7 +2417,6 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
                             noOfSubIndexes = noOfTotalSubIndexes + 1;
                     }
                 }
-                //end of newly added
 
                 int noOfValidSubIndexes = 0;
                 
@@ -2704,10 +2425,6 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
                     
                     objSubIndex = objIndex->getSubIndex(i);
                 
-                    /*if(strcmp(objSubIndex->getIndexValue(),"00")!=0 && objSubIndex->getActualValue() != NULL)*/
-                    //$S_:TODO
-                    //if((objSubIndex->getActualValue() != NULL) && (objSubIndex->getFlagIfIncludedCdc() == TRUE))            
-                    //if((objSubIndex->getActualValue() != NULL))
                     if((objSubIndex->getActualValue() != NULL) && (objSubIndex->getFlagIfIncludedCdc() == TRUE) &&  ( true == CheckAccessTypeForInclude((char*)objSubIndex->getAccessType()) || CheckIfMappingPDO((char*)objIndex->getIndexValue()) ) && (true == IsDefaultActualNotEqual(objSubIndex))  )
                     {
                         noOfValidSubIndexes = noOfValidSubIndexes + 1;
@@ -2717,7 +2434,6 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
                             i= noOfTotalSubIndexes -1;
                         
                         }
-                        //newly added
                         if(CheckIfMappingPDO((char*)objIndex->getIndexValue()))
                         {
                             if(0 == strcmp((char*)objSubIndex->getIndexValue() ,"00"))
@@ -2732,7 +2448,6 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
                                 }
                             }
                         }
-                        // end of newly added
 
                         if (Indexadded)
                         strcat(Buffer,objIndex->getIndexValue());
@@ -2746,7 +2461,6 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
                         len = strlen(Buffer);
                         strcat(Buffer,"\t");                
     
-                            /*if(objSubIndex->getActualValue() != NULL || objSubIndex->getDefaultValue()!=NULL)*/
                                 strcat(Buffer, objSubIndex->getIndexValue());
                                 strcat(Buffer,"\t");
                                     //Add datatype
@@ -2791,7 +2505,6 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
                                         strcpy(actvalue,"0");
                                         strcat(Buffer,padLeft(actvalue,'0',padLength));
                                         resetValueAdded = true;
-                                        //i--;
                                     }
                                     else
                                     {
@@ -2810,16 +2523,12 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
                                                 strncpy(actvalue,(objSubIndex->getActualValue()+ 2),len-2 );
                                                 actvalue[len -2] ='\0';
                                             
-                                                //printf("\n ACT Value%s",actvalue);
                                                 strcat(Buffer,padLeft(actvalue,'0',padLength));
                                             
                                             }
                                                 else
                                                 {               
-                                                    //actvalue = new char[50];                                  
                                                     strcpy(actvalue, _IntToAscii(atoi(objSubIndex->getActualValue()),actvalue,16));
-                                                    //printf("\n ACT Value%s",actvalue);
-                                        
                                                     strcat(Buffer,padLeft(actvalue, '0', padLength));
                                                 }
                                             }
@@ -2836,7 +2545,6 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
                                 }
                                 if(i == noOfTotalSubIndexes-1 && (CheckIfMappingPDO((char*)objIndex->getIndexValue()) && (flag_No_of_enteriesAdded==false) && resetValueAdded == true))
                                 {
-                                        //printf("\n*set for adding actual entereis");
                                     i = -1; 
                                     flag_No_of_enteriesAdded = true;                            
                                 }
@@ -2855,102 +2563,88 @@ void BRSpecificGetIndexData(CIndex* objIndex, char* Buffer, int iNodeId )
     {
             int len;
             bool IfStringDT = false;
-	    char pb1F81nodeid[10];
-            //Get the Index Value       
-            
-            /*if(objIndex->getNumberofSubIndexes()==0 &&(objIndex->getDefaultValue()!= NULL ||
-                                                                                                                                                                                     objIndex->getActualValue()!=NULL))*/
+	    	char pb1F81nodeid[10];
+            //Get the Index Value
             strcpy(Buffer,"");
             if(objIndex->getNumberofSubIndexes()==0 && objIndex->getActualValue()!=NULL)
             {
                 if(true == IsDefaultActualNotEqual(objIndex))
                 {
-                    //Buffer = (char*)malloc(sizeof(objIndex->getIndexValue()+1));
-                    strcpy(Buffer,objIndex->getIndexValue());
+	                strcpy(Buffer,objIndex->getIndexValue());
 
-                    //Place a tab           
-                    len = strlen(Buffer);
-                    //Buffer =(char*)realloc(Buffer,2);
+	                len = strlen(Buffer);
+	                //Place a tab
+	                strcat(Buffer,"\t");
+	                strcat(Buffer,"00");
+	                strcat(Buffer,"\t");
+
+                    //Add datatype
+                    DataType dt;
+                    dt = objIndex->getDataType();
+                    int padLength=0;
+                    char* size = new char[8 + ALLOC_BUFFER];
+                    if(dt.Name != NULL)
+                    {
+                        if(!checkIfStringDatatypes(dt.Name)) 
+                        {
+                            size  = _IntToAscii(dt.DataSize, size, 16); 
+                            size = padLeft(size, '0', 8);
+                            strcat(Buffer, size);   
+                            padLength = dt.DataSize*2;
+                            IfStringDT = false;
+                            }
+                            else
+                            {           
+                                int len = strlen(objIndex->getActualValue());                           
+                                size = _IntToAscii(len, size, 16);
+                                size = padLeft(size, '0', 8);
+                                strcat(Buffer, size);   
+                                padLength = len*2;
+                                IfStringDT = true;
+                            }
+                    }
+                            
+                    else strcat(Buffer,"00000000");
+                    delete[] size;
+                            
                     strcat(Buffer,"\t");
-                    //printf("\n%s",Buffer);
-
-                    //If subindexes are none, add "00"
-                    //  Buffer =(char*)realloc(Buffer,4);
-                        strcat(Buffer,"00");
-                        strcat(Buffer,"\t");
-
-                            //Add datatype
-                            DataType dt;        
-                            //Buffer =(char*)realloc(Buffer,6); 
-                            dt = objIndex->getDataType();
-                            int padLength=0;
-                            char* size = new char[8 + ALLOC_BUFFER];
-                            if(dt.Name != NULL)
-                            {
-                                //dt.DataSize = padLeft(dt.DataSize, '0', 4);
-                                //strcat(Buffer ,dt.DataSize);  
-                                if(!checkIfStringDatatypes(dt.Name)) 
+                        
+                    if (objIndex->getActualValue()!=NULL)
+                    {   
+                                char actvalue[20];
+                                actvalue[0]  = '\0';
+                                if(IfStringDT)
                                 {
-                                    size  = _IntToAscii(dt.DataSize, size, 16); 
-                                    size = padLeft(size, '0', 8);
-                                    strcat(Buffer, size);   
-                                    padLength = dt.DataSize*2;
-                                    IfStringDT = false;
-                                    }
-                                    else
-                                    {           
-                                        int len = strlen(objIndex->getActualValue());                           
-                                        size = _IntToAscii(len, size, 16);
-                                        size = padLeft(size, '0', 8);
-                                        strcat(Buffer, size);   
-                                        padLength = len*2;
-                                        IfStringDT = true;
-                                    }
-                            }
-                            
-                            else strcat(Buffer,"00000000");
-                            delete[] size;
-                            
-                            strcat(Buffer,"\t");
-                        
-                            if (objIndex->getActualValue()!=NULL)
-                            {   
-                                        char actvalue[20];
-                                        actvalue[0]  = '\0';
-                                        if(IfStringDT)
-                                        {
-                                            strcat(Buffer,(char*)objIndex->getActualValue());
-                                        }
-                                        else
-                                        {
-                                            if(CheckIfHex((char*)objIndex->getActualValue()))
-                                            //if(actvalue!=NULL)
-                                            {
-                                                int len = strlen((char*)objIndex->getActualValue());
-                                                strncpy(actvalue,(objIndex->getActualValue()+ 2),len-2 );
-                                                actvalue[len -2] ='\0';                             
-                                                strcat(Buffer,padLeft(actvalue,'0',padLength));
-                                                
-                                            }                                       
-                        
-                                        else
-                                        {
-                                     
-                                            strcpy(actvalue, _IntToAscii(atoi(objIndex->getActualValue()),actvalue,16));
-                                            //printf("\n ACT Value%s",actvalue);                                                            
-                                            strcat(Buffer,padLeft(actvalue, '0', padLength));
-                                        
-                                    }
+                                    strcat(Buffer,(char*)objIndex->getActualValue());
                                 }
+                                else
+                                {
+                                    if(CheckIfHex((char*)objIndex->getActualValue()))
+                                    {
+                                        int len = strlen((char*)objIndex->getActualValue());
+                                        strncpy(actvalue,(objIndex->getActualValue()+ 2),len-2 );
+                                        actvalue[len -2] ='\0';                             
+                                        strcat(Buffer,padLeft(actvalue,'0',padLength));
+                                                
+                                    }                                       
+                        
+                                else
+                                {
+                                     
+                                    strcpy(actvalue, _IntToAscii(atoi(objIndex->getActualValue()),actvalue,16));                                                            
+                                    strcat(Buffer,padLeft(actvalue, '0', padLength));
+                                        
                             }
+                        }
+                    }
                     
-                                    strcat(Buffer,"\n");
+                            strcat(Buffer,"\n");
                 }
             }
             /* If Subobjects present*/
             else
             {
-                int noOfSubIndexes = 0; //= objIndex->getNumberofSubIndexes();  
+                int noOfSubIndexes = 0;
                 int noOfTotalSubIndexes = objIndex->getNumberofSubIndexes();
             
                 bool Indexadded  = false;               
@@ -2965,20 +2659,17 @@ void BRSpecificGetIndexData(CIndex* objIndex, char* Buffer, int iNodeId )
                     {
                         if(CheckIfHex((char*)objSubIndex->getActualValue()))
                         {
-                        //  cout << "hex value" << objSubIndex->getActualValue();
                             noOfSubIndexes = hex2int(subString((char*)objSubIndex->getActualValue(), 2, strlen(objSubIndex->getActualValue()) -2));
                             
                         }
                         else
-                            noOfSubIndexes = atoi(objSubIndex->getActualValue());
-                            //printf("\n GetIndexdata Indxeid=%s noOfSubIndexes=%d\n", objIndex->getIndexValue(), noOfSubIndexes);
+                            noOfSubIndexes = atoi(objSubIndex->getActualValue());               
                             if(noOfSubIndexes ==0)
                             return;
                             noOfSubIndexes = noOfSubIndexes + 1;
                     }
                 }
 
-                //newly added
                 if(CheckIfMappingPDO((char*)objIndex->getIndexValue()))
                 {
                     if(objSubIndex->getActualValue() != NULL)
@@ -2990,7 +2681,6 @@ void BRSpecificGetIndexData(CIndex* objIndex, char* Buffer, int iNodeId )
                             noOfSubIndexes = noOfTotalSubIndexes + 1;
                     }
                 }
-                //end of newly added
 
                 int noOfValidSubIndexes = 0;
                 
@@ -3006,10 +2696,6 @@ void BRSpecificGetIndexData(CIndex* objIndex, char* Buffer, int iNodeId )
                     
                     objSubIndex = objIndex->getSubIndex(i);
                 
-                    /*if(strcmp(objSubIndex->getIndexValue(),"00")!=0 && objSubIndex->getActualValue() != NULL)*/
-                    //$S_:TODO
-                    //if((objSubIndex->getActualValue() != NULL) && (objSubIndex->getFlagIfIncludedCdc() == TRUE))            
-                    //if((objSubIndex->getActualValue() != NULL))
                     if((objSubIndex->getActualValue() != NULL) && (objSubIndex->getFlagIfIncludedCdc() == TRUE) &&  ( true == CheckAccessTypeForInclude((char*)objSubIndex->getAccessType()) || CheckIfMappingPDO((char*)objIndex->getIndexValue()) ) && (true == IsDefaultActualNotEqual(objSubIndex))  )
                     {
 						if(0 == strcmp(objIndex->getIndexValue(),(char*)"1F81"))
@@ -3030,7 +2716,7 @@ void BRSpecificGetIndexData(CIndex* objIndex, char* Buffer, int iNodeId )
                             i= noOfTotalSubIndexes -1;
                         
                         }
-                        //newly added
+
                         if(CheckIfMappingPDO((char*)objIndex->getIndexValue()))
                         {
                             if(0 == strcmp((char*)objSubIndex->getIndexValue() ,"00"))
@@ -3045,7 +2731,6 @@ void BRSpecificGetIndexData(CIndex* objIndex, char* Buffer, int iNodeId )
                                 }
                             }
                         }
-                        // end of newly added
 
                         if (Indexadded)
                         strcat(Buffer,objIndex->getIndexValue());
@@ -3059,11 +2744,10 @@ void BRSpecificGetIndexData(CIndex* objIndex, char* Buffer, int iNodeId )
                         len = strlen(Buffer);
                         strcat(Buffer,"\t");                
     
-                            /*if(objSubIndex->getActualValue() != NULL || objSubIndex->getDefaultValue()!=NULL)*/
                                 strcat(Buffer, objSubIndex->getIndexValue());
                                 strcat(Buffer,"\t");
-                                    //Add datatype
-                                DataType dt;            
+	                            //Add datatype
+	                            DataType dt;            
                                 dt = objSubIndex->getDataType();
                                 int padLength=0;
                             char* size = new char[8 + ALLOC_BUFFER];
@@ -3104,7 +2788,6 @@ void BRSpecificGetIndexData(CIndex* objIndex, char* Buffer, int iNodeId )
                                         strcpy(actvalue,"0");
                                         strcat(Buffer,padLeft(actvalue,'0',padLength));
                                         resetValueAdded = true;
-                                        //i--;
                                     }
                                     else
                                     {
@@ -3123,15 +2806,12 @@ void BRSpecificGetIndexData(CIndex* objIndex, char* Buffer, int iNodeId )
                                                 strncpy(actvalue,(objSubIndex->getActualValue()+ 2),len-2 );
                                                 actvalue[len -2] ='\0';
                                             
-                                                //printf("\n ACT Value%s",actvalue);
                                                 strcat(Buffer,padLeft(actvalue,'0',padLength));
                                             
                                             }
                                                 else
                                                 {               
-                                                    //actvalue = new char[50];                                  
                                                     strcpy(actvalue, _IntToAscii(atoi(objSubIndex->getActualValue()),actvalue,16));
-                                                    //printf("\n ACT Value%s",actvalue);
                                         
                                                     strcat(Buffer,padLeft(actvalue, '0', padLength));
                                                 }
@@ -3141,7 +2821,6 @@ void BRSpecificGetIndexData(CIndex* objIndex, char* Buffer, int iNodeId )
                                         
                                 }
                     
-                                    /*else strcat(Buffer,objSubIndex->getDefaultValue());*/
                                 strcat(Buffer,"\n");
                                 if(i == 0 && (CheckIfMappingPDO((char*)objIndex->getIndexValue()) &&(flag_No_of_enteriesAdded==true)))
                                 {
@@ -3149,7 +2828,6 @@ void BRSpecificGetIndexData(CIndex* objIndex, char* Buffer, int iNodeId )
                                 }
                                 if(i == noOfTotalSubIndexes-1 && (CheckIfMappingPDO((char*)objIndex->getIndexValue()) && (flag_No_of_enteriesAdded==false) && resetValueAdded == true))
                                 {
-                                        //printf("\n*set for adding actual entereis");
                                     i = -1; 
                                     flag_No_of_enteriesAdded = true;                            
                                 }
@@ -3171,20 +2849,13 @@ void BRSpecificGetIndexData(CIndex* objIndex, char* Buffer, int iNodeId )
 		int len;
 		CIndexCollection* objIndexCollection;
 	
-			//printf("\n\n\n CN-S Data Started**********************");
-		//Buffer2 = NULL;
-//		strcpy(Buffer3,"");
 		char* c = (char*)malloc(50);	
 		FILE* fileptr = new FILE();
 		CNode objNode;	
 		CNodeCollection* objNodeCollection;
 		objNodeCollection = CNodeCollection::getNodeColObjectPointer();		
 		
-		int CNCount=0;
-		//if (( fileptr = fopen(fileName,"a+")) == NULL)
-		//{
-		//	//cout << "Problem" <<endl;
-		//}
+		int CNCount = 0;
         
         CPjtSettings* stPjtSettings;
         EAutoGenerate ePjtSetting;
@@ -3210,39 +2881,30 @@ void BRSpecificGetIndexData(CIndex* objIndex, char* Buffer, int iNodeId )
 							comment = strcat(comment,c);
 							comment = strcat(comment,"\n");
 							len = strlen(comment);
-							if((fwrite(comment, sizeof(char),len,fileptr))!=0)
+							if((fwrite(comment, sizeof(char),len,fileptr)) != 0)
 							{
-								//printf("\nComments for CN-%d",count);
 								fclose(fileptr);
 							}
 							
 							free(comment);
-							//comment = strcat(comment,(char*)count);
-							/*strcpy(Buffer2, comment);*/
 							int NumberOfIndexes;
-							//bool firstBuffer = true;																								
 							
 							CIndex* objIndex;
 							char* Buffer4;
 									
 						/*************WRITE MN'S 1006,1020 Indexes Values *******************************/			
-							//Buffer4 = (char*)malloc(10000);	
-							//Buffer4 = new char[15000];	
                             Buffer4 = new char[30000];
 							objIndex = getMNIndexValues((char*)"1006");
-							//Buffer2 = (char*)malloc(20000);		
 							Buffer2 = new char[60000];		
 						
 							if(objIndex!=NULL)
 							{
-								//GetIndexData(objIndex,Buffer4);
-								//strcat(Buffer2, Buffer4);
 								if((char*)objIndex->getActualValue() != NULL)
 								UpdateCNCycleTime(objIndexCollection,(char*) objIndex->getActualValue());
 							}
 							
                             objIndex = getMNIndexValues((char*)"1C14");
-                            if(objIndex!=NULL)
+                            if(objIndex != NULL)
                             {
                                 if((char*)objIndex->getActualValue() != NULL)
                                 UpdateCNSoCTolerance(objIndexCollection,(char*) objIndex->getActualValue());
@@ -3275,18 +2937,8 @@ void BRSpecificGetIndexData(CIndex* objIndex, char* Buffer, int iNodeId )
                                     UpdateCNMultipleCycleAssign( &objNode);
                             }
 
-                            /*objIndex = getMNIndexValues((char*)"1F81");
-                            if(objIndex != NULL)
-                            {
-                                    UpdateCNNodeAssignment( &objNode);
-                            }*/
                             UpdateCNVisibleNode( &objNode);
                             UpdateCNPresMNActLoad(&objNode);
-                            
-                            //printf("1F98/4 CN-%d is:%d \n", objNode.getNodeId(), objNode.getPReqActPayloadValue());
-                            //printf("1F98/5 CN-%d is:%d \n", objNode.getNodeId(), objNode.getPResActPayloadValue());
-                            //UpdateCNPreqActLoad(&objNode, ePjtSetting);
-                            //UpdateCNPresActLoad(&objNode, ePjtSetting);
 
 							strcpy(Buffer2, "");
 							strcpy(Buffer4, "");
@@ -3302,31 +2954,11 @@ void BRSpecificGetIndexData(CIndex* objIndex, char* Buffer, int iNodeId )
 							strcpy(Buffer2, Buffer4);
 						
 							NumberOfIndexes = objIndexCollection->getNumberofIndexes();
-							/*************WRITE Required CN Indexes in CDC *******************************/
-// 								for(int i=0; i<NumberOfIndexes; i++)
-// 								{
-// 		
-// 									
-// 									objIndex = objIndexCollection->getIndex(i);
-// 									//const char* IndexValue = objIndex->getIndexValue();
-// 									
-// 								//if(CheckAllowedCNIndexes((char*)IndexValue) && (objIndex->getFlagIfIncludedCdc() == true))
-// 								if( (objIndex->getFlagIfIncludedCdc() == TRUE) && ( (true == CheckAccessTypeForInclude((char*)objIndex->getAccessType())) || (true == CheckIfMappingPDO((char*)objIndex->getIndexValue())) ) )
-// 								{	
-// 										//printf("\nobjindex value %s\n",objIndex->getIndexValue());
-// 										GetIndexData(objIndex, Buffer4);
-// 										strcat(Buffer2, Buffer4);
-// 										
-// 									}
-// 								}	
-// printf("\n *********** \n");
-// 								delete[] Buffer4;
 								
 
 								////workaround for B&R Bus Controller stack
                                 //FormatCdc(objIndexCollection, Buffer4, fileptr, CN);
 								BRSpecificFormatCdc(objIndexCollection, Buffer4, fileptr, CN, objNode.getNodeId() );
-
                                 strcat(Buffer2, Buffer4);
                                 delete[] Buffer4;
 							
@@ -3351,14 +2983,12 @@ void BRSpecificGetIndexData(CIndex* objIndex, char* Buffer, int iNodeId )
 							strcat(CNDataLength, c);				
 							
 							// First write the IF22 data in a Buffer and then CN-ns Object Dictionary
-							//Buffer3 = (char*)malloc(strlen(Buffer2)+50);
 							Buffer3 = new char [strlen(Buffer2)+50];
 							strcpy(Buffer3, CNDataLength);
 							strcat(Buffer3, "\n");
 							strcat(Buffer3, Buffer2);
 															
 						
-							//strcpy(Buffer2,GenerateCNOBD(objNodeCollection));
 						
 							//write all CNs data in the file
 							len = strlen(Buffer3);
@@ -3370,9 +3000,7 @@ void BRSpecificGetIndexData(CIndex* objIndex, char* Buffer, int iNodeId )
 								{
 									fclose(fileptr);																							
 								}
-					//free(Buffer2);
 					delete [] Buffer2;
-					//free(Buffer3);
 					delete [] Buffer3;
 					}
 			
@@ -3415,7 +3043,6 @@ void BRSpecificGetIndexData(CIndex* objIndex, char* Buffer, int iNodeId )
 					if(pobjIndex->getActualValue() != NULL && true == IsDefaultActualNotEqual(pobjIndex) )
 					{
 						iNumberOfEntries =  iNumberOfEntries + 1;
-						//printf("\nIndexid=%s iNumberOfEntries=%d\n", (char*)pobjIndex->getIndexValue(), iNumberOfEntries);
 					}
 				}
 				else 
@@ -3425,16 +3052,12 @@ void BRSpecificGetIndexData(CIndex* objIndex, char* Buffer, int iNodeId )
 						CSubIndex* pobjSubIndex;
 						pobjSubIndex = pobjIndex->getSubIndexbyIndexValue((char*)"00");
 
-						//if((NULL != pobjSubIndex) && (NULL != pobjSubIndex->getActualValue()) && ( 0 != strcmp(pobjSubIndex->getActualValue(),"")) && !(checkIfValueZero((char*)pobjSubIndex->getActualValue())) )
                         if((NULL != pobjSubIndex) && (NULL != pobjSubIndex->getActualValue()) && ( 0 != strcmp(pobjSubIndex->getActualValue(),"")) )
 						{
-							//printf("\nIndexid=%s subindex=%s before iNumberOfEntries=%d\t", (char*)pobjIndex->getIndexValue(), (char*)pobjSubIndex->getIndexValue(), iNumberOfEntries);
-							//iNumberOfEntries =  iNumberOfEntries + GetDecimalValue((char*)pobjSubIndex->getActualValue());
                             if(true == ReactivateMappingPDO(pobjIdxCol, pobjIndex) || true == IsDefaultActualNotEqual(pobjSubIndex))
                             {
     							iNumberOfEntries =  iNumberOfEntries + 1; /* to initalize 00 entry subindex */
                             }
-							//printf("\n indexid=%s 00 initialize iNumberOfEntries=%d IsDefaultActualNotEqual=%d\n", pobjIndex->getIndexValue(), iNumberOfEntries, IsDefaultActualNotEqual(pobjIndex));
                             if(checkIfValueZero((char*)pobjSubIndex->getActualValue()))
                             {
                                 continue;
@@ -3443,12 +3066,8 @@ void BRSpecificGetIndexData(CIndex* objIndex, char* Buffer, int iNodeId )
                             {
                                 iNumberOfEntries =  iNumberOfEntries + 1; /* to reinitalize 00 entry subindex */
                             }
-							//printf("\n indexid=%s 00 reinitialize iNumberOfEntries=%d\n", pobjIndex->getIndexValue(), iNumberOfEntries);
-							//printf("After iNumberOfEntries=%d\n", iNumberOfEntries);
                             for(INT32 iLoopCount = 0; iLoopCount < pobjIndex->getNumberofSubIndexes(); iLoopCount++)
                             {
-                                //printf("\n SubIndex iLoopCount%d",pobjIndex->getNumberofSubIndexes());
-                                //if(pobjIndex->getSubIndex(iLoopCount)->getActualValue() !=NULL && TRUE == pobjIndex->getSubIndex(iLoopCount)->getFlagIfIncludedCdc() && true == CheckAccessTypeForInclude((char*)pobjIndex->getSubIndex(iLoopCount)->getAccessType()))
                                 if( pobjIndex->getSubIndex(iLoopCount)->getActualValue() !=NULL && TRUE == pobjIndex->getSubIndex(iLoopCount)->getFlagIfIncludedCdc() && true == IsDefaultActualNotEqual(pobjIndex->getSubIndex(iLoopCount)) )
                                 {
                                     if(0 == strcmp((char*)pobjIndex->getSubIndex(iLoopCount)->getIndexValue() ,"00"))
@@ -3463,7 +3082,6 @@ void BRSpecificGetIndexData(CIndex* objIndex, char* Buffer, int iNodeId )
                                         }
                                     }
                                     iNumberOfEntries =  iNumberOfEntries + 1;
-                                    //printf("\nIndexid=%s subindex=%s iNumberOfEntries=%d\t", (char*)pobjIndex->getIndexValue(), (char*)pobjIndex->getSubIndex(iLoopCount)->getIndexValue(), iNumberOfEntries);
 
                                 }
                             }
@@ -3488,37 +3106,21 @@ void BRSpecificGetIndexData(CIndex* objIndex, char* Buffer, int iNodeId )
 					pobjSubIndex = pobjIndex->getSubIndexbyIndexValue((char*)"00");
 					if((NULL != pobjSubIndex) && (NULL != pobjSubIndex->getActualValue()) && ( 0 != strcmp(pobjSubIndex->getActualValue(),"")) )
 					{
-						//printf("\nIndexid=%s subindex=%s before iNumberOfEntries=%d\t", (char*)pobjIndex->getIndexValue(), (char*)pobjSubIndex->getIndexValue(), iNumberOfEntries);
 						if(checkIfValueZero((char*)pobjSubIndex->getActualValue()))
 							continue;
-						/*
-						if(TRUE == pobjSubIndex->getFlagIfIncludedCdc())
-						{
-							iNumberOfEntries = iNumberOfEntries + 1;
-						}
-						iNumberOfEntries =  iNumberOfEntries + GetDecimalValue((char*)pobjSubIndex->getActualValue());
-						//printf("After iNumberOfEntries=%d\n", iNumberOfEntries);
-					continue;
-						*/
 					}
 
 					for(INT32 iLoopCount = 0; iLoopCount < pobjIndex->getNumberofSubIndexes(); iLoopCount++)
 					{
-						//printf("\n SubIndex iLoopCount%d",pobjIndex->getNumberofSubIndexes());
 						if(pobjIndex->getSubIndex(iLoopCount)->getActualValue() !=NULL && TRUE == pobjIndex->getSubIndex(iLoopCount)->getFlagIfIncludedCdc() && true == CheckAccessTypeForInclude((char*)pobjIndex->getSubIndex(iLoopCount)->getAccessType()) && true == IsDefaultActualNotEqual(pobjIndex->getSubIndex(iLoopCount)) )
 						{
 								iNumberOfEntries =  iNumberOfEntries + 1;
-                                //printf("\nIndexid=%s subindex=%s iNumberOfEntries=%d\t", (char*)pobjIndex->getIndexValue(), (char*)pobjIndex->getSubIndex(iLoopCount)->getIndexValue(), iNumberOfEntries);
 						}
-							//printf("\nIndexid=%s subindex=%s after iNumberOfEntries=%d\t", (char*)pobjIndex->getIndexValue(), (char*)pobjIndex->getSubIndex(iLoopCount)->getIndexValue(), iNumberOfEntries);
 					}
 				}
                    
 			}
 		}
-		/* Add + 1 for the number of enteries line*/
-		//iNumberOfEntries = iNumberOfEntries + 1;		
-
 		return iNumberOfEntries ;
 		
 	}
@@ -3538,7 +3140,6 @@ INT32 getCNsTotalIndexSubIndex(INT32 iNodeID)
 		
 	objNode    = objNodeCol->getNode(iNodeID);
 	pobjIdxCol =  objNode.getIndexCollection();
-//printf("\ngetCNsTotalIndexSubIndex iNodeID=%d\n",iNodeID);
 	for(INT32 iLoopCount = 0; iLoopCount < pobjIdxCol->getNumberofIndexes(); iLoopCount++)
 	{
 			
@@ -3548,14 +3149,12 @@ INT32 getCNsTotalIndexSubIndex(INT32 iNodeID)
 	
 		if( pobjIndex->getFlagIfIncludedCdc() == TRUE && ( true == CheckAccessTypeForInclude((char*)pobjIndex->getAccessType()) || CheckIfMappingPDO((char*)pobjIndex->getIndexValue()) ) )
 		{
-	        //if(CheckAllowedCNIndexes((char*)pobjIndex->getIndexValue()))
 			{
 				if(pobjIndex->getNumberofSubIndexes() ==0)
 				{
 					if(pobjIndex->getActualValue() != NULL && true == IsDefaultActualNotEqual(pobjIndex) )
 			        {
 						iNumberOfEntries =  iNumberOfEntries + 1;
-						//printf("\n indexid=%s iNumberOfEntries=%d\n", pobjIndex->getIndexValue(), iNumberOfEntries);
 					}
 				}
 				else 
@@ -3565,16 +3164,12 @@ INT32 getCNsTotalIndexSubIndex(INT32 iNodeID)
                         CSubIndex* pobjSubIndex;
                         pobjSubIndex = pobjIndex->getSubIndexbyIndexValue((char*)"00");
 
-                        //if((NULL != pobjSubIndex) && (NULL != pobjSubIndex->getActualValue()) && ( 0 != strcmp(pobjSubIndex->getActualValue(),"")) && !(checkIfValueZero((char*)pobjSubIndex->getActualValue())) )
                         if((NULL != pobjSubIndex) && (NULL != pobjSubIndex->getActualValue()) && ( 0 != strcmp(pobjSubIndex->getActualValue(),"")) )
                         {
-                            //printf("\nIndexid=%s subindex=%s before iNumberOfEntries=%d\t", (char*)pobjIndex->getIndexValue(), (char*)pobjSubIndex->getIndexValue(), iNumberOfEntries);
-                            //iNumberOfEntries =  iNumberOfEntries + GetDecimalValue((char*)pobjSubIndex->getActualValue());
                             if(true == ReactivateMappingPDO(pobjIdxCol, pobjIndex) || true == IsDefaultActualNotEqual(pobjSubIndex))
                             {
                                 iNumberOfEntries =  iNumberOfEntries + 1; /* to initalize 00 entry subindex */
                             }
-							//printf("\n indexid=%s 00 initialize iNumberOfEntries=%d\n", pobjIndex->getIndexValue(), iNumberOfEntries);
                             if(checkIfValueZero((char*)pobjSubIndex->getActualValue()))
                             {
                                 continue;
@@ -3583,12 +3178,8 @@ INT32 getCNsTotalIndexSubIndex(INT32 iNodeID)
                             {
                                 iNumberOfEntries =  iNumberOfEntries + 1; /* to reinitalize 00 entry subindex */
                             }
-							//printf("\n indexid=%s 00 reinitialize iNumberOfEntries=%d\n", pobjIndex->getIndexValue(), iNumberOfEntries);
-                            //printf("After iNumberOfEntries=%d\n", iNumberOfEntries);
                             for(INT32 iLoopCount = 0; iLoopCount < pobjIndex->getNumberofSubIndexes(); iLoopCount++)
                             {
-                                //printf("\n SubIndex iLoopCount%d",pobjIndex->getNumberofSubIndexes());
-                                //if(pobjIndex->getSubIndex(iLoopCount)->getActualValue() !=NULL && TRUE == pobjIndex->getSubIndex(iLoopCount)->getFlagIfIncludedCdc() && true == CheckAccessTypeForInclude((char*)pobjIndex->getSubIndex(iLoopCount)->getAccessType()))
                                 if(pobjIndex->getSubIndex(iLoopCount)->getActualValue() !=NULL && TRUE == pobjIndex->getSubIndex(iLoopCount)->getFlagIfIncludedCdc() && true == IsDefaultActualNotEqual(pobjIndex->getSubIndex(iLoopCount)) )
                                 {
                                     if(0 == strcmp((char*)pobjIndex->getSubIndex(iLoopCount)->getIndexValue() ,"00"))
@@ -3603,11 +3194,9 @@ INT32 getCNsTotalIndexSubIndex(INT32 iNodeID)
                                         }
                                     }
                                     iNumberOfEntries =  iNumberOfEntries + 1;
-                                    //printf("\nIndexid=%s subindex=%s iNumberOfEntries=%d\t", (char*)pobjIndex->getIndexValue(), (char*)pobjIndex->getSubIndex(iLoopCount)->getIndexValue(), iNumberOfEntries);
 
                                 }
                             }
-                            //printf("\nIndexid=%s  iNumberOfEntries=%d\t", (char*)pobjIndex->getIndexValue(), iNumberOfEntries);
                         }
                         continue;
                     }
@@ -3616,30 +3205,17 @@ INT32 getCNsTotalIndexSubIndex(INT32 iNodeID)
                     pobjSubIndex = pobjIndex->getSubIndexbyIndexValue((char*)"00");
                     if((NULL != pobjSubIndex) && (NULL != pobjSubIndex->getActualValue()) && ( 0 != strcmp(pobjSubIndex->getActualValue(),"")) )
                     {
-                        //printf("\nIndexid=%s subindex=%s before iNumberOfEntries=%d\t", (char*)pobjIndex->getIndexValue(), (char*)pobjSubIndex->getIndexValue(), iNumberOfEntries);
                         if(checkIfValueZero((char*)pobjSubIndex->getActualValue()))
                             continue;
-                        /*
-                        if(TRUE == pobjSubIndex->getFlagIfIncludedCdc())
-                        {
-                            iNumberOfEntries = iNumberOfEntries + 1;
-                        }
-                        iNumberOfEntries =  iNumberOfEntries + GetDecimalValue((char*)pobjSubIndex->getActualValue());
-                        //printf("After iNumberOfEntries=%d\n", iNumberOfEntries);
-                    continue;
-                        */
                     }
 
                     for(INT32 iLoopCount = 0; iLoopCount < pobjIndex->getNumberofSubIndexes(); iLoopCount++)
                     {
-                        //printf("\n SubIndex iLoopCount%d",pobjIndex->getNumberofSubIndexes());
                         if(pobjIndex->getSubIndex(iLoopCount)->getActualValue() !=NULL && TRUE == pobjIndex->getSubIndex(iLoopCount)->getFlagIfIncludedCdc() && true == CheckAccessTypeForInclude((char*)pobjIndex->getSubIndex(iLoopCount)->getAccessType()) && true == IsDefaultActualNotEqual(pobjIndex->getSubIndex(iLoopCount)) )
                         {
                                 iNumberOfEntries =  iNumberOfEntries + 1;
                         }
-                            //printf("\nIndexid=%s subindex=%s before iNumberOfEntries=%d\t", (char*)pobjIndex->getIndexValue(), (char*)pobjIndex->getSubIndex(iLoopCount)->getIndexValue(), iNumberOfEntries);
 			        }
-                    //printf("\nIndexid=%s  iNumberOfEntries=%d\t", (char*)pobjIndex->getIndexValue(),  iNumberOfEntries);
 		        }
 			}
 		}
@@ -3664,7 +3240,6 @@ INT32 BRSpecificgetCNsTotalIndexSubIndex(INT32 iNodeID)
 			
 	objNode    = objNodeCol->getNode(iNodeID);
 	pobjIdxCol =  objNode.getIndexCollection();
-//printf("\ngetCNsTotalIndexSubIndex iNodeID=%d\n",iNodeID);
 	for(INT32 iLoopCount = 0; iLoopCount < pobjIdxCol->getNumberofIndexes(); iLoopCount++)
 	{
 			
@@ -3674,14 +3249,12 @@ INT32 BRSpecificgetCNsTotalIndexSubIndex(INT32 iNodeID)
 	
 		if( pobjIndex->getFlagIfIncludedCdc() == TRUE && ( true == CheckAccessTypeForInclude((char*)pobjIndex->getAccessType()) || CheckIfMappingPDO((char*)pobjIndex->getIndexValue()) ) )
 		{
-	        //if(CheckAllowedCNIndexes((char*)pobjIndex->getIndexValue()))
 			{
 				if(pobjIndex->getNumberofSubIndexes() ==0)
 				{
 					if(pobjIndex->getActualValue() != NULL && true == IsDefaultActualNotEqual(pobjIndex) )
 			        {
 						iNumberOfEntries =  iNumberOfEntries + 1;
-						//printf("\n indexid=%s iNumberOfEntries=%d\n", pobjIndex->getIndexValue(), iNumberOfEntries);
 					}
 				}
 				else 
@@ -3690,17 +3263,13 @@ INT32 BRSpecificgetCNsTotalIndexSubIndex(INT32 iNodeID)
                     {
                         CSubIndex* pobjSubIndex;
                         pobjSubIndex = pobjIndex->getSubIndexbyIndexValue((char*)"00");
-
-                        //if((NULL != pobjSubIndex) && (NULL != pobjSubIndex->getActualValue()) && ( 0 != strcmp(pobjSubIndex->getActualValue(),"")) && !(checkIfValueZero((char*)pobjSubIndex->getActualValue())) )
+                        
                         if((NULL != pobjSubIndex) && (NULL != pobjSubIndex->getActualValue()) && ( 0 != strcmp(pobjSubIndex->getActualValue(),"")) )
                         {
-                            //printf("\nIndexid=%s subindex=%s before iNumberOfEntries=%d\t", (char*)pobjIndex->getIndexValue(), (char*)pobjSubIndex->getIndexValue(), iNumberOfEntries);
-                            //iNumberOfEntries =  iNumberOfEntries + GetDecimalValue((char*)pobjSubIndex->getActualValue());
                             if(true == ReactivateMappingPDO(pobjIdxCol, pobjIndex) || true == IsDefaultActualNotEqual(pobjSubIndex))
                             {
                                 iNumberOfEntries =  iNumberOfEntries + 1; /* to initalize 00 entry subindex */
                             }
-							//printf("\n indexid=%s 00 initialize iNumberOfEntries=%d\n", pobjIndex->getIndexValue(), iNumberOfEntries);
                             if(checkIfValueZero((char*)pobjSubIndex->getActualValue()))
                             {
                                 continue;
@@ -3709,12 +3278,8 @@ INT32 BRSpecificgetCNsTotalIndexSubIndex(INT32 iNodeID)
                             {
                                 iNumberOfEntries =  iNumberOfEntries + 1; /* to reinitalize 00 entry subindex */
                             }
-							//printf("\n indexid=%s 00 reinitialize iNumberOfEntries=%d\n", pobjIndex->getIndexValue(), iNumberOfEntries);
-                            //printf("After iNumberOfEntries=%d\n", iNumberOfEntries);
                             for(INT32 iLoopCount = 0; iLoopCount < pobjIndex->getNumberofSubIndexes(); iLoopCount++)
                             {
-                                //printf("\n SubIndex iLoopCount%d",pobjIndex->getNumberofSubIndexes());
-                                //if(pobjIndex->getSubIndex(iLoopCount)->getActualValue() !=NULL && TRUE == pobjIndex->getSubIndex(iLoopCount)->getFlagIfIncludedCdc() && true == CheckAccessTypeForInclude((char*)pobjIndex->getSubIndex(iLoopCount)->getAccessType()))
                                 if(pobjIndex->getSubIndex(iLoopCount)->getActualValue() !=NULL && TRUE == pobjIndex->getSubIndex(iLoopCount)->getFlagIfIncludedCdc() && true == IsDefaultActualNotEqual(pobjIndex->getSubIndex(iLoopCount)) )
                                 {
                                     if(0 == strcmp((char*)pobjIndex->getSubIndex(iLoopCount)->getIndexValue() ,"00"))
@@ -3729,11 +3294,9 @@ INT32 BRSpecificgetCNsTotalIndexSubIndex(INT32 iNodeID)
                                         }
                                     }
                                     iNumberOfEntries =  iNumberOfEntries + 1;
-                                    //printf("\nIndexid=%s subindex=%s iNumberOfEntries=%d\t", (char*)pobjIndex->getIndexValue(), (char*)pobjIndex->getSubIndex(iLoopCount)->getIndexValue(), iNumberOfEntries);
 
                                 }
                             }
-                            //printf("\nIndexid=%s  iNumberOfEntries=%d\t", (char*)pobjIndex->getIndexValue(), iNumberOfEntries);
                         }
                         continue;
                     }
@@ -3742,23 +3305,12 @@ INT32 BRSpecificgetCNsTotalIndexSubIndex(INT32 iNodeID)
                     pobjSubIndex = pobjIndex->getSubIndexbyIndexValue((char*)"00");
                     if((NULL != pobjSubIndex) && (NULL != pobjSubIndex->getActualValue()) && ( 0 != strcmp(pobjSubIndex->getActualValue(),"")) )
                     {
-                        //printf("\nIndexid=%s subindex=%s before iNumberOfEntries=%d\t", (char*)pobjIndex->getIndexValue(), (char*)pobjSubIndex->getIndexValue(), iNumberOfEntries);
                         if(checkIfValueZero((char*)pobjSubIndex->getActualValue()))
                             continue;
-                        /*
-                        if(TRUE == pobjSubIndex->getFlagIfIncludedCdc())
-                        {
-                            iNumberOfEntries = iNumberOfEntries + 1;
-                        }
-                        iNumberOfEntries =  iNumberOfEntries + GetDecimalValue((char*)pobjSubIndex->getActualValue());
-                        //printf("After iNumberOfEntries=%d\n", iNumberOfEntries);
-                    continue;
-                        */
                     }
 
                     for(INT32 iLoopCount = 0; iLoopCount < pobjIndex->getNumberofSubIndexes(); iLoopCount++)
                     {
-                        //printf("\n SubIndex iLoopCount%d",pobjIndex->getNumberofSubIndexes());
 						if(pobjIndex->getSubIndex(iLoopCount)->getActualValue() !=NULL && TRUE == pobjIndex->getSubIndex(iLoopCount)->getFlagIfIncludedCdc() && true == CheckAccessTypeForInclude((char*)pobjIndex->getSubIndex(iLoopCount)->getAccessType()) && true == IsDefaultActualNotEqual(pobjIndex->getSubIndex(iLoopCount)) )
                         {
 							if(0 == strcmp(pobjIndex->getIndexValue(),(char*)"1F81"))
@@ -3774,9 +3326,8 @@ INT32 BRSpecificgetCNsTotalIndexSubIndex(INT32 iNodeID)
 							}
                                 iNumberOfEntries =  iNumberOfEntries + 1;
                         }
-                            //printf("\nIndexid=%s subindex=%s before iNumberOfEntries=%d\t", (char*)pobjIndex->getIndexValue(), (char*)pobjIndex->getSubIndex(iLoopCount)->getIndexValue(), iNumberOfEntries);
 			        }
-                    //printf("\nIndexid=%s  iNumberOfEntries=%d\t", (char*)pobjIndex->getIndexValue(),  iNumberOfEntries);
+
 		        }
 			}
 		}
@@ -3797,21 +3348,14 @@ INT32 BRSpecificgetCNsTotalIndexSubIndex(INT32 iNodeID)
 		unsigned int len;
 		ocfmRetCode retCode, ret1F81Code;
         int iSubIndexPos, iIndexPos;
-		//const char tempFileName[9] = "temp.txt";
 		char* tempFileName;
 		tempFileName = new char[strlen(CDCLocation) + 10 + 10];		
 		sprintf(tempFileName, "%s/%s.txt", CDCLocation, "mnobd");
 
 		char* tempOutputFileName;
-		//tempOutputFileName = new char [strlen(CDCLocation + 10 + 10)];
 		tempOutputFileName = new char [1000];
 		sprintf(tempOutputFileName, "%s/%s.cdc", CDCLocation, "mnobd");		
 
-		//sprintf(tempFileName, "../%s.txt", "mnobd");
-		//cout << "\n\ntempFileName:" << tempFileName << endl;
-		//cout << "\n\ntempOutputFileName:" << tempOutputFileName << endl;
-		//printf("Inside GenerateCDC");
-		
 		try
 		{							
 			//get the MN Node object from the NodeCollection
@@ -3840,7 +3384,6 @@ INT32 BRSpecificgetCNsTotalIndexSubIndex(INT32 iNodeID)
 				ex.ocfm_Excpetion(OCFM_ERR_NO_CN_NODES_FOUND);
 				throw ex;
 			}
-			//printf("Node id %d",objNode.getNodeId());
 
 			/* Check if autogeneration of MN's Object Dicitonary is set to true */
 			
@@ -3850,7 +3393,6 @@ INT32 BRSpecificgetCNsTotalIndexSubIndex(INT32 iNodeID)
 		
 			if(stPjtSettings->getGenerateAttr() == YES_AG)
 			{	
-				//cout << "\n\n\n\n Generating MN OBD\n\n\n\n" << endl;
                 retCode = CheckMutliplexAssigned();
                 if(retCode.code != OCFM_ERR_SUCCESS)
                 {
@@ -3859,11 +3401,7 @@ INT32 BRSpecificgetCNsTotalIndexSubIndex(INT32 iNodeID)
 				retCode = GenerateMNOBD(true);
 				if(retCode.code != OCFM_ERR_SUCCESS)
 					return retCode;
-				/*else
-					checkFlag = false;*/
 			}
-			//test update mn node assignment
-			//setPresMNNodeAssigmentBits(); // working
 		
 
 			FILE* fileptr = new FILE();
@@ -3889,15 +3427,6 @@ INT32 BRSpecificgetCNsTotalIndexSubIndex(INT32 iNodeID)
                                 char* pb1F81Data = new char[ strlen(pcTemp1F81Data) + ALLOC_BUFFER + 2];
                                 sprintf(pb1F81Data, "0X%s", pcTemp1F81Data);
                                 ret1F81Code = IfSubIndexExists(240, MN, (char*)"1F81", hex, &iSubIndexPos, &iIndexPos);
-                                /*if( OCFM_ERR_INDEXID_NOT_FOUND == ret1F81Code.code)
-                                {
-                                    AddIndex(240, MN, (char*)"1F81");
-                                    AddSubIndex(240, MN, (char*)"1F81", hex);
-                                }
-                                else if(OCFM_ERR_SUBINDEXID_NOT_FOUND == ret1F81Code.code)
-                                {
-                                    AddSubIndex(240, MN, (char*)"1F81", hex);
-                                }*/
                                 if( OCFM_ERR_SUCCESS != ret1F81Code.code)
                                 {
                                     continue;
@@ -3925,28 +3454,22 @@ INT32 BRSpecificgetCNsTotalIndexSubIndex(INT32 iNodeID)
 				len =  strlen(Buffer1);
 		
 				
-				/* Write number of enteries */
+				/* Write number of enteries */				
 				if((len != (fwrite(Buffer1, sizeof(char),len,fileptr))))
 				{
-					
+					cout << "Write Error in CDC" << endl;
 				}
                 delete[] Buffer1;
-
-				// Add 1F81
-				//UpdateMNNodeAssignmentIndex(&objNodeCollection->getMNNode(), objNodeCollection->getCNNodesCount());
-						
+				
+				// Add 1F81		
 				for(int i=0;i < objNodeCollection->getNumberOfNodes();i++)
 				{
 						CNode objNode;
 						objNode = objNodeCollection->getNodebyCollectionIndex(i);
 						if(objNode.getNodeType() ==CN)
 						{
-								
-								//printf("\nInside 1F81");
-														
-								//Buffer1 = (char*)malloc(CDC_BUFFER);
+						
 								Buffer1 = new char[CDC_BUFFER];
-								//strcpy(Buffer1, NoOfenteries);
 								strcpy(Buffer1, "//// NodeId Assignment\n");
 								strcat(Buffer1, "1F81");
 								strcat(Buffer1, "\t");
@@ -3956,87 +3479,22 @@ INT32 BRSpecificgetCNsTotalIndexSubIndex(INT32 iNodeID)
 								hex = padLeft(hex,'0',2);
 								strcat(Buffer1, hex);								
 								strcat(Buffer1, "\t00000004\t00000007\n");
-
-                                // moved the below block before
-                                /*char* pcTemp1F81Data = setNodeAssigmentBits(&objNode);
-                                char* pb1F81Data = new char[ strlen(pcTemp1F81Data) + ALLOC_BUFFER + 2];
-                                sprintf(pb1F81Data, "0X%s", pcTemp1F81Data);
-                                ret1F81Code = IfSubIndexExists(240, MN, (char*)"1F81", hex, &iSubIndexPos, &iIndexPos);
-                                if( OCFM_ERR_INDEXID_NOT_FOUND == ret1F81Code.code)
-                                {
-                                    AddIndex(240, MN, (char*)"1F81");
-                                    AddSubIndex(240, MN, (char*)"1F81", hex);
-                                }
-                                else if(OCFM_ERR_SUBINDEXID_NOT_FOUND == ret1F81Code.code)
-                                {
-                                    AddSubIndex(240, MN, (char*)"1F81", hex);
-                                }
- 
-								SetSIdxValue((char*)"1F81",hex, pb1F81Data,objNodeCollection->getMNNode().getIndexCollection(), MN_NODEID, MN, false); */
-                                // moved the above block before
-
-                              /*  char* pcSubIndName = new char[50];
-                                pcSubIndName[0] = 0;
-                                INT32 iSubIndFlag = 0;
-                                GetSubIndexAttributes(240, MN, (char*)"1F81", hex, NAME, pcSubIndName);
-                                char* pcSubIndFlag = new char[10];
-                                GetSubIndexAttributes(240, MN, (char*)"1F81", hex, FLAGIFINCDC, pcSubIndFlag);
-                                iSubIndFlag  = atoi(pcSubIndFlag);
-                                SetSubIndexAttributes(240, MN, (char*)"1F81", hex, pb1F81Data, pcSubIndName, (EFlag)iSubIndFlag);
-                                delete [] pcSubIndName;
-                                delete [] pcSubIndFlag;*/
-
-                                //delete [] pb1F81Data;
-
 								strcat(Buffer1, "\n");	
 								len = strlen(Buffer1);
 								// write 1F81 entry in MN text file
 								if((len != (fwrite(Buffer1, sizeof(char),len,fileptr))))
 								{
-									//fclose(fileptr);
-									//printf("Buffer1 written");
-								
+									cout << "Write Error in CDC _1" << endl;
 								}
 							
 								delete[] Buffer1;
 						}
 					}
-					/*	}*/
-                //objNode = objNodeCollection->getMNNode();
-                //objIndexCollection = objNode.getIndexCollection();
-                //CIndex* objIndex;
-                //objIndex = objIndexCollection->getIndexbyIndexValue("1F81");
-                //if(NULL != objIndex)
-                //{
-                //    CSubIndex* objSubIndex = objIndex->getSubIndexbyIndexValue("F0");
-                //    if(NULL != objSubIndex && NULL != objSubIndex->getActualValue() && 0 != strcmp((char*)objSubIndex->getActualValue(), ""))
-                //    {
-                //                Buffer1 = new char[CDC_BUFFER];
-                //                //strcpy(Buffer1, NoOfenteries);
-                //                strcpy(Buffer1, "//// NodeId Assignment\n");
-                //                strcat(Buffer1, "1F81");
-                //                strcat(Buffer1, "\t");
-                //                /*int NodeID = objNode.getNodeId();       
-                //                char* hex = (char*)malloc(10);                  
-                //                hex = _IntToAscii(NodeID,hex,16);
-                //                hex = padLeft(hex,'0',2);*/
-                //                strcat(Buffer1, "F0");                               
-                //                strcat(Buffer1, "\t00000004\t00000007\n");
-                //                strcat(Buffer1, "\n");  
-                //                len = strlen(Buffer1);
-                //                if((len != (fwrite(Buffer1, sizeof(char),len,fileptr))))
-                //                {
-                //                    //fclose(fileptr);
-                //                    //printf("Buffer1 written");
-                //                }
-                //                delete[] Buffer1;
-                //    }
-                //}
+
 				fclose(fileptr);
 				
 			if (( fileptr = fopen(tempFileName,"a+")) == NULL)
 				{
-					//printf ( "Cannot open file you have named...!\n" );
 					ocfmException ex;
 					ex.ocfm_Excpetion(OCFM_ERR_CANNOT_OPEN_FILE);
 					throw ex;							
@@ -4046,71 +3504,6 @@ INT32 BRSpecificgetCNsTotalIndexSubIndex(INT32 iNodeID)
 
 			//Get all the MN's Default Data in Buffer1
 			int NumberOfIndexes = objIndexCollection->getNumberofIndexes();
-// 			for(int i=0;i < NumberOfIndexes; i++)
-// 				{
-// 					CIndex* objIndex;
-// 					objIndex = objIndexCollection->getIndex(i);
-// 					//if((!checkFlag) || (checkFlag && (objIndex->getFlagIfIncludedCdc() == TRUE)))
-// 					
-// 
-// 					if(objIndex->getFlagIfIncludedCdc() == TRUE && true == CheckAccessTypeForInclude((char*)objIndex->getAccessType()))
-// 					{
-//                         if(strcmp(objIndex->getIndexValue(), "1F81") != 0)
-//                         {
-// 							//Buffer1 = (char*)malloc(CDC_BUFFER);
-// 							Buffer1 = new char[CDC_BUFFER];
-// 							len = strlen(Buffer1);		
-// 							GetIndexData(objIndex,Buffer1);
-// 							len = strlen(Buffer1);
-// 							if((len != (fwrite(Buffer1, sizeof(char),len,fileptr))))
-// 							{
-// 								//printf("Buffer1 written");
-// 							
-// 							}					
-// 							
-// 							delete[] Buffer1;
-//                         }
-//                         else
-//                         {
-//                             CSubIndex* objSubIndex = objIndex->getSubIndexbyIndexValue((char*)"F0");
-//                             if(NULL != objSubIndex && NULL != objSubIndex->getActualValue() && 0 != strcmp((char*)objSubIndex->getActualValue(), ""))
-//                             {
-//                                     Buffer1 = new char[CDC_BUFFER];
-//                                     strcpy(Buffer1, "1F81");
-//                                     strcat(Buffer1, "\t");
-//                                     strcat(Buffer1, "F0");
-//                                     strcat(Buffer1, "\t00000004\t");
-//     
-//                                     char actvalue[20];
-//                                     actvalue[0]  = '\0';
-//                                     if(CheckIfHex((char*)objSubIndex->getActualValue()))
-//                                     {
-//                                         int len = strlen((char*)objSubIndex->getActualValue());
-//                                         strncpy(actvalue,(objSubIndex->getActualValue()+ 2),len-2 );
-//                                         actvalue[len -2] ='\0';
-//                                         strcat(Buffer1,padLeft(actvalue,'0',8));
-//                                     }
-//                                     else
-//                                     {
-//                                         strcpy(actvalue, _IntToAscii(atoi(objSubIndex->getActualValue()),actvalue,16));
-//                                         strcat(Buffer1,padLeft(actvalue, '0', 8));
-//                                     }
-//     
-//                                     strcat(Buffer1, "\n"); 
-//                                     len = strlen(Buffer1);
-//                                     if((len != (fwrite(Buffer1, sizeof(char),len,fileptr))))
-//                                     {
-//                                         //fclose(fileptr);
-//                                         //printf("Buffer1 written");
-//                                     
-//                                     }
-//                                 
-//                                     delete[] Buffer1;
-//                         }
-// 					}
-// 				}			
-// 			}
-
             Buffer1 = new char[CDC_MN_BUFFER];
             memset(Buffer1, 0, CDC_MN_BUFFER*sizeof(char));
             FormatCdc(objIndexCollection, Buffer1, fileptr, MN);
@@ -4118,8 +3511,7 @@ INT32 BRSpecificgetCNsTotalIndexSubIndex(INT32 iNodeID)
             len = strlen(Buffer1);
             if((len != (fwrite(Buffer1, sizeof(char),len,fileptr))))
             {
-                //printf("Buffer1 written");
-            
+				cout << "Write Error in CDC _2" << endl;
             }                   
             delete[] Buffer1;
 			fclose(fileptr);
@@ -4143,9 +3535,7 @@ INT32 BRSpecificgetCNsTotalIndexSubIndex(INT32 iNodeID)
 									ocfmException ex;
 									ex.ocfm_Excpetion(OCFM_ERR_CANNOT_OPEN_FILE);
 									throw ex;						
-								}
-								//printf("\nInside 1F81");
-								//Buffer1 = (char*)malloc(CDC_BUFFER);
+								}								
 								Buffer1 = new char[CDC_BUFFER];
 								len = strlen(Buffer1);
 								strcpy(Buffer1, "//// NodeId Reassignment\n");
@@ -4155,28 +3545,11 @@ INT32 BRSpecificgetCNsTotalIndexSubIndex(INT32 iNodeID)
 								char* hex = (char*)malloc(10);					
 								hex = _IntToAscii(NodeID,hex,16);
 								hex = padLeft(hex,'0',2);
-								strcat(Buffer1, hex);								
-								//strcat(Buffer1, "\t00000004\t80000007\n");			
-								//setNodeAssigmentBits(&objNode);
+								strcat(Buffer1, hex);
 
 								strcat(Buffer1, "\t00000004\t");
                                 char* pcTemp1F81Data = setNodeAssigmentBits(&objNode);
-//                                 char* pb1F81Data = new char[ strlen(pcTemp1F81Data) + ALLOC_BUFFER + 2];
-//                                 sprintf(pb1F81Data, "0X%s", pcTemp1F81Data);
 								strcat(Buffer1, pcTemp1F81Data);
-
-//                                 AddSubIndex(240, MN, (char*)"1F81", hex);
-//                                 char* pcSubIndName = new char[50];
-//                                 pcSubIndName[0] = 0;
-//                                 INT32 iSubIndFlag = 0;
-//                                 GetSubIndexAttributes(240, MN, (char*)"1F81", hex, NAME, pcSubIndName);
-//                                 char* pcSubIndFlag = new char[10];
-//                                 GetSubIndexAttributes(240, MN, (char*)"1F81", hex, FLAGIFINCDC, pcSubIndFlag);
-//                                 iSubIndFlag  = atoi(pcSubIndFlag);
-//                                 SetSubIndexAttributes(240, MN, (char*)"1F81", hex, pb1F81Data, pcSubIndName, (EFlag)iSubIndFlag);
-//                                 delete [] pcSubIndName;
-//                                 delete [] pcSubIndFlag;
-//                                 delete [] pb1F81Data;
 
 								strcat(Buffer1, "\n");
 
@@ -4185,104 +3558,29 @@ INT32 BRSpecificgetCNsTotalIndexSubIndex(INT32 iNodeID)
 								{
 								
 									ret = fclose(fileptr);
-									//printf("\n ret code %d", ret);
-									//printf("Buffer1 written");
 								
 								}
 								else
 								{
 									ret = fclose(fileptr);
-									//printf("\n ret code %d", ret);
 								}
-								/*else
-								{
-									ocfmException ex;
-									ex.ocfm_Excpetion(OCFM_ERR_CANNOT_OPEN_FILE);
-									throw ex;		
-								}*/
 								delete[] Buffer1;
 						}
 					}
-					/*	}*/
 							
 				}
 
-                //objNode = objNodeCollection->getMNNode();
-                //objIndexCollection = objNode.getIndexCollection();
-                ////CIndex* objIndex;
-                //objIndex = objIndexCollection->getIndexbyIndexValue("1F81");
-                //if(NULL != objIndex)
-                //{
-                //    CSubIndex* objSubIndex = objIndex->getSubIndexbyIndexValue("F0");
-                //    if(NULL != objSubIndex && NULL != objSubIndex->getActualValue() && 0 != strcmp((char*)objSubIndex->getActualValue(), ""))
-                //    {
-                //                if (( fileptr = fopen(tempFileName,"a+")) == NULL)
-                //                {
-                //                    ocfmException ex;
-                //                    ex.ocfm_Excpetion(OCFM_ERR_CANNOT_OPEN_FILE);
-                //                    throw ex;                       
-                //                }
-                //                Buffer1 = new char[CDC_BUFFER];
-                //                //strcpy(Buffer1, NoOfenteries);
-                //                strcpy(Buffer1, "//// NodeId Reassignment\n");
-                //                strcat(Buffer1, "1F81");
-                //                strcat(Buffer1, "\t");
-                //                /*int NodeID = objNode.getNodeId();       
-                //                char* hex = (char*)malloc(10);                  
-                //                hex = _IntToAscii(NodeID,hex,16);
-                //                hex = padLeft(hex,'0',2);*/
-                //                strcat(Buffer1, "F0");
-                //                strcat(Buffer1, "\t00000004\t");
-                //                char actvalue[20];
-                //                actvalue[0]  = '\0';
-                //                if(CheckIfHex((char*)objSubIndex->getActualValue()))
-                //                {
-                //                    int len = strlen((char*)objSubIndex->getActualValue());
-                //                    strncpy(actvalue,(objSubIndex->getActualValue()+ 2),len-2 );
-                //                    actvalue[len -2] ='\0';                             
-                //                    strcat(Buffer1,padLeft(actvalue,'0',8));
-                //                    
-                //                }
-                //                else
-                //                {
-                //                    strcpy(actvalue, _IntToAscii(atoi(objSubIndex->getActualValue()),actvalue,16));
-                //                    strcat(Buffer1,padLeft(actvalue, '0', 8));
-                //                
-                //                }
-                //
-                //                strcat(Buffer1, "\n"); 
-                //                len = strlen(Buffer1);
-                //                if((len != (fwrite(Buffer1, sizeof(char),len,fileptr))))
-                //                {
-                //                    //fclose(fileptr);
-                //                    //printf("Buffer1 written");
-                //                
-                //                }
-                //            
-                //                delete[] Buffer1;
-                //                fclose(fileptr);
-                //    }
-                //}
-                
-					
-			//printf("\nText cdc generated");
 			// Convert CDC txt file to Binary
-			//ConvertCdcToBinary(fileName,(char*) tempFileName);			
-				
 			#if defined(_WIN32) && defined(_MSC_VER)
 			char* cmdBuffer;
-			//printf("\ntxt2cdc.exe \"%s\" \"%s\"", tempFileName, tempOutputFileName);
 			cmdBuffer = new char[(2 * (strlen(CDCLocation) + 10 + 10)) + 25];		
 			sprintf(cmdBuffer, "txt2cdc.exe \"%s\" \"%s\"", tempFileName, tempOutputFileName);
-			//printf("\n command Buffer %s",cmdBuffer);
 			system(cmdBuffer);
 			delete [] cmdBuffer;
 			#else
 			char* cmdBuffer;
-			//printf("\n./txt2cdc \"%s\" \"%s\"", tempFileName, tempOutputFileName);
 			cmdBuffer = new char[LINUX_INSTALL_DIR_LEN + (2 * (strlen(CDCLocation) + 10 + 10)) + 25];		
 			sprintf(cmdBuffer, "%s/txt2cdc \"%s\" \"%s\"", LINUX_INSTALL_DIR, tempFileName, tempOutputFileName);
-			//printf("\n command Buffer %s",cmdBuffer);
 			system(cmdBuffer);
 			delete [] cmdBuffer;
 			#endif
@@ -4306,38 +3604,25 @@ INT32 BRSpecificgetCNsTotalIndexSubIndex(INT32 iNodeID)
 ****************************************************************************************************/
 void FormatCdc(CIndexCollection *objIndexCollection, char* Buffer1, FILE* fileptr, ENodeType eNodeType )
 {
-    //char *Buffer1 = NULL;
+
     char *TempBuffer1 = NULL;
     strcpy(Buffer1, "");
     unsigned int len;
     int NumberOfIndexes = objIndexCollection->getNumberofIndexes();
-//disable mapping pdo
-    for(int i=0;i < NumberOfIndexes; i++)
+	//disable mapping pdo
+    for(int i = 0;i < NumberOfIndexes; i++)
     {
         CIndex* objIndex;
         objIndex = objIndexCollection->getIndex(i);
-        //if((!checkFlag) || (checkFlag && (objIndex->getFlagIfIncludedCdc() == TRUE)))
-        
-
-        //if(objIndex->getFlagIfIncludedCdc() == TRUE && true == CheckAccessTypeForInclude((char*)objIndex->getAccessType()))
         if(objIndex->getFlagIfIncludedCdc() == TRUE )
         {
                 if(CheckIfMappingPDO((char*)objIndex->getIndexValue()))
                 {
-                //TempBuffer1 = (char*)malloc(CDC_BUFFER);
-                //printf("\nDisable indexid=%s \n", (char*)objIndex->getIndexValue());
                 TempBuffer1 = new char[CDC_BUFFER];
                 len = strlen(Buffer1);      
                 //GetIndexData(objIndex,Buffer1);
                 EnableDisableMappingPDO(objIndexCollection, objIndex, TempBuffer1, false);
                 strcat(Buffer1, TempBuffer1);
-//                len = strlen(Buffer1);
-//                 if((len != (fwrite(Buffer1, sizeof(char),len,fileptr))))
-//                 {
-//                     //printf("Buffer1 written");
-//                 
-//                 }                   
-//                 
                  delete[] TempBuffer1;
                  }
         }
@@ -4347,25 +3632,15 @@ void FormatCdc(CIndexCollection *objIndexCollection, char* Buffer1, FILE* filept
             {
                 CIndex* objIndex;
                 objIndex = objIndexCollection->getIndex(i);
-                //if((!checkFlag) || (checkFlag && (objIndex->getFlagIfIncludedCdc() == TRUE)))
                 
 
                 if(objIndex->getFlagIfIncludedCdc() == TRUE && true == CheckAccessTypeForInclude((char*)objIndex->getAccessType()) && CheckIfNotPDO((char*)objIndex->getIndexValue()))
                 {
                         if((CN == eNodeType) ||  (strcmp(objIndex->getIndexValue(), "1F81") != 0 && MN == eNodeType))
                         {
-                        //Buffer1 = (char*)malloc(CDC_BUFFER);
-                        //TempBuffer1 = new char[CDC_BUFFER];
-                        //TempBuffer1 = new char[3 * CDC_BUFFER];
                         TempBuffer1 = new char[15000];
                         GetIndexData(objIndex,TempBuffer1);
                         strcat(Buffer1, TempBuffer1);
-                        /*len = strlen(Buffer1);
-                        if((len != (fwrite(Buffer1, sizeof(char),len,fileptr))))
-                        {
-                            //printf("Buffer1 written");
-                        
-                        } */                  
                         
                         delete[] TempBuffer1;
                         }
@@ -4375,7 +3650,6 @@ void FormatCdc(CIndexCollection *objIndexCollection, char* Buffer1, FILE* filept
                             if(NULL != objSubIndex && TRUE == objSubIndex->getFlagIfIncludedCdc() && true == CheckAccessTypeForInclude((char*)objSubIndex->getAccessType())  && NULL != objSubIndex->getActualValue() && 0 != strcmp((char*)objSubIndex->getActualValue(), "") && true == IsDefaultActualNotEqual(objSubIndex))
                             {
                                     TempBuffer1 = new char[CDC_BUFFER];
-                                    //TempBuffer1 = new char[2 * CDC_BUFFER];
                                     strcpy(TempBuffer1, "1F81");
                                     strcat(TempBuffer1, "\t");
                                     strcat(TempBuffer1, "F0");
@@ -4398,12 +3672,6 @@ void FormatCdc(CIndexCollection *objIndexCollection, char* Buffer1, FILE* filept
     
                                     strcat(TempBuffer1, "\n"); 
                                     len = strlen(TempBuffer1);
-//                                     if((len != (fwrite(Buffer1, sizeof(char),len,fileptr))))
-//                                     {
-//                                         //fclose(fileptr);
-//                                         //printf("Buffer1 written");
-//                                     
-//                                     }
                                     strcat(Buffer1, TempBuffer1);
                                     delete[] TempBuffer1;
                         }
@@ -4415,23 +3683,11 @@ void FormatCdc(CIndexCollection *objIndexCollection, char* Buffer1, FILE* filept
             {
                 CIndex* objIndex;
                 objIndex = objIndexCollection->getIndex(i);
-                //if((!checkFlag) || (checkFlag && (objIndex->getFlagIfIncludedCdc() == TRUE)))
-                
-
-                //if(objIndex->getFlagIfIncludedCdc() == TRUE && true == CheckAccessTypeForInclude((char*)objIndex->getAccessType()) && !CheckIfNotPDO((char*)objIndex->getIndexValue()))
                 if(objIndex->getFlagIfIncludedCdc() == TRUE && ( true == CheckAccessTypeForInclude((char*)objIndex->getAccessType()) || CheckIfMappingPDO((char*)objIndex->getIndexValue()) ) && !CheckIfNotPDO((char*)objIndex->getIndexValue()))
                 {
-                        //Buffer1 = (char*)malloc(CDC_BUFFER);
-                        //TempBuffer1 = new char[CDC_BUFFER];
                         TempBuffer1 = new char[3 * CDC_BUFFER];
                         GetIndexData(objIndex,TempBuffer1);
-                        //len = strlen(TempBuffer1);
                         strcat(Buffer1, TempBuffer1);
-                        /*if((len != (fwrite(Buffer1, sizeof(char),len,fileptr))))
-                        {
-                            //printf("Buffer1 written");
-                        
-                        }  */                 
                         
                         delete[] TempBuffer1;
                     }
@@ -4441,26 +3697,13 @@ void FormatCdc(CIndexCollection *objIndexCollection, char* Buffer1, FILE* filept
             {
                 CIndex* objIndex;
                 objIndex = objIndexCollection->getIndex(i);
-                //if((!checkFlag) || (checkFlag && (objIndex->getFlagIfIncludedCdc() == TRUE)))
-                
-
-                //if(objIndex->getFlagIfIncludedCdc() == TRUE && true == CheckAccessTypeForInclude((char*)objIndex->getAccessType()))
                 if(objIndex->getFlagIfIncludedCdc() == TRUE )
                 {
                         if(CheckIfMappingPDO((char*)objIndex->getIndexValue()))
                         {
-                        //Buffer1 = (char*)malloc(CDC_BUFFER);
                         TempBuffer1 = new char[CDC_BUFFER];
-                        //GetIndexData(objIndex,Buffer1);
                         EnableDisableMappingPDO(objIndexCollection, objIndex, TempBuffer1, true);
                         strcat(Buffer1, TempBuffer1);
-//                        len = strlen(TempBuffer1);
-//                         if((len != (fwrite(Buffer1, sizeof(char),len,fileptr))))
-//                         {
-//                             //printf("Buffer1 written");
-//                         
-//                         }                   
-//                         
                          delete[] TempBuffer1;
                          }
                 }
@@ -4474,7 +3717,6 @@ void FormatCdc(CIndexCollection *objIndexCollection, char* Buffer1, FILE* filept
 ****************************************************************************************************/
 void BRSpecificFormatCdc(CIndexCollection *objIndexCollection, char* Buffer1, FILE* fileptr, ENodeType eNodeType, int iNodeId )
 {
-    //char *Buffer1 = NULL;
     char *TempBuffer1 = NULL;
     strcpy(Buffer1, "");
     unsigned int len;
@@ -4484,28 +3726,14 @@ void BRSpecificFormatCdc(CIndexCollection *objIndexCollection, char* Buffer1, FI
     {
         CIndex* objIndex;
         objIndex = objIndexCollection->getIndex(i);
-        //if((!checkFlag) || (checkFlag && (objIndex->getFlagIfIncludedCdc() == TRUE)))
-        
-
-        //if(objIndex->getFlagIfIncludedCdc() == TRUE && true == CheckAccessTypeForInclude((char*)objIndex->getAccessType()))
         if(objIndex->getFlagIfIncludedCdc() == TRUE )
         {
                 if(CheckIfMappingPDO((char*)objIndex->getIndexValue()))
                 {
-                //TempBuffer1 = (char*)malloc(CDC_BUFFER);
-                //printf("\nDisable indexid=%s \n", (char*)objIndex->getIndexValue());
                 TempBuffer1 = new char[CDC_BUFFER];
                 len = strlen(Buffer1);      
-                //GetIndexData(objIndex,Buffer1);
                 EnableDisableMappingPDO(objIndexCollection, objIndex, TempBuffer1, false);
                 strcat(Buffer1, TempBuffer1);
-//                len = strlen(Buffer1);
-//                 if((len != (fwrite(Buffer1, sizeof(char),len,fileptr))))
-//                 {
-//                     //printf("Buffer1 written");
-//                 
-//                 }                   
-//                 
                  delete[] TempBuffer1;
                  }
         }
@@ -4515,27 +3743,15 @@ void BRSpecificFormatCdc(CIndexCollection *objIndexCollection, char* Buffer1, FI
             {
                 CIndex* objIndex;
                 objIndex = objIndexCollection->getIndex(i);
-                //if((!checkFlag) || (checkFlag && (objIndex->getFlagIfIncludedCdc() == TRUE)))
-                
-
                 if(objIndex->getFlagIfIncludedCdc() == TRUE && true == CheckAccessTypeForInclude((char*)objIndex->getAccessType()) && CheckIfNotPDO((char*)objIndex->getIndexValue()))
                 {
                         if((CN == eNodeType) ||  (strcmp(objIndex->getIndexValue(), "1F81") != 0 && MN == eNodeType))
                         {
-                        //Buffer1 = (char*)malloc(CDC_BUFFER);
-                        //TempBuffer1 = new char[CDC_BUFFER];
-                        //TempBuffer1 = new char[3 * CDC_BUFFER];
                         TempBuffer1 = new char[15000];
 						//commented the GetIndexData fn and BRSpecificGetIndexData is used
 						//GetIndexData(objIndex,TempBuffer1);
                         BRSpecificGetIndexData(objIndex,TempBuffer1,iNodeId);
                         strcat(Buffer1, TempBuffer1);
-                        /*len = strlen(Buffer1);
-                        if((len != (fwrite(Buffer1, sizeof(char),len,fileptr))))
-                        {
-                            //printf("Buffer1 written");
-                        
-                        } */                  
                         
                         delete[] TempBuffer1;
                         }
@@ -4545,7 +3761,6 @@ void BRSpecificFormatCdc(CIndexCollection *objIndexCollection, char* Buffer1, FI
                             if(NULL != objSubIndex && TRUE == objSubIndex->getFlagIfIncludedCdc() && true == CheckAccessTypeForInclude((char*)objSubIndex->getAccessType())  && NULL != objSubIndex->getActualValue() && 0 != strcmp((char*)objSubIndex->getActualValue(), "") && true == IsDefaultActualNotEqual(objSubIndex))
                             {
                                     TempBuffer1 = new char[CDC_BUFFER];
-                                    //TempBuffer1 = new char[2 * CDC_BUFFER];
                                     strcpy(TempBuffer1, "1F81");
                                     strcat(TempBuffer1, "\t");
                                     strcat(TempBuffer1, "F0");
@@ -4568,12 +3783,6 @@ void BRSpecificFormatCdc(CIndexCollection *objIndexCollection, char* Buffer1, FI
     
                                     strcat(TempBuffer1, "\n"); 
                                     len = strlen(TempBuffer1);
-//                                     if((len != (fwrite(Buffer1, sizeof(char),len,fileptr))))
-//                                     {
-//                                         //fclose(fileptr);
-//                                         //printf("Buffer1 written");
-//                                     
-//                                     }
                                     strcat(Buffer1, TempBuffer1);
                                     delete[] TempBuffer1;
                         }
@@ -4585,23 +3794,11 @@ void BRSpecificFormatCdc(CIndexCollection *objIndexCollection, char* Buffer1, FI
             {
                 CIndex* objIndex;
                 objIndex = objIndexCollection->getIndex(i);
-                //if((!checkFlag) || (checkFlag && (objIndex->getFlagIfIncludedCdc() == TRUE)))
-                
-
-                //if(objIndex->getFlagIfIncludedCdc() == TRUE && true == CheckAccessTypeForInclude((char*)objIndex->getAccessType()) && !CheckIfNotPDO((char*)objIndex->getIndexValue()))
                 if(objIndex->getFlagIfIncludedCdc() == TRUE && ( true == CheckAccessTypeForInclude((char*)objIndex->getAccessType()) || CheckIfMappingPDO((char*)objIndex->getIndexValue()) ) && !CheckIfNotPDO((char*)objIndex->getIndexValue()))
                 {
-                        //Buffer1 = (char*)malloc(CDC_BUFFER);
-                        //TempBuffer1 = new char[CDC_BUFFER];
                         TempBuffer1 = new char[3 * CDC_BUFFER];
                         GetIndexData(objIndex,TempBuffer1);
-                        //len = strlen(TempBuffer1);
                         strcat(Buffer1, TempBuffer1);
-                        /*if((len != (fwrite(Buffer1, sizeof(char),len,fileptr))))
-                        {
-                            //printf("Buffer1 written");
-                        
-                        }  */                 
                         
                         delete[] TempBuffer1;
                     }
@@ -4611,26 +3808,14 @@ void BRSpecificFormatCdc(CIndexCollection *objIndexCollection, char* Buffer1, FI
             {
                 CIndex* objIndex;
                 objIndex = objIndexCollection->getIndex(i);
-                //if((!checkFlag) || (checkFlag && (objIndex->getFlagIfIncludedCdc() == TRUE)))
-                
-
-                //if(objIndex->getFlagIfIncludedCdc() == TRUE && true == CheckAccessTypeForInclude((char*)objIndex->getAccessType()))
                 if(objIndex->getFlagIfIncludedCdc() == TRUE )
                 {
                         if(CheckIfMappingPDO((char*)objIndex->getIndexValue()))
                         {
-                        //Buffer1 = (char*)malloc(CDC_BUFFER);
                         TempBuffer1 = new char[CDC_BUFFER];
-                        //GetIndexData(objIndex,Buffer1);
                         EnableDisableMappingPDO(objIndexCollection, objIndex, TempBuffer1, true);
                         strcat(Buffer1, TempBuffer1);
-//                        len = strlen(TempBuffer1);
-//                         if((len != (fwrite(Buffer1, sizeof(char),len,fileptr))))
-//                         {
-//                             //printf("Buffer1 written");
-//                         
-//                         }                   
-//                         
+ 
                          delete[] TempBuffer1;
                          }
                 }
@@ -4647,7 +3832,6 @@ ocfmRetCode  ProcessCDT(CComplexDataType* pobjCDT,CApplicationProcess* pobjAppPr
 																 char* pbModuleName, char* pbModuleIndex)
 {
 
-	/*INT32 StartByteOffset = startingOffset ;*/
 	ocfmException objocfmException;
 	INT32 iStartBitOffset =  0;
 	INT32 iOffset;
@@ -4673,12 +3857,8 @@ ocfmRetCode  ProcessCDT(CComplexDataType* pobjCDT,CApplicationProcess* pobjAppPr
 			{
 				pobjCDT = pobjAppProc->getCDTbyUniqueID(objVarDecl.nam_id_dt_attr->getDtUniqueRefId());	
 				pobjAppProc->updatePreviousCDT_UId(objVarDecl.StructUniqueId, pobjCDT->Index);		
-				/*pobjCDT->previousCDT_UId = (char*)malloc(strlen(objVarDecl.StructUniqueId)+1);
-				strcpy(pobjCDT->previousCDT_UId, objVarDecl.StructUniqueId);*/
 				iLastVarIndex = iLoopCount;
-			/*	printf("\n previousCDT_UId : %s",pobjCDT->previousCDT_UId);
-				printf("\n DataRefID : %s",objVarDecl.nam_id_dt_attr->getDtUniqueRefId());
-		*/		ProcessCDT(pobjCDT, pobjAppProc, pobjNode, pobjParameter, enumPdoType, pbModuleName, pbModuleIndex );
+			ProcessCDT(pobjCDT, pobjAppProc, pobjNode, pobjParameter, enumPdoType, pbModuleName, pbModuleIndex );
 			}
 		if(!bCDTCompleted)
 		{	
@@ -4701,14 +3881,10 @@ ocfmRetCode  ProcessCDT(CComplexDataType* pobjCDT,CApplicationProcess* pobjAppPr
 			
 				if(objVarDecl.size != NULL)			
 				{
-				/*	objProcessImage.DataSize = (char*)malloc(5);*/
-					//strcpy(objProcessImage.DataInfo.DataSize, objVarDecl.size);
 					objProcessImage.DataInfo.DataSize = atoi(objVarDecl.size);					
 				}
 			else
 			{
-			/*		objProcessImage.DataSize = (char*)malloc(5);*/
-					//strcpy(objProcessImage.DataSize,"000x");
 			}
 				if(objVarDecl.nam_id_dt_attr->getName()!=NULL)
 				{
@@ -4727,7 +3903,6 @@ ocfmRetCode  ProcessCDT(CComplexDataType* pobjCDT,CApplicationProcess* pobjAppPr
 								
 					objProcessImage.VarName = (char*)malloc(strlen(objVarDecl.nam_id_dt_attr->getName()) + ALLOC_BUFFER);
 					strcpy(objProcessImage.VarName, objVarDecl.nam_id_dt_attr->getName());		
-					//printf("\n PI Name: %s",objProcessImage.Name);
 				}
 				
 				objProcessImage.CNNodeID = pobjNode->getNodeId();
@@ -4743,13 +3918,10 @@ ocfmRetCode  ProcessCDT(CComplexDataType* pobjCDT,CApplicationProcess* pobjAppPr
 			objProcessImage.DataInfo = *(getIECDT(objVarDecl.nam_id_dt_attr->getDataType(), objProcessImage.DataInfo.DataSize));
 			
 			/* Calculate Offset*/
-			//if((objProcessImage.DataInfo.DataSize >= 8 ) || ((objProcessImage.DataInfo.DataSize == 1) && (iStartBitOffset == 0 || iStartBitOffset ==8)))
-
             if(((objProcessImage.DataInfo._dt_enum  != BITSTRING) && (objProcessImage.DataInfo.DataSize >= 8 )) || ((objProcessImage.DataInfo._dt_enum  == BITSTRING) && (iStartBitOffset ==0 || iStartBitOffset ==8 || iStartBitOffset == 16 || iStartBitOffset == 32 || iStartBitOffset == 64)))
 			{
 				
 				bIsNewBitStringVar =  true;
-				//if((objProcessImage.DataInfo.DataSize == 1) && (iStartBitOffset == 0 || iStartBitOffset ==8))
                 if(objProcessImage.DataInfo._dt_enum  == BITSTRING) 
                 {
 			        iStartBitOffset = 0;					
@@ -4760,17 +3932,6 @@ ocfmRetCode  ProcessCDT(CComplexDataType* pobjCDT,CApplicationProcess* pobjAppPr
             
                         objVarDecl.Initialize();
                         objVarDecl = pobjCDT->varCollection[iBitStringCount];            
-                        /*if(objVarDecl.nam_id_dt_attr->getDtUniqueRefId() != NULL)
-                        {
-                            pobjCDT = pobjAppProc->getCDTbyUniqueID(objVarDecl.nam_id_dt_attr->getDtUniqueRefId()); 
-                            pobjAppProc->updatePreviousCDT_UId(objVarDecl.StructUniqueId, pobjCDT->Index);      
-                            //pobjCDT->previousCDT_UId = (char*)malloc(strlen(objVarDecl.StructUniqueId)+1);
-                            //strcpy(pobjCDT->previousCDT_UId, objVarDecl.StructUniqueId);
-                            //iLastVarIndex = iLoopCount;
-                            //printf("\n previousCDT_UId : %s",pobjCDT->previousCDT_UId);
-                            //printf("\n DataRefID : %s",objVarDecl.nam_id_dt_attr->getDtUniqueRefId());
-                          ProcessCDT(pobjCDT, pobjAppProc, pobjNode, pobjParameter, enumPdoType, pbModuleName, pbModuleIndex );
-                        }*/
                         if( BITSTRING == ((*(getIECDT(objVarDecl.nam_id_dt_attr->getDataType(), objProcessImage.DataInfo.DataSize)))._dt_enum) )
                         {
                             iDataSize +=  atoi(objVarDecl.size);
@@ -4826,19 +3987,11 @@ ocfmRetCode  ProcessCDT(CComplexDataType* pobjCDT,CApplicationProcess* pobjAppPr
 				objProcessImage.ByteOffset = iOffset;
 				bIsNewBitStringVar =  false;
 			}
-		/*	else if
-			SetPIOffsets(&objProcessImage, iOffset, iLoopCount,iStartBitOffset); */
 		pobjNode->addProcessImage(objProcessImage);
 		}
 		
 	}
 
-		/*if(pobjCDT->VarIndex != -1)
-		{
-			varDeclaration objVarDecl;
-			objVarDecl = pobjCDT->
-			pobjCDT
-		}*/
 		if(pobjCDT->previousCDT_UId !=NULL)
 		{
 			pobjCDT = pobjAppProc->getCDTbyUniqueID(pobjCDT->previousCDT_UId);
@@ -4848,17 +4001,11 @@ ocfmRetCode  ProcessCDT(CComplexDataType* pobjCDT,CApplicationProcess* pobjAppPr
 				if(!bCDTCompleted)
 				{
 					varDeclaration objVarDecl;
-					//printf("\n iLoopCount : %d",iLoopCount);
 					objVarDecl = pobjCDT->varCollection[iLoopCount];
-					//printf("\nVar Count: %d",pobjCDT->varCollection.Count());
 					if(objVarDecl.nam_id_dt_attr->getDtUniqueRefId() != NULL)
 					{
-						/*pobjCDT->previousCDT_UId = (char*)malloc(strlen(objVarDecl.StructUniqueId)+1);
-						strcpy(pobjCDT->previousCDT_UId, objVarDecl.StructUniqueId);	*/	
 						pobjCDT = pobjAppProc->getCDTbyUniqueID(objVarDecl.nam_id_dt_attr->getDtUniqueRefId());
 						pobjAppProc->updatePreviousCDT_UId(objVarDecl.StructUniqueId, pobjCDT->Index);
-						//printf("\n previousCDT_UId : %s",pobjCDT->previousCDT_UId);
-						//printf("\n DataRefID : %s",objVarDecl.nam_id_dt_attr->getDtUniqueRefId());
 				
 						iLastVarIndex = iLoopCount;
 						ProcessCDT(pobjCDT, pobjAppProc, pobjNode, pobjParameter, enumPdoType, pbModuleName,pbModuleIndex);
@@ -4870,7 +4017,6 @@ ocfmRetCode  ProcessCDT(CComplexDataType* pobjCDT,CApplicationProcess* pobjAppPr
 		
 	}
 	bCDTCompleted = true;
-	//printf("exiting");
 }
 
 /****************************************************************************************************
@@ -4901,15 +4047,6 @@ void DecodeUniqiueIDRef(char* uniquedIdref, CNode* pobjNode, EPDOType enumPdoTyp
 					throw objocfmException;
 				}
 				
-				//if(pobjParameter->access != NULL)
-				//{
-				//	
-				//	//procImage.Direction = getParameterAccess(pobjParameter->access);
-				//	//strcpy(procImage.Direction, getParameterAccess(pobjParameter->access));
-				//	strcpy(procImage.Direction, "rw");
-				//	procImage.ParametrIndex = pobjParameter->ParaIndex;
-
-				//}
 				// Check if DataTypeUniqueIDref exists
 				if(pobjParameter->name_id_dt_attr.dataTypeUniqueIDRef !=NULL)
 				{
@@ -4977,11 +4114,6 @@ ocfmRetCode ProcessPDONodes(bool IsBuild)
     
 	try
 	{
-		/*if(NodesCount == 0)
-		{				
-			objex.ocfm_Excpetion(OCFM_ERR_NO_CN_NODES_FOUND);
-			throw objex;
-		}*/
 		if(iNodesCount == 0)
 		{				
 			exit;
@@ -5000,12 +4132,9 @@ ocfmRetCode ProcessPDONodes(bool IsBuild)
         INT32* pArrangedNodeIDbyStation;
         pArrangedNodeIDbyStation = ArrangeNodeIDbyStation();
 		for(INT32 iLoopCount = 0; iLoopCount < objNodeCol->getNumberOfNodes(); iLoopCount++)
-        //for(INT32 iLoopCount = 0; iLoopCount < iNodesCount; iLoopCount++)
 		{
-		//printf("\n iiNodeID %d",NodeID);
 
 			pobjNode = objNodeCol->getNodebyColIndex(iLoopCount);
-            //pobjNode = objNodeCol->getNodebyColIndex(pArrangedNodeIDbyStation[iLoopCount]);
 			/* Process PDO Objects for CN*/
 		
 				if (pobjNode->getNodeType() == MN )
@@ -5069,8 +4198,6 @@ ocfmRetCode ProcessPDONodes(bool IsBuild)
 					            #endif
 								//check whether the channel is activated
 
-								//if((true == IsBuild))
-								//{
 									CSubIndex *pobjNoofEntriesSubIndex;
 									pobjNoofEntriesSubIndex = pobjBforeSortIndex->getSubIndexbyIndexValue((char *)"00");
 									if(NULL != pobjNoofEntriesSubIndex)
@@ -5094,7 +4221,6 @@ ocfmRetCode ProcessPDONodes(bool IsBuild)
 										continue;
 									}
 
-								//}
 
 								//set the correponding 14xx/01 to f0
 								if((true == IsBuild) && (strncmp(objIndex.getIndexValue(), "16", 2) == 0))
@@ -5148,22 +4274,14 @@ ocfmRetCode ProcessPDONodes(bool IsBuild)
 										
 										const char* pbActualVal = pobjSubIdx->getActualValue();
 										INT32 iLength = strlen(pbActualVal);
-										//char* reverseValue = (char*)malloc(iLength);
-										/* Reverse the actual pbActualVal to get Index / subindex*/
-								/*		reverseValue = reverse((char*)pbActualVal);*/
-										
-										/* Get the Index*/
-										//char* strModuleIndex = (char*)malloc(INDEX_SIZE + ALLOC_BUFFER);
 										char* pbModuleIndex = NULL;// = new char[INDEX_SIZE + ALLOC_BUFFER];
 										pbModuleIndex = subString((char*)pbActualVal, iLength-4,4);
 										pbModuleIndex[5] ='\0';
-								/*		pbModuleIndex = strncpy(pbModuleIndex,reverseValue,4);*/
 										#if defined DEBUG	
 					                        cout<< "pbModuleIndex:"<<pbModuleIndex << endl;
 				                        #endif
 								
 								/* Get the SubIndex*/
-										//char* strSubIndex = (char*)malloc(SUBINDEX_SIZE + ALLOC_BUFFER);
 										char* pbSubIndex = NULL;// = new char[SUBINDEX_SIZE + ALLOC_BUFFER];
 										//pbSubIndex = subString(reverseValue,2,2);
 										pbSubIndex = subString((char*)pbActualVal, iLength-6,2);
@@ -5263,13 +4381,9 @@ ocfmRetCode ProcessPDONodes(bool IsBuild)
 											
 											EPDOType pdoType = objIndex.getPDOType();							
 											
-										//printf("\n NodeID %d",objNode->getNodeId());
 											if(uniqueidRefID != NULL)
 											{
-												//DecodeUniqiueIDRef(objSIndex->getUniqueIDRef(), objNode, pdoType, (char*) objModuleIndex->getName(), (char*)objModuleIndex->getIndexValue());
 												DecodeUniqiueIDRef(uniqueidRefID, pobjNode, pdoType, (char*) pobjModuleIndex->getName(), (char*)pobjModuleIndex->getIndexValue());
-												//printf("\n size8 prev offset: %d",size8INOffset.prevOffset);
-												//printf("\n size8 curr offset: %d",size8INOffset.currOffset);
 											}
                                             else
 											{
@@ -5295,20 +4409,16 @@ ocfmRetCode ProcessPDONodes(bool IsBuild)
 													objProcessImage.Name = (char*)realloc(objProcessImage.Name, strlen(objProcessImage.Name)+ strlen(pbModuleName) + ALLOC_BUFFER);																		
 													strcat(objProcessImage.Name, pbModuleName);
 													
-											/*	objProcessImage.Name = (char*)malloc(strlen(Name) + 6 + ALLOC_BUFFER);
-												strcpy(objProcessImage.Name,getPIName(pobjNode->getNodeId()));*/
 												objProcessImage.ModuleName = (char*)malloc(strlen(pbModuleName) + ALLOC_BUFFER);
 												strcpy(objProcessImage.ModuleName, pbModuleName);		
 												}
 												else
 												{
 													/*If the object name is empty, Ixxxx (xxxx is the index number in hex) */
-												//	cout << "\nObjectName empty" << endl;
 													pbModuleName = new char[INDEX_LEN + 1 + ALLOC_BUFFER];
 													strcpy(pbModuleName, "I");
 													strcat(pbModuleName, objIndex.getIndexValue());
 													
-													//cout << "pbModuleName" << pbModuleName;
 													objProcessImage.Name = (char*)realloc(objProcessImage.Name, strlen(objProcessImage.Name)+ strlen(pbModuleName) + ALLOC_BUFFER);																		
 													strcat(objProcessImage.Name, pbModuleName);
 												
@@ -5317,20 +4427,12 @@ ocfmRetCode ProcessPDONodes(bool IsBuild)
 												}
 												
 							
-												//strcat(pi.Name, ModuleName);
-												//strcat(pi.Name,objSIndex->getName());
-												
-												//pi.ModuleName = (char*)malloc(strlen(ModuleName) + ALLOC_BUFFER);
-												//strcpy(pi.ModuleName, ModuleName);		
-												
 												objProcessImage.ModuleIndex = (char*)malloc(strlen(pbModuleIndex) + ALLOC_BUFFER);
 												strcpy(objProcessImage.ModuleIndex, pbModuleIndex);	
 												
 															
-												//pi.VarName = (char*)malloc(strlen(objSIndex->getName()) + ALLOC_BUFFER);
 												if(bObjectMapped)
 												{
-												//	cout << "\n objectmapped";																			
 													objProcessImage.VarName = (char*)malloc(strlen(pbModuleName) + ALLOC_BUFFER);
 													strcpy(objProcessImage.VarName, pbModuleName);
 												}
@@ -5340,7 +4442,6 @@ ocfmRetCode ProcessPDONodes(bool IsBuild)
 													{
 														objProcessImage.VarName = (char*)malloc(strlen(pbSIdxName) + ALLOC_BUFFER);
 														strcpy(objProcessImage.VarName, pbSIdxName);		
-											//			cout << "\n SubObjectName" << pbSIdxName;
 													
 														objProcessImage.Name = (char*)realloc(objProcessImage.Name,(strlen(objProcessImage.Name) + strlen(pbSIdxName) + 1+ ALLOC_BUFFER));
 														strcat(objProcessImage.Name, ".");
@@ -5370,18 +4471,6 @@ ocfmRetCode ProcessPDONodes(bool IsBuild)
 												
 									
 												
-												/* Access of the Process Image variable*/
-												//strcpy(pi.Direction, objSIndex->getAccessType());
-										
-												//DataType dt;
-												//dt = objSIndex->getDataType();
-												/* Data Size in hex of the Process Image variable*/
-											/*	objProcessImage.DataSize = (char*)malloc(strlen(dt.DataSize+1));*/
-												//strcpy(objProcessImage.DataSize, dt.DataSize);
-												//printf("\n Datasize %d", dt.DataSize);
-												
-												
-												//pi.DataInfo.DataSize = atoi(dt.DataSize);
 												objProcessImage.DataInfo.DataSize = dt.DataSize *8;
 												
 												/* Total bytes Mapped */
@@ -5429,27 +4518,6 @@ ocfmRetCode ProcessPDONodes(bool IsBuild)
                                                 pcLength = subString((char *)pbActualVal, 2, 4);
                                                 iLength = hex2int(pcLength);
                                                 
-                                                /*bool bSetPReqPayload = false;
-                                                CIndex *pobjCommIndex;
-                                                CSubIndex *pobjNodeIDSubIndex;
-                                                char *pcIdx = subString((char *)objIndex.getIndexValue(), 2, 4);
-                                                char *pcCommIdx = new char[INDEX_SIZE];
-                                                strcpy(pcCommIdx, (char *)"14");
-                                                strcat(pcCommIdx, pcIdx);
-                                                pobjCommIndex = pobjIndexCollection->getIndexbyIndexValue(pcCommIdx);
-                                                if(NULL != pobjCommIndex)
-                                                {
-                                                    pobjNodeIDSubIndex = pobjCommIndex->getSubIndexbyIndexValue((char *)"01");
-                                                    if(NULL != pobjNodeIDSubIndex)
-                                                    {
-                                                        if(0 == GetDecimalValue((char*)pobjNodeIDSubIndex->getActualValue()))
-                                                        {
-                                                            bSetPReqPayload = true;
-                                                        }
-                                                    }
-                                                }*/
-                                                  
-
 												char* offset = new char[5];
                                                 memset(offset, 0, 5*sizeof(char));
                                                 if(CHAINED == eNodeStation)
@@ -5476,62 +4544,19 @@ ocfmRetCode ProcessPDONodes(bool IsBuild)
                                                     iTotalChainedBytesMapped =  iTotalChainedBytesMapped +  iLength;
                                                     
                                                 }
-                                                /*if(true == bSetPReqPayload)
-                                                {
-                                                    if(CHAINED == eNodeStation)
-                                                    {
-                                                        pobjNode->setPReqActPayloadValue(iTotalChainedBytesMapped/8);
-                                                    }
-                                                    else
-                                                    {
-                                                        pobjNode->setPReqActPayloadValue(iNodeMappedTotalBytes/8);
-                                                    }
-                                                }*/
                                                 
 												delete[] pbModOffset;
                                                 delete[] pcLength;
                                                 delete[] offset;
-                                                //delete [] pcCommIdx;
-                                                //delete [] pcIdx;
 											}
-                                            /*if((true == IsBuild) &&  (strncmp(objIndex.getIndexValue(), "1A", 2) == 0))
-                                            {
-                                                char* pbModOffset = new char[strlen(pbActualVal) + 1];
-                                                strcpy(pbModOffset, pbActualVal);
-                                                INT32 iLength = 0;
-                                                char* pcLength = NULL;
-                                                pcLength = subString((char *)pbActualVal, 2, 4);
-                                                iLength = hex2int(pcLength);
-    
-                                                char* pcOffset = NULL;
-                                                pcOffset = subString((char *)pbActualVal, 6, 4);
-                                                INT32 iOffset = 0;
-                                                iOffset = hex2int(pcOffset);
-                                                  
-                                                pobjNode->setPResActPayloadValue(pobjNode->getPResActPayloadValue() + (iLength / 8) );
-                                                
-                                                delete[] pbModOffset;
-                                                delete[] pcLength;
-                                                delete[] pcOffset;
-                                            }*/
 									}
 									iSiCount++;
 									}
 								}
 							}
 						}
-						//UpdatePreqActLoad(pobjNode);
-						//UpdatePresActLoad(pobjNode);
 					}
 				}
-        /*if(true == IsBuild)
-        {
-          if( (NULL != pobjMNNode) && (true == IsPresMN()) )
-          {
-                pobjMNNode->setPResActPayloadValue(iTotalChainedBytesMapped / 8);
-                UpdatePresActLoad(pobjMNNode);
-          }
-        }*/
 		delete[] pArrangedNodeIDbyStation;
         stRetInfo.code = OCFM_ERR_SUCCESS ;
 		return stRetInfo;
@@ -5567,8 +4592,6 @@ void CalculatePayload()
     iNodesCount = objNodeCol->getCNNodesCount();
                         
         
-    //try
-    //{
         if(iNodesCount == 0)
         {               
         exit;
@@ -5577,11 +4600,9 @@ void CalculatePayload()
         INT32* pArrangedNodeIDbyStation;
         pArrangedNodeIDbyStation = ArrangeNodeIDbyStation();
         for(INT32 iLoopCount = 0; iLoopCount < objNodeCol->getNumberOfNodes(); iLoopCount++)
-            //for(INT32 iLoopCount = 0; iLoopCount < iNodesCount; iLoopCount++)
         {
         
             pobjNode = objNodeCol->getNodebyColIndex(iLoopCount);
-                    //pobjNode = objNodeCol->getNodebyColIndex(pArrangedNodeIDbyStation[iLoopCount]);
             /* Process PDO Objects for CN*/
                 
             if (pobjNode->getNodeType() == MN )
@@ -5590,7 +4611,6 @@ void CalculatePayload()
             }
             else
             {
-				//printf("CN-%d \n", pobjNode->getNodeId());
                 if(!(pobjNode->HasPdoObjects()))    
                 {
                     continue;
@@ -5626,9 +4646,7 @@ void CalculatePayload()
                             INT32 iSiCount = 1;
                             INT32 iSiTotal = objIndex.getNumberofSubIndexes();
 
-                            //bool bSetPReqPayload = false;
 							INT32 iNodeRPDOMappedNodeID = -1;
-							//printf("\tIndex id:%s \n", objIndex.getIndexValue());
                             if(strncmp(objIndex.getIndexValue(), "16", 2) == 0)
                             {
                                 CIndex *pobjCommIndex;
@@ -5643,7 +4661,6 @@ void CalculatePayload()
                                     pobjNodeIDSubIndex = pobjCommIndex->getSubIndexbyIndexValue((char *)"01");
                                     if(NULL != pobjNodeIDSubIndex)
                                     {
-										//printf("%s 01 actual:%s \n", pcCommIdx, (char*)pobjNodeIDSubIndex->getActualValue());
 										iNodeRPDOMappedNodeID = GetDecimalValue((char*)pobjNodeIDSubIndex->getActualValue());
 									}
                                 }
@@ -5696,12 +4713,10 @@ void CalculatePayload()
                                     {
                                         iTotalChainedBytesMapped =  iOffset +  iLength;
                                     }
-									//printf("Idx:%s SIdx:%s iOffset=%d iLength=%d iNodeMappedTotalBytes:%d iTotalChainedBytesMapped=%d \n", objIndex.getIndexValue(), pobjSubIdx->getIndexValue(), iOffset,  iLength, iNodeMappedTotalBytes, iTotalChainedBytesMapped);
                                     if(BROADCAST_NODEID == iNodeRPDOMappedNodeID)
                                     {
                                         pobjNode->setPReqActPayloadValue( (iOffset +  iLength) / 8);
                                     }
-										//printf("PReqLoad: %d \n", (iOffset +  iLength) / 8);
                     
                                     delete[] pbModOffset;
                                     delete[] pcLength;
@@ -5742,13 +4757,6 @@ void CalculatePayload()
             UpdatePresActLoad(pobjMNNode);
         }
         delete[] pArrangedNodeIDbyStation;
-//         stRetInfo.code = OCFM_ERR_SUCCESS ;
-//         return stRetInfo;
-//     }
-//     catch(ocfmException& ex)
-//     {
-//         return ex._ocfmRetCode;
-//     }
 }
 /****************************************************************************************************
 * Function Name: getCNDataLen
@@ -5779,7 +4787,6 @@ INT32 getCNDataLen(char* pbBuffer)
 				cCharRead = *(pbBuffer + iLoopCount);
 				iLoopCount++;
 			}
-				/*while(fgetc(fin) != '\n');*/
 		}
 		else if( cCharRead != '\t' || cCharRead != '\n' || cCharRead != ' ')
 		{
@@ -5799,16 +4806,12 @@ INT32 getCNDataLen(char* pbBuffer)
 			}
 		
 		iLength = iNoOfChars;
-		//printf( "\niLength = %d\n",iLength);
 		//For Byte Packing
 		for (iCtr = 0 , iCount = 0; iCtr < iLength; iCtr++, iCount++ )
 		{
 			abTempCnObd[iCount] = (unsigned char)( ( abCnObd[ iCtr ] << 4 ) | abCnObd[ iCtr + 1 ] );
 			iCtr++;
-			//printf("0x%2x\t",abTempCnObd[iCount]);
 		}
-		//printf("Size : %d\n", iCount);
-		/*iCount = iCount -1;*/
 		}
 		return iCount;
 }
@@ -5895,7 +4898,6 @@ void WriteXAPElements(ProcessImage aobjPICol[], xmlTextWriterPtr& pxtwWriter,INT
     iBytesWritten = xmlTextWriterStartElement(pxtwWriter, BAD_CAST "ProcessImage");
     if (iBytesWritten < 0)
     {
-        //printf("testXmlwriterDoc: Error at xmlTextWriterStartElement\n");
         return;
     }
     if(piType ==INPUT)
@@ -5908,7 +4910,6 @@ void WriteXAPElements(ProcessImage aobjPICol[], xmlTextWriterPtr& pxtwWriter,INT
                                   
     if (iBytesWritten < 0)
     {
-        //printf("testXmlwriterDoc: Error at xmlTextWriterWriteAttribute\n");
         return;
     }
     
@@ -5921,7 +4922,6 @@ void WriteXAPElements(ProcessImage aobjPICol[], xmlTextWriterPtr& pxtwWriter,INT
     iBytesWritten = xmlTextWriterStartElement(pxtwWriter, BAD_CAST "Channel");
     if (iBytesWritten < 0)
     {
-        //printf("testXmlwriterDoc: Error at xmlTextWriterStartElement\n");
         return;
     }
 			
@@ -5930,40 +4930,26 @@ void WriteXAPElements(ProcessImage aobjPICol[], xmlTextWriterPtr& pxtwWriter,INT
     
 
     /* Add an attribute with name "Name" and value  to channel. */
-     //printf("\n%s",objProcessImage.Name);
     iBytesWritten = xmlTextWriterWriteAttribute(pxtwWriter, BAD_CAST "Name",      
                                    BAD_CAST objProcessImage.Name);
                                   
     if (iBytesWritten < 0)
     {
-        //printf("testXmlwriterDoc: Error at xmlTextWriterWriteAttribute\n");
         return;
     }
     
     
 
-    ///* Add an attribute with name "direction" and value to channel */
-    //  printf("\n%s",objProcessImage.Direction);
-    //iBytesWritten = xmlTextWriterWriteAttribute(pxtwWriter, BAD_CAST "Direction",
-    //                                 BAD_CAST objProcessImage.Direction );
-    //if (iBytesWritten < 0)
-    //{
-    //    printf("testXmlwriterDoc: Error at xmlTextWriterWriteAttribute\n");
-    //    return;
-    //}
 
 				/* Add an attribute with name "DataType" and value to channel */
-				 //printf("\n%s",objProcessImage.DataType);
     iBytesWritten = xmlTextWriterWriteAttribute(pxtwWriter, BAD_CAST "dataType",
                                      BAD_CAST objProcessImage.DataInfo._dt_Name );
     if (iBytesWritten < 0)
     {
-        //printf("testXmlwriterDoc: Error at xmlTextWriterWriteAttribute\n");
         return;
     }
     
     ///* Add an attribute with name "dataSize" and value to channel */
-    //printf("\n%s",objProcessImage.DataSize);
     char * pbDataSize = new char[20];
     pbDataSize = _IntToAscii(objProcessImage.DataInfo.DataSize,pbDataSize,10);
     
@@ -5971,13 +4957,11 @@ void WriteXAPElements(ProcessImage aobjPICol[], xmlTextWriterPtr& pxtwWriter,INT
                                      BAD_CAST pbDataSize );
     if (iBytesWritten < 0)
     {
-        //printf("testXmlwriterDoc: Error at xmlTextWriterWriteAttribute\n");
         return;
     }
 			
    
      ///* Add an attribute with name "dataSize" and value to channel */
-    //printf("\n%s",objProcessImage.ByteOffset);
   		char* pbByteOffset = new char[6];
 				pbByteOffset = _IntToAscii(objProcessImage.ByteOffset, pbByteOffset, 16);
 				pbByteOffset = ConvertToHexformat(pbByteOffset, 4, 1);
@@ -5986,7 +4970,6 @@ void WriteXAPElements(ProcessImage aobjPICol[], xmlTextWriterPtr& pxtwWriter,INT
                                      BAD_CAST pbByteOffset );
     if (iBytesWritten < 0)
     {
-        //printf("testXmlwriterDoc: Error at xmlTextWriterWriteAttribute\n");
         return;
     }
     
@@ -6001,14 +4984,12 @@ void WriteXAPElements(ProcessImage aobjPICol[], xmlTextWriterPtr& pxtwWriter,INT
     }
     if (iBytesWritten < 0)
     {
-        //printf("testXmlwriterDoc: Error at xmlTextWriterWriteAttribute\n");
         return;
     }
     ///* Close the element named Channel. */
     iBytesWritten = xmlTextWriterEndElement(pxtwWriter);
     if (iBytesWritten < 0)
     {
-        //printf("testXmlwriterDoc: Error at xmlTextWriterEndElement\n");
         return;
     }
 			}
@@ -6016,7 +4997,6 @@ void WriteXAPElements(ProcessImage aobjPICol[], xmlTextWriterPtr& pxtwWriter,INT
    iBytesWritten = xmlTextWriterEndElement(pxtwWriter);
    if (iBytesWritten < 0)
    {
-       //printf("testXmlwriterDoc: Error at xmlTextWriterEndElement\n");
        return;
    }
 
@@ -6031,13 +5011,10 @@ void StartXAPxml(xmlTextWriterPtr& pxtwWriter,  xmlDocPtr& pxdDoc)
 
 {
 	 INT32 iBytesWritten;
-		//xmlTextWriterPtr pxtwWriter =NULL;
-
 
     /* Create a new XmlWriter for DOM, with no compression. */
     pxtwWriter = xmlNewTextWriterDoc(&pxdDoc, 0);
     if (pxtwWriter == NULL) {
-        //printf("testXmlwriterDoc: Error creating the xml pxtwWriter\n");
         return;
     }
 
@@ -6046,7 +5023,6 @@ void StartXAPxml(xmlTextWriterPtr& pxtwWriter,  xmlDocPtr& pxdDoc)
      * declaration. */
     iBytesWritten = xmlTextWriterStartDocument(pxtwWriter, NULL, MY_ENCODING, NULL);
     if (iBytesWritten < 0) {
-       //printf("testXmlwriterDoc: Error at xmlTextWriterStartDocument\n");
         return;
     }
 
@@ -6054,12 +5030,10 @@ void StartXAPxml(xmlTextWriterPtr& pxtwWriter,  xmlDocPtr& pxdDoc)
 		 iBytesWritten = xmlTextWriterWriteComment(pxtwWriter,BAD_CAST "This file was autogenerated by openCONFIGURATOR");
     if (iBytesWritten < 0)
      {
-        //printf("testXmlwriterDoc: Error at xmlTextWriterWriteFormatComment\n");
         return;
     }
     iBytesWritten = xmlTextWriterStartElement(pxtwWriter, BAD_CAST "ApplicationProcess");
     if (iBytesWritten < 0) {
-        //printf("testXmlwriterDoc: Error at xmlTextWriterStartElement\n");
         return;
     }
 }
@@ -6078,12 +5052,10 @@ void EndWrtitingXAP( xmlTextWriterPtr& pxtwWriter, char* pbFileName, xmlDocPtr& 
     iBytesWritten = xmlTextWriterEndElement(pxtwWriter);
     if (iBytesWritten < 0)
     {
-       // printf("testXmlwriterDoc: Error at xmlTextWriterEndElement\n");
         return;
     }
     iBytesWritten = xmlTextWriterEndDocument(pxtwWriter);
     if (iBytesWritten < 0) {
-        //printf("testXmlwriterDoc: Error at xmlTextWriterEndDocument\n");
         return;
     }
 
@@ -6127,17 +5099,9 @@ ocfmRetCode GenerateXAP(char* pbFileName)
 			CNode objNode;
 			xmlTextWriterPtr pxtwWriter = NULL;
 			xmlDocPtr pxdDoc = NULL;
-			//INT32 picount = 0;
-			//INT32 iLoopCount=10;
 			ProcessImage aobjPiInCol[PI_VAR_COUNT] = {};
 			ProcessImage aobjPiOutCol[PI_VAR_COUNT] = {};
 			GroupInOutPIVariables(aobjPiInCol, aobjPiOutCol);
-			/* Calculate Offsets for Input Variable*/
-			//CalculateOffsets(InVars, INPUT);
-			
-				/* Calculate Offsets for Input Variable*/
-			//CalculateOffsets(OutVars, OUTPUT);
-			
 			
 			StartXAPxml(pxtwWriter, pxdDoc);	
 			if(iInVars !=0)
@@ -6147,10 +5111,8 @@ ocfmRetCode GenerateXAP(char* pbFileName)
 			WriteXAPElements(aobjPiOutCol, pxtwWriter, iOutVars, OUTPUT);
 
 
-			//printf("\n pbFileName%s",pbFileName); 
 			strcpy(xapFileName, pbFileName);
 			strcat(xapFileName, ".xml");
-			//printf("\n xapFileName%s",xapFileName); 
 			EndWrtitingXAP(pxtwWriter, xapFileName, pxdDoc);
 			
 			/*Generate Header file */			
@@ -6174,7 +5136,6 @@ ocfmRetCode GenerateNET(char* pbFileName)
 		ocfmException objException;
 		pobjNodeCollection = CNodeCollection::getNodeColObjectPointer();		
 		ocfmRetCode stRetInfo;
-		//char* xapFileName = new char[strlen(pbFileName) + 4 + ALLOC_BUFFER];
 		try
 		{
 			if(pobjNodeCollection->getNumberOfNodes()==0)
@@ -6188,16 +5149,7 @@ ocfmRetCode GenerateNET(char* pbFileName)
 				throw objException;
 			}
 			
-					/*Process PDO Nodes*/
-				//stRetInfo = ProcessPDONodes();
-				
-				//if(stRetInfo.code != OCFM_ERR_SUCCESS)
-				//return stRetInfo;
 			CNode objNode;
-			//xmlTextWriterPtr pxtwWriter = NULL;
-			//xmlDocPtr pxdDoc = NULL;
-			//INT32 picount = 0;
-			//INT32 iLoopCount=10;
 			ProcessImage aobjPiInCol[PI_VAR_COUNT] = {};
 			ProcessImage aobjPiOutCol[PI_VAR_COUNT] = {};
 			GroupInOutPIVariables(aobjPiInCol, aobjPiOutCol);
@@ -6234,12 +5186,10 @@ ocfmRetCode GetIndexAttributes(
 		stErrorInfo = IfIndexExists(iNodeID, enumNodeType, pbIndexID, &iIndexPos);
 		if(stErrorInfo.code == OCFM_ERR_SUCCESS)
 		{
-			//cout << "iIndexPos:" << iIndexPos << endl;
+			//continue with process
 		}
 		else
 		{
-			 //OCFM_ERR_INDEXID_NOT_FOUND;
-			//return stErrorInfo;
 			ocfmException objException;				
 			objException.ocfm_Excpetion(OCFM_ERR_INDEXID_NOT_FOUND);
 			throw objException;
@@ -6323,14 +5273,10 @@ ocfmRetCode GetIndexAttributes(
 					strcpy(pbOutAttributeValue, "0");			
 					break;					
 			default:
-					//cout << "invalid Attribute Type" << endl;
-					//stErrorInfo.code = OCFM_ERR_INVALID_ATTRIBUTETYPE;
-					//return stErrorInfo;
 					ocfmException objException;				
 					objException.ocfm_Excpetion(OCFM_ERR_INVALID_ATTRIBUTETYPE);
 					throw objException;
 		}
-		//cout << "\n\n\n$SOut_AttributeValue:" << pbOutAttributeValue << endl;
 		stErrorInfo.code = OCFM_ERR_SUCCESS;
 		return stErrorInfo;
 	}
@@ -6364,10 +5310,7 @@ ocfmRetCode GetIndexAttributesbyPositions(
 
 		pobjNodeCollection= CNodeCollection::getNodeColObjectPointer();
 		
-		//pobjIndexCollection = objNode.getIndexCollection();
-		
 		INT32 iTempNodeCount = pobjNodeCollection->getNumberOfNodes();		
-		//cout << "\n\ntmp_NodeCount:" << iTempNodeCount << endl;
 		if(iNodePos >= iTempNodeCount)
 		{
 			ocfmException objException;//new ocfmException;
@@ -6385,16 +5328,15 @@ ocfmRetCode GetIndexAttributesbyPositions(
 		pobjIndexCollection = objNode.getIndexCollection();
 		
 		INT32 iTempIndexCount = pobjIndexCollection->getNumberofIndexes();
-		//cout << "\n\iTempIndexCount:" << iTempIndexCount << endl;
 		if(iTempIndexCount == 0)
 		{
-			ocfmException objException;// = new ocfmException;
+			ocfmException objException;
 			objException.ocfm_Excpetion(OCFM_ERR_NO_INDEX_FOUND);
 			throw &objException;
 		}
 		else if(iIndexPos >= iTempIndexCount)
 		{
-			ocfmException objException;// = new ocfmException;
+			ocfmException objException;
 			objException.ocfm_Excpetion(OCFM_ERR_INVALID_INDEXPOS);
 			throw &objException;
 		}
@@ -6471,17 +5413,14 @@ ocfmRetCode GetIndexAttributesbyPositions(
 							strcpy(pbOutAttributeValue, "0");	
 						break;					
 				default:
-						//cout << "invalid Attribute Type" << endl;
 						stErrorInfo.code = OCFM_ERR_INVALID_ATTRIBUTETYPE;
 						return stErrorInfo;
 			}
 	}
 	catch(ocfmException* ex)
 	{
-		//cout << "\n\nCatch...\n" << endl;
 		return ex->_ocfmRetCode;
 	}
-	//cout << "\n\n\n$SOut_AttributeValue:" << pbOutAttributeValue << endl;
 	stErrorInfo.code = OCFM_ERR_SUCCESS;
 	return stErrorInfo;
 }
@@ -6514,12 +5453,10 @@ ocfmRetCode GetSubIndexAttributes(
 			stErrorInfo = IfSubIndexExists(iNodeID, enumNodeType, pbIndexID, pbSubIndexID, &iSubIndexPos, &iIndexPos);
 			if(stErrorInfo.code == OCFM_ERR_SUCCESS)
 			{
-				//iSubIndexPos = Tmp_stErrorInfo.returnValue;
+				//continue with process
 			}
 			else
 			{
-				//OCFM_ERR_INVALID_SUBINDEXID;
-				//return stErrorInfo;
 				ocfmException objException;				
 				objException.ocfm_Excpetion(OCFM_ERR_INVALID_SUBINDEXID);
 				throw objException;
@@ -6532,8 +5469,6 @@ ocfmRetCode GetSubIndexAttributes(
 			pobjIndexCollection = objNode.getIndexCollection();
 			pobjSubIndex =pobjIndexCollection->getIndex(iIndexPos);
 			
-			//cout << "NumberofSubIndexes:" << objIndex.getNumberofSubIndexes()<< endl;
-
 			CSubIndex* pobjSubIndexPtr;
 			pobjSubIndexPtr = pobjSubIndex->getSubIndex(iSubIndexPos);	
 			
@@ -6602,9 +5537,6 @@ ocfmRetCode GetSubIndexAttributes(
 							strcpy(pbOutAttributeValue, "0");			
 						break;							
 				default:
-						//cout << "invalid Attribute Type" << endl;
-						//stErrorInfo.code = OCFM_ERR_INVALID_ATTRIBUTETYPE;
-						//return stErrorInfo;
 						ocfmException objException;				
 						objException.ocfm_Excpetion(OCFM_ERR_INVALID_SUBINDEXID);
 						throw objException;
@@ -6642,19 +5574,16 @@ ocfmRetCode GetSubIndexAttributesbyPositions(
 
 		pobjNodeCollection= CNodeCollection::getNodeColObjectPointer();
 		
-		//pobjIndexCollection = objNode.getIndexCollection();
-		
 		INT32 iTempNodeCount = pobjNodeCollection->getNumberOfNodes();		
-		//cout << "\n\ntmp_NodeCount:" << iTempNodeCount << endl;
 		if(iNodePos >= iTempNodeCount)
 		{
-			ocfmException objException;// = new ocfmException;
+			ocfmException objException;
 			objException.ocfm_Excpetion(OCFM_ERR_INVALID_NODEPOS);		
 			throw &objException;
 		}
 		else if(iTempNodeCount == 0)
 		{
-			ocfmException objException;// = new ocfmException;
+			ocfmException objException;
 			objException.ocfm_Excpetion(OCFM_ERR_NO_NODES_FOUND);		
 			throw &objException;
 		}
@@ -6663,16 +5592,15 @@ ocfmRetCode GetSubIndexAttributesbyPositions(
 		pobjIndexCollection = objNode.getIndexCollection();
 		
 		INT32 iTempIndexCount = pobjIndexCollection->getNumberofIndexes();
-		//cout << "\n\iTempIndexCount:" << iTempIndexCount << endl;
 		if(iTempIndexCount == 0)
 		{
-			ocfmException objException;// = new ocfmException;
+			ocfmException objException;
 			objException.ocfm_Excpetion(OCFM_ERR_NO_INDEX_FOUND);
 			throw &objException;
 		}
 		else if(iIndexPos >= iTempIndexCount)
 		{
-			ocfmException objException;// = new ocfmException;
+			ocfmException objException;
 			objException.ocfm_Excpetion(OCFM_ERR_INVALID_INDEXPOS);
 			throw &objException;
 		}
@@ -6680,17 +5608,16 @@ ocfmRetCode GetSubIndexAttributesbyPositions(
 		pobjIndexPtr = pobjIndexCollection->getIndex(iIndexPos);
 		
 		INT32 iTempSubIndexCount = pobjIndexPtr->getNumberofSubIndexes();
-		//cout << "\n\ntmp_SubIndexCount:" << iTempSubIndexCount << endl;
 
 		if(iSubIndexPos >= iTempSubIndexCount)
 		{
-			ocfmException objException;// = new ocfmException;
+			ocfmException objException;
 			objException.ocfm_Excpetion(OCFM_ERR_INVALID_SUBINDEXPOS);		
 			throw &objException;
 		}
 		else if(iTempSubIndexCount == 0)
 		{
-			ocfmException objException;// = new ocfmException;
+			ocfmException objException;
 			objException.ocfm_Excpetion(OCFM_ERR_NO_SUBINDEXS_FOUND);		
 			throw &objException;
 		}
@@ -6764,17 +5691,14 @@ ocfmRetCode GetSubIndexAttributesbyPositions(
 					break;	
 					
 			default:
-					//cout << "invalid Attribute Type" << endl;
 					stErrorInfo.code = OCFM_ERR_INVALID_ATTRIBUTETYPE;
 					return stErrorInfo;
 		}			
 	}
 	catch(ocfmException* ex)
 	{
-		//cout << "\n\nCatch...\n" << endl;
 		return ex->_ocfmRetCode;
 	}
-	//cout << "\n\n\n$SOut_AttributeValue:" << pbOutAttributeValue << endl;
 	stErrorInfo.code = OCFM_ERR_SUCCESS;
 	return stErrorInfo;
 
@@ -6869,14 +5793,10 @@ ocfmRetCode GetIndexCount(
 		stErrorInfo = IfNodeExists(iNodeID, enumNodeType, &iNodePos, bFlag);
 		if (stErrorInfo.code == 0 && bFlag==true) 
 		{		
-			//retPos = stErrorInfo.returnValue;
+			//continue with process
 		}
 		else
 		{	
-			//cout << "\n\nErrStruct.errCode.code:" << stErrorInfo.code << "\n\n!!!" << endl;
-			// Node Doesn't Exist
-			//stErrorInfo.code = OCFM_ERR_INVALID_NODEID;
-			//return stErrorInfo;
 			ocfmException objException;				
 			objException.ocfm_Excpetion(OCFM_ERR_INVALID_NODEID);
 			throw objException;
@@ -6922,12 +5842,10 @@ ocfmRetCode GetSubIndexCount(
 		stErrorInfo = IfIndexExists(iNodeID, enumNodeType, pbIndexID, &iIndexPos);
 		if (stErrorInfo.code == 0)
 		{				
-			//iIndexPos = stErrorInfo.returnValue;
+			//continue with process
 		}
 		else
 		{	
-			//stErrorInfo.code = OCFM_ERR_INDEXID_NOT_FOUND;
-			//return stErrorInfo;
 			ocfmException objException;				
 			objException.ocfm_Excpetion(OCFM_ERR_INDEXID_NOT_FOUND);
 			throw objException;
@@ -6959,22 +5877,18 @@ ocfmRetCode GetSubIndexCount(
 void LoadObjectDictionary(char* pbFileName)
 	{
 	
-		//printf("Inside ObjectDictionary");
-  xmlTextReaderPtr pxReader;
-  INT32 iRetVal;
+  		xmlTextReaderPtr pxReader;
+		INT32 iRetVal;
 		CObjectDictionary* objDict;
-		//printf("Inside ObjectDictionary3");
 		objDict = CObjectDictionary::getObjDictPtr();
-		//if(objDict==NULL)
-		////printf("NULL");
 		pxReader = xmlReaderForFile(pbFileName, NULL, 0);
-  if (pxReader != NULL)
+  		if (pxReader != NULL)
 		{
-			 iRetVal = xmlTextReaderRead(pxReader);
-    while (iRetVal == 1)
+			iRetVal = xmlTextReaderRead(pxReader);
+    		while (iRetVal == 1)
 				{		
-							const xmlChar* pxcName	=	NULL;
-	const xmlChar* pxcValue	=	NULL;	
+						const xmlChar* pxcName	=	NULL;
+						const xmlChar* pxcValue	=	NULL;	
 						pxcName = xmlTextReaderConstName(pxReader);
 						pxcValue = xmlTextReaderConstValue(pxReader);
 						objDict->ProcessObjectDictionary(pxReader);						
@@ -6982,13 +5896,9 @@ void LoadObjectDictionary(char* pbFileName)
 				}
 				if(iRetVal!=0)
 				{
-					//printf("Error parsing file");
+					//continue with process
 				}
 			}
-				//printf("\n Processing completed");
-			//cout << "file parsed" <<endl;		
-		//printf("Parsing ObjectDictionary5 Done");
-		//objDict->printall();
 		 xmlCleanupParser();
 		/*
 		* this is to debug memory for regression tests
@@ -7010,7 +5920,6 @@ ocfmRetCode GetNodeAttributesbyNodePos(
 	char* pbOutForcedCycle,
 	bool* bForcedCycleFlag)
 {
-	//cout<< "Inside GetNodeIDbyNodeCount" << endl;
 	ocfmRetCode stErrorInfo;
 	
 	INT32 iTempNodeCount;
@@ -7021,13 +5930,13 @@ ocfmRetCode GetNodeAttributesbyNodePos(
 		
 		if(iNodePos > iTempNodeCount)
 		{
-			ocfmException objException;// = new ocfmException;
+			ocfmException objException;
 			objException.ocfm_Excpetion(OCFM_ERR_INVALID_NODEPOS);		
 			throw &objException;
 		}
 		else if(iTempNodeCount == 0)
 		{
-			ocfmException objException;// = new ocfmException;
+			ocfmException objException;
 			objException.ocfm_Excpetion(OCFM_ERR_NO_NODES_FOUND);		
 			throw &objException;
 		}
@@ -7040,14 +5949,6 @@ ocfmRetCode GetNodeAttributesbyNodePos(
 		pobjIndexCollection = objNode.getIndexCollection();
 
 		objNode = pobjNodeCollection->getNodebyCollectionIndex(iNodePos);
-		
-		//if(objNode.getNodeType() == NULL)
-		//{
-		//	cout << "OCFM_ERR_INVALID_NODETYPE" << endl;
-		//	ocfmException* objException = new ocfmException;
-		//	objException->ocfm_Excpetion(OCFM_ERR_INVALID_NODETYPE);
-		//	throw objException;
-		//}
 		*piOutNodeID = objNode.getNodeId();
 		if(objNode.getNodeName() != NULL)
 			strcpy(piOutNodeName, objNode.getNodeName());
@@ -7097,19 +5998,17 @@ ocfmRetCode GetIndexIDbyIndexPos(
 		stErrorInfo = IfNodeExists(iNodeID, enumNodeType, &iNodePos, bFlag);
 		if (stErrorInfo.code == 0 && bFlag==true) 
 		{		
-			//retPos = stErrorInfo.returnValue;
+			//continue with process
 		}
 		else
 		{	
-			//cout << "$S\n\nErrStruct.errCode.code:" << stErrorInfo.code << "\n\n!!!" << endl;
 			// Node Doesn't Exist
-			ocfmException objException;// = new ocfmException;
+			ocfmException objException;
 			objException.ocfm_Excpetion(OCFM_ERR_INVALID_NODEID);
 			throw &objException;
 		}
 
 		pobjNodeCollection = CNodeCollection::getNodeColObjectPointer();
-		//objNode = pobjNodeCollection->getNode(enumNodeType, iNodeID);
 		objNode = pobjNodeCollection->getNodebyCollectionIndex(iNodePos);
 		pobjIndexCollection = objNode.getIndexCollection();
 		
@@ -7117,13 +6016,13 @@ ocfmRetCode GetIndexIDbyIndexPos(
 		
 		if(iTempIndexCount == 0)
 		{
-			ocfmException objException;// = new ocfmException;
+			ocfmException objException;
 			objException.ocfm_Excpetion(OCFM_ERR_NO_INDEX_FOUND);
 			throw &objException;
 		}
 		else if(iTempIndexCount < iIndexPos)
 		{
-			ocfmException objException;// = new ocfmException;
+			ocfmException objException;
 			objException.ocfm_Excpetion(OCFM_ERR_INVALID_INDEXPOS);
 			throw &objException;
 		}
@@ -7133,8 +6032,6 @@ ocfmRetCode GetIndexIDbyIndexPos(
 		if(pobjIndex->getIndexValue() != NULL)
 			strcpy(pbOutIndexID, (char *) pobjIndex->getIndexValue());
 		
-		//cout << "$SOut_IndexID:" << Out_IndexID << endl;
-
 		stErrorInfo.code = OCFM_ERR_SUCCESS;
 		return stErrorInfo;
 	}
@@ -7169,13 +6066,13 @@ ocfmRetCode GetIndexIDbyPositions(
 		
 		if(iTempNodeCount == 0)
 		{
-			ocfmException objException;// = new ocfmException;			
+			ocfmException objException;
 			objException.ocfm_Excpetion(OCFM_ERR_NO_NODES_FOUND);
 			throw &objException;
 		}
 		else if(iTempNodeCount < iNodePos)
 		{
-			ocfmException objException;// = new ocfmException;
+			ocfmException objException;
 			objException.ocfm_Excpetion(OCFM_ERR_INVALID_NODEPOS);
 			throw &objException;
 		}
@@ -7187,13 +6084,13 @@ ocfmRetCode GetIndexIDbyPositions(
 		
 		if(iTempIndexCount == 0)
 		{
-			ocfmException objException;// = new ocfmException;
+			ocfmException objException;
 			objException.ocfm_Excpetion(OCFM_ERR_NO_INDEX_FOUND);
 			throw &objException;
 		}
 		else if(iTempIndexCount < iIndexPos)
 		{
-			ocfmException objException;// = new ocfmException;
+			ocfmException objException;
 			objException.ocfm_Excpetion(OCFM_ERR_INVALID_INDEXPOS);
 			throw &objException;
 		}
@@ -7203,7 +6100,6 @@ ocfmRetCode GetIndexIDbyPositions(
 		if(pobjIndex->getIndexValue() != NULL)
 			strcpy(pbOutIndexID, (char *) pobjIndex->getIndexValue());
 		
-		//cout << "Out_IndexID:" << Out_IndexID << endl;
 
 		stErrorInfo.code = OCFM_ERR_SUCCESS;
 		return stErrorInfo;
@@ -7242,16 +6138,15 @@ ocfmRetCode GetSubIndexIDbySubIndexPos(
 		stErrorInfo = IfIndexExists(iNodeID, enumNodeType, pbIndexID, &iIndexPos);
 		if (stErrorInfo.code == 0)
 		{				
-			//iIndexPos = stErrorInfo.returnValue;
+			//continue with process
 		}
 		else
 		{	
-			ocfmException objException;// = new ocfmException;
+			ocfmException objException;
 			objException.ocfm_Excpetion(OCFM_ERR_INDEXID_NOT_FOUND);
 			throw &objException;
 		}
 		
-		//objIndex.setNodeID(objNode.getNodeId());
 		pobjNodeCollection= CNodeCollection::getNodeColObjectPointer();
 		objNode = pobjNodeCollection->getNode(enumNodeType, iNodeID);
 
@@ -7315,13 +6210,13 @@ ocfmRetCode GetSubIndexIDbyPositions(
 		
 		if(iTempNodeCount == 0)
 		{
-			ocfmException objException;// = new ocfmException;			
+			ocfmException objException;
 			objException.ocfm_Excpetion(OCFM_ERR_NO_NODES_FOUND);
 			throw &objException;
 		}
 		else if(iTempNodeCount < iNodePos)
 		{
-			ocfmException objException;// = new ocfmException;	
+			ocfmException objException;
 			objException.ocfm_Excpetion(OCFM_ERR_INVALID_NODEPOS);
 			throw &objException;
 		}
@@ -7332,13 +6227,13 @@ ocfmRetCode GetSubIndexIDbyPositions(
 		INT32 iTempIndexCount = pobjIndexCollection->getNumberofIndexes();		
 		if(iTempIndexCount == 0)
 		{
-			ocfmException objException; // = new ocfmException;
+			ocfmException objException;
 			objException.ocfm_Excpetion(OCFM_ERR_NO_INDEX_FOUND);
 			throw &objException;
 		}
 		else if(iTempIndexCount < iIndexPos)
 		{
-			ocfmException objException;// = new ocfmException;
+			ocfmException objException;
 			objException.ocfm_Excpetion(OCFM_ERR_INVALID_INDEXPOS);
 			throw &objException;
 		}
@@ -7348,13 +6243,13 @@ ocfmRetCode GetSubIndexIDbyPositions(
 		INT32 iTempSubIndexCount = pobjSubIndex->getNumberofSubIndexes();
 		if(iTempSubIndexCount == 0)
 		{		
-			ocfmException objException;// = new ocfmException;			
+			ocfmException objException;
 			objException.ocfm_Excpetion(OCFM_ERR_NO_SUBINDEXS_FOUND);
 			throw &objException;			
 		}
 		else if(iTempSubIndexCount < iSubIndexPos)
 		{
-			ocfmException objException; //= new ocfmException;
+			ocfmException objException;
 			objException.ocfm_Excpetion(OCFM_ERR_INVALID_SUBINDEXPOS);
 			throw &objException;	
 		}
@@ -7385,7 +6280,6 @@ ocfmRetCode DeleteNodeObjDict(
 {
 	ocfmRetCode stErrorInfo;
 	INT32 iNodePos;
-	//cout << "\n$SInside DeleteMNObjDict..\n" << endl;
 	try
 	{	
 		bool bFlag = false;
@@ -7396,7 +6290,7 @@ ocfmRetCode DeleteNodeObjDict(
 		}
 		else
 		{
-			ocfmException objException;// = new ocfmException;
+			ocfmException objException;
 			objException.ocfm_Excpetion(OCFM_ERR_INVALID_NODEID);
 			throw &objException;
 		}
@@ -7419,7 +6313,6 @@ ocfmRetCode DeleteNodeObjDict(
 		pobjIndexCollection->DeleteIndexCollection();
 		// Delete DataTypeCollection
 		objDataTypeCollection->DeleteDataTypeCollection();
-		//cout << "\n\n$SDelete MN OBD Success" << endl;
 		stErrorInfo.code = OCFM_ERR_SUCCESS;
 		return stErrorInfo;
 	}
@@ -7449,12 +6342,8 @@ ocfmRetCode SaveProject(char* pbProjectPath, char* pbProjectName)
 		struct stat stFileInfo;		
 		INT32 iIntStat;
 
-		//pbTempPjtName = new char[strlen(pbTempPath) + strlen(pbProjectName) + strlen(pbProjectName) + 3 + 2];
 		pbTempPjtName = new char[300];
-		//sprintf(pbTempPjtName, "%s/%s/%s.oct", pbProjectPath, pbProjectName, pbProjectName);
 		sprintf(pbTempPjtName, "%s%s/%s.oct", pbProjectPath, pbProjectName, pbProjectName);
-		//sprintf(pbTempPjtName, "%s/%s.oct", pbProjectPath, pbProjectName);
-		//cout << "\n\ntmp_PjtName:" << pbTempPjtName << endl;
 
 		iIntStat = stat(pbTempPjtName,&stFileInfo);
 		if(iIntStat == 0) {
@@ -7464,13 +6353,10 @@ ocfmRetCode SaveProject(char* pbProjectPath, char* pbProjectName)
 		} 
 		else 
 		{ 				
-  			//cout << "\n\ntmp_PjtName:" << pbTempPjtName << endl;
 			#if defined(_WIN32) && defined(_MSC_VER)
 			{
 				sprintf(pbTempPath, "%s\\%s", pbProjectPath, pbProjectName);
-				//cout << "\npath:" << pbTempPath <<endl;
 				mkdir(pbTempPath);	
-				//cout << "mkdir success"<<endl;
 			}
 			#else
 			{
@@ -7483,9 +6369,7 @@ ocfmRetCode SaveProject(char* pbProjectPath, char* pbProjectName)
 		#if defined(_WIN32) && defined(_MSC_VER)
 		{
 			sprintf(pbTempPath, "%s\\%s\\%s", pbProjectPath, pbProjectName, "cdc_xap");
-			//cout << "\npath:" << path <<endl;
 			mkdir(pbTempPath);	
-			//cout << "mkdir success"<<endl;
 		}
 		#else
 		{
@@ -7507,10 +6391,7 @@ ocfmRetCode SaveProject(char* pbProjectPath, char* pbProjectName)
 			for(INT32 iLoopCount = 0; iLoopCount < pobjNodeCollection->getNumberOfNodes(); iLoopCount++)
 			{				
 				objNode = pobjNodeCollection->getNodebyCollectionIndex(iLoopCount);
-				//char *pbFileName;	
-				//pbFileName = new char[80];
 				char* pbFileName;
-				//pbFileName = new char[(strlen(pbTempPath) + 4 + 5)];
 				pbFileName  =  new char[MAX_FILE_PATH_SIZE];
 				#if defined(_WIN32) && defined(_MSC_VER)
 				{
@@ -7531,7 +6412,6 @@ ocfmRetCode SaveProject(char* pbProjectPath, char* pbProjectName)
 					}
 					// Saves the nodes with their nodeId as the name
 					sprintf(pbFileName, "%s\\%d.octx", pbTempPath, objNode.getNodeId());
-					//cout << "\nSave Pjt FileName:" << pbFileName << endl;
 				}
 				#else
 				{
@@ -7553,11 +6433,7 @@ ocfmRetCode SaveProject(char* pbProjectPath, char* pbProjectName)
 					sprintf(pbFileName, "%s/%d.octx", pbTempPath, objNode.getNodeId());
 				}
 				#endif				
-				//cout << "\nfileName:" << pbFileName << endl;
-				//cout << "\ngetNodeId-getNodeType:" << objNode.getNodeId() << objNode.getNodeType() << endl;
 				SaveNode(pbFileName, objNode.getNodeId(), objNode.getNodeType());	
-				//cout << "After savenode"<<endl;
-				//cout << "Trace_8" <<endl;
 				delete [] pbFileName;			
 
 			}
@@ -7567,7 +6443,7 @@ ocfmRetCode SaveProject(char* pbProjectPath, char* pbProjectName)
 		}
 		else
 		{
-			ocfmException objException;// = new ocfmException;
+			ocfmException objException;
 			objException.ocfm_Excpetion(OCFM_ERR_NO_NODES_FOUND);
 			throw &objException;			
 		}	
@@ -7627,7 +6503,6 @@ void GetMNPDOSubIndex(MNPdoVariable stMNPdoVar, INT32& iPrevSubIndex, CIndex* po
 			delete[] pbActValue;
 			
 			AddPDOIndexsToMN(stMNPdoVar.Index,stMNPdoVar.SubIndex, stMNPdoVar.pdoType);
-		/*	return *pobjSubIndex;*/
 }
 
 /****************************************************************************************************
@@ -7726,7 +6601,6 @@ void AddForEachSIdx (char* pbIdx,CIndexCollection * pobjIdxCol, INT32 iMNNodeID,
 				pbIndexNo = _IntToAscii(objNodeCol->getCNNodesCount(), pbIndexNo, 16);
 				pbIndexNo = padLeft(pbIndexNo, '0', 2);
 				strcat(pbHexIndexNo, pbIndexNo);
-				//SetSIdxValue(pbIdx, pbSIdx, pbIndexNo , pobjIdxCol, iMNNodeID, MN, false);
                 SetSIdxValue(pbIdx, pbSIdx, pbHexIndexNo, pobjIdxCol, iMNNodeID, MN, false);
 			}
 	}
@@ -7767,7 +6641,6 @@ void AddForEachSIdx (char* pbIdx,CIndexCollection * pobjIdxCol, INT32 iMNNodeID,
 				}
 				else
 				{
-					//cout << "\nVal:" << pbValue <<endl;
 					SetSIdxValue(pbIdx,pbSIdx,pbValue, pobjIdxCol, iMNNodeID, MN, bIsDefaultValueSet);
 				}
 		
@@ -7900,9 +6773,7 @@ ocfmRetCode AddOtherMNIndexes(int NodeID)
 			
 						char* pbVal = new char[50];
 						iConfigTime = getConfigTime();
-						//cout << "\n\n\nConfigTime:" << iConfigTime << endl;																		
 						pbVal = _IntToAscii(iConfigTime, pbVal, 10);
-						//Val = padLeft(hexVal, '0' , 8);
 
 						AddForEachSIdx(pbMNIndex, pobjIdxCol, pobjNode->getNodeId(), pbVal, false);										
 					}
@@ -7929,36 +6800,9 @@ ocfmRetCode AddOtherMNIndexes(int NodeID)
 						pobjIndex = pobjIdxCol->getIndexbyIndexValue(pbMNIndex);
 								/* $:set Flag to true*/
 						pobjIndex->setFlagIfIncludedCdc(TRUE);
-					/*	strcpy(pbSidx, "00");
-						SetSIdxValue(pbMNIndex, pbSidx, "", pobjIdxCol, pobjNode->getNodeId(),true);
-										
-						strcpy(pbSidx, "01");
-						SetSIdxValue(pbMNIndex, pbSidx, "", pobjIdxCol, pobjNode->getNodeId(),true);
-				*/	
 						strcpy(pbSidx, "02");
 						SetSIdxValue(pbMNIndex, pbSidx, (char*)"", pobjIdxCol, pobjNode->getNodeId(), MN, true);
 				
-					/*		strcpy(pbSidx, "03");
-						SetSIdxValue(pbMNIndex, pbSidx, "", pobjIdxCol, pobjNode->getNodeId(), true);
-						
-						strcpy(pbSidx, "04");
-						SetSIdxValue(pbMNIndex, pbSidx, "", pobjIdxCol, pobjNode->getNodeId(), true);
-						
-						strcpy(pbSidx, "05");
-						SetSIdxValue(pbMNIndex, pbSidx, "", pobjIdxCol, pobjNode->getNodeId(), true);
-						
-						strcpy(pbSidx, "06");
-						SetSIdxValue(pbMNIndex, pbSidx, "", pobjIdxCol, pobjNode->getNodeId(), true);
-						
-						strcpy(pbSidx, "07");
-						SetSIdxValue(pbMNIndex, pbSidx, "", pobjIdxCol, pobjNode->getNodeId(), true);
-						
-						strcpy(pbSidx, "08");
-						SetSIdxValue(pbMNIndex, pbSidx, "", pobjIdxCol, pobjNode->getNodeId(), true);
-						
-						strcpy(pbSidx, "09");
-						SetSIdxValue(pbMNIndex, pbSidx, "", pobjIdxCol, pobjNode->getNodeId(), true);
-			*/
 					}
 			
 					/* Add 1F8A*/
@@ -7979,26 +6823,6 @@ ocfmRetCode AddOtherMNIndexes(int NodeID)
 						strcpy(pbSidx, "02");
 						SetSIdxValue(pbMNIndex, pbSidx, (char*)"", pobjIdxCol, pobjNode->getNodeId(), MN, true);
 						
-					/*	strcpy(pbSidx, "03");
-						SetSIdxValue(pbMNIndex, pbSidx, "", pobjIdxCol, pobjNode->getNodeId(), true);
-						
-						strcpy(pbSidx, "04");
-						SetSIdxValue(pbMNIndex, pbSidx, "", pobjIdxCol, pobjNode->getNodeId(), true);
-						
-						strcpy(pbSidx, "05");
-						SetSIdxValue(pbMNIndex, pbSidx, "", pobjIdxCol, pobjNode->getNodeId(), true);
-						
-						strcpy(pbSidx, "06");
-						SetSIdxValue(pbMNIndex, pbSidx, "", pobjIdxCol, pobjNode->getNodeId(), true);
-						
-						strcpy(pbSidx, "07");
-						SetSIdxValue(pbMNIndex, pbSidx, "", pobjIdxCol, pobjNode->getNodeId(), true);
-						
-						strcpy(pbSidx, "08");
-						SetSIdxValue(pbMNIndex, pbSidx, "", pobjIdxCol, pobjNode->getNodeId(), true);
-						
-						strcpy(pbSidx, "09");
-						SetSIdxValue(pbMNIndex, pbSidx, "", pobjIdxCol, pobjNode->getNodeId(), true);*/
 					
 						}
 	
@@ -8016,24 +6840,6 @@ ocfmRetCode AddOtherMNIndexes(int NodeID)
 						strcpy(pbSidx, "05");
 						SetSIdxValue(pbMNIndex, pbSidx, abC_DLL_ISOCHR_MAX_PAYL, pobjIdxCol, pobjNode->getNodeId(), MN, false);
 						
-						/*strcpy(Sidx, "00");
-						SetSIdxValue(pbMNIndex, pbSidx, "", pobjIdxCol, pobjNode->getNodeId(),true);
-										
-						strcpy(pbSidx, "01");
-						SetSIdxValue(pbMNIndex, pbSidx, abC_DLL_ISOCHR_MAX_PAYL, pobjIdxCol, pobjNode->getNodeId(), false);
-					
-						strcpy(pbSidx, "02");
-						SetSIdxValue(pbMNIndex, pbSidx, abC_DLL_ISOCHR_MAX_PAYL, pobjIdxCol, pobjNode->getNodeId(), false);
-						
-						
-						strcpy(pbSidx, "07");
-						SetSIdxValue(pbMNIndex, pbSidx, "", pobjIdxCol, pobjNode->getNodeId(), true);
-						
-						strcpy(pbSidx, "08");
-						SetSIdxValue(pbMNIndex, pbSidx, abC_DLL_MIN_ASYNC_MTU, pobjIdxCol, pobjNode->getNodeId(), false);
-						
-						strcpy(pbSidx, "09");
-						SetSIdxValue(pbMNIndex, pbSidx, "", pobjIdxCol, pobjNode->getNodeId(), true);*/
 					}
 					
 					delete [] pbMNIndex;
@@ -8110,8 +6916,6 @@ ocfmRetCode GenerateMNOBD(bool IsBuild)
 				{
 					return stRetInfo;
 				}
-				//char* pbTempCycleTime;
-				//pbTempCycleTime = new char[20];
 				
 				CNode objNode;		
 				CNodeCollection *pobjNodeCollection;
@@ -8130,29 +6934,19 @@ ocfmRetCode GenerateMNOBD(bool IsBuild)
 
 				pobjIndexCollection = pobjMNNode->getIndexCollection();	
 
-					//cout << "Indexes deleted";
-					// Delete IndexCollection
-					//pobjIndexCollection->DeleteIndexCollection();
 				pobjIndexCollection->DeletePDOs();
 				// Delete Process Image Objects
 				pobjIndexCollection->DeletePIObjects();
 	
 				// Autogenertate other indexs 
 				AuotgenerateOtherIndexs(pobjMNNode);
-				//DeleteNodeObjDict(240, MN);		
 						#if defined DEBUG	
 						cout<< "MN Node Object dictionary deleted"<<endl;
 					#endif
 				/* Add other Indexes than PDO*/
-					//AddOtherMNIndexes(pobjMNNode, pbTempCycleTime);
 					#if defined DEBUG	
 						cout<< "Index added"<<endl;
 					#endif
-						/*if(stRetInfo.code != OCFM_ERR_SUCCESS)
-						{
-							objocfmException.ocfm_Excpetion(stRetInfo.code);
-							throw objocfmException;
-						}*/
 					#if defined DEBUG	
 						cout<< "Deleted"<<endl;
 					#endif
@@ -8169,9 +6963,7 @@ ocfmRetCode GenerateMNOBD(bool IsBuild)
             INT32* pArrangedNodeIDbyStation;
             pArrangedNodeIDbyStation = ArrangeNodeIDbyStation();
 			for(INT32 iLoopCount =0; iLoopCount<pobjNodeCollection->getNumberOfNodes(); iLoopCount++)
-            //for(INT32 iLoopCount = 0; iLoopCount < pobjNodeCollection->getCNNodesCount(); iLoopCount++)
 			{
-				//objNode = pobjNodeCollection->getNodebyCollectionIndex(pArrangedNodeIDbyStation[iLoopCount]);
               objNode = pobjNodeCollection->getNodebyCollectionIndex(iLoopCount);         			
 				if(objNode.getNodeType() == CN)
 				{
@@ -8196,14 +6988,6 @@ ocfmRetCode GenerateMNOBD(bool IsBuild)
 						strcpy(pbMNIndex, "18");
                         if(CHAINED != eCurrCNStation)
                         {
-                            /*if(true == bIsPresMN)
-                            {
-						        pbIdx = _IntToAscii((objNode.getNodeId()), pbIdx, 16);
-                            }
-                            else
-                            {
-                                pbIdx = _IntToAscii((objNode.getNodeId()-1), pbIdx, 16);
-                            }*/
                             pbIdx = _IntToAscii(iTxChannelCount, pbIdx, 16);
                             iTxChannelCount++;
 
@@ -8245,8 +7029,6 @@ ocfmRetCode GenerateMNOBD(bool IsBuild)
 						SetSubIndexAttributes(MN_NODEID, MN, pbMNIndex, pbSidx, pbMappNodeID,(char*)"NodeID_U8", TRUE);
 									
 						strcpy(pbMNIndex, "1A");
-						/*pbIdx = _IntToAscii((objNode.getNodeId()-1), pbIdx, 16);
-						pbIdx = padLeft(pbIdx, '0', 2);*/
 						pbMNIndex =strcat(pbMNIndex, pbIdx);
 						/* Set the MN's PDO Index*/
                         iIndexPos = 0;
@@ -8264,7 +7046,6 @@ ocfmRetCode GenerateMNOBD(bool IsBuild)
 							throw objocfmException;
 						}
 					
-						//pobjIndex = objMNIndexCol->getIndexbyIndexValue(pbMNIndex);
 						for(INT32 iLoopCount=0; iLoopCount<objNode.MNPDOOUTVarCollection.Count() ; iLoopCount++)
 						{
 							MNPdoVariable stMNPdoVar;
@@ -8280,11 +7061,6 @@ ocfmRetCode GenerateMNOBD(bool IsBuild)
 					
 						}
                         
-						/*char* pbActVal = new char[4];
-						pbActVal = _IntToAscii(objNode.MNPDOOUTVarCollection.Count(), pbActVal, 16);
-						pbActVal = ConvertToHexformat(pbActVal, 2, true);	
-						objSubIdex = pobjIndex->getSubIndexbyIndexValue((char*)"00");
-						objSubIdex->setActualValue(pbActVal);*/
                         if(CHAINED == eCurrCNStation)
                         {
                           iChainOutPrevSubIndex = iOutPrevSubIndex;
@@ -8298,19 +7074,9 @@ ocfmRetCode GenerateMNOBD(bool IsBuild)
 												
 						/* Create PDO_TxCommParam_XXh_REC 1800 INdex*/
 						strcpy(pbMNIndex, "14");
-                        /*if(true == bIsPresMN)
-                        {
-                                //if it is a PRes MN 1800 will be used for chained station
-                          pbIdx = _IntToAscii((objNode.getNodeId()), pbIdx, 16);
-                        }
-                        else
-                        {
-                          pbIdx = _IntToAscii((objNode.getNodeId()-1), pbIdx, 16);
-                        }*/
                         pbIdx = _IntToAscii(iRxChannelCount, pbIdx, 16);
                         iRxChannelCount++;
 						
-						//pbIdx = _IntToAscii((objNode.getNodeId()-1), pbIdx, 16);
 						pbIdx = padLeft(pbIdx, '0', 2);
 						pbMNIndex =strcat(pbMNIndex, pbIdx);
                         
@@ -8328,7 +7094,6 @@ ocfmRetCode GenerateMNOBD(bool IsBuild)
 							throw objocfmException;
 						}
 						
-						//pbIdx = _IntToAscii(objNode.getNodeId(), pbIdx, 10);
 						pbMappIdx = _IntToAscii((objNode.getNodeId()), pbMappIdx, 10);
 						char* pbSidx =  new char[SUBINDEX_LEN];
 						strcpy(pbSidx, "01");
@@ -8337,8 +7102,6 @@ ocfmRetCode GenerateMNOBD(bool IsBuild)
 				
 							
 						strcpy(pbMNIndex, "16");
-						//pbIdx = _IntToAscii((objNode.getNodeId()-1), pbIdx, 16);
-						//pbIdx = padLeft(pbIdx, '0', 2);
 						pbMNIndex =strcat(pbMNIndex, pbIdx);
 						/* Set the MN's PDO Index*/
 						stRetInfo = AddIndex(MN_NODEID, MN, pbMNIndex);
@@ -8361,12 +7124,6 @@ ocfmRetCode GenerateMNOBD(bool IsBuild)
 							GetMNPDOSubIndex(stMNPdoVar, iInPrevSubIndex, pobjIndex, pbMNIndex, iInPrevSize);				
 							iInPrevSize = iInPrevSize + stMNPdoVar.DataSize ;	
 						}
-						/*char* pbActVal = new char[4];
-						pbActVal = _IntToAscii(objNode.MNPDOINVarCollection.Count(), pbActVal, 16);
-						//pbActVal = padLeft(pbActVal, '0', 4);
-						pbActVal = ConvertToHexformat(pbActVal, 2, true);						
-						objSubIdex = pobjIndex->getSubIndexbyIndexValue((char*)"00");
-						objSubIdex->setActualValue(pbActVal);*/
 					
 					}
 				
@@ -8382,28 +7139,6 @@ ocfmRetCode GenerateMNOBD(bool IsBuild)
 	{
 		return objocfmException._ocfmRetCode;
 	}
-	//cout << "generation of MN OBDD completed" << endl;
-	/* Testing Code*/
-		/*		pobjNodeCollection = CNodeCollection::getNodeColObjectPointer();	
-			pobjMNNode  = pobjNodeCollection->getNodePtr(MN, 240);
-		CIndexCollection * objIndexCol;
-			objIndexCol = pobjMNNode->getIndexCollection();
-			for(INT32 iLoopCount = 0; iLoopCount< objIndexCol->getNumberofIndexes(); iLoopCount++)
-			{
-				CIndex* pobjIndex;
-				pobjIndex = objIndexCol->getIndex(iLoopCount);
-				//printf("\n**************************");
-				//printf("\n Index value :%s", pobjIndex->getIndexValue());
-				for(INT32 y = 0; y<pobjIndex->getNumberofSubIndexes(); y++)
-				{
-					CSubIndex* pobjSubIndex;
-					DataType objDataType;
-					pobjSubIndex = pobjIndex->getSubIndex(y);
-					objDataType = pobjSubIndex->getDataType();
-					//printf("\n SubIndex: %s \n DataType = %s \n Actual Value = %s",pobjSubIndex->getIndexValue(),objDataType.DataSize,
-																																																																				pobjSubIndex->getActualValue());
-				}
-			}*/
 
 	stRetInfo.code = OCFM_ERR_SUCCESS;
 	return stRetInfo;
@@ -8453,7 +7188,6 @@ void checkIfOffsetUsed(INT32& iOffset, EPDOType enumPdoType)
 ****************************************************************************************************/
 INT32 ComputeOUTOffset(INT32 iDataSize, EPDOType enumPdoType)
 {
-	//INT32 arrOfOffsets[4][2] = {{-1, -1}, {-1, -1},{-1, -1},{-1,-1}};			/* Contain prev and current offsets of size 1Bytes, 2 bytes, 4 bytes and 8 bytes*/	
 	INT32 iOffset = 0;
 							
 
@@ -8510,18 +7244,6 @@ INT32 ComputeOUTOffset(INT32 iDataSize, EPDOType enumPdoType)
 						{
 								stSize8OUTOffset.prevOffset = stSize8OUTOffset.currOffset ;
 									stSize8OUTOffset.currOffset = stSize16OUTOffset.currOffset;
-							/*	if((stSize8OUTOffset.currOffset >= stSize16OUTOffset.prevOffset) && (stSize8OUTOffset.currOffset <= stSize16OUTOffset.currOffset))
-								{
-									stSize8OUTOffset.prevOffset = stSize8OUTOffset.currOffset ;
-									stSize8OUTOffset.currOffset = stSize16OUTOffset.currOffset;
-								}
-								else
-								{
-									stSize8OUTOffset.prevOffset = stSize8OUTOffset.currOffset;
-									newOffset = stSize8OUTOffset.currOffset;
-									checkIfOffsetUsed(newOffset, enumPdoType);				
-									stSize8OUTOffset.currOffset = newOffset;
-								}*/
 						}
 						
 						/* if greater no change*/
@@ -8562,24 +7284,7 @@ INT32 ComputeOUTOffset(INT32 iDataSize, EPDOType enumPdoType)
 						{
 								stSize8OUTOffset.prevOffset = stSize8OUTOffset.currOffset ;
 								stSize8OUTOffset.currOffset = stSize32OUTOffset.currOffset;
-								//if((stSize8OUTOffset.currOffset >= stSize32OUTOffset.prevOffset) && (stSize8OUTOffset.currOffset <= stSize32OUTOffset.currOffset))
-								//{
-								//	stSize8OUTOffset.prevOffset = stSize8OUTOffset.currOffset ;
-								//	stSize8OUTOffset.currOffset = stSize32OUTOffset.currOffset;
-								//}
-								//else
-								//{
-								//	stSize8OUTOffset.prevOffset = stSize8OUTOffset.currOffset;
-								//		newOffset = stSize8OUTOffset.currOffset;
-								//	
-								//	checkIfOffsetUsed(newOffset, enumPdoType);
-								//	
-								//	/*while(checkIfOffsetUsed(iOffset))
-								//	{
-								//		iOffset = iOffset + 1;
-								//	}*/
-								//	stSize8OUTOffset.currOffset = newOffset;
-								//}
+
 						}
 						
 							/* if greater no change*/
@@ -8589,23 +7294,7 @@ INT32 ComputeOUTOffset(INT32 iDataSize, EPDOType enumPdoType)
 						{
 								stSize16OUTOffset.prevOffset = stSize16OUTOffset.currOffset ;
 								stSize16OUTOffset.currOffset = stSize32OUTOffset.currOffset;
-								//if((stSize16OUTOffset.currOffset >= stSize32OUTOffset.prevOffset) && (stSize16OUTOffset.currOffset < stSize32OUTOffset.currOffset))
-								//{
-								//	stSize16OUTOffset.prevOffset = stSize16OUTOffset.currOffset ;
-								//	stSize16OUTOffset.currOffset = stSize32OUTOffset.currOffset;
-								//}
-								//else
-								//{
-								//	stSize16OUTOffset.prevOffset = stSize16OUTOffset.currOffset;
-								//	newOffset = stSize16OUTOffset.currOffset;
-								//		checkIfOffsetUsed(newOffset, enumPdoType);
-								///*	while(checkIfOffsetUsed(iOffset))
-								//	{
-								//		iOffset = iOffset + 1;
-								//	}*/
-								//	stSize16OUTOffset.currOffset = newOffset;
-								//
-								//}
+
 						}
 						/* if greater no change*/
 						if(stSize64OUTOffset.currOffset >= stSize8OUTOffset.currOffset)
@@ -8634,7 +7323,6 @@ INT32 ComputeOUTOffset(INT32 iDataSize, EPDOType enumPdoType)
 ****************************************************************************************************/
 INT32 ComputeINOffset(INT32 iDataSize, EPDOType enumPdoType)
 {
-	//INT32 arrOfOffsets[4][2] = {{-1, -1}, {-1, -1},{-1, -1},{-1,-1}};			/* Contain prev and current offsets of size 1Bytes, 2 bytes, 4 bytes and 8 bytes*/	
 	INT32 iOffset = 0;
 							
 
@@ -8694,18 +7382,7 @@ INT32 ComputeINOffset(INT32 iDataSize, EPDOType enumPdoType)
 						{
 							stSize8INOffset.prevOffset = stSize8INOffset.currOffset ;
 							stSize8INOffset.currOffset = stSize16INOffset.currOffset;
-								//if((stSize8INOffset.currOffset >= stSize16INOffset.prevOffset) && (stSize8INOffset.currOffset <= stSize16INOffset.currOffset))
-								//{
-								//	stSize8INOffset.prevOffset = stSize8INOffset.currOffset ;
-								//	stSize8INOffset.currOffset = stSize16INOffset.currOffset;
-								//}
-								//else
-								//{
-								//	stSize8INOffset.prevOffset = stSize8INOffset.currOffset;
-								//	/*newOffset = stSize8INOffset.currOffset;
-								//	checkIfOffsetUsed(newOffset, enumPdoType);				
-								//	stSize8INOffset.currOffset = newOffset;*/
-								//}
+
 						}
 						
 						/* if greater no change*/
@@ -8740,24 +7417,7 @@ INT32 ComputeINOffset(INT32 iDataSize, EPDOType enumPdoType)
 						{
 									stSize8INOffset.prevOffset = stSize8INOffset.currOffset ;
 									stSize8INOffset.currOffset = stSize32INOffset.currOffset;
-								//if((stSize8INOffset.currOffset >= stSize32INOffset.prevOffset) && (stSize8INOffset.currOffset <= stSize32INOffset.currOffset))
-								//{
-								//	stSize8INOffset.prevOffset = stSize8INOffset.currOffset ;
-								//	stSize8INOffset.currOffset = stSize32INOffset.currOffset;
-								//}
-								//else
-								//{
-								//	stSize8INOffset.prevOffset = stSize8INOffset.currOffset;
-								//		newOffset = stSize8INOffset.currOffset;
-								//	
-								//	checkIfOffsetUsed(newOffset, enumPdoType);
-								//	
-								//	/*while(checkIfOffsetUsed(iOffset))
-								//	{
-								//		iOffset = iOffset + 1;
-								//	}*/
-								//	stSize8INOffset.currOffset = newOffset;
-								//}
+
 						}
 						
 							/* if greater no change*/
@@ -8767,23 +7427,7 @@ INT32 ComputeINOffset(INT32 iDataSize, EPDOType enumPdoType)
 						{
 								stSize16INOffset.prevOffset = stSize16INOffset.currOffset ;
 								stSize16INOffset.currOffset = stSize32INOffset.currOffset;
-								//if((stSize16INOffset.currOffset >= stSize32INOffset.prevOffset) && (stSize16INOffset.currOffset < stSize32INOffset.currOffset))
-								//{
-								//	stSize16INOffset.prevOffset = stSize16INOffset.currOffset ;
-								//	stSize16INOffset.currOffset = stSize32INOffset.currOffset;
-								//}
-								//else
-								//{
-								//	stSize16INOffset.prevOffset = stSize16INOffset.currOffset;
-								//	newOffset = stSize16INOffset.currOffset;
-								//	checkIfOffsetUsed(newOffset, enumPdoType);
-								///*	while(checkIfOffsetUsed(iOffset))
-								//	{
-								//		iOffset = iOffset + 1;
-								//	}*/
-								//	stSize16INOffset.currOffset = newOffset;
-								//
-								//}
+
 						}
 						/* if greater no change*/
 						if(stSize64INOffset.currOffset >= stSize8INOffset.currOffset)
@@ -8833,7 +7477,6 @@ ocfmRetCode OpenProject(char* pbPjtPath, char* pbProjectXmlFileName)
     	INT32 iRetVal;
 	char *pbFileName;	
 
-	//delete pobjNodeCollection;
 	
 	#if defined DEBUG
 	cout << "\nStrLen for FileName:" << (strlen(pbPjtPath) + strlen(pbProjectXmlFileName) + 1) << endl;
@@ -8863,7 +7506,6 @@ ocfmRetCode OpenProject(char* pbPjtPath, char* pbProjectXmlFileName)
 			if(iRetVal!=0)
 			{
 				ocfmException objException;
-				/*objException->ocfm_Excpetion(o, true);*/
 				#if defined DEBUG 
 					cout << "\nOCFM_ERR_PARSE_XML\n" << endl;
 				#endif
@@ -8895,7 +7537,6 @@ ocfmRetCode OpenProject(char* pbPjtPath, char* pbProjectXmlFileName)
             copyMNPropDefToAct(iNodeID, iNodeType);
             calculateCNPollResponse(iNodeID, iNodeType);
         }
-        //RecalculateMultiplex();
 	}								
 	
 	catch(ocfmException& objocfmException)
@@ -9208,7 +7849,6 @@ bool setProjectSettings_Communication(xmlTextReaderPtr pxReader)
 			if((char*)pxcValue != NULL)		
 			{
 				pobjPjtSettings->setPOWERLINK_IP((char*)pxcValue);
-				//cout << "\nstPjtSettings->getPOWERLINK_IP():" << pobjPjtSettings->getPOWERLINK_IP() << endl;
 			}
 			else
 			{
@@ -9267,9 +7907,6 @@ bool getandCreateNode(xmlTextReaderPtr pxReader, char* pbPjtPath)
 			{
 				pbNodeName = new char[strlen((char*)pxcValue) + ALLOC_BUFFER];
 				strcpy((char*)pbNodeName, (char*)pxcValue);
-				//cout << "\nnodeName:" << pbNodeName << endl;
-				//pobjPjtSettings->setPOWERLINK_IP((char*)pxcValue);
-				//cout << "\nstPjtSettings->getPOWERLINK_IP():" << pobjPjtSettings->getPOWERLINK_IP() << endl;
 			}
 			else
 			{
@@ -9285,9 +7922,6 @@ bool getandCreateNode(xmlTextReaderPtr pxReader, char* pbPjtPath)
 			if((char*)pxcValue != NULL)		
 			{
 				iNodeID = atoi((char*)pxcValue);
-				//cout << "\niNodeID:" << iNodeID << endl;
-				//pobjPjtSettings->setPOWERLINK_IP((char*)pxcValue);
-				//cout << "\nstPjtSettings->getPOWERLINK_IP():" << pobjPjtSettings->getPOWERLINK_IP() << endl;
 			}
 			else
 			{
@@ -9313,8 +7947,6 @@ bool getandCreateNode(xmlTextReaderPtr pxReader, char* pbPjtPath)
 				#if defined DEBUG
 				cout << "\nnodeType:" << enumNodeType << endl;
 				#endif
-				//pobjPjtSettings->setPOWERLINK_IP((char*)pxcValue);
-				//cout << "\nstPjtSettings->getPOWERLINK_IP():" << pobjPjtSettings->getPOWERLINK_IP() << endl;
 			}
 			else
 			{
@@ -9334,8 +7966,6 @@ bool getandCreateNode(xmlTextReaderPtr pxReader, char* pbPjtPath)
 				#if defined DEBUG
 				cout << "\nxdcPath:" << pbXdcPath << endl;
 				#endif
-				//pobjPjtSettings->setPOWERLINK_IP((char*)pxcValue);
-				//cout << "\nstPjtSettings->getPOWERLINK_IP():" << pobjPjtSettings->getPOWERLINK_IP() << endl;
 			}
 			else
 			{
@@ -9343,7 +7973,6 @@ bool getandCreateNode(xmlTextReaderPtr pxReader, char* pbPjtPath)
 					cout << "\ngetandCreateNode returning false" << endl;
 				#endif
 				pbXdcPath = NULL;
-				//return false;
 			}
 		}
 		else if (strcmp(((char*)pxcName),"ForceCycleFlag") == 0)
@@ -9465,19 +8094,12 @@ bool saveProjectXML(char* pbProjectPath, char* pbProjectName)
 	
 CPjtSettings* pobjPjtSettings;
 pobjPjtSettings = CPjtSettings::getPjtSettingsPtr();
-//pobjPjtSettings = new CPjtSettings();
-//cout << " \nPrjt settings Address:" << pobjPjtSettings;
 
 xmlTextWriterPtr pxtwWriter;
 xmlDocPtr pxdDoc;
 INT32 iBytesWritten;
 char* pbFileName;
-//pbFileName = new char[strlen(pbProjectPath) + strlen(pbProjectName) + strlen(pbProjectName) + 10];
 pbFileName = new char[MAX_FILE_PATH_SIZE];
-//pbFileName = new char[(strlen(pbProjectPath) + strlen(pbProjectName) + strlen(pbProjectName) + ALLOC_BUFFER)];
-//pbFileName = new char[100];
-//INT32 iLength = strlen(pbProjectPath);
-//cout << "length " << iLength;
 
 #if defined(_WIN32) && defined(_MSC_VER)
 {
@@ -9496,8 +8118,7 @@ pxtwWriter = xmlNewTextWriterDoc(&pxdDoc, 0);
 if (pxtwWriter == NULL) 
 {
 	printf("testXmlwriterDoc: Error creating the xml pxtwWriter\n");
-	//return;
-	ocfmException objException;// = new ocfmException;
+	ocfmException objException;
 	objException.ocfm_Excpetion(OCFM_ERR_CREATE_XML_WRITER_FAILED);
 	throw &objException;
 }
@@ -9508,7 +8129,7 @@ iBytesWritten = xmlTextWriterStartDocument(pxtwWriter, NULL, MY_ENCODING, NULL);
 if (iBytesWritten < 0) 
 {
 	printf("testXmlwriterDoc: Error at xmlTextWriterStartDocument\n");
-	ocfmException objException;// = new ocfmException;
+	ocfmException objException;
 	objException.ocfm_Excpetion(OCFM_ERR_XML_START_DOC_FAILED);
 	throw &objException;
 }	
@@ -9519,7 +8140,7 @@ iBytesWritten = xmlTextWriterStartElement(pxtwWriter, BAD_CAST "openCONFIGURATOR
 if (iBytesWritten < 0) 
 {
 	printf("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
-	ocfmException objException;// = new ocfmException;
+	ocfmException objException;
 	objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
 	throw &objException;
 }
@@ -9531,7 +8152,7 @@ iBytesWritten = xmlTextWriterStartElement(pxtwWriter, BAD_CAST "profile");
 if (iBytesWritten < 0) 
 {
 	printf("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
-	ocfmException objException;// = new ocfmException;
+	ocfmException objException;
 	objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
 	throw &objException;
 }
@@ -9542,19 +8163,12 @@ if (iBytesWritten < 0)
 	if (iBytesWritten < 0) 
 	{
 		printf("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
-		ocfmException objException;// = new ocfmException;
+		ocfmException objException;
 		objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
 		throw &objException;
 	}
 
-	//pobjPjtSettings->setTestVar(5);
-
-	//cout << "\nstPjtSettings->getTestVar():" << pobjPjtSettings->getTestVar() << endl;
-
-	//pobjPjtSettings->setGenerateAttr(YES_AG);
-	//if(0 != strlen(pobjPjtSettings->getGenerateAttr()))
 	{
-		//cout << "\n\n\nstPjtSettings->getGenerateAttr():" << pobjPjtSettings->getGenerateAttr() << endl;
         if(pobjPjtSettings->getGenerateAttr() == NO_AG)
 		{
 			iBytesWritten = xmlTextWriterWriteAttribute(pxtwWriter, BAD_CAST "Generate", BAD_CAST "NO");
@@ -9565,7 +8179,6 @@ if (iBytesWritten < 0)
 		}
 	}
 	
-	//cout << "\n\n\nstPjtSettings->getSaveAttr():" << pobjPjtSettings->getSaveAttr() << endl;
 	if(pobjPjtSettings->getSaveAttr() == YES_AS)
 		iBytesWritten = xmlTextWriterWriteAttribute(pxtwWriter, BAD_CAST "Save", BAD_CAST "YES");
 	else if(pobjPjtSettings->getSaveAttr() == PROMPT_AS)
@@ -9592,7 +8205,6 @@ if (iBytesWritten < 0)
 	}
 
 
-	//cout << "\n1" << endl;
 	// End Auto Tag
 	iBytesWritten = xmlTextWriterEndElement(pxtwWriter);
 	if (iBytesWritten < 0)
@@ -9613,10 +8225,6 @@ if (iBytesWritten < 0)
 		objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
 		throw &objException;
 	}
-	//cout << "\n3" << endl;
-	/*
-	Connection between openCONFIGURATOR and openPOWERLINK via socket is not implented in this version.
-	*/
 	iBytesWritten = xmlTextWriterWriteAttribute(pxtwWriter, BAD_CAST "IP", BAD_CAST "0.0.0.0");
 		
 	// End Communication Tag
@@ -9638,7 +8246,6 @@ if (iBytesWritten < 0)
 	objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_END_ELT_FAILED);
 	throw &objException;
 }
-//cout << "\n4" << endl;
 xmlTextWriterSetIndent(pxtwWriter, 1);
 // Start NodeCollection Tag
 iBytesWritten = xmlTextWriterStartElement(pxtwWriter, BAD_CAST "NodeCollection");
@@ -9649,26 +8256,11 @@ if (iBytesWritten < 0)
 	objException.ocfm_Excpetion(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
 	throw &objException;
 }
-//cout << "\n5" << endl;
 		CNode objNode;		
 		CNodeCollection *pobjNodeCollection = NULL;
-		//CIndexCollection *pobjIndexCollection = NULL;
 		CIndex objIndex;
-		//CIndex* pobjIndexPtr =  NULL;
-		//cout << "\n5_0" << endl;
-		//Parameter* pobjParameter = NULL;
-		//CApplicationProcess* pobjAppProc = NULL;
-		//INT32 iIndexPos = 0;
-		//cout << "\n5_1" << endl;
 		objIndex.setNodeID(objNode.getNodeId());
-		//cout << "\n5_2" << endl;
 		pobjNodeCollection = CNodeCollection::getNodeColObjectPointer();
-		//cout << "\n5_3" << endl;
-		//objNode = pobjNodeCollection->getNode(enumNodeType, iNodeID);
-//cout << "\n6" << endl;
-		//pobjIndexCollection = objNode.getIndexCollection();
-		
-
 
 	for(INT32 nodeCount = 0; nodeCount < pobjNodeCollection->getNumberOfNodes(); nodeCount++)
 	{
@@ -9691,11 +8283,7 @@ if (iBytesWritten < 0)
 		}
 
 		char* pbTempNodeName;
-		//cout << "before nodename" << endl;
-		//printf("\n pobjNode pxcName %s ",pobjNode->getNodeName());
-		//pbTempNodeName = new char[(strlen(pobjNode->getNodeName()) + 10)];
 		pbTempNodeName = new char[50];
-		//cout << "after indeent" << endl;
 		strcpy(pbTempNodeName, (char*) pobjNode->getNodeName());
 		iBytesWritten = xmlTextWriterWriteAttribute(pxtwWriter, BAD_CAST "name", BAD_CAST pbTempNodeName);
 		
@@ -9848,7 +8436,6 @@ void CreateMNPDOVar(INT32 iOffset, INT32 iDataSize, IEC_Datatype enumDataType, E
 					else if(enumPdoType == PDO_RPDO)
 					{
 						objpi =  getPIAddress(dt, OUTPUT, iOffset, iDataSize);
-						//strcpy(objPDOvar.Index, getPIAddress(UNSIGNED8, OUTPUT, Offset, dataSize));	
 					}
 					
 					
@@ -9857,49 +8444,41 @@ void CreateMNPDOVar(INT32 iOffset, INT32 iDataSize, IEC_Datatype enumDataType, E
 					if(enumPdoType == PDO_TPDO)
 					{
 							objpi =  getPIAddress(INTEGER8, INPUT, iOffset, iDataSize);
-						//strcpy(objPDOvar.Index, getPIAddress(INTEGER8, INPUT, Offset, dataSize));	
 					}
 					
 					else if(enumPdoType == PDO_RPDO)
 					{
 							objpi =  getPIAddress(INTEGER8, OUTPUT, iOffset, iDataSize);
-						//strcpy(objPDOvar.Index, getPIAddress(INTEGER8, OUTPUT, Offset, dataSize));	
 					}
 					break;	
 				case UINT :											
 					if(enumPdoType == PDO_TPDO)
 					{
 							objpi =  getPIAddress(UNSIGNED16, INPUT, iOffset, iDataSize);
-						//strcpy(objPDOvar.Index, getPIAddress(UNSIGNED16, INPUT , Offset, dataSize));	
 					}
 					else if(enumPdoType == PDO_RPDO)
 					{
 						objpi =  getPIAddress(UNSIGNED16, OUTPUT, iOffset, iDataSize);
-						//strcpy(objPDOvar.Index, getPIAddress(UNSIGNED16, OUTPUT, Offset, dataSize));	
 					}
 					break;									
 				case INT :											
 					if(enumPdoType == PDO_TPDO)
 					{
 						objpi =  getPIAddress(INTEGER16, INPUT, iOffset, iDataSize);
-						//strcpy(objPDOvar.Index, getPIAddress(INTEGER16, INPUT, Offset, dataSize));	
 					}
 					else if(enumPdoType == PDO_RPDO)
 					{
 						objpi =  getPIAddress(INTEGER16, OUTPUT, iOffset, iDataSize);
-						//strcpy(objPDOvar.Index, getPIAddress(INTEGER16, OUTPUT, Offset, dataSize));	
 					}
 					break;
 				case UDINT:											
 					if(enumPdoType == PDO_TPDO)
 					{
 						objpi =  getPIAddress(UNSIGNED32, INPUT, iOffset, iDataSize);
-						//strcpy(objPDOvar.Index, getPIAddress(UNSIGNED32, INPUT, Offset, dataSize));	
 					}
 					else if(enumPdoType == PDO_RPDO)
 					{
 						objpi =  getPIAddress(UNSIGNED32, OUTPUT, iOffset, iDataSize);
-						//strcpy(objPDOvar.Index, getPIAddress(UNSIGNED32, OUTPUT, Offset, dataSize));	
 					}
 					break;		
 				case DINT:
@@ -9907,21 +8486,14 @@ void CreateMNPDOVar(INT32 iOffset, INT32 iDataSize, IEC_Datatype enumDataType, E
 					if(enumPdoType == PDO_TPDO)
 					{
 						objpi =  getPIAddress(INTEGER32, INPUT, iOffset, iDataSize);
-						//strcpy(objPDOvar.Index, getPIAddress(INTEGER32, INPUT, Offset, dataSize));	
 					}
 					else if(enumPdoType == PDO_RPDO)
 					{
 						objpi =  getPIAddress(INTEGER32, OUTPUT, iOffset, iDataSize);
-						//strcpy(objPDOvar.Index, getPIAddress(INTEGER32, OUTPUT, Offset, dataSize));		
 					}
 					break;																			
 				case LINT:
 				case LREAL:
-					/*if(enumPdoType == PDO_TPDO)
-					strcpy(objPDOvar.Index, "A071");	
-					
-					else if(enumPdoType == PDO_RPDO)
-					strcpy(objPDOvar.Index, "A061");*/	
 					break;
 				// Handled all values 
 				case BOOL:
@@ -9952,17 +8524,6 @@ void CreateMNPDOVar(INT32 iOffset, INT32 iDataSize, IEC_Datatype enumDataType, E
 	
 			strcpy(objPDOvar.Index,objpi.Index);	
 			strcpy(objPDOvar.SubIndex, objpi.SubIndex);		
-		//printf("\n objPDOvar.Index%s", objPDOvar.Index);
-	
-	
-	/* Assign SubIndex*/							
-		/*INT32 iSIdx;
-		INT32 iTempDataSize = iDataSize/8;
-		iSIdx 		    = (iOffset)/iTempDataSize + 1;
-		objPDOvar.SubIndex  = new char[2 + ALLOC_BUFFER];
-		objPDOvar.SubIndex  =  _IntToAscii(iSIdx, objPDOvar.SubIndex, 16);
-		objPDOvar.SubIndex  = padLeft(objPDOvar.SubIndex, '0', 2);
-	*/					
 		/* Assign the value*/
 		objPDOvar.Value = new char[10 + ALLOC_BUFFER];
 		char* pbPadBuff = new char[5 + ALLOC_BUFFER];		
@@ -9974,10 +8535,6 @@ void CreateMNPDOVar(INT32 iOffset, INT32 iDataSize, IEC_Datatype enumDataType, E
 		strcat(objPDOvar.Value , "0000");
 		/* Set the Reserved*/
 		strcat(objPDOvar.Value , "00");
-		/* Set the subIndex*/
-//		strcat(objPDOvar.Value , objPDOvar.SubIndex);
-		/* Set the Reserved*/
-	//	strcat(objPDOvar.Value , objPDOvar.Index);
 	
 		
 		pobjNode->addMNPDOvar(objPDOvar, enumPdoType);
@@ -10038,12 +8595,11 @@ ocfmRetCode SetProjectSettings(EAutoGenerate enumAutoGen, EAutoSave enumAutoSave
 		{
 			if(pobjPrjtSettings == NULL)
 			{
-				ocfmException objException;// = new ocfmException;
+				ocfmException objException;
 				objException.ocfm_Excpetion(OCFM_ERR_PROJECT_SETTINGS);
 				throw &objException;
 			}
 			
-			//printf("\n autogenerate %d",enumAutoGen);
 			pobjPrjtSettings->setGenerateAttr(enumAutoGen);
 			pobjPrjtSettings->setSaveAttr(enumAutoSave);
 			pobjPrjtSettings->setViewMode(enumViewMode);
@@ -10073,11 +8629,6 @@ void	UpdateNumberOfEnteriesSIdx(CIndex *pobjIndex, ENodeType enumNodeType)
 	/* subindexes excluding "00"*/
 	iTotalSIdxs = pobjIndex->getNumberofSubIndexes() - 1;
 	
-	/*if(pobjSIdx ==NULL)	
-	{
-		AddSubIndex(ppobjIndex->getNodeID(), enumNodeType, (char *)objIndex->getIndexValue(), "00");
-		pobjSIdx = pobjIndex->getSubIndexbyIndexValue("00");
-	}*/
 	
 	if(pobjSIdx!=NULL)
     {
@@ -10094,60 +8645,37 @@ void AuotgenerateOtherIndexs(CNode* pobjNode)
 
 			ocfmRetCode retCode;
 			char* pbMNIndex = new char[INDEX_LEN + ALLOC_BUFFER];		
-			//char pbMNIndex[INDEX_LEN + ALLOC_BUFFER];		
 			char* pbSidx =  new char[SUBINDEX_LEN + ALLOC_BUFFER];
 			CIndex* pobjIndex;
-			//CNode* pobjNode;
-			//char pbSidx[SUBINDEX_LEN + ALLOC_BUFFER];
 			CIndexCollection* pobjIdxCol;
 			INT32 iConfigDate;
 			INT32 iConfigTime;
             int IndexPos;
 			
 			pobjIdxCol = pobjNode->getIndexCollection();
-			/* Add 1006*/
+			/* 1006*/
 				strcpy(pbMNIndex, "1006");
 						#if defined DEBUG	
 					cout << "string copied" << endl;
 				
 				#endif
-				//retCode = AddIndex(MN_NODEID, MN, pbMNIndex);
                     retCode = IfIndexExists(MN_NODEID, MN, pbMNIndex, &IndexPos);
 					#if defined DEBUG	
 					cout << "retcode" << retCode.code<<endl;
 					cout<< "1006 added"<<endl;
 				#endif
 				
-				/* Set 5ms value*/	
-				//if(retCode.code ==  OCFM_ERR_INDEX_ALREADY_EXISTS)
-                /*if(OCFM_ERR_SUCCESS == retCode.code)
-				{
-					pobjIndex = pobjIdxCol->getIndexbyIndexValue(pbMNIndex);
-					if(pobjIndex->getActualValue() ==NULL)
-					SetIndexAttributes(MN_NODEID, MN, pbMNIndex, (char*)"50000",(char*)"NMT_CycleLen_U32", TRUE);				
-				}*/
-				/*else
-				{
-						SetIndexAttributes(MN_NODEID, MN, pbMNIndex, (char*)"50000",(char*)"NMT_CycleLen_U32", TRUE);				
-				}*/
-			/* Add 1020*/
-				//strcpy(pbMNIndex, "1020");
-				//retCode = AddIndex(MN_NODEID, MN, pbMNIndex);
-				
-						/* Add 1300*/
+
+						/*  1300*/
 				strcpy(pbMNIndex, "1300");
-				/*retCode = AddIndex(MN_NODEID, MN, pbMNIndex);				
-				SetIndexAttributes(MN_NODEID, MN, pbMNIndex, (char*)"5000",(char*)"SDO_SequLayerTimeout_U32", TRUE);*/
                 retCode = IfIndexExists(MN_NODEID, MN, pbMNIndex, &IndexPos);
                 if(OCFM_ERR_SUCCESS == retCode.code)
                 {
                   SetIndexAttributes(MN_NODEID, MN, pbMNIndex, (char*)"5000",(char*)"SDO_SequLayerTimeout_U32", TRUE);
                 }
 
-				/* Add 1C02*/
+				/* 1C02*/
 					strcpy(pbMNIndex, "1C02");
-					/*retCode = AddIndex(MN_NODEID, MN, pbMNIndex);
-					if(retCode.code == OCFM_ERR_SUCCESS || retCode.code == OCFM_ERR_INDEX_ALREADY_EXISTS)*/
                     retCode = IfIndexExists(MN_NODEID, MN, pbMNIndex, &IndexPos);
                     if(OCFM_ERR_SUCCESS == retCode.code)
 					{		
@@ -10174,10 +8702,8 @@ void AuotgenerateOtherIndexs(CNode* pobjNode)
 	
 					}
 					
-		/* Add 1C09*/
+		/*  1C09*/
 					strcpy(pbMNIndex, "1C09");
-					/*retCode = AddIndex(MN_NODEID, MN, pbMNIndex);
-					if(retCode.code == OCFM_ERR_SUCCESS || retCode.code == OCFM_ERR_INDEX_ALREADY_EXISTS)*/
                     retCode = IfIndexExists(MN_NODEID, MN, pbMNIndex, &IndexPos);
                     if(OCFM_ERR_SUCCESS == retCode.code)
 					{				
@@ -10189,10 +8715,8 @@ void AuotgenerateOtherIndexs(CNode* pobjNode)
 					
 					}
 					
-							/* Add 1F26*/
+							/*  1F26*/
 					strcpy(pbMNIndex, "1F26");
-					/*retCode = AddIndex(MN_NODEID, MN, pbMNIndex);
-					if(retCode.code == OCFM_ERR_SUCCESS || retCode.code == OCFM_ERR_INDEX_ALREADY_EXISTS)*/
                     retCode = IfIndexExists(MN_NODEID, MN, pbMNIndex, &IndexPos);
                     if(OCFM_ERR_SUCCESS == retCode.code)
 					{				
@@ -10203,20 +8727,16 @@ void AuotgenerateOtherIndexs(CNode* pobjNode)
 						char* Val = new char[8];
 						iConfigDate = getConfigDate();
 						Val = _IntToAscii(iConfigDate, Val, 10);
-						//hexVal = padLeft(hexVal, '0' , 8);
 						AddForEachSIdx(pbMNIndex, pobjIdxCol, pobjNode->getNodeId(), Val, false);		
 											
-										//AddForEachSIdx(MNIndex, pobjIdxCol, objNode->getNodeId(), hexVal, false);		
 	
 					}
 					
 							#if defined DEBUG	
 						cout<< "1F26 subidex added"<<endl;
 					#endif
-							/* Add 1F27*/
+							/*  1F27*/
 					strcpy(pbMNIndex, "1F27");
-					/*retCode = AddIndex(MN_NODEID, MN, pbMNIndex);
-					if(retCode.code == OCFM_ERR_SUCCESS || retCode.code == OCFM_ERR_INDEX_ALREADY_EXISTS)*/
                     retCode = IfIndexExists(MN_NODEID, MN, pbMNIndex, &IndexPos);
                     if(OCFM_ERR_SUCCESS == retCode.code)
 					{				
@@ -10226,18 +8746,14 @@ void AuotgenerateOtherIndexs(CNode* pobjNode)
 			
 						char* Val = new char[50];
 						iConfigTime = getConfigTime();
-						//cout << "\n\n\nConfigTime:" << iConfigTime << endl;																		
 						Val = _IntToAscii(iConfigTime,Val, 10);
-						//Val = padLeft(hexVal, '0' , 8);
 
 						AddForEachSIdx(pbMNIndex, pobjIdxCol, pobjNode->getNodeId(), Val, false);										
 					}
 					
 					
-					/* Add 1F84*/
+					/* 1F84*/
 					strcpy(pbMNIndex, "1F84");
-					/*retCode = AddIndex(MN_NODEID, MN, pbMNIndex);
-					if(retCode.code == OCFM_ERR_SUCCESS || retCode.code == OCFM_ERR_INDEX_ALREADY_EXISTS)*/
                     retCode = IfIndexExists(MN_NODEID, MN, pbMNIndex, &IndexPos);
                     if(OCFM_ERR_SUCCESS == retCode.code)
 					{				
@@ -10248,90 +8764,7 @@ void AuotgenerateOtherIndexs(CNode* pobjNode)
 						AddForEachSIdx(pbMNIndex, pobjIdxCol, pobjNode->getNodeId(), (char*)"", true);			
 			
 					}
-								/* Add 1F8B*/
-// 					strcpy(pbMNIndex, "1F8B");
-// 					/*retCode = AddIndex(MN_NODEID, MN, pbMNIndex);
-// 					if(retCode.code == OCFM_ERR_SUCCESS || retCode.code == OCFM_ERR_INDEX_ALREADY_EXISTS)*/
-//                     retCode = IfIndexExists(MN_NODEID, MN, pbMNIndex, &IndexPos);
-//                     if(OCFM_ERR_SUCCESS == retCode.code)
-// 					{				
-// 						pobjIndex = pobjIdxCol->getIndexbyIndexValue(pbMNIndex);
-// 								/* $:set Flag to true*/
-// 						pobjIndex->setFlagIfIncludedCdc(TRUE);
-// 			
-// 						AddForEachSIdx(pbMNIndex, pobjIdxCol, pobjNode->getNodeId(), (char*)"1490", false);			
-// 											
-// 					
-// 					}
-// 							/* Add 1F8D*/
-// 					strcpy(pbMNIndex, "1F8D");
-// 					/*retCode = AddIndex(MN_NODEID, MN, pbMNIndex);
-// 					if(retCode.code == OCFM_ERR_SUCCESS || retCode.code == OCFM_ERR_INDEX_ALREADY_EXISTS)*/
-//                     retCode = IfIndexExists(MN_NODEID, MN, pbMNIndex, &IndexPos);
-//                     if(OCFM_ERR_SUCCESS == retCode.code)
-// 					{				
-// 						pobjIndex = pobjIdxCol->getIndexbyIndexValue(pbMNIndex);
-// 								/* $:set Flag to true*/
-// 						pobjIndex->setFlagIfIncludedCdc(TRUE);
-// 			
-// 						AddForEachSIdx(pbMNIndex, pobjIdxCol, pobjNode->getNodeId(), (char*)"1490", false);			
-// 											
-// 					
-// 					}
-							/* Add 1F92*/
-					/*strcpy(pbMNIndex, "1F92");
-					//retCode = AddIndex(MN_NODEID, MN, pbMNIndex);
-					//if(retCode.code == OCFM_ERR_SUCCESS)
-                    retCode = IfIndexExists(MN_NODEID, MN, pbMNIndex, &IndexPos);
-                    if(OCFM_ERR_SUCCESS == retCode.code)
-					{				
-						pobjIndex = pobjIdxCol->getIndexbyIndexValue(pbMNIndex);
-								// $:set Flag to true
-						pobjIndex->setFlagIfIncludedCdc(TRUE);
-						AddForEachSIdx(pbMNIndex, pobjIdxCol, pobjNode->getNodeId(), (char*)"2000000",false);	
-					}*/
-					/*else if (retCode.code == OCFM_ERR_INDEX_ALREADY_EXISTS)
-					{
-						// $:set Flag to true
-						pobjIndex->setFlagIfIncludedCdc(TRUE);
-					}*/
-					
-					
-							/* Add 1F98*/
-					/*strcpy(pbMNIndex, "1F98");
-					
-					//retCode = AddIndex(MN_NODEID, MN, pbMNIndex);
-					//if(retCode.code == OCFM_ERR_SUCCESS)*/
-                    /*retCode = IfIndexExists(MN_NODEID, MN, pbMNIndex, &IndexPos);
-                    if(OCFM_ERR_SUCCESS == retCode.code)
-					{				
-					
-						pobjIndex = pobjIdxCol->getIndexbyIndexValue(pbMNIndex);
-								// $:set Flag to true
-						pobjIndex->setFlagIfIncludedCdc(TRUE);
-						
-						strcpy(pbSidx, "05");
-						SetSIdxValue(pbMNIndex, pbSidx, abC_DLL_ISOCHR_MAX_PAYL, pobjIdxCol, pobjNode->getNodeId(), MN, false);
-						
-// 						strcpy(Sidx, "00");
-// 						SetSIdxValue(pbMNIndex, pbSidx, "", pobjIdxCol, pobjNode->getNodeId(),true);
-// 										
-// 						strcpy(pbSidx, "01");
-// 						SetSIdxValue(pbMNIndex, pbSidx, abC_DLL_ISOCHR_MAX_PAYL, pobjIdxCol, pobjNode->getNodeId(), false);
-// 					
-// 						strcpy(pbSidx, "02");
-// 						SetSIdxValue(pbMNIndex, pbSidx, abC_DLL_ISOCHR_MAX_PAYL, pobjIdxCol, pobjNode->getNodeId(), false);
-// 						
-// 						
-// 						strcpy(pbSidx, "07");
-// 						SetSIdxValue(pbMNIndex, pbSidx, "", pobjIdxCol, pobjNode->getNodeId(), true);
-// 						
-// 						strcpy(pbSidx, "08");
-// 						SetSIdxValue(pbMNIndex, pbSidx, abC_DLL_MIN_ASYNC_MTU, pobjIdxCol, pobjNode->getNodeId(), false);
-// 						
-// 						strcpy(pbSidx, "09");
-// 						SetSIdxValue(pbMNIndex, pbSidx, "", pobjIdxCol, pobjNode->getNodeId(), true);
-					}*/
+
 					delete [] pbMNIndex;
 					delete [] pbSidx;
 }
@@ -10341,10 +8774,8 @@ void UpdatedCNDateORTime(CIndex* pobjMNIndex, int iNodeId, EDateTime enumDT)
 
 	ocfmRetCode stRetCode;
 	CSubIndex *pobjSIdx;
-	//char* Index 	= new char[INDEX_LEN];		
 	char Index[INDEX_LEN];
     int IndexPos;
-	//char* Sidx 		=  new char[SUBINDEX_LEN];
 	char Sidx[SUBINDEX_LEN];
 	CIndexCollection* pobjIdxCol;
 	CNodeCollection* pobjNodeCol;
@@ -10359,26 +8790,13 @@ void UpdatedCNDateORTime(CIndex* pobjMNIndex, int iNodeId, EDateTime enumDT)
 		subIndexHexValue = padLeft(subIndexHexValue, '0', 2);
 		pobjSIdx = pobjMNIndex->getSubIndexbyIndexValue(subIndexHexValue);
 		
-		/* Add 1006*/
 			strcpy(Index, "1020");
 				
             if(OCFM_ERR_SUCCESS != (IfIndexExists(pobjNode->getNodeId(), CN, Index, &IndexPos)).code)
             {
               return;
             }
-			/*stRetCode = AddIndex(pobjNode->getNodeId(), CN, Index);
-				#if defined DEBUG	
-				cout << "stRetCode" << stRetCode.code<<endl;
-				cout<< "1020 added"<<endl;
-			#endif
-			if((stRetCode.code != 0) && (stRetCode.code != OCFM_ERR_INDEX_ALREADY_EXISTS ))
-			exit;*/
-			
-			/*char* Val = new char[16];
-			Val = _IntToAscii(iConfigDate,Val, 10);
-		*/
-			/* Set 5ms pxcValue*/
-				/* Set subindex pxcValue 40 or 0000028 */
+
 				
 				if(pobjSIdx != NULL)
 				{
@@ -10452,7 +8870,6 @@ void copyPDODefToAct(int iNodeID, ENodeType enumNodeType)
 
 CIndex getPDOIndexByOffset(CIndex* pobjIndex)
 {
-	//CIndexCollection* pPdoColByOffset;
 	CIndex objIndex; 
 	objIndex = *pobjIndex;
 	CSubIndex* pObjSIdx1, *pObjSIdx2;
@@ -10463,36 +8880,24 @@ CIndex getPDOIndexByOffset(CIndex* pobjIndex)
 		{
 					
 			pObjSIdx1 = objIndex.getSubIndex(iIdxLoopCount);
-			//if(pObjSIdx1->getActualValue()!= NULL)
 			if ( (pObjSIdx1->getActualValue()!=NULL) 
 				&& (0 != strcmp(pObjSIdx1->getActualValue(),"")) 
 				&& !(checkIfValueZero((char*)pObjSIdx1->getActualValue())) )
 			{
 				const char* pbActualVal1 = pObjSIdx1->getActualValue();
 
-				/*if(false == IsValidMappingLength(pbActualVal1))
-				{
-					continue;
-				}*/
 				INT32 iLength1 = strlen(pbActualVal1);
 				char* pbOffset1 = NULL;
 				INT32 iOffset1 = 0;
-				//cout << "\n pbActualVal1" << pbActualVal1;
 				
 				pbOffset1 = subString((char*)pbActualVal1, iLength1-12,4);
 				iOffset1 = hex2int(pbOffset1);
-				//cout << "\n iOffset1" << iOffset1;
 				pObjSIdx2 = objIndex.getSubIndex(iIdxLoopCount + 1);
-				//if(pObjSIdx2->getActualValue()!= NULL)
 				if ( (pObjSIdx2->getActualValue()!=NULL) 
 					&& (0 != strcmp(pObjSIdx2->getActualValue(),"")) 
 					&& !(checkIfValueZero((char*)pObjSIdx2->getActualValue())) )
 				{
 					const char* pbActualVal2 = pObjSIdx2->getActualValue();
-					/*if(false == IsValidMappingLength(pbActualVal2))
-					{
-						continue;
-					}*/
 					INT32 iLength2 = strlen(pbActualVal2);
 					char* pbOffset2 = NULL;
 					INT32 iOffset2 = 0;
@@ -10502,9 +8907,6 @@ CIndex getPDOIndexByOffset(CIndex* pobjIndex)
 					CSubIndex* pbTempIdx = 0;
 					if(iOffset1 >  iOffset2)
 					{					
-						/*pbTempIdx = pObjSIdx1;
-						pObjSIdx1  = pObjSIdx2;
-						pObjSIdx2 = pbTempIdx;	*/
 						objIndex.SwapSubObjects(iIdxLoopCount, iIdxLoopCount + 1);
 				
 					}
@@ -10537,13 +8939,12 @@ ocfmRetCode GetFeatureValue(
 		stErrorInfo = IfNodeExists(iNodeID, eNodeType, &iNodePos, bFlag);
 		if (stErrorInfo.code == 0 && bFlag==true) 
 		{		
-			//retPos = stErrorInfo.returnValue;
+			//continue with process
 		}
 		else
 		{	
-			//cout << "$S\n\nErrStruct.errCode.code:" << stErrorInfo.code << "\n\n!!!" << endl;
 			// Node Doesn't Exist
-			ocfmException objException;// = new ocfmException;
+			ocfmException objException;
 			objException.ocfm_Excpetion(OCFM_ERR_INVALID_NODEID);
 			throw &objException;
 		}
@@ -10557,16 +8958,6 @@ ocfmRetCode GetFeatureValue(
 		
 		pobjNwManagement = objNode.getNetworkManagement();
 		strcpy(Out_FeatureValue, pobjNwManagement->getFeatureValue(eFeatureType, FeatureName));
-		/*pbRetString = pobjNwManagement->getFeatureValue(eFeatureType, FeatureName);
-		if(pbRetString != NULL)
-		{
-			Out_FeatureValue = new char[strlen(pbRetString) + STR_ALLOC_BUFFER + 1];
-			strcpy(Out_FeatureValue, pbRetString);
-			strcat(Out_FeatureValue, "\0");
-			printf("\n Out_FeatureValue %s\n", Out_FeatureValue);			
-		}
-		else
-			Out_FeatureValue = NULL;*/
 			
 		stErrorInfo.code = OCFM_ERR_SUCCESS;
 		return stErrorInfo;
@@ -10585,7 +8976,6 @@ ocfmRetCode GetFeatureValue(
 ocfmRetCode UpdateNodeParams(INT32 iCurrNodeId, INT32 iNewNodeID, ENodeType eNodeType, 
 							 char* NodeName, EStationType eStationType, char* ForcedCycle, bool ForcedCycleFlag, char* PollResponseTimeout)
 {
-	//cout<< "Inside GetNodeIDbyNodeCount" << endl;
 	ocfmRetCode stErrorInfo;
 	INT32 iNodePos;
 	try
@@ -10601,7 +8991,7 @@ ocfmRetCode UpdateNodeParams(INT32 iCurrNodeId, INT32 iNewNodeID, ENodeType eNod
 			}
 			else
 			{
-				ocfmException objException;// = new ocfmException;
+				ocfmException objException;
 				objException.ocfm_Excpetion(OCFM_ERR_INVALID_NODEID);
 				throw &objException;
 			}
@@ -10612,7 +9002,7 @@ ocfmRetCode UpdateNodeParams(INT32 iCurrNodeId, INT32 iNewNodeID, ENodeType eNod
 			stErrorInfo = IfNodeExists(iNewNodeID, eNodeType, &iNodePos, bFlag);
 			if(stErrorInfo.code == OCFM_ERR_SUCCESS && bFlag == true)								
 			{		
-				ocfmException objException ;//= new ocfmException;
+				ocfmException objException ;
 				objException.ocfm_Excpetion(OCFM_ERR_NODE_ALREADY_EXISTS);		
 				throw &objException;
 			}
@@ -10645,11 +9035,6 @@ ocfmRetCode UpdateNodeParams(INT32 iCurrNodeId, INT32 iNewNodeID, ENodeType eNod
             char* cSIdx = new char[SUBINDEX_LEN];
             cSIdx = _IntToAscii(iCurrNodeId, cSIdx, 16);
             cSIdx = padLeft(cSIdx, '0', 2);
-            //Deleted MN's 1F9B and Suindex = old node id
-            //DeleteSubIndex(MN_NODEID, MN, (char *)MULTIPL_CYCLE_ASSIGN_OBJECT, cSIdx);
-            //set to default value
-			//TODO: CopyOld... fn
-            //copySubIndexDefToAct(iCurrNodeId, eNodeType, true, (char *)MULTIPL_CYCLE_ASSIGN_OBJECT, cSIdx);
             pobjNode->resetForcedCycleValue();
         }
 
@@ -10692,18 +9077,6 @@ ocfmRetCode UpdateNodeParams(INT32 iCurrNodeId, INT32 iNewNodeID, ENodeType eNod
                     } 
                     else
                     {
-//                         char* actValue = new char[50];
-//                         actValue[0] = 0;
-//                         stErrorInfo = GetSubIndexAttributes(MN_NODEID, MN, (char*)"1F98", (char*)"07", ACTUALVALUE, actValue); 
-//                         if(stErrorInfo.code == OCFM_ERR_SUCCESS)
-//                         {
-//                             if( !(actValue == NULL || strcmp(actValue,"") ==0) )
-//                             {
-//                                 INT32 iMNMultiActualValue = 0;
-//                                 if (strncmp(actValue,"0x",2) == 0 || strncmp(actValue,"0X",2) == 0)
-//                                     iMNMultiActualValue  = hex2int(subString(actValue, 2, strlen(actValue) -2));
-//                                 else
-//                                     iMNMultiActualValue  = atoi(actValue);
     
                                 INT32 iCNActualValue = 0;
                                 if (strncmp(pobjNode->getForcedCycle(),"0x",2) == 0 || strncmp(pobjNode->getForcedCycle(),"0X",2) == 0)
@@ -10716,38 +9089,17 @@ ocfmRetCode UpdateNodeParams(INT32 iCurrNodeId, INT32 iNewNodeID, ENodeType eNod
                                     bCalcForceCycle = false;
                                     bSetForceCycle = false;
                                 }
-//                             }
-//                             else
-//                             {
-//                             }
-//                         }
-//                         else
-//                         {
-//                         }
                     }
 				}
                 if(bCalcForceCycle == true)
                 {
-//                         ForcedCycle = new char[20];
-//                         UINT32 uiCycleno =  getLastAvailableCycleNumber();
-//                         //uiCycleno = getFreeCycleNumber(uiCycleno, pobjNode->getNodeId());
-//                         //uiCycleNumber = uiCycleno;
-//                         ForcedCycle = _IntToAscii(uiCycleno, ForcedCycle, 16);
                          ForcedCycle = getLastAvailableCycleNumber();
                 }
 				if(bSetForceCycle == true)
                   stErrorInfo = pobjNode->setForcedCycle(ForcedCycle);
-//                 if(ForcedCycleFlag == false)
-//                 {
-//                         ForcedCycle = new char[20];
-//                         UINT32 uiCycleno =  getLastAvailableCycleNumber();
-//                         ForcedCycle = _IntToAscii(uiCycleno, ForcedCycle, 16);
-//                 }
-//                 pobjNode->setForcedCycle(ForcedCycle);
 				  
                   if( OCFM_ERR_SUCCESS != stErrorInfo.code )
                   {
-                    //pobjNode->setStationType(eNodePrevStationType);
                     return stErrorInfo;
                   }
                   pobjNode->setForceCycleFlag(ForcedCycleFlag);
@@ -10770,7 +9122,6 @@ ocfmRetCode UpdateNodeParams(INT32 iCurrNodeId, INT32 iNewNodeID, ENodeType eNod
 
 ocfmRetCode GetNodeDataTypes(INT32 iNodeId, ENodeType eNodeType, char* pbOutDataTypes)
 {
-	//cout<< "Inside GetNodeIDbyNodeCount" << endl;
 	ocfmRetCode stErrorInfo;
 	INT32 iNodePos;
 	try
@@ -10783,9 +9134,8 @@ ocfmRetCode GetNodeDataTypes(INT32 iNodeId, ENodeType eNodeType, char* pbOutData
 		}
 		else
 		{	
-			//cout << "$S\n\nErrStruct.errCode.code:" << stErrorInfo.code << "\n\n!!!" << endl;
 			// Node Doesn't Exist
-			ocfmException objException;// = new ocfmException;
+			ocfmException objException;
 			objException.ocfm_Excpetion(OCFM_ERR_NODE_ALREADY_EXISTS);
 			throw &objException;
 		}
@@ -10810,28 +9160,15 @@ ocfmRetCode GetNodeDataTypes(INT32 iNodeId, ENodeType eNodeType, char* pbOutData
 			strcpy(strdtName, dt->getName());			
 			if(uiLoopCount == 0)
 			{
-				//pbOutDataTypes = (char*)realloc(pbOutDataTypes,  strlen(strdtName) + STR_ALLOC_BUFFER +  2);						
 				strcpy(pbOutDataTypes, strdtName);				
 			}
 			else 
 			{
-				//printf("%d Datatypes string length %d", strlen(pbOutDataTypes));
-				//pbOutDataTypes = (char*)realloc(pbOutDataTypes, strlen(pbOutDataTypes) + strlen(strdtName) + STR_ALLOC_BUFFER +  2);				
 				strcat(pbOutDataTypes, strdtName);
 				
 			}
 
-			/*if(pbOutDataTypes == NULL)
-			{
-				pbOutDataTypes = (char*)malloc(strlen(strdtName) + STR_ALLOC_BUFFER +  2);
-				strcpy(pbOutDataTypes, strdtName);				
-			}
-			else 
-			{
-				pbOutDataTypes = (char*)realloc(pbOutDataTypes, strlen(pbOutDataTypes) + strlen(strdtName) + STR_ALLOC_BUFFER +  3);				
-				strcat(pbOutDataTypes, strdtName);				
-				
-			}*/
+
 			
 			strcat(pbOutDataTypes, "\n");					
 		}
@@ -10915,7 +9252,6 @@ void setPresMNNodeAssigmentBits()
 			pobjIndex = objPDOCollection->getIndex(iLoopCount);
 			if(0 == strncmp(pobjIndex->getIndexValue(), "1A", 2))
 			{
-				//CIndex* pobjIndex;
 				CIndex *pobjCommIndex;
 				CSubIndex *pobjNodeIDSubIndex;
 				char *pcIdx = subString((char *)pobjIndex->getIndexValue(), 2, 4);
@@ -10947,7 +9283,6 @@ void setPresMNNodeAssigmentBits()
 
 
 	//check whether MN is transmitting PRes
-	//printf("bIsPresMN=%d bIsMNBroadcastingPRes=%d \n", bIsPresMN, bIsMNBroadcastingPRes);
 	if( (false == bIsPresMN) \
 		&& (false == bIsMNBroadcastingPRes) \
 	  )
@@ -10958,15 +9293,6 @@ void setPresMNNodeAssigmentBits()
 
     char *pcSubIndex = new char[SUBINDEX_LEN];
     strcpy(pcSubIndex, (char*)"F0");
-    /*if( OCFM_ERR_INDEXID_NOT_FOUND == stErrStructInfo.code)
-    {
-        AddIndex(240, MN, (char*)"1F81");
-        AddSubIndex(240, MN, (char*)"1F81", pcSubIndex);
-    }
-    else if(OCFM_ERR_SUBINDEXID_NOT_FOUND == stErrStructInfo.code)
-    {
-        AddSubIndex(240, MN, (char*)"1F81", pcSubIndex);
-    }*/
     
     CSubIndex* pobjSubindex;
     pobjSubindex = getMNSubIndexValues((char*)"1F81", (char*)"F0");
@@ -10989,7 +9315,7 @@ void setPresMNNodeAssigmentBits()
         }
         else
         {
-            //pobjSubindex->setActualValue((char *)"");
+            // no operation
         }
     }
     
@@ -11039,7 +9365,7 @@ ocfmRetCode RecalculateMultiplex()
 		}
 		else
 		{
-			ocfmException objException;// = new ocfmException;
+			ocfmException objException;
 			objException.ocfm_Excpetion(stErrorInfo.code);
 			delete[] actValue;
 			throw &objException;
@@ -11070,7 +9396,6 @@ ocfmRetCode RecalculateMultiplex()
 				catch(...)
 				{
 					delete[] subIndActValue;
-					//delete[] strConvertedValue;
 					continue;
 				}
  				if(stErrorInfoSubindexMultiplCycl.code == OCFM_ERR_SUCCESS)
@@ -11102,7 +9427,6 @@ ocfmRetCode RecalculateMultiplex()
 						SetSubIndexAttributes(MN_NODEID, MN, acMultiCycleAssignObj, strConvertedValue, (char*)"",subIndName, (EFlag)iCNsubIndFlag);
 						delete[] subIndName;
 						delete[] subIndFlag;
-						//delete[] strConvertedValue;
 						continue;
 					}
 					else
@@ -11150,21 +9474,9 @@ ocfmRetCode RecalculateMultiplex()
 						else
 						{
 
-//need to foce the cycle
-
-
-// 							ocfmException objException;// = new ocfmException;
-// 							objException.ocfm_Excpetion(stErrorInfoSubindexMultiplCycl.code);
-// 							delete[] subIndActValue;
-// 							throw &objException;
 						}
 					}
 
-// 					char* ForcedCycle = new char[20];
-// 					UINT32 uiCycleno = getLastAvailableCycleNumber();
-//                     //uiCycleno = getFreeCycleNumber(uiCycleno, objNode->getNodeId());
-//                     //uiCycleNumber = uiCycleno;
-// 					ForcedCycle = _IntToAscii(uiCycleno, ForcedCycle, 16);
                     char* ForcedCycle = getLastAvailableCycleNumber();
 					objNode->setForcedCycle(ForcedCycle);
 					delete[] ForcedCycle;
@@ -11185,7 +9497,6 @@ ocfmRetCode RecalculateMultiplex()
 					delete[] subIndName;
 					delete[] subIndFlag;
 				}
-				//delete[] strConvertedValue;
 			} // end of if loop 1
 		}//end of for loop
 		delete[] actValue;
@@ -11227,7 +9538,6 @@ void ResetMultiplexedCNForceCycle()
             catch(...)
             {
                 delete[] subIndActValue;
-                //delete[] strConvertedValue;
                 continue;
             }
             if(stErrorInfoSubindexMultiplCycl.code == OCFM_ERR_SUCCESS)
@@ -11243,7 +9553,6 @@ void ResetMultiplexedCNForceCycle()
                 {
                     continue;
                 }
-                //objNode->setForcedCycle((char*)"");
                 objNode->resetForcedCycleValue();
                 objNode->setStationType(NORMAL);
             }
@@ -11350,11 +9659,11 @@ void copySubIndexDefToAct(int iNodeID, ENodeType enumNodeType, bool bForce, char
     }
 }
 
-// /****************************************************************************************************
-// * Function Name: CheckAndReAssignMultiplex
-// * Description: -
-// * Return value: ocfmRetCode
-// ****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: CheckAndReAssignMultiplex
+* Description: -
+* Return value: ocfmRetCode
+****************************************************************************************************/
 
 void CheckAndReAssignMultiplex(int iCNNodeId, char* CycleValue )
 {
@@ -11383,7 +9692,6 @@ void CheckAndReAssignMultiplex(int iCNNodeId, char* CycleValue )
 	{
 		if(iNodesCount == 0)
 		{				
-			//exit;
             return;
 		}
 		char* actValue = new char[50];
@@ -11397,7 +9705,6 @@ void CheckAndReAssignMultiplex(int iCNNodeId, char* CycleValue )
 		{
 			delete[] actValue;
             stErrorInfo.code = OCFM_ERR_SUCCESS;
-            //return stErrorInfo;
             return;
 		}
 
@@ -11482,7 +9789,6 @@ void CheckAndReAssignMultiplex(int iCNNodeId, char* CycleValue )
 	}//end of try
  	catch(ocfmException* ex)
  	{
- 		//return ex->_ocfmRetCode;
         return;
  	}
 }
@@ -11595,8 +9901,6 @@ ocfmRetCode CheckMutliplexAssigned()
                     }
                     else
                     {
-                        //if(stErrorInfoSubindexMultiplCycl.code == OCFM_ERR_SUCCESS)
-                        //{
                             char* ForcedCycleValue = new char[50];
                             strcpy(ForcedCycleValue,objNode->getForcedCycle());
                             INT32 iCNActualValue = 0;
@@ -11611,25 +9915,14 @@ ocfmRetCode CheckMutliplexAssigned()
                             }
                             else
                             {
-//                                 strcat(stErrorInfo.errorString, "Nodeid:");
-//                                 char* pCNnodeid = new char[SUBINDEX_LEN];
-//                                 pCNnodeid = _IntToAscii(objNode->getNodeId(), pCNnodeid, 10);
-//                                 strcat(stErrorInfo.errorString, pCNnodeid);
-//                                 strcat(stErrorInfo.errorString, " ");
-//                                 delete[] pCNnodeid;
                                 sprintf(stErrorInfo.errorString,"%s%d, ", stErrorInfo.errorString, objNode->getNodeId());
                                 bErrorFlag = true;
                             }
-                        //}
-                        //else
-                        //{
-                        //}
                     }
                 }
                 else 
                 {
                 }
-                //delete[] strConvertedValue;
             } // end of if loop 1
         }//end of for loop
         if(bErrorFlag == true)
@@ -11648,10 +9941,10 @@ ocfmRetCode CheckMutliplexAssigned()
 }
 
 /****************************************************************************************************
-// * Function Name: getFreeCycleNumber
-// * Description: -
-// * Return value: UINT32
-// ****************************************************************************************************/
+ * Function Name: getFreeCycleNumber
+ * Description: -
+ * Return value: UINT32
+ ****************************************************************************************************/
 UINT32 getFreeCycleNumber(UINT32 uiCycleNumber)
 {
     ocfmRetCode stErrorInfo;
@@ -11694,7 +9987,6 @@ UINT32 getFreeCycleNumber(UINT32 uiCycleNumber)
                         delete[] ForcedCycleValue;
                         if (uiCycleNumberCount == iCNActualValue)
                         {
-                            //uiFreeCycleNumber = uiCycleNumberCount;
                             break;
                         }
                         else
@@ -11714,10 +10006,10 @@ UINT32 getFreeCycleNumber(UINT32 uiCycleNumber)
 }
 
 /****************************************************************************************************
-// * Function Name: IsMultiplexCycleNumberContinuous
-// * Description: -
-// * Return value: bool
-// ****************************************************************************************************/
+ * Function Name: IsMultiplexCycleNumberContinuous
+ * Description: -
+ * Return value: bool
+ ****************************************************************************************************/
 bool IsMultiplexCycleNumberContinuous(UINT32 uiCycleNumber)
 {
     ocfmRetCode stErrorInfo;
@@ -11760,7 +10052,6 @@ bool IsMultiplexCycleNumberContinuous(UINT32 uiCycleNumber)
                                 delete[] ForcedCycleValue;
                                 if (uiCycleNumberCount == iCNActualValue)
                                 {
-                                    //uiFreeCycleNumber = uiCycleNumberCount;
                                     break;
                                 }
                                 else
@@ -11915,7 +10206,7 @@ void RecalculateCNPresTimeout(char* pbSubIndexId)
     stErrorInfo = IfSubIndexExists(MN_NODEID, MN, (char*)"1F92", pbSubIndexId, &iSubIndexPos, &iIndexPos);
     if(stErrorInfo.code == OCFM_ERR_SUCCESS)
     {
-            //iSubIndexPos = Tmp_stErrorInfo.returnValue;
+            //continue with process
     }
     else
     {
@@ -11928,27 +10219,7 @@ void RecalculateCNPresTimeout(char* pbSubIndexId)
         return;
 
     INT32 iCNNodeId = hex2int(pbSubIndexId);
-//printf("\npbSubIndexId=%s iCNNodeId=%d\n", pbSubIndexId, iCNNodeId);
-    //stErrorInfo = IfIndexExists(iCNNodeId, CN, (char*)"1F98", &iIndexPos);
-    /*if(stErrorInfo.code == OCFM_ERR_SUCCESS)
-    {
-        //Index exists
-        int subIndexPos;        
-        stErrorInfo = IfSubIndexExists(iCNNodeId, CN, (char*)"1F98", (char*)"03",  &iSubIndexPos, &iIndexPos);
-        if(stErrorInfo.code == OCFM_ERR_SUCCESS)
-        {
 
-        }
-        else
-        {   
-            stErrorInfo = AddSubIndex(iCNNodeId, CN, (char*)"1F98", (char*)"03");
-        }
-    }
-    else
-    {
-        stErrorInfo = AddIndex(iCNNodeId, CN, (char*)"1F98");
-        stErrorInfo = AddSubIndex(iCNNodeId, CN, (char*)"1F98", (char*)"03");      
-    }*/
     stErrorInfo = IfSubIndexExists(iCNNodeId, CN, (char*)"1F98", (char*)"03",  &iSubIndexPos, &iIndexPos);
     if(OCFM_ERR_SUCCESS != stErrorInfo.code)
     {
@@ -11995,20 +10266,14 @@ void UpdateMNNodeAssignmentIndex(CNode *pobjNode, INT32 CNsCount, char* pcIndex,
 	pobjIdxCol = pobjNode->getIndexCollection();
 	char* pbMNIndex = new char[INDEX_LEN + ALLOC_BUFFER];
 	char* pbSidx =  new char[SUBINDEX_LEN + ALLOC_BUFFER];
-		/* Add 1F81*/
 	strcpy(pbMNIndex, pcIndex);
     int IndexPos;
-	//retCode = AddIndex(MN_NODEID, MN, pbMNIndex);
     retCode = IfIndexExists(MN_NODEID, MN, pbMNIndex, &IndexPos);
-	//printf("cn count %d", CNsCount);
-
-	//if(retCode.code == OCFM_ERR_SUCCESS || retCode.code == OCFM_ERR_INDEX_ALREADY_EXISTS)
     if(retCode.code == OCFM_ERR_SUCCESS)
 	{				
 		pobjIndex = pobjIdxCol->getIndexbyIndexValue(pcIndex);
 				/* $:set Flag to true*/
 		pobjIndex->setFlagIfIncludedCdc(TRUE);	
-		//pobjIndex->deleteSubIndexCollection();
 		CSubIndex* pobjSubIndex;
 		for(INT32 iSidxCount = pobjIndex->getNumberofSubIndexes()-1; iSidxCount >= 0; iSidxCount--)
 		{
@@ -12021,7 +10286,6 @@ void UpdateMNNodeAssignmentIndex(CNode *pobjNode, INT32 CNsCount, char* pcIndex,
 
 			try
             {
-                //INT32 iValue = 0;
                 INT32 iNodeidValue  = hex2int((char*)pobjSubIndex->getIndexValue());
                 ENodeType iNodeType;
                 if(MN_NODEID == iNodeidValue)
@@ -12040,8 +10304,6 @@ void UpdateMNNodeAssignmentIndex(CNode *pobjNode, INT32 CNsCount, char* pcIndex,
                 }
                 else
                 {
-                    //pobjSubIndex->setActualValue("0");
-                    //pobjIndex->deleteSubIndex(iSidxCount);
                     if(NULL == pobjSubIndex -> getDefaultValue())
                         pobjSubIndex->setActualValue((char *)"");
                     else
@@ -12050,9 +10312,6 @@ void UpdateMNNodeAssignmentIndex(CNode *pobjNode, INT32 CNsCount, char* pcIndex,
             }
             catch(ocfmException* ex)
             {
-                //return ex->_ocfmRetCode;
-                //pobjSubIndex->setActualValue("0");
-                //pobjIndex->deleteSubIndex(iSidxCount);
                 if(NULL == pobjSubIndex -> getDefaultValue())
                     pobjSubIndex->setActualValue((char *)"");
                 else
@@ -12060,14 +10319,6 @@ void UpdateMNNodeAssignmentIndex(CNode *pobjNode, INT32 CNsCount, char* pcIndex,
             }
 			
 		}
-        /*
-		strcpy(pbSidx, "00");
-		pbIndexNo = _IntToAscii(CNsCount, pbIndexNo, 16);
-		pbIndexNo = padLeft(pbIndexNo, '0', 2);		
-        strcpy(pbHexIndexNo, "0x");
-        strcat(pbHexIndexNo, pbIndexNo);
-		SetSIdxValue(pbMNIndex, pbSidx, pbHexIndexNo,pobjIdxCol, pobjNode->getNodeId(), MN, false);					
-        */
 	}	
 }
 
@@ -12078,15 +10329,13 @@ void UpdateMNNodeAssignmentIndex(CNode *pobjNode, INT32 CNsCount, char* pcIndex,
 ****************************************************************************************************/
 bool ValidateCNPresTimeout(char* pbSubIndexId, char* pcCheckValue)
 {
-//printf("\nValidateCNPresTimeout pbSubIndexId=%s pcCheckValue=%s\n", pbSubIndexId, pcCheckValue);
     ocfmRetCode stErrorInfo, stRet;
     int iSubIndexPos, iIndexPos;
 
-    //stRet.code = OCFM_ERR_LOW_CNPRESTIMEOUT;
     stErrorInfo = IfSubIndexExists(MN_NODEID, MN, (char*)"1F92", pbSubIndexId, &iSubIndexPos, &iIndexPos);
     if(stErrorInfo.code == OCFM_ERR_SUCCESS)
     {
-            //iSubIndexPos = Tmp_stErrorInfo.returnValue;
+            //continue with process
     }
     else
     {
@@ -12195,16 +10444,9 @@ void CopyOldNodeIdAssignmentObjectSubindex(CNode* pobjNode, INT32 iOldNodeId, ch
                 if(OCFM_ERR_SUCCESS == stErrorInfo.code)
                 {
                     //set the value alone
-                    //DeleteSubIndex(MN_NODEID, MN, pcIndex, pcCNOldNodeId);
                 }
                 else
                 {
-                    /*CSubIndex* pobjTempMNOldCNNodeIdSubIndex = new CSubIndex();
-                    *pobjTempMNOldCNNodeIdSubIndex = *pobjMNOldCNNodeIdSubIndex;
-                    pobjTempMNOldCNNodeIdSubIndex->setIndexValue(pcCNNodeId);
-
-                    DeleteSubIndex(MN_NODEID, MN, pcIndex, pcCNOldNodeId);
-                    pobjMNIndex->addSubIndex(*pobjTempMNOldCNNodeIdSubIndex);*/
                     return;
                 }
 
@@ -12221,13 +10463,12 @@ void CopyOldNodeIdAssignmentObjectSubindex(CNode* pobjNode, INT32 iOldNodeId, ch
                     pobjMNCNNodeIdSubIndex->setFlagIfIncludedCdc(TempOldFlg);
                  }
                  // reset the actual value of the old node id subindex
-                 //copySubIndexDefToAct(pobjNode->getNodeId(), pobjNode->getNodeType(), true, pcIndex, pcCNOldNodeId);
 				 SetSubIndexAttributesByAttribute(MN_NODEID, MN, pcIndex, pcCNOldNodeId, ACTUALVALUE, (char*)"");
             }
     }
     else
     {
-        //return false;
+        //no operation
     }
 }
 
@@ -12441,12 +10682,6 @@ INT32* ArrangeNodeIDbyStation()
         piStationTypeColl[iCNNodeLoopCnt] = pobjNode->getStationType();
         iCNNodeLoopCnt++;
     }
-    /*
-	for(iLoopCount = 0; iLoopCount < iCNNodesCount ; iLoopCount++)
-        printf("piNodeIDColl[%d]=%d \n",iLoopCount, piNodeIDColl[iLoopCount] );
-    for(iLoopCount = 0; iLoopCount < iCNNodesCount ; iLoopCount++)
-        printf("piStationTypeColl[%d]=%d \n",iLoopCount, piStationTypeColl[iLoopCount] );
-	*/	
     //get the number of poll response station and other station
     INT32 iChainStnCnt = 0,iOtherStnCnt =0;
     for(iLoopCount = 0; iLoopCount < iCNNodesCount ; iLoopCount++)
@@ -12469,10 +10704,6 @@ INT32* ArrangeNodeIDbyStation()
                 iChainStnLoopCnt++;
             }
         }
-		/*
-    for(iLoopCount = 0; iLoopCount < iChainStnLoopCnt ; iLoopCount++)
-        printf("piChainStnColl[%d]=%d \n",iLoopCount, piChainStnColl[iLoopCount] );
-		*/
         //sort by station no
         SortNodeID(piChainStnColl, iChainStnCnt);
 
@@ -12482,10 +10713,6 @@ INT32* ArrangeNodeIDbyStation()
             piArrangedNodeIDColl[iArrangedNodeIDCount] = piChainStnColl[iLoopCount];
             iArrangedNodeIDCount++;
         }
-		/*
-    for(iLoopCount = 0; iLoopCount < iArrangedNodeIDCount ; iLoopCount++)
-        printf("piArrangedNodeIDColl[%d]=%d \n",iArrangedNodeIDCount, piArrangedNodeIDColl[iArrangedNodeIDCount] );
-		*/
 
         delete[] piChainStnColl;
     }
@@ -12508,19 +10735,10 @@ INT32* ArrangeNodeIDbyStation()
             piArrangedNodeIDColl[iArrangedNodeIDCount] = piOtherStnColl[iLoopCount];
             iArrangedNodeIDCount++;
         }
-		/*
-    for(iLoopCount = 0; iLoopCount < iOtherStnCnt ; iLoopCount++)
-        printf("piOtherStnColl[%d]=%d \n",iLoopCount, piOtherStnColl[iLoopCount] );
-		*/
         delete[] piOtherStnColl;
     }
     delete[] piNodeIDColl;
     delete[] piStationTypeColl;
-
-	/*
-    for(iLoopCount = 0; iLoopCount < iCNNodesCount ; iLoopCount++)
-        printf("piArrangedNodeIDColl[%d]=%d \n",iLoopCount, piArrangedNodeIDColl[iLoopCount] );
-	*/	
 
     return piArrangedNodeIDColl;
 }
