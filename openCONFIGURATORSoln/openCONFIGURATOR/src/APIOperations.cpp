@@ -7015,8 +7015,6 @@ ocfmRetCode GenerateMNOBD(bool IsBuild)
                         }
 							/* set bFlag to true for 1800*/
 						pobjIndex = objMNIndexCol->getIndexbyIndexValue(pbMNIndex);
-						if(pobjIndex != NULL)
-						
 							
 						if(stRetInfo.code != OCFM_ERR_SUCCESS)
 						{
