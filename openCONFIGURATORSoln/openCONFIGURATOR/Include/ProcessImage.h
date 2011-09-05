@@ -202,6 +202,7 @@ void GenerateNETHeaderFile(char* pbFileName, ProcessImage objPIInCol[], ProcessI
 void WriteNETHeaderContents(ProcessImage objProcessImage[], INT32 iNumberOfVars, EPIDirectionType enumDirType, FILE* fpNetHeader);
 INT32 SearchModuleNameNETProcessImageCollection(int CNNodeID, INT32 iItemLoopCount, char* schModuleName );
 INT32 GroupNETPIVariables( EPIDirectionType DirectionType, ProcessImage aobjPICol[]);
+void SetUniquePIVarName();
 void CopyPItoNETPICollection(ProcessImage objProcessImage, NETProcessImage objNETProcessImage, char* ModuleName);
 INT32 GroupNETHeaderContents(ProcessImage objProcessImage[], INT32 iNumberOfVars, EPIDirectionType enumDirType, FILE* fpNetHeader);
 char* GetDatatypeNETPI(IEC_Datatype dt_enum);

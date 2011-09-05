@@ -204,6 +204,95 @@ INT32 GroupNETPIVariables( EPIDirectionType DirectionType, NETProcessImage aobjP
 }
 
 /****************************************************************************************************
+* Function Name: SetUniquePIVarName
+* Description:
+* Return value: void
+****************************************************************************************************/
+void SetUniquePIVarName()
+{
+	CNodeCollection* pobjNodeCol = NULL;
+	CNode*  objNode;
+	pobjNodeCol =  CNodeCollection::getNodeColObjectPointer();
+	iInVars = 0;
+	iOutVars = 0;
+	ProcessImage* pPIObjTemp = NULL;
+	ProcessImage* pPIObjTempChk = NULL;
+	const int iUniqNameLen = 2;
+
+
+	for(INT32 iOutLoopCount=0; iOutLoopCount < pobjNodeCol->getNumberOfNodes(); iOutLoopCount++)
+	{
+		objNode = pobjNodeCol->getNodebyColIndex(iOutLoopCount);
+
+		for(INT32 iInLoopCount=0; iInLoopCount < objNode->ProcessImageCollection.Count(); iInLoopCount++)
+		{
+			int iUniqNameCnt = 1;
+			bool bMatchFound = false;
+
+			pPIObjTemp = &objNode->ProcessImageCollection[iInLoopCount];
+
+			//it is possible that the changed var name matching a previous entry
+		    for(INT32 iInChkLoopCount=0; iInChkLoopCount < objNode->ProcessImageCollection.Count() ; iInChkLoopCount++)
+			{
+		    	if(iInChkLoopCount == iInLoopCount)
+		    	{
+		    		//Both the index are same, do not check same object
+		    		continue;
+		    	}
+
+		    	pPIObjTempChk = &objNode->ProcessImageCollection[iInChkLoopCount];
+
+		    	//check module index, module name, directiontype and variable name
+		    	//if all are same then append count variable to variable name
+		    	if(\
+		    			(strcmp(pPIObjTemp->ModuleIndex,pPIObjTempChk->ModuleIndex) == 0) \
+		    			&& (strcmp(pPIObjTemp->ModuleName,pPIObjTempChk->ModuleName) == 0) \
+		    			&& (pPIObjTemp->DirectionType == pPIObjTempChk->DirectionType) \
+		    			&& (strcmp(pPIObjTemp->VarName,pPIObjTempChk->VarName) == 0) \
+		    	  )
+		    	{
+		    		//change the name of VarName
+		    		iUniqNameCnt++; //1 is reserved for first matched entry
+		    		if(NULL != pPIObjTempChk->VarName) free(pPIObjTempChk->VarName);
+		    		pPIObjTempChk->VarName = (char *)malloc(strlen(pPIObjTemp->VarName) + iUniqNameLen + ALLOC_BUFFER);
+		    		sprintf(pPIObjTempChk->VarName, "%s%02d", pPIObjTemp->VarName, iUniqNameCnt);
+		    		bMatchFound = true;
+
+		    		//change the name of Name
+		    		if(NULL != pPIObjTempChk->Name) free(pPIObjTempChk->Name);
+		    		pPIObjTempChk->Name = (char*)malloc(strlen(pPIObjTempChk->VarName) + strlen(pPIObjTempChk->ModuleName) + 6 + ALLOC_BUFFER);
+					strcpy(pPIObjTempChk->Name,getPIName(objNode->getNodeId()));
+					strcat(pPIObjTempChk->Name, pPIObjTempChk->ModuleName);
+					strcat(pPIObjTempChk->Name, ".");
+					strcat(pPIObjTempChk->Name,pPIObjTempChk->VarName);
+
+		    	}
+			}
+
+		    if(true == bMatchFound)
+		    {
+		    	char* pcTempVarName;
+		    	pcTempVarName = (char*)malloc(strlen(pPIObjTemp->VarName) + ALLOC_BUFFER);
+		    	strcpy(pcTempVarName, pPIObjTemp->VarName);
+		    	if(NULL != pPIObjTemp->VarName) delete[] pPIObjTemp->VarName;
+				pPIObjTemp->VarName = (char*)malloc(strlen(pcTempVarName) + iUniqNameLen + ALLOC_BUFFER);
+		    	sprintf(pPIObjTemp->VarName, "%s%02d", pcTempVarName, 1);
+		    	free(pcTempVarName);
+
+				//change the name of Name
+				if(NULL != pPIObjTemp->Name) free(pPIObjTemp->Name);
+				pPIObjTemp->Name = (char*)malloc(strlen(pPIObjTemp->VarName) + strlen(pPIObjTemp->ModuleName) + 6 + ALLOC_BUFFER);
+				strcpy(pPIObjTemp->Name,getPIName(objNode->getNodeId()));
+				strcat(pPIObjTemp->Name, pPIObjTemp->ModuleName);
+				strcat(pPIObjTemp->Name, ".");
+				strcat(pPIObjTemp->Name,pPIObjTemp->VarName);
+		    }
+		}
+	}
+	return;
+}
+
+/****************************************************************************************************
 * Function Name: getIECDT
 * Description:
 * Return value: PIDataInfo*
@@ -341,7 +430,6 @@ void GenerateXAPHeaderFile(char* pbFileName, ProcessImage objPIInCol[], ProcessI
 	strcpy(pbXapFileName, pbFileName);
 	strcat(pbXapFileName, ".h");
 	
-	/* write Input structure */
 	if (( fpXapFile = fopen(pbXapFileName,"w+")) == NULL)
 	{
 		ocfmException ex;
@@ -349,6 +437,23 @@ void GenerateXAPHeaderFile(char* pbFileName, ProcessImage objPIInCol[], ProcessI
 		delete [] pbXapFileName;
 		throw ex;
 	}			
+
+	//write comment
+    char* pcComment = new char[strlen(BUILD_COMMENT) + BUILDTIME_BUF_LEN + ALLOC_BUFFER + 8];// 8 is for comment lines
+    strcpy(pcComment, "/* ");
+    strcat(pcComment,  BUILD_COMMENT);
+    strcat(pcComment, GetBuildTime());
+    strcat(pcComment, " */\n");
+    UINT32 uiStrLength =  strlen(pcComment);
+    if((uiStrLength != fwrite(pcComment, sizeof(char), uiStrLength, fpXapFile)))
+	{
+		ocfmException ex;
+		ex.ocfm_Excpetion(OCFM_ERR_FILE_CANNOT_OPEN);
+		throw ex;
+	}
+	delete[] pcComment;
+
+	/* write Input structure */
 	if(iInVar !=0)
 	{			
 		WriteXAPHeaderContents(objPIInCol, iInVar, INPUT, fpXapFile);			
@@ -562,6 +667,14 @@ void GenerateNETHeaderFile(char* pbFileName, ProcessImage objPIInCol[], ProcessI
 		char* pbBuffer 		= new char[HEADER_FILE_BUFFER];
 		strcpy(pbBuffer, "using System;\n");
 		strcat(pbBuffer, "using System.Runtime.InteropServices;\n");
+		//writing comments
+		strcat(pbBuffer, "/// <summary>\n");
+		strcat(pbBuffer, "/// ");
+	    strcat(pbBuffer, BUILD_COMMENT);
+	    strcat(pbBuffer, GetBuildTime());
+	    strcat(pbBuffer, "\n");
+	    strcat(pbBuffer, "/// </summary>\n");
+
 		strcat(pbBuffer, "\nnamespace openPOWERLINK\n");
 		strcat(pbBuffer, "{\n");
 		UINT32 uiStrLength =  strlen(pbBuffer);
