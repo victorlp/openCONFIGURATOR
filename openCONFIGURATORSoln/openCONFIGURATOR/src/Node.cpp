@@ -628,12 +628,25 @@ void CNode::resetForcedCycleValue()
     delete[] cSIdx;
 }
 /**************************************************************************************************
+* Function Name: CNode::getPollResponseTimeout
+* Description: gets the poll response timeout value in MN
+* Return value: void
+****************************************************************************************************/
+/////////////////////////////////////////////////
+char* CNode::getPollResponseTimeout()
+{
+cout<<"-----------getPollResponseTimeout--------"<<m_PollResponseTimeout<<endl;	
+	return m_PollResponseTimeout;
+}
+/**************************************************************************************************
 * Function Name: CNode::setPollResponseTimeout
 * Description: sets the poll response timeout value in MN
 * Return value: void
 ****************************************************************************************************/
 void CNode::setPollResponseTimeout(char* pbPollResponseTimeout)
-{	
+{
+
+cout<<"-----------setPollResponseTimeout--------"<<pbPollResponseTimeout<<endl;	
 	m_PollResponseTimeout = new char[strlen(pbPollResponseTimeout) + ALLOC_BUFFER];
 	strcpy((char*)m_PollResponseTimeout, pbPollResponseTimeout);	
 
@@ -660,7 +673,7 @@ void CNode::setPollResponseTimeout(char* pbPollResponseTimeout)
 	
     GetSubIndexAttributes(240, MN, acMNCNPollresponseTimeoutObj, strConvertedValue, NAME, subIndName);
     SetSubIndexAttributes(MN_NODEID, MN, acMNCNPollresponseTimeoutObj, strConvertedValue, pbPollResponseTimeout, subIndName, TRUE);
-
+////////////////No exception is handled from the "SetSubIndexAttributes"
 	CIndex* objMN1F92Index;
     objMN1F92Index = getMNIndexValues(acMNCNPollresponseTimeoutObj);
     if(NULL != objMN1F92Index)

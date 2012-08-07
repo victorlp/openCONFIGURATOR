@@ -1039,6 +1039,7 @@ void SetSIdxDataType(DataType *pobjDataType, char* pbIdx, char* pbSIdx)
 ****************************************************************************************************/
 void AddPDOIndexsToMN(char* pbIndex, char* pbSubIndex, EPDOType enumPdoType)
 {
+cout<<"---------AddPDOIndexesToMN---------"<<endl;
 	ocfmRetCode stRetCode;
 	CNode objMNNode;
 	DataType 			*pobjDataType 	= NULL;
@@ -1153,7 +1154,8 @@ PIObject getPIAddress(PDODataType dt,  EPIDirectionType dirType, int iOffset, in
 	int i;
 	int subIndex;
 	PIObject stPIObject;
-	
+/////////////////////////////////////////###
+cout<<"--------------GetPIAddress----------------"<<endl;	
 	stPIObject.Index = new char[INDEX_LEN];
 	stPIObject.SubIndex = new char[SUBINDEX_LEN];
 
@@ -1163,16 +1165,21 @@ PIObject getPIAddress(PDODataType dt,  EPIDirectionType dirType, int iOffset, in
 		{
 			INT32 iTempDataSize = iDataSize/8;
 			subIndex = (iOffset)/ iTempDataSize + 1;
+cout<<"GetPIAddress"<<subIndex<<"from"<<iTempDataSize<<"by"<<iDataSize<<endl;
 			if(subIndex > 254)
 			{
 				int div = subIndex / 254;
 				int mod = subIndex % 254;
 				int iAddress;
-				iAddress = atoi(AddressTable[i].Address);
+				/* PATCH For BUG #11 - START */
+				iAddress = hex2int(AddressTable[i].Address);
+				/* PATCH For BUG #11 - END */
+cout<<"GetPIAddress"<<iAddress<<"the value"<<AddressTable[i].Address<<endl;
 				iAddress = iAddress + div;
 				stPIObject.Index  = _IntToAscii(iAddress, stPIObject.Index, 16);								
 				stPIObject.SubIndex =  _IntToAscii(mod, 	stPIObject.SubIndex, 16);
 				stPIObject.SubIndex = padLeft(	stPIObject.SubIndex, '0', 2);
+cout<<"GetPIAddress"<<stPIObject.Index <<"the value"<<stPIObject.SubIndex<<endl;
 				
 			}
 			else
@@ -1180,7 +1187,8 @@ PIObject getPIAddress(PDODataType dt,  EPIDirectionType dirType, int iOffset, in
 				strcpy(stPIObject.Index, AddressTable[i].Address);
 				stPIObject.SubIndex =  _IntToAscii(subIndex, 	stPIObject.SubIndex, 16);
 				stPIObject.SubIndex = padLeft(	stPIObject.SubIndex, '0', 2);
-						
+cout<<"GetPIAddress"<<AddressTable[i].Address<<endl;						
+cout<<"GetPIAddress"<<stPIObject.Index <<"the value"<<stPIObject.SubIndex<<endl;
 			}			
 		}		
 	}
@@ -1195,13 +1203,28 @@ PIObject getPIAddress(PDODataType dt,  EPIDirectionType dirType, int iOffset, in
 ****************************************************************************************************/
 char* getPIDataTypeName(char* pbAddress)
 {
+cout<<"--------------getPIDataTypeName----------------"<<endl;	
 	char *pbRetString = NULL;
-	
+	PDODataType dt;
 	for(INT32 iLoopCount = 0; iLoopCount < NO_OF_PI_ENTERIES; iLoopCount++)
 	{		
-		if(strcmp(AddressTable[iLoopCount].Address,  pbAddress) ==0)
+		/* PATCH For BUG #18 - START */
+		if(strcmp(AddressTable[iLoopCount].Address,  pbAddress) == 0)
+		/* PATCH For BUG #18 - END */
 		{
-			switch(AddressTable[iLoopCount].dt)
+			/* PATCH For BUG #11 and 12 - START */
+			dt = AddressTable[iLoopCount].dt;
+		}		
+		else if(strcmp(AddressTable[iLoopCount].Address,  pbAddress) > 0)
+		{
+			 dt = (iLoopCount > 0) ? AddressTable[iLoopCount - 1].dt : static_cast<PDODataType>(-1);
+		}
+		else
+		{
+			// TODO:
+		}	
+			switch(dt)
+			/* PATCH For BUG #11 and 12 - END */
 			{
 				case UNSIGNED8 :
 				{
@@ -1240,7 +1263,7 @@ char* getPIDataTypeName(char* pbAddress)
 					break;
 				}
 			}
-		}
+		
 	}
 	return pbRetString;	
 }
@@ -1252,50 +1275,65 @@ char* getPIDataTypeName(char* pbAddress)
 ****************************************************************************************************/
 char* getPIName(char* pbAddress)
 {
+cout<<"--------------getPIName----------------"<<pbAddress<<endl;	
+
 	char *pbRetString = NULL;
-	
+	PDODataType dt;
 	for(INT32 iLoopCount = 0; iLoopCount < NO_OF_PI_ENTERIES; iLoopCount++)
 	{		
-		if(strcmp(AddressTable[iLoopCount].Address,  pbAddress) ==0)
+		/* PATCH For BUG #18 - START */
+		if(strcmp(AddressTable[iLoopCount].Address,  pbAddress) == 0)
+		/* PATCH For BUG #18 - END */		
 		{
-			switch(AddressTable[iLoopCount].dt)
+			/* PATCH For BUG #11 and 12 - START */
+			dt = AddressTable[iLoopCount].dt;
+		}		
+		else if(strcmp(AddressTable[iLoopCount].Address,  pbAddress) > 0)
+		{
+			 dt = (iLoopCount > 0) ? AddressTable[iLoopCount - 1].dt : static_cast<PDODataType>(-1);
+		}
+		else
+		{
+			// TODO:
+		}	
+		switch(dt)
+		/* PATCH For BUG #11 and 12 - END */
+		{
+			case UNSIGNED8 :
 			{
-				case UNSIGNED8 :
-				{
-					pbRetString = (char*) "U8";
-					break;
-				}
-				case INTEGER8 :
-				{
-					pbRetString = (char*) "I8";
-					break;
-				}
-				case UNSIGNED16 :
-				{
-					pbRetString = (char*) "U16";
-					break;
-				}
-				case INTEGER16 :
-				{
-					pbRetString = (char*) "I16";
-					break;
-				}
-				case UNSIGNED32 :
-				{
-					pbRetString = (char*) "U32";
-					break;
-				}
-				case INTEGER32 :
-				{
-					pbRetString = (char*) "I32";
-					break;
-				}
-				default:
-				{
-					//Handled error case and returned dummy value to avoid warning
-					pbRetString = (char*) "Err";
-					break;
-				}
+				pbRetString = (char*) "U8";
+				break;
+			}
+			case INTEGER8 :
+			{
+				pbRetString = (char*) "I8";
+				break;
+			}
+			case UNSIGNED16 :
+			{
+				pbRetString = (char*) "U16";
+				break;
+			}
+			case INTEGER16 :
+			{
+				pbRetString = (char*) "I16";
+				break;
+			}
+			case UNSIGNED32 :
+			{
+				pbRetString = (char*) "U32";
+				break;
+			}
+			case INTEGER32 :
+			{
+				pbRetString = (char*) "I32";
+				break;
+			}
+			default:
+			{
+				//Handled error case and returned dummy value to avoid warning
+				pbRetString = (char*) "Err";
+				break;
 			}
 		}
 	}
@@ -1310,6 +1348,12 @@ char* getPIName(char* pbAddress)
 ****************************************************************************************************/
 bool CheckIfProcessImageIdx(char* pbIndex)
 {
+cout<<"--------------CheckIfProcessImageIdx----------------"<<endl;	
+	/* PATCH For BUG #12 - START */
+	return ((strcmp(pbIndex, "A000") >= 0) && (strcmp(pbIndex, "AFFF") <= 0));
+	/* PATCH For BUG #12 - END */	
+
+/*
 	for(INT32 iLoopCount = 0; iLoopCount< NO_OF_PI_ENTERIES; iLoopCount++)
 	{		
 		if(!strcmp(AddressTable[iLoopCount].Address,  pbIndex))
@@ -1317,7 +1361,7 @@ bool CheckIfProcessImageIdx(char* pbIndex)
 			return true;
 		}
 	}
-	return false;
+	return false; */
 }
 
 /**************************************************************************************************

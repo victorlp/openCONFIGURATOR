@@ -156,6 +156,7 @@ class DllExport CNode
         ocfmRetCode setForcedCycle(char* ForcedCycle);
         void resetForcedCycleValue();
 		void setForceCycleFlag(bool bForceCycleFlag);
+		char* getPollResponseTimeout(void);
 		void setPollResponseTimeout(char* pbPollResponseTimeout);
 		bool isNull();
 		void DeleteCollectionsForNETPI();

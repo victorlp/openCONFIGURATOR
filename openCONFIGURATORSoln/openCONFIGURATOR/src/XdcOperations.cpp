@@ -127,7 +127,7 @@ void setIndexAttributes(xmlTextReaderPtr pxtrReader, CIndex *pobjIndex, bool& bh
 	const xmlChar *pxcValue = NULL;
 	// For holding temp data to print
 	char *pbPrintData	= NULL;
-	
+//cout<<"---------------setIndexAttributes-------------"<<endl;		
 	//Retrieve the pxcName and Value of an attribute
 	pxcValue = xmlTextReaderConstValue(pxtrReader);
 	pxcName  = xmlTextReaderConstName(pxtrReader);				
@@ -703,6 +703,7 @@ static void getVarDeclaration(xmlTextReaderPtr pxtrReader, CComplexDataType *pob
 ****************************************************************************************************/
 ocfmRetCode ImportXML(char *pbFileName, INT32 iNodeID, ENodeType enumNodeType)
 {	
+cout<<"---------------ImportXML-------------"<<endl;
 	ocfmRetCode stErrStruct;	
 	try
 	{
@@ -756,7 +757,7 @@ void processNode(xmlTextReaderPtr pxtrReader, ENodeType enumNodeType, INT32 iNod
 	const xmlChar 	*pxcValue 			= NULL;
 	CNodeCollection *pobjNodeCollection	= NULL;
 	CNode 			*pobjNode			= NULL;
-	
+//cout<<"---------------processNode-------------"<<endl;	
     pxcName = xmlTextReaderConstName(pxtrReader);
 
 	pxcValue = xmlTextReaderConstValue(pxtrReader);
@@ -927,6 +928,7 @@ ocfmRetCode parseFile(char* pbFileName, INT32 iNodeIndex, ENodeType  enumNodeTyp
 {
     xmlTextReaderPtr pxtrReader;
     INT32 iRetVal;
+cout<<"---------------parseFile-------------"<<endl;
 
     pxtrReader = xmlReaderForFile(pbFileName, NULL, 0);
     try
@@ -973,6 +975,7 @@ ocfmRetCode ReImportXML(char* pbFileName, INT32 iNodeID, ENodeType enumNodeType)
 {
 	INT32 iNodePos;
 	ocfmRetCode ErrStruct;
+cout<<"---------------ReImportXML-------------"<<endl;
 	try
 	{
 		bool bFlag = false;
@@ -1892,6 +1895,10 @@ void setFlagForRequiredMNIndexes(INT32 iNodeId)
 	{
 		pobjIndex = pobjIdxCol->getIndex(iLoopCount);
 		
+if(strcmp((char*)pobjIndex->getIndexValue(),"1F92") == 0)
+{
+cout<<"--------------foundYOU-----------------"<<endl;
+}
 		if(CheckIfNotPDO((char*)pobjIndex->getIndexValue()) == false ||
 		strcmp((char*)pobjIndex->getIndexValue(),"1006") == 0 ||
 		strcmp((char*)pobjIndex->getIndexValue(),"1020") == 0 ||
