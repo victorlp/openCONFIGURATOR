@@ -7036,6 +7036,10 @@ cout<<"----------GenerateMNOBD----------"<<endl;
               objNode = pobjNodeCollection->getNodebyCollectionIndex(iLoopCount);         			
 				if(objNode.getNodeType() == CN)
 				{
+				/*BUG #3 - START*/
+					char* VersionNumber = new char[1];
+        			VersionNumber[0] = 0;
+        		/*BUG #3 - END*/
                     eCurrCNStation = objNode.getStationType();
 
 					objMNIndexCol =  pobjMNNode->getIndexCollection();
@@ -7094,7 +7098,15 @@ cout<<"----------GenerateMNOBD----------"<<endl;
 						char* pbSidx =  new char[SUBINDEX_LEN];
 						strcpy(pbSidx, "01");
 						SetSubIndexAttributes(MN_NODEID, MN, pbMNIndex, pbSidx, pbMappNodeID,(char*)"NodeID_U8", TRUE);
-									
+						
+						/*BUG #3 - START*/
+						GetSubIndexAttributes(objNode.getNodeId(), CN, (char*)"1400", (char*)"02", ACTUALVALUE, VersionNumber);
+						if((*VersionNumber == NULL) || (strcmp(VersionNumber, "") == 0))
+						{
+							strcpy(VersionNumber,"0x0");
+						}
+						SetSubIndexAttributes(MN_NODEID, MN, pbMNIndex, (char*)"02", VersionNumber,(char*)"MappingVersion_U8", TRUE);					
+						/*BUG #3 - END*/
 						strcpy(pbMNIndex, "1A");
 						pbMNIndex =strcat(pbMNIndex, pbIdx);
 						/* Set the MN's PDO Index*/
@@ -7165,6 +7177,14 @@ cout<<"----------GenerateMNOBD----------"<<endl;
 						char* pbSidx =  new char[SUBINDEX_LEN];
 						strcpy(pbSidx, "01");
 						SetSubIndexAttributes(MN_NODEID, MN, pbMNIndex, pbSidx, pbMappIdx,(char*)"NodeID_U8", TRUE);
+						/*BUG #3 - START*/
+						GetSubIndexAttributes(objNode.getNodeId(), CN, (char*)"1800", (char*)"02", ACTUALVALUE, VersionNumber);
+						if((*VersionNumber == NULL) || (strcmp(VersionNumber, "") == 0))
+						{
+							strcpy(VersionNumber,"0x0");
+						}
+						SetSubIndexAttributes(MN_NODEID, MN, pbMNIndex, (char*)"02", VersionNumber,(char*)"MappingVersion_U8", TRUE);					
+						/*BUG #3 - END*/
 						delete[] pbSidx;
 				
 							
@@ -7194,6 +7214,9 @@ cout<<"----------GenerateMNOBD----------"<<endl;
 						}
 					
 					}
+					/*BUG #3 - START*/
+					delete[] VersionNumber;
+					/*BUG #3 - END*/
 				
 			}
 		}
