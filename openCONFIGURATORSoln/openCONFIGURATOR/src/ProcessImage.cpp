@@ -1210,11 +1210,11 @@ cout<<"--------------getPIDataTypeName----------------"<<endl;
 	{		
 		/* PATCH For BUG #18 - START */
 		if(strcmp(AddressTable[iLoopCount].Address,  pbAddress) == 0)
-		/* PATCH For BUG #18 - END */
 		{
-			/* PATCH For BUG #11 and 12 - START */
 			dt = AddressTable[iLoopCount].dt;
 		}		
+		/* PATCH For BUG #18 - END */
+			/* PATCH For BUG #11 and 12 - START */
 		else if(strcmp(AddressTable[iLoopCount].Address,  pbAddress) > 0)
 		{
 			 dt = (iLoopCount > 0) ? AddressTable[iLoopCount - 1].dt : static_cast<PDODataType>(-1);
@@ -1283,11 +1283,11 @@ cout<<"--------------getPIName----------------"<<pbAddress<<endl;
 	{		
 		/* PATCH For BUG #18 - START */
 		if(strcmp(AddressTable[iLoopCount].Address,  pbAddress) == 0)
-		/* PATCH For BUG #18 - END */		
 		{
-			/* PATCH For BUG #11 and 12 - START */
 			dt = AddressTable[iLoopCount].dt;
 		}		
+		/* PATCH For BUG #18 - END */		
+			/* PATCH For BUG #11 and 12 - START */
 		else if(strcmp(AddressTable[iLoopCount].Address,  pbAddress) > 0)
 		{
 			 dt = (iLoopCount > 0) ? AddressTable[iLoopCount - 1].dt : static_cast<PDODataType>(-1);
