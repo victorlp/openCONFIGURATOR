@@ -135,6 +135,20 @@ void CApplicationProcess::addComplexDataType(CComplexDataType objComplexData)
 	CDTCollection[iItemPosition] = 	objComplexData;		
 }
 
+/*Bug #4 - START*/
+/****************************************************************************************************
+* Function Name: CApplicationProcess::addComplexDataType
+* Description:
+
+* Return value: void
+****************************************************************************************************/
+
+void CApplicationProcess::DeleteComplexDataTypeCollection()
+{
+	CDTCollection.Clear();	
+}
+
+/*Bug #4 - END*/
 /****************************************************************************************************
 * Function Name: CApplicationProcess::addParameter
 * Description:

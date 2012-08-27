@@ -3881,6 +3881,7 @@ cout<<"---------ProcessCDT--------"<<endl;
 				iLastVarIndex = iLoopCount;
 			ProcessCDT(pobjCDT, pobjAppProc, pobjNode, pobjParameter, enumPdoType, pbModuleName, pbModuleIndex );
 			}
+cout<<"objVarDecl.nam_id_dt_attr->getName()1: "<<objVarDecl.nam_id_dt_attr->getName()<<endl;
 		if(!bCDTCompleted)
 		{	
 			// add rest of the contents
@@ -4042,6 +4043,7 @@ cout<<"---------ProcessCDT--------"<<endl;
 		}
 		
 	}
+//cout<<"objVarDecl.nam_id_dt_attr->getName(): "<< objVarDecl.nam_id_dt_attr->getName()<<endl;
 	bCDTCompleted = true;
 }
 
@@ -4052,11 +4054,12 @@ cout<<"---------ProcessCDT--------"<<endl;
 ****************************************************************************************************/
 void DecodeUniqiueIDRef(char* uniquedIdref, CNode* pobjNode, EPDOType enumPdoType, char* pbModuleName, char* pbModuleIndex)
 {
+cout<<"----DecodeUniqiueIDRef---------"<<endl;
 	ocfmException objocfmException;
 	Parameter* pobjParameter;
 	CApplicationProcess* pobjAppProc;
 	CComplexDataType* pobjCDT;
-	
+cout<<"DecodeUniqiueIDRef: "<<uniquedIdref<<"pbModuleName: "<<pbModuleName<<"pbModuleIndex: "<<pbModuleIndex<<endl;
 	try
 	{
 		if(pobjNode->getApplicationProcess()!=NULL)
@@ -4167,6 +4170,8 @@ cout<<"--------ProcessPDONodes----------"<<IsBuild<<endl;
 		{
 
 			pobjNode = objNodeCol->getNodebyColIndex(iLoopCount);
+//cout<<"objNodeCol: "<<&objNodeCol<<endl;
+//cout<<"objNodeCol->getNodebyColIndex(iLoopCount): "<<&pobjnode<<endl;
 			/* Process PDO Objects for CN*/
 		
 				if (pobjNode->getNodeType() == MN )
@@ -4195,6 +4200,8 @@ cout<<"--------ProcessPDONodes----------"<<IsBuild<<endl;
 						
                         pobjNode->setPReqActPayloadValue(0);
                         pobjNode->setPResActPayloadValue(0);
+ 
+ cout<<"objPDOCollection->getNumberofIndexes: "<<objPDOCollection->getNumberofIndexes()<<endl;
                         
 						for(INT32 iLoopCount = 0; iLoopCount<objPDOCollection->getNumberofIndexes(); iLoopCount++)
 					    {
@@ -4218,6 +4225,7 @@ cout<<"--------ProcessPDONodes----------"<<IsBuild<<endl;
                            
 							if(pobjBforeSortIndex->getNumberofSubIndexes() > 0)
 							{
+cout<<"pobjBforeSortIndex->getNumberofSubIndexes: "<<pobjBforeSortIndex->getNumberofSubIndexes()<<endl;
 							
 								/* Sort the pdo collection */
 								objIndex = getPDOIndexByOffset(pobjBforeSortIndex);
@@ -4516,7 +4524,7 @@ cout<<"--ProcessPDONodes--for other subindex--"<<endl;
 												}
 												
 									
-												
+cout<<"objProcessImage.Name"<<objProcessImage.Name<<endl;												
 												objProcessImage.DataInfo.DataSize = dt.DataSize *8;
 cout<<"ProcessPDONodes--"<<"objProcessImage.DataInfo.DataSize"<<objProcessImage.DataInfo.DataSize<<"dt.DataSize"<<	dt.DataSize<<"iTotalBytesMapped"<<iTotalBytesMapped<<endl;											
 												/* Total bytes Mapped */
@@ -4983,7 +4991,7 @@ void WriteXAPElements(ProcessImage aobjPICol[], xmlTextWriterPtr& pxtwWriter,INT
 					}
 			}
 		char * pbPISize = new char[20];
-		pbPISize = _IntToAscii((iHighBitOffset + iHighBitOffsetDatasize)/8, pbPISize, 10); //divide by 8 for bit to bytt conversion
+		pbPISize = _IntToAscii((iHighBitOffset + iHighBitOffsetDatasize)/8, pbPISize, 10); //divide by 8 for bit to byte conversion
 	    iBytesWritten = xmlTextWriterWriteAttribute(pxtwWriter, BAD_CAST "size",
 	                                     BAD_CAST pbPISize );
 	    delete[] pbPISize;
@@ -5176,11 +5184,15 @@ cout<<"------GenerateXAP------"<<pbFileName<<endl;
 				throw objException;
 			}
 			
-					/*Process PDO Nodes*/
-				stRetInfo = ProcessPDONodes();
+				/*BUG #5 - START*/	
 				
-				if(stRetInfo.code != OCFM_ERR_SUCCESS)
-				return stRetInfo;
+					/*Process PDO Nodes*///no need to process nodes again after genarating cdc
+				//stRetInfo = ProcessPDONodes();
+				
+				//if(stRetInfo.code != OCFM_ERR_SUCCESS)
+				//return stRetInfo;
+				
+				/*BUG #5 - END*/
 			CNode objNode;
 			xmlTextWriterPtr pxtwWriter = NULL;
 			xmlDocPtr pxdDoc = NULL;
@@ -6993,6 +7005,9 @@ cout<<"----------GenerateMNOBD----------"<<IsBuild<<endl;
         INT32 iIndexPos = 0;
         INT32 iRxChannelCount = 0;
         INT32 iTxChannelCount = 0;
+        /*BUG #29 - START*/
+        INT32 iMaxNumberOfChannels = 0;
+        /*BUG #29 - END*/
 
         EStationType eCurrCNStation;
 		try
@@ -7032,8 +7047,10 @@ cout<<"----------GenerateMNOBD----------"<<IsBuild<<endl;
 					#endif
 				/* Delete the MN's old object dictionary*/
 
-				pobjIndexCollection = pobjMNNode->getIndexCollection();	
-
+				pobjIndexCollection = pobjMNNode->getIndexCollection();
+				/*BUG #29 - START*/
+				iMaxNumberOfChannels = pobjIndexCollection->GetMaxPDOCount();
+				/*BUG #29 - END*/	
 				pobjIndexCollection->DeletePDOs();
 				// Delete Process Image Objects
 				pobjIndexCollection->DeletePIObjects();
@@ -7095,7 +7112,6 @@ cout<<"objNode.MNPDOOUTVarCollection.Count(): "<<objNode.MNPDOOUTVarCollection.C
                         {
                             pbIdx = _IntToAscii(iTxChannelCount, pbIdx, 16);
                             iTxChannelCount++;
-
 						    pbIdx = padLeft(pbIdx, '0', 2);
 						    pbMNIndex =strcat(pbMNIndex, pbIdx);
 						    stRetInfo = AddIndex(MN_NODEID, MN, pbMNIndex);
@@ -7263,8 +7279,16 @@ cout<<"--GenMNOBD--The Index--"<<pbMNIndex<<" doesn't exist--"<<endl;
 	{
 		return objocfmException._ocfmRetCode;
 	}
-
-	stRetInfo.code = OCFM_ERR_SUCCESS;
+	/*BUG #29 - START*/
+	if(iTxChannelCount > iMaxNumberOfChannels)
+	{
+		stRetInfo.code = OCFM_ERR_EXCESS_CHANNEL;
+	}
+	else
+	/*BUG #29 - END*/
+	{
+		stRetInfo.code = OCFM_ERR_SUCCESS;
+	}	
 	return stRetInfo;
 }
 

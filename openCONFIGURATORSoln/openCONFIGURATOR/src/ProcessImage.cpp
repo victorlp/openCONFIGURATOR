@@ -452,7 +452,23 @@ void GenerateXAPHeaderFile(char* pbFileName, ProcessImage objPIInCol[], ProcessI
 		throw ex;
 	}
 	delete[] pcComment;
-
+	/*BUG #6 - START*/
+	//write include guard for the headerfile
+	char* pbXapHeaderIncludeGuard  = new char[strlen(INCLUDE_GUARD_CHECK) + strlen(INCLUDE_GUARD_START) + ALLOC_BUFFER];
+	strcpy(pbXapHeaderIncludeGuard, INCLUDE_GUARD_CHECK);
+	strcat(pbXapHeaderIncludeGuard, "\n");
+	strcat(pbXapHeaderIncludeGuard, INCLUDE_GUARD_START);
+	strcat(pbXapHeaderIncludeGuard, "\n\n");
+	uiStrLength =  strlen(pbXapHeaderIncludeGuard);
+	
+	if((uiStrLength != fwrite(pbXapHeaderIncludeGuard, sizeof(char), uiStrLength, fpXapFile)))
+	{
+		ocfmException ex;
+		ex.ocfm_Excpetion(OCFM_ERR_FILE_CANNOT_OPEN);
+		throw ex;
+	}
+	delete[] pbXapHeaderIncludeGuard;
+	/*BUG #6 - END*/
 	/* write Input structure */
 	if(iInVar !=0)
 	{			
@@ -471,10 +487,24 @@ void GenerateXAPHeaderFile(char* pbFileName, ProcessImage objPIInCol[], ProcessI
 			delete [] pbXapFileName;
 			throw ex;
 		}
-		WriteXAPHeaderContents(objPIOutCol, iOutVar, OUTPUT, fpXapFile );			
-		fclose(fpXapFile); 
+		WriteXAPHeaderContents(objPIOutCol, iOutVar, OUTPUT, fpXapFile ); 
 	}
 	delete [] pbXapFileName;
+	/*BUG #6 - START*/
+	//close include guard for the XAP header file
+	 pbXapHeaderIncludeGuard  = new char[strlen(INCLUDE_GUARD_END) + ALLOC_BUFFER];
+	 strcpy(pbXapHeaderIncludeGuard, "\n");
+	 strcat(pbXapHeaderIncludeGuard, INCLUDE_GUARD_END);
+	uiStrLength =  strlen(pbXapHeaderIncludeGuard);	
+	if((uiStrLength != fwrite(pbXapHeaderIncludeGuard, sizeof(char), uiStrLength, fpXapFile)))
+	{
+		ocfmException ex;
+		ex.ocfm_Excpetion(OCFM_ERR_FILE_CANNOT_OPEN);
+		throw ex;
+	}
+	fclose(fpXapFile);
+	delete[] pbXapHeaderIncludeGuard;
+	/*BUG #6 - END*/
 }
 
 /****************************************************************************************************

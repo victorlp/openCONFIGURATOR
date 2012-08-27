@@ -96,6 +96,9 @@ class DllExport CApplicationProcess
 		TCollection<Parameter> ParameterCollection;
 
 	public:
+		/*Bug #4 - START*/
+		void DeleteComplexDataTypeCollection(void);
+		/*Bug #4 - END*/
 		void ParseXDDfile(char* filename);
 		int checkFileStatus(char* filename);		
 		void addComplexDataType(CComplexDataType complexDT);

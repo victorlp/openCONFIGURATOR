@@ -164,7 +164,43 @@ void CIndexCollection::DeletePDOs()
 		}		
 	}		
 }
-
+/*BUG #29 - START*/
+/****************************************************************************************************
+* Function Name: CIndexCollection::GetPDOCount
+* Description:
+* Return value: void
+****************************************************************************************************/
+int CIndexCollection::GetMaxPDOCount() 
+{
+	return m_MaxPDOCount;
+}
+/****************************************************************************************************
+* Function Name: CIndexCollection::SetPDOCount
+* Description:
+* Return value: void
+****************************************************************************************************/
+void CIndexCollection::CalculateMaxPDOCount() 
+{
+	int iLoopCount;
+	char* substr= new char[3];
+	
+	m_MaxPDOCount = 0;
+	
+	for(iLoopCount =0; iLoopCount < m_IndexCount; iLoopCount++)
+	{
+		CIndex objIndex;
+		objIndex = collectionObj[iLoopCount];
+		substr = subString((char*)objIndex.getIndexValue(), 0, 2);
+		if( //strcmp(substr, "1A")==0 || strcmp(substr, "1a")==0 ||
+		 //strcmp(substr, "14")==0 || strcmp(substr, "16")==0   ||
+		strcmp(substr, "18")==0 )
+		{	
+			m_MaxPDOCount++;
+		}		
+	}
+}
+		
+/*BUG #29 - END*/
 /****************************************************************************************************
 * Function Name: CIndexCollection::DeletePIObjects
 * Description:

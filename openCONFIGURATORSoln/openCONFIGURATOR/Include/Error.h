@@ -127,7 +127,8 @@ typedef enum
     OCFM_ERR_MULTIPLEX_ASSIGN_ERROR, /*45*/
 	OCFM_ERR_INVALID_UPPERLOWER_LIMITS, /*46*/
     OCFM_ERR_LOW_CNPRESTIMEOUT, /*47*/
-    OCFM_ERR_CN_EXCEEDS_CROSS_TRAFFIC_STN /*48*/
+    OCFM_ERR_CN_EXCEEDS_CROSS_TRAFFIC_STN, /*48*/
+    OCFM_ERR_EXCESS_CHANNEL	/*49*/
 }EConfiuguratorErrors;
 
 /************************************************************************************************

@@ -88,12 +88,19 @@ class DllExport CIndexCollection
 		~CIndexCollection(void);
 	private:
 		int m_IndexCount;
+		/*BUG #29 - START*/
+		int m_MaxPDOCount;
+		/*BUG #29 - END*/
 		TCollection<CIndex> collectionObj;
 	public:
 		void addIndex(CIndex objIndex);
 		void deleteIndex(int IndexID);
 		void DeleteIndexCollection();
 		void DeletePDOs() ;
+		/*BUG #29 - START*/
+		int GetMaxPDOCount();
+		void  CalculateMaxPDOCount();
+		/*BUG #29 - END*/
 		void DeletePIObjects();
 		int getNumberofIndexes();
 		CIndex* getIndex(int Count);

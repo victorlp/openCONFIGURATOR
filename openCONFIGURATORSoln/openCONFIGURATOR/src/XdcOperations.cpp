@@ -485,6 +485,7 @@ void getParaDT(xmlTextReaderPtr pxtrReader, Parameter* pstParameter)
 ****************************************************************************************************/
 static void setCDTAttributes(xmlTextReaderPtr pxtrReader, CComplexDataType *pobjCDT)
 {
+cout<<"---------setCDTAttributes------"<<endl;
 	const xmlChar *pxcName  = NULL;
 	const xmlChar *pxcValue = NULL;
 	
@@ -495,12 +496,16 @@ static void setCDTAttributes(xmlTextReaderPtr pxtrReader, CComplexDataType *pobj
 	if(strcmp(ConvertToUpper((char*)pxcName), "UNIQUEID")==0)
 	{						
 		pobjCDT->name_id_attr->setUniqueID((char*)pxcValue);
+cout<<"pobjCDT->name_id_attr->setUniqueID: "<<pxcValue<<endl;
+//cout<<"pobjCDT->name_id_attr->getUniqueID: "<<pobjCDT->name_id_attr->getUniqueID()<<endl;
 	}
 
 	else if(strcmp(ConvertToUpper((char*)pxcName), "NAME")==0)
 	{
         checkAndCorrectName((char*)pxcValue);
 		pobjCDT->name_id_attr->setName((char*)pxcValue);
+cout<<"pobjCDT->name_id_attr->setName: "<<pxcValue<<endl;
+//cout<<"pobjCDT->name_id_attr->getName: "<<pobjCDT->name_id_attr->getName()<<endl;
 	}
 }
 	
@@ -536,6 +541,7 @@ bool CheckifSimpleDT(char *pbName, char *pbSize)
 ****************************************************************************************************/
 void setVarDecAttributes(xmlTextReaderPtr pxtrReader, varDeclaration& vdecl)
 {
+cout<<"--setVarDecAttributes--"<<endl;
 	const xmlChar *pxcName  = NULL;
 	const xmlChar *pxcValue = NULL;
 	
@@ -546,11 +552,15 @@ void setVarDecAttributes(xmlTextReaderPtr pxtrReader, varDeclaration& vdecl)
 	if(!strcmp(ConvertToUpper((char*)pxcName), "UNIQUEID"))
 	{						
 		vdecl.nam_id_dt_attr->setUniqueID((char*)pxcValue);
+cout<<"vdecl.nam_id_dt_attr->setUniqueID: "<<pxcValue<<endl;
+cout<<"vdecl.nam_id_dt_attr->getUniqueID: "<<vdecl.nam_id_dt_attr->getUniqueID()<<endl;
 	}
 	else if(!strcmp(ConvertToUpper((char*)pxcName), "NAME"))					
 	{						
         checkAndCorrectName((char*)pxcValue);
 		vdecl.nam_id_dt_attr->setName((char*)pxcValue);
+cout<<"vdecl.nam_id_dt_attr->setName: "<<pxcValue<<endl;
+cout<<"vdecl.nam_id_dt_attr->getName: "<<vdecl.nam_id_dt_attr->getName()<<endl;
 	}
 	if(!strcmp(ConvertToUpper((char*)pxcName), "SIZE"))					
 	{						
@@ -912,6 +922,8 @@ void processNode(xmlTextReaderPtr pxtrReader, ENodeType enumNodeType, INT32 iNod
 				
 			}
 		}		
+//cout<<"pobjNodeCollection: "<<&pobjNodeCollection<<endl;
+//cout<<"pobjNodeCollection->getNodePtr(enumNodeType, iNodeIndex): "<<&pobjnode<<endl;
 	}
 	catch(ocfmException* ex)
 	{		
@@ -928,6 +940,11 @@ ocfmRetCode parseFile(char* pbFileName, INT32 iNodeIndex, ENodeType  enumNodeTyp
 {
     xmlTextReaderPtr pxtrReader;
     INT32 iRetVal;
+    /*BUG #29 - START*/
+    CNode objNode;
+    CNodeCollection *pobjNodeCollection;
+	CIndexCollection *pobjIndexCollection;
+	/*BUG #29 - END*/
 cout<<"---------------parseFile-------------"<<endl;
 
     pxtrReader = xmlReaderForFile(pbFileName, NULL, 0);
@@ -961,6 +978,12 @@ cout<<"---------------parseFile-------------"<<endl;
 		DeleteNodeObjDict(iNodeIndex, enumNodeType);
 		return ex._ocfmRetCode;
 	}
+	/*BUG #29 - START*/
+	pobjNodeCollection = CNodeCollection::getNodeColObjectPointer();
+    objNode = pobjNodeCollection->getNode(enumNodeType, iNodeIndex);
+	pobjIndexCollection = objNode.getIndexCollection();
+	pobjIndexCollection->CalculateMaxPDOCount();
+	/*BUG #29 - END*/
 	ocfmRetCode ErrStruct;		 
 	ErrStruct.code = OCFM_ERR_SUCCESS;
 	return ErrStruct;
@@ -982,12 +1005,16 @@ cout<<"---------------ReImportXML-------------"<<endl;
 		ErrStruct = IfNodeExists(iNodeID, enumNodeType, &iNodePos, bFlag);
 		if(ErrStruct.code == 0 && bFlag == true)
 		{
+cout<<"---The node already exists--reimporting the xdd---"<<endl;
 			CNode objNode;
 			CNodeCollection *pobjNodeCollection;
 			CIndexCollection *pobjIndexCollection;
 			CDataTypeCollection *pobjDataTypeCollection;
 			CIndex objIndex;
             CNetworkManagement *pobjNetworkManagement;
+            /*Bug #4 - START*/
+            CApplicationProcess *pobjApplicationProcess;
+			/*Bug #4 - END*/
 			objIndex.setNodeID(objNode.getNodeId());
 			pobjNodeCollection= CNodeCollection::getNodeColObjectPointer();
 			objNode = pobjNodeCollection->getNode(enumNodeType, iNodeID);
@@ -996,12 +1023,24 @@ cout<<"---------------ReImportXML-------------"<<endl;
 
 			pobjIndexCollection = objNode.getIndexCollection();
             pobjNetworkManagement = objNode.getNetworkManagement();
+            /*Bug #4 - START*/
+            pobjApplicationProcess = objNode.getApplicationProcess();
+			/*Bug #4 - END*/
 			// Delete IndexCollection
 			pobjIndexCollection->DeleteIndexCollection();
+			
+cout<<"getNumberofIndexes: "<<pobjIndexCollection->getNumberofIndexes()<<endl;
 			// Delete DataTypeCollection
 			pobjDataTypeCollection->DeleteDataTypeCollection();
+cout<<"getNumberOfDataTypes: "<<pobjDataTypeCollection->getNumberOfDataTypes()<<endl;
             //Delete Network management collectionObj
             pobjNetworkManagement->DeleteFeatureCollections();
+cout<<"getNumberOfFeatures: "<<pobjNetworkManagement->getNumberOfFeatures()<<endl;
+			
+			/*Bug #4 - START*/
+			//Delete ComplexDataTypeCollection
+			pobjApplicationProcess->DeleteComplexDataTypeCollection();		
+			/*Bug #4 - END*/
 			ErrStruct = parseFile(pbFileName, iNodeID, enumNodeType);
 			if(ErrStruct.code != OCFM_ERR_SUCCESS)
 			{
