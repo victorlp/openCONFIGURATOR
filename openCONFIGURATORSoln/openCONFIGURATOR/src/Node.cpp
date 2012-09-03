@@ -635,7 +635,9 @@ void CNode::resetForcedCycleValue()
 /////////////////////////////////////////////////
 char* CNode::getPollResponseTimeout()
 {
-cout<<"-----------getPollResponseTimeout--------"<<m_PollResponseTimeout<<endl;	
+	#ifdef DEBUG_FUNCTION_ENTRY
+			cout<<"-----------getPollResponseTimeout-----m_PollResponseTimeout: "<<m_PollResponseTimeout<<endl;	
+	#endif
 	return m_PollResponseTimeout;
 }
 /**************************************************************************************************
@@ -645,8 +647,9 @@ cout<<"-----------getPollResponseTimeout--------"<<m_PollResponseTimeout<<endl;
 ****************************************************************************************************/
 void CNode::setPollResponseTimeout(char* pbPollResponseTimeout)
 {
-
-cout<<"-----------setPollResponseTimeout--------"<<pbPollResponseTimeout<<endl;	
+	#ifdef DEBUG_FUNCTION_ENTRY
+		cout<<"-----------setPollResponseTimeout------pbPollResponseTimeout"<<pbPollResponseTimeout<<endl;	
+	#endif
 	m_PollResponseTimeout = new char[strlen(pbPollResponseTimeout) + ALLOC_BUFFER];
 	strcpy((char*)m_PollResponseTimeout, pbPollResponseTimeout);	
 

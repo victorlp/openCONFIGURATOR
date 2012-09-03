@@ -1069,7 +1069,9 @@ void SetSIdxDataType(DataType *pobjDataType, char* pbIdx, char* pbSIdx)
 ****************************************************************************************************/
 void AddPDOIndexsToMN(char* pbIndex, char* pbSubIndex, EPDOType enumPdoType)
 {
-cout<<"---------AddPDOIndexesToMN---------"<<endl;
+	#ifdef DEBUG_FUNCTION_ENTRY
+		cout<<"---------AddPDOIndexesToMN---------"<<endl;
+	#endif
 	ocfmRetCode stRetCode;
 	CNode objMNNode;
 	DataType 			*pobjDataType 	= NULL;
@@ -1184,8 +1186,9 @@ PIObject getPIAddress(PDODataType dt,  EPIDirectionType dirType, int iOffset, in
 	int i;
 	int subIndex;
 	PIObject stPIObject;
-/////////////////////////////////////////###
-cout<<"--------------GetPIAddress----------------"<<endl;	
+	#ifdef DEBUG_FUNCTION_ENTRY
+		cout<<"--------------GetPIAddress----------------"<<endl;	
+	#endif
 	stPIObject.Index = new char[INDEX_LEN];
 	stPIObject.SubIndex = new char[SUBINDEX_LEN];
 
@@ -1195,7 +1198,9 @@ cout<<"--------------GetPIAddress----------------"<<endl;
 		{
 			INT32 iTempDataSize = iDataSize/8;
 			subIndex = (iOffset)/ iTempDataSize + 1;
-cout<<"GetPIAddress"<<subIndex<<"from"<<iTempDataSize<<"by"<<iDataSize<<endl;
+			#ifdef DEBUG_INDEX_LEVEL
+				cout<<"GetPIAddress--subIndex: "<<subIndex<<" iTempDataSize: "<<iTempDataSize<<" iDatasize: "<<iDataSize<<endl;
+			#endif
 			if(subIndex > 254)
 			{
 				int div = subIndex / 254;
@@ -1204,21 +1209,26 @@ cout<<"GetPIAddress"<<subIndex<<"from"<<iTempDataSize<<"by"<<iDataSize<<endl;
 				/* PATCH For BUG #11 - START */
 				iAddress = hex2int(AddressTable[i].Address);
 				/* PATCH For BUG #11 - END */
-cout<<"GetPIAddress"<<iAddress<<"the value"<<AddressTable[i].Address<<endl;
+				#ifdef DEBUG_INDEX_LEVEL
+					cout<<"GetPIAddress iAddress: "<<iAddress<<" ,the value: "<<AddressTable[i].Address<<endl;
+				#endif
 				iAddress = iAddress + div;
 				stPIObject.Index  = _IntToAscii(iAddress, stPIObject.Index, 16);								
 				stPIObject.SubIndex =  _IntToAscii(mod, 	stPIObject.SubIndex, 16);
 				stPIObject.SubIndex = padLeft(	stPIObject.SubIndex, '0', 2);
-cout<<"GetPIAddress"<<stPIObject.Index <<"the value"<<stPIObject.SubIndex<<endl;
-				
+				#ifdef DEBUG_FUNCTION_ENTRY
+					cout<<"GetPIAddress---stPIObject.Index: "<<stPIObject.Index <<" ,the value: "<<stPIObject.SubIndex<<endl;
+				#endif
 			}
 			else
 			{			
 				strcpy(stPIObject.Index, AddressTable[i].Address);
 				stPIObject.SubIndex =  _IntToAscii(subIndex, 	stPIObject.SubIndex, 16);
 				stPIObject.SubIndex = padLeft(	stPIObject.SubIndex, '0', 2);
-cout<<"GetPIAddress"<<AddressTable[i].Address<<endl;						
-cout<<"GetPIAddress"<<stPIObject.Index <<"the value"<<stPIObject.SubIndex<<endl;
+				#ifdef DEBUG_FUNCTION_ENTRY
+					cout<<"GetPIAddress: "<<AddressTable[i].Address<<endl;						
+					cout<<"GetPIAddress: "<<stPIObject.Index <<" ,the value: "<<stPIObject.SubIndex<<endl;
+				#endif
 			}			
 		}		
 	}
@@ -1233,7 +1243,9 @@ cout<<"GetPIAddress"<<stPIObject.Index <<"the value"<<stPIObject.SubIndex<<endl;
 ****************************************************************************************************/
 char* getPIDataTypeName(char* pbAddress)
 {
-cout<<"--------------getPIDataTypeName----------------"<<endl;	
+	#ifdef DEBUG_FUNCTION_ENTRY
+		cout<<"--------------getPIDataTypeName----------------"<<endl;	
+	#endif
 	char *pbRetString = NULL;
 	PDODataType dt;
 	for(INT32 iLoopCount = 0; iLoopCount < NO_OF_PI_ENTERIES; iLoopCount++)
@@ -1305,8 +1317,9 @@ cout<<"--------------getPIDataTypeName----------------"<<endl;
 ****************************************************************************************************/
 char* getPIName(char* pbAddress)
 {
-cout<<"--------------getPIName----------------"<<pbAddress<<endl;	
-
+	#ifdef DEBUG_FUNCTION_ENTRY
+		cout<<"--------------getPIName----------------"<<pbAddress<<endl;	
+	#endif
 	char *pbRetString = NULL;
 	PDODataType dt;
 	for(INT32 iLoopCount = 0; iLoopCount < NO_OF_PI_ENTERIES; iLoopCount++)
@@ -1378,7 +1391,9 @@ cout<<"--------------getPIName----------------"<<pbAddress<<endl;
 ****************************************************************************************************/
 bool CheckIfProcessImageIdx(char* pbIndex)
 {
-cout<<"--------------CheckIfProcessImageIdx----------------"<<endl;	
+	#ifdef DEBUG_FUNCTION_ENTRY
+		cout<<"--------------CheckIfProcessImageIdx----------------"<<endl;	
+	#endif
 	/* PATCH For BUG #12 - START */
 	return ((strcmp(pbIndex, "A000") >= 0) && (strcmp(pbIndex, "AFFF") <= 0));
 	/* PATCH For BUG #12 - END */	

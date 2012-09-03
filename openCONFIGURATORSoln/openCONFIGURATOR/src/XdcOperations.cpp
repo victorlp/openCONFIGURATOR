@@ -127,7 +127,9 @@ void setIndexAttributes(xmlTextReaderPtr pxtrReader, CIndex *pobjIndex, bool& bh
 	const xmlChar *pxcValue = NULL;
 	// For holding temp data to print
 	char *pbPrintData	= NULL;
-//cout<<"---------------setIndexAttributes-------------"<<endl;		
+	#ifdef DEBUG_FUNCTION_ENTRY
+		//cout<<"---------------setIndexAttributes-------------"<<endl;		
+	#endif
 	//Retrieve the pxcName and Value of an attribute
 	pxcValue = xmlTextReaderConstValue(pxtrReader);
 	pxcName  = xmlTextReaderConstName(pxtrReader);				
@@ -290,7 +292,7 @@ void setSubIndexAttributes(xmlTextReaderPtr pxtrReader, CSubIndex *pobjSubIndex)
 	}
 	else
 	{
-		#ifdef DEBUF
+		#ifdef DEBUG
 		cout <<"Error! setSubIndexAttributes fails\n"<<endl;
 		#endif
 	}													
@@ -485,7 +487,9 @@ void getParaDT(xmlTextReaderPtr pxtrReader, Parameter* pstParameter)
 ****************************************************************************************************/
 static void setCDTAttributes(xmlTextReaderPtr pxtrReader, CComplexDataType *pobjCDT)
 {
-cout<<"---------setCDTAttributes------"<<endl;
+	#ifdef DEBUG_FUNCTION_ENTRY
+		cout<<"---------setCDTAttributes------"<<endl;
+	#endif
 	const xmlChar *pxcName  = NULL;
 	const xmlChar *pxcValue = NULL;
 	
@@ -496,16 +500,20 @@ cout<<"---------setCDTAttributes------"<<endl;
 	if(strcmp(ConvertToUpper((char*)pxcName), "UNIQUEID")==0)
 	{						
 		pobjCDT->name_id_attr->setUniqueID((char*)pxcValue);
-cout<<"pobjCDT->name_id_attr->setUniqueID: "<<pxcValue<<endl;
-//cout<<"pobjCDT->name_id_attr->getUniqueID: "<<pobjCDT->name_id_attr->getUniqueID()<<endl;
+		#ifdef DEBUG_INDEX_LEVEL
+			cout<<"pobjCDT->name_id_attr->setUniqueID: "<<pxcValue<<endl;
+			//cout<<"pobjCDT->name_id_attr->getUniqueID: "<<pobjCDT->name_id_attr->getUniqueID()<<endl;
+		#endif
 	}
 
 	else if(strcmp(ConvertToUpper((char*)pxcName), "NAME")==0)
 	{
         checkAndCorrectName((char*)pxcValue);
 		pobjCDT->name_id_attr->setName((char*)pxcValue);
-cout<<"pobjCDT->name_id_attr->setName: "<<pxcValue<<endl;
-//cout<<"pobjCDT->name_id_attr->getName: "<<pobjCDT->name_id_attr->getName()<<endl;
+		#ifdef DEBUG_INDEX_LEVEL
+			cout<<"pobjCDT->name_id_attr->setName: "<<pxcValue<<endl;
+			//cout<<"pobjCDT->name_id_attr->getName: "<<pobjCDT->name_id_attr->getName()<<endl;
+		#endif
 	}
 }
 	
@@ -541,7 +549,9 @@ bool CheckifSimpleDT(char *pbName, char *pbSize)
 ****************************************************************************************************/
 void setVarDecAttributes(xmlTextReaderPtr pxtrReader, varDeclaration& vdecl)
 {
-cout<<"--setVarDecAttributes--"<<endl;
+	#ifdef DEBUG_FUNCTION_ENTRY
+		cout<<"--setVarDecAttributes--"<<endl;
+	#endif
 	const xmlChar *pxcName  = NULL;
 	const xmlChar *pxcValue = NULL;
 	
@@ -552,15 +562,19 @@ cout<<"--setVarDecAttributes--"<<endl;
 	if(!strcmp(ConvertToUpper((char*)pxcName), "UNIQUEID"))
 	{						
 		vdecl.nam_id_dt_attr->setUniqueID((char*)pxcValue);
-cout<<"vdecl.nam_id_dt_attr->setUniqueID: "<<pxcValue<<endl;
-cout<<"vdecl.nam_id_dt_attr->getUniqueID: "<<vdecl.nam_id_dt_attr->getUniqueID()<<endl;
+		#ifdef DEBUG_INDEX_LEVEL
+			cout<<"vdecl.nam_id_dt_attr->setUniqueID: "<<pxcValue<<endl;
+			cout<<"vdecl.nam_id_dt_attr->getUniqueID: "<<vdecl.nam_id_dt_attr->getUniqueID()<<endl;
+		#endif
 	}
 	else if(!strcmp(ConvertToUpper((char*)pxcName), "NAME"))					
 	{						
         checkAndCorrectName((char*)pxcValue);
 		vdecl.nam_id_dt_attr->setName((char*)pxcValue);
-cout<<"vdecl.nam_id_dt_attr->setName: "<<pxcValue<<endl;
-cout<<"vdecl.nam_id_dt_attr->getName: "<<vdecl.nam_id_dt_attr->getName()<<endl;
+		#ifdef DEBUG_INDEX_LEVEL
+			cout<<"vdecl.nam_id_dt_attr->setName: "<<pxcValue<<endl;
+			cout<<"vdecl.nam_id_dt_attr->getName: "<<vdecl.nam_id_dt_attr->getName()<<endl;
+		#endif
 	}
 	if(!strcmp(ConvertToUpper((char*)pxcName), "SIZE"))					
 	{						
@@ -712,8 +726,10 @@ static void getVarDeclaration(xmlTextReaderPtr pxtrReader, CComplexDataType *pob
 * Return pxcValue: ocfmRetCode
 ****************************************************************************************************/
 ocfmRetCode ImportXML(char *pbFileName, INT32 iNodeID, ENodeType enumNodeType)
-{	
-cout<<"---------------ImportXML-------------"<<endl;
+{
+	#ifdef DEBUG_FUNCTION_ENTRY	
+		cout<<"---------------ImportXML-------------"<<endl;
+	#endif
 	ocfmRetCode stErrStruct;	
 	try
 	{
@@ -767,7 +783,9 @@ void processNode(xmlTextReaderPtr pxtrReader, ENodeType enumNodeType, INT32 iNod
 	const xmlChar 	*pxcValue 			= NULL;
 	CNodeCollection *pobjNodeCollection	= NULL;
 	CNode 			*pobjNode			= NULL;
-//cout<<"---------------processNode-------------"<<endl;	
+	#ifdef DEBUG_FUNCTION_ENTRY
+		//cout<<"---------------processNode-------------"<<endl;	
+    #endif
     pxcName = xmlTextReaderConstName(pxtrReader);
 
 	pxcValue = xmlTextReaderConstValue(pxtrReader);
@@ -922,8 +940,10 @@ void processNode(xmlTextReaderPtr pxtrReader, ENodeType enumNodeType, INT32 iNod
 				
 			}
 		}		
-//cout<<"pobjNodeCollection: "<<&pobjNodeCollection<<endl;
-//cout<<"pobjNodeCollection->getNodePtr(enumNodeType, iNodeIndex): "<<&pobjnode<<endl;
+		#ifdef DEBUG_INDEX_LEVEL
+			//cout<<"pobjNodeCollection: "<<&pobjNodeCollection<<endl;
+			//cout<<"pobjNodeCollection->getNodePtr(enumNodeType, iNodeIndex): "<<&pobjnode<<endl;
+		#endif
 	}
 	catch(ocfmException* ex)
 	{		
@@ -945,8 +965,9 @@ ocfmRetCode parseFile(char* pbFileName, INT32 iNodeIndex, ENodeType  enumNodeTyp
     CNodeCollection *pobjNodeCollection;
 	CIndexCollection *pobjIndexCollection;
 	/*BUG #29 - END*/
-cout<<"---------------parseFile-------------"<<endl;
-
+	#ifdef DEBUG_FUNCTION_ENTRY
+		cout<<"---------------parseFile-------------"<<endl;
+	#endif
     pxtrReader = xmlReaderForFile(pbFileName, NULL, 0);
     try
     {
@@ -998,14 +1019,18 @@ ocfmRetCode ReImportXML(char* pbFileName, INT32 iNodeID, ENodeType enumNodeType)
 {
 	INT32 iNodePos;
 	ocfmRetCode ErrStruct;
-cout<<"---------------ReImportXML-------------"<<endl;
+	#ifdef DEBUG_FUNCTION_ENTRY
+		cout<<"---------------ReImportXML-------------"<<endl;
+	#endif
 	try
 	{
 		bool bFlag = false;
 		ErrStruct = IfNodeExists(iNodeID, enumNodeType, &iNodePos, bFlag);
 		if(ErrStruct.code == 0 && bFlag == true)
 		{
-cout<<"---The node already exists--reimporting the xdd---"<<endl;
+			#ifdef DEBUG_FUNCTION_ENTRY
+				cout<<"---The node already exists--reimporting the xdd---"<<endl;
+			#endif
 			CNode objNode;
 			CNodeCollection *pobjNodeCollection;
 			CIndexCollection *pobjIndexCollection;
@@ -1028,15 +1053,19 @@ cout<<"---The node already exists--reimporting the xdd---"<<endl;
 			/*Bug #4 - END*/
 			// Delete IndexCollection
 			pobjIndexCollection->DeleteIndexCollection();
-			
-cout<<"getNumberofIndexes: "<<pobjIndexCollection->getNumberofIndexes()<<endl;
+			#ifdef DEBUG_INDEX_LEVEL
+				cout<<"getNumberofIndexes: "<<pobjIndexCollection->getNumberofIndexes()<<endl;
+			#endif
 			// Delete DataTypeCollection
 			pobjDataTypeCollection->DeleteDataTypeCollection();
-cout<<"getNumberOfDataTypes: "<<pobjDataTypeCollection->getNumberOfDataTypes()<<endl;
+			#ifdef DEBUG_INDEX_LEVEL
+				cout<<"getNumberOfDataTypes: "<<pobjDataTypeCollection->getNumberOfDataTypes()<<endl;
+            #endif
             //Delete Network management collectionObj
             pobjNetworkManagement->DeleteFeatureCollections();
-cout<<"getNumberOfFeatures: "<<pobjNetworkManagement->getNumberOfFeatures()<<endl;
-			
+			#ifdef DEBUG_INDEX_LEVEL
+				cout<<"getNumberOfFeatures: "<<pobjNetworkManagement->getNumberOfFeatures()<<endl;
+			#endif
 			/*Bug #4 - START*/
 			//Delete ComplexDataTypeCollection
 			pobjApplicationProcess->DeleteComplexDataTypeCollection();		
@@ -1936,7 +1965,9 @@ void setFlagForRequiredMNIndexes(INT32 iNodeId)
 		
 if(strcmp((char*)pobjIndex->getIndexValue(),"1F92") == 0)
 {
-cout<<"--------------foundYOU-----------------"<<endl;
+	#ifdef DEBUG_INDEX_LEVEL
+		cout<<"Got the value of Index 1f92"<<endl;
+	#endif
 }
 		if(CheckIfNotPDO((char*)pobjIndex->getIndexValue()) == false ||
 		strcmp((char*)pobjIndex->getIndexValue(),"1006") == 0 ||

@@ -622,7 +622,9 @@ ocfmRetCode DeleteSubIndex(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexI
 ****************************************************************************************************/
 ocfmRetCode AddSubIndex(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID, char* pbSubIndexID)
 	{
-cout<<"----------AddSubIndex--------"<<endl;
+		#ifdef DEBUG_FUNCTION_ENTRY
+			cout<<"----------AddSubIndex--------"<<endl;
+		#endif
 		CNode objNode;		
 		CNodeCollection *pobjNodeCollection;
 		CIndexCollection *pobjIndexCollection;
@@ -829,7 +831,9 @@ char* getIndexName(char* ObjectIndex, char* ObjectName)
 ****************************************************************************************************/
 ocfmRetCode AddIndex(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID)
 	{
-cout<<"-----AddIndex-----"<<"iNodeID: "<<iNodeID<<"pbIndexID: "<<pbIndexID<<endl;
+		#ifdef DEBUG_FUNCTION_ENTRY
+			cout<<"-----AddIndex-----iNodeID: "<<"iNodeID: "<<iNodeID<<"pbIndexID: "<<pbIndexID<<endl;
+		#endif
 		INT32 iIndexPos = 0;
 		CNode objNode;		
 		CNodeCollection *pobjNodeCollection;
@@ -870,7 +874,9 @@ cout<<"-----AddIndex-----"<<"iNodeID: "<<iNodeID<<"pbIndexID: "<<pbIndexID<<endl
 					{
 						CSubIndex* objSIdx;
 						objSIdx = pobjDictIndex->getSubIndex(iLoopCount);
-cout<<"----AddIndex---Get SubIndex--"<<objSIdx<<endl;
+						#ifdef DEBUG_INDEX_LEVEL
+							cout<<"----AddIndex---Get SubIndex-- objSIdx: "<<objSIdx<<endl;
+						#endif
 						objIndex.addSubIndex(*objSIdx);
 					}
 	
@@ -1019,11 +1025,14 @@ ocfmRetCode SetSubIndexAttributes(INT32 iNodeID,
 			
             if((iNodeID == 240) && (enumNodeType == MN ) && (strcmp(pbIndexID,"1F92") == 0) && (strcmp(pbSubIndexID,"00") != 0) )
             {
-///////////////////////////////////////////////////////////////////////////
-cout<<"--------------SetSubIndexAttributes-----------1f92"<<endl;
+				#ifdef DEBUG_INDEX_LEVEL
+					cout<<"--------------SetSubIndexAttributes-----------1f92"<<endl;
+               	#endif
                 if(false == ValidateCNPresTimeout(pbSubIndexID, pbIndexValue))
                 {
-cout<<"--------------SetSubIndexAttributes-----------1f92---false"<<endl;
+                	#ifdef DEBUG_FUNCTION_ENTRY
+						cout<<"--------------SetSubIndexAttributes-----------1f92---false"<<endl;
+                    #endif
                     ocfmException objException;             
                     objException.ocfm_Excpetion(OCFM_ERR_LOW_CNPRESTIMEOUT);
                     throw objException;
@@ -1538,7 +1547,9 @@ void DisplayNodeTree()
 ****************************************************************************************************/
 void EnableDisableMappingPDO(CIndexCollection* pobjIdxCol, CIndex* objIndex, char* Buffer, bool EnableFlag)
 {
-cout<<"---EnableDisableMappingPDO--"<<endl;
+	#ifdef DEBUG_FUNCTION_ENTRY
+		cout<<"---EnableDisableMappingPDO--"<<endl;
+    #endif    
             int len;
             bool IfStringDT = false;
             //Get the Index Value       
@@ -2046,7 +2057,9 @@ void UpdatePreqActLoad(CNode*  pobjNode)
 ****************************************************************************************************/
 void UpdatePresActLoad(CNode*  pobjNode)
 {
-cout<<"--------UpdatePresActLoad-------------"<<endl;
+	#ifdef DEBUG_FUNCTION_ENTRY
+		cout<<"--------UpdatePresActLoad-------------"<<endl;
+    #endif
     ocfmRetCode stErrStructInfo;
     CIndex *pobjIndex;
     CSubIndex *pobjSubIndex;
@@ -2086,8 +2099,10 @@ cout<<"--------UpdatePresActLoad-------------"<<endl;
 		  {
 			  _IntToAscii( pobjNode->getPResActPayloadValue() , convalue, 16);
 		  }
-  cout<<"--Payload Calculation--"<<"Actual value: "<< pobjSubIndex->getActualValue()<<endl; //<<"Default 1f98 05 value: "<< pobjSubIndex->getDefaultValue()    
-        strcpy(actvalue, (char *)"0x");
+		#ifdef DEBUG_INDEX_LEVEL
+ 		 	cout<<"--Payload Calculation--"<<"Actual value: "<< pobjSubIndex->getActualValue()<<endl; //<<"Default 1f98 05 value: "<< pobjSubIndex->getDefaultValue()    
+    	#endif
+    	strcpy(actvalue, (char *)"0x");
         strcat(actvalue, convalue);
         pobjSubIndex->setActualValue(actvalue);
         pobjIndex->setFlagIfIncludedCdc(TRUE);
@@ -2111,7 +2126,9 @@ cout<<"--------UpdatePresActLoad-------------"<<endl;
             pobjSubIndex = pobjIndex->getSubIndexbyIndexValue(pcSubindexId);
             if(NULL != pobjSubIndex)
             {
-cout<<"--Payload Calculation--"<<"Actual value: "<< pobjSubIndex->getActualValue()<<endl; //<<"Default 1f8D value: "<< pobjSubIndex->getDefaultValue()
+            	#ifdef DEBUG_INDEX_LEVEL
+					cout<<"--Payload Calculation--"<<"Actual value: "<< pobjSubIndex->getActualValue()<<endl; //<<"Default 1f8D value: "<< pobjSubIndex->getDefaultValue()
+				#endif
               pobjSubIndex->setActualValue(actvalue);
               pobjIndex->setFlagIfIncludedCdc(TRUE);
               pobjSubIndex->setFlagIfIncludedCdc(TRUE);
@@ -3353,14 +3370,15 @@ INT32 BRSpecificgetCNsTotalIndexSubIndex(INT32 iNodeID)
 ****************************************************************************************************/
 	ocfmRetCode GenerateCDC(char* CDCLocation)
 	{
-///////////////////////////////
-cout<<"------GenerateCDC-------------------------------------------"<<endl;
+		#ifdef DEBUG_FUNCTION_ENTRY
+		cout<<"------GenerateCDC-------------------------------------------"<<endl;
+		#endif
 		CNode objNode;	
 		CIndexCollection* objIndexCollection;
 		//ofstream file;
 		char *Buffer1 = NULL;
 		unsigned int len;
-		ocfmRetCode retCode, ret1F81Code;
+		ocfmRetCode retCode, ret1F81Code,retCode_temp;
         int iSubIndexPos, iIndexPos;
 		char* tempFileName;
 		tempFileName = new char[strlen(CDCLocation) + 10 + 10];		
@@ -3413,9 +3431,20 @@ cout<<"------GenerateCDC-------------------------------------------"<<endl;
                     return retCode;
                 }
 				retCode = GenerateMNOBD(true);			////////////////Generate MNOBD for Auto Generate On
-				if(retCode.code != OCFM_ERR_SUCCESS)
+				if(retCode.code == OCFM_ERR_EXCESS_CHANNEL)				
+				{
+					/*Bug #29 - START*/
+					//Do not throw exception here as we need the process to complete
+					retCode_temp = retCode;
+					/*Bug #29 - END*/
+				}
+				else if(retCode.code != OCFM_ERR_SUCCESS)
+				{
 					return retCode;
-cout<<"---Return from the autogenerate branch--"<<endl;
+				}
+				#ifdef DEBUG_FUNCTION_ENTRY
+					cout<<"---Return from the autogenerate branch--"<<endl;
+				#endif
 			}
 		
 			FILE* fileptr = new FILE();
@@ -3450,9 +3479,10 @@ cout<<"---Return from the autogenerate branch--"<<endl;
                                 delete [] pb1F81Data;
                         }
                     }
-//////////////////////////////////////////
-cout<<"--UpdateMNNodeAssignmentIndex--Called from GenerateCDC--"<<endl;
-
+					#ifdef DEBUG_FUNCTION_ENTRY
+						cout<<"--UpdateMNNodeAssignmentIndex--Called from GenerateCDC--"<<endl;
+					#endif
+					
                 UpdateMNNodeAssignmentIndex(&objNodeCollection->getMNNode(), objNodeCollection->getCNNodesCount(), (char*)"1F81", true );
                 UpdateMNNodeAssignmentIndex(&objNodeCollection->getMNNode(), objNodeCollection->getCNNodesCount(), (char*)"1F92", false );
                 UpdateMNNodeAssignmentIndex(&objNodeCollection->getMNNode(), objNodeCollection->getCNNodesCount(), (char*)"1F8D", true );
@@ -3477,7 +3507,9 @@ cout<<"--UpdateMNNodeAssignmentIndex--Called from GenerateCDC--"<<endl;
 				/* Write number of enteries */				
 				if((len != (fwrite(Buffer1, sizeof(char),len,fileptr))))
 				{
-					cout << "Write Error in CDC" << endl;
+					#ifdef DEBUG
+						cout << "Write Error in CDC" << endl;
+					#endif
 				}
                 delete[] Buffer1;
 				
@@ -3504,7 +3536,9 @@ cout<<"--UpdateMNNodeAssignmentIndex--Called from GenerateCDC--"<<endl;
 								// write 1F81 entry in MN text file
 								if((len != (fwrite(Buffer1, sizeof(char),len,fileptr))))
 								{
-									cout << "Write Error in CDC _1" << endl;
+									#ifdef DEBUG
+										cout << "Write Error in CDC _1" << endl;
+									#endif
 								}
 							
 								delete[] Buffer1;
@@ -3531,7 +3565,9 @@ cout<<"--UpdateMNNodeAssignmentIndex--Called from GenerateCDC--"<<endl;
             len = strlen(Buffer1);
             if((len != (fwrite(Buffer1, sizeof(char),len,fileptr))))
             {
-				cout << "Write Error in CDC _2" << endl;
+            	#ifdef DEBUG
+					cout << "Write Error in CDC _2" << endl;
+            	#endif
             }                   
             delete[] Buffer1;
 			fclose(fileptr);
@@ -3589,22 +3625,49 @@ cout<<"--UpdateMNNodeAssignmentIndex--Called from GenerateCDC--"<<endl;
 					}
 							
 				}
-
+	
 			// Convert CDC txt file to Binary
 			#if defined(_WIN32) && defined(_MSC_VER)
 			char* cmdBuffer;
+			int ReturnFromtxt2cdc;
 			cmdBuffer = new char[(2 * (strlen(CDCLocation) + 10 + 10)) + 25];		
 			sprintf(cmdBuffer, "txt2cdc.exe \"%s\" \"%s\"", tempFileName, tempOutputFileName);
-			system(cmdBuffer);
+			ReturnFromtxt2cdc = system(cmdBuffer);
 			delete [] cmdBuffer;
 			#else
 			char* cmdBuffer;
+			int ReturnFromtxt2cdc;
 			cmdBuffer = new char[LINUX_INSTALL_DIR_LEN + (2 * (strlen(CDCLocation) + 10 + 10)) + 25];		
 			sprintf(cmdBuffer, "%s/txt2cdc \"%s\" \"%s\"", LINUX_INSTALL_DIR, tempFileName, tempOutputFileName);
-			system(cmdBuffer);
+			ReturnFromtxt2cdc = system(cmdBuffer);
 			delete [] cmdBuffer;
 			#endif
-			retCode.code =  OCFM_ERR_SUCCESS ;
+			/*Bug #17 - START*/
+			if(OCFM_ERR_SUCCESS == ReturnFromtxt2cdc)
+			{
+			/*Bug #17 - END*/
+				retCode.code =  OCFM_ERR_SUCCESS ;
+			/*Bug #17 - START*/
+			}
+			else
+			{
+				ocfmException ex;
+				ex.ocfm_Excpetion(OCFM_ERR_INVALID_TXT_FOR_CDC);
+				throw ex;
+			}
+			/*Bug #17 - END*/
+			/*Bug #29 - START*/
+			if(OCFM_ERR_EXCESS_CHANNEL == retCode_temp.code)
+			{
+				ocfmException ex;
+				ex.ocfm_Excpetion(retCode_temp.code);
+				throw ex;
+			}
+			else
+			{
+				//continue
+			}
+			/*Bug #29 - END*/	
 			delete [] tempFileName;
 			delete [] tempOutputFileName;
 			return retCode;
@@ -3624,7 +3687,9 @@ cout<<"--UpdateMNNodeAssignmentIndex--Called from GenerateCDC--"<<endl;
 ****************************************************************************************************/
 void FormatCdc(CIndexCollection *objIndexCollection, char* Buffer1, FILE* fileptr, ENodeType eNodeType )
 {
-cout<<"----FormatCDC-"<<endl;
+	#ifdef DEBUG_FUNCTION_ENTRY
+		cout<<"----FormatCDC-"<<endl;
+    #endif
     char *TempBuffer1 = NULL;
     strcpy(Buffer1, "");
     unsigned int len;
@@ -3852,7 +3917,9 @@ ocfmRetCode  ProcessCDT(CComplexDataType* pobjCDT,CApplicationProcess* pobjAppPr
 																 CNode* pobjNode, Parameter* pobjParameter, EPDOType enumPdoType,
 																 char* pbModuleName, char* pbModuleIndex)
 {
-cout<<"---------ProcessCDT--------"<<endl;
+	#ifdef DEBUG_FUNCTION_ENTRY
+		cout<<"---------ProcessCDT--------"<<endl;
+	#endif
 	ocfmException objocfmException;
 	INT32 iStartBitOffset =  0;
 	INT32 iOffset;
@@ -3881,7 +3948,9 @@ cout<<"---------ProcessCDT--------"<<endl;
 				iLastVarIndex = iLoopCount;
 			ProcessCDT(pobjCDT, pobjAppProc, pobjNode, pobjParameter, enumPdoType, pbModuleName, pbModuleIndex );
 			}
-cout<<"objVarDecl.nam_id_dt_attr->getName()1: "<<objVarDecl.nam_id_dt_attr->getName()<<endl;
+			#ifdef DEBUG_INDEX_LEVEL
+				cout<<"objVarDecl.nam_id_dt_attr->getName()1: "<<objVarDecl.nam_id_dt_attr->getName()<<endl;
+			#endif
 		if(!bCDTCompleted)
 		{	
 			// add rest of the contents
@@ -3989,7 +4058,7 @@ cout<<"objVarDecl.nam_id_dt_attr->getName()1: "<<objVarDecl.nam_id_dt_attr->getN
 			{
 				/* Total bytes Mapped */
 				#if defined DEBUG
-					cout<<"iTotalBytesMapped"<<iTotalBytesMapped<<"iDataSize"<<iDataSize<<endl;
+					cout<<"iTotalBytesMapped: "<<iTotalBytesMapped<<"iDataSize: "<<iDataSize<<endl;
 				#endif
 			/*BUG FIX #10 - START*/
 			 iTotalBytesMapped = iTotalBytesMapped + iDataSize/8;
@@ -4054,12 +4123,16 @@ cout<<"objVarDecl.nam_id_dt_attr->getName()1: "<<objVarDecl.nam_id_dt_attr->getN
 ****************************************************************************************************/
 void DecodeUniqiueIDRef(char* uniquedIdref, CNode* pobjNode, EPDOType enumPdoType, char* pbModuleName, char* pbModuleIndex)
 {
-cout<<"----DecodeUniqiueIDRef---------"<<endl;
+	#ifdef DEBUG_FUNCTION_ENTRY
+		cout<<"----DecodeUniqiueIDRef---------"<<endl;
+	#endif
 	ocfmException objocfmException;
 	Parameter* pobjParameter;
 	CApplicationProcess* pobjAppProc;
 	CComplexDataType* pobjCDT;
-cout<<"DecodeUniqiueIDRef: "<<uniquedIdref<<"pbModuleName: "<<pbModuleName<<"pbModuleIndex: "<<pbModuleIndex<<endl;
+	#ifdef DEBUG_INDEX_LEVEL
+		cout<<"DecodeUniqiueIDRef: "<<uniquedIdref<<"pbModuleName: "<<pbModuleName<<"pbModuleIndex: "<<pbModuleIndex<<endl;
+	#endif
 	try
 	{
 		if(pobjNode->getApplicationProcess()!=NULL)
@@ -4122,7 +4195,9 @@ ocfmRetCode ProcessPDONodes()
 ****************************************************************************************************/
 ocfmRetCode ProcessPDONodes(bool IsBuild)
 {
-cout<<"--------ProcessPDONodes----------"<<IsBuild<<endl;
+	#ifdef DEBUG_FUNCTION_ENTRY
+		cout<<"--------ProcessPDONodes----------IsBuild: "<<IsBuild<<endl;
+	#endif
 	CNodeCollection* objNodeCol;
 	ocfmException objocfmException;
 	objNodeCol = CNodeCollection::getNodeColObjectPointer();
@@ -4200,8 +4275,9 @@ cout<<"--------ProcessPDONodes----------"<<IsBuild<<endl;
 						
                         pobjNode->setPReqActPayloadValue(0);
                         pobjNode->setPResActPayloadValue(0);
- 
- cout<<"objPDOCollection->getNumberofIndexes: "<<objPDOCollection->getNumberofIndexes()<<endl;
+ 						#ifdef DEBUG_INDEX_LEVEL
+ 							cout<<"objPDOCollection->getNumberofIndexes: "<<objPDOCollection->getNumberofIndexes()<<endl;
+                        #endif
                         
 						for(INT32 iLoopCount = 0; iLoopCount<objPDOCollection->getNumberofIndexes(); iLoopCount++)
 					    {
@@ -4216,7 +4292,7 @@ cout<<"--------ProcessPDONodes----------"<<IsBuild<<endl;
 							else
 							{
 								#if defined DEBUG	
-                              cout<< "index:"<<(char*)pobjBforeSortIndex->getIndexValue() << endl;
+                              		cout<< "index:"<<(char*)pobjBforeSortIndex->getIndexValue() << endl;
 					            #endif
 							}
                             iNodeMappedTotalBytes = 0;
@@ -4225,8 +4301,9 @@ cout<<"--------ProcessPDONodes----------"<<IsBuild<<endl;
                            
 							if(pobjBforeSortIndex->getNumberofSubIndexes() > 0)
 							{
-cout<<"pobjBforeSortIndex->getNumberofSubIndexes: "<<pobjBforeSortIndex->getNumberofSubIndexes()<<endl;
-							
+								#ifdef DEBUG_INDEX_LEVEL
+									cout<<"pobjBforeSortIndex->getNumberofSubIndexes: "<<pobjBforeSortIndex->getNumberofSubIndexes()<<endl;
+								#endif
 								/* Sort the pdo collection */
 								objIndex = getPDOIndexByOffset(pobjBforeSortIndex);
 								
@@ -4265,7 +4342,9 @@ cout<<"pobjBforeSortIndex->getNumberofSubIndexes: "<<pobjBforeSortIndex->getNumb
 								//set the correponding 14xx/01 to f0
 								if((true == IsBuild) && (strncmp(objIndex.getIndexValue(), "16", 2) == 0))
 								{
-cout<<"--Autogen on--from ProcessPDO--14xx"<<endl;
+									#ifdef DEBUG_FUNCTION_ENTRY
+										cout<<"--Autogen on--from ProcessPDO--14xx"<<endl;
+								  	#endif
 								  CIndex *pobjCommIndex;
 								  CSubIndex *pobjNodeIDSubIndex;
 								  char *pcIdx = subString((char *)objIndex.getIndexValue(), 2, 4);
@@ -4487,13 +4566,17 @@ cout<<"--ProcessPDONodes--pbActualVal: "<<pbActualVal<<"iSiCount: "<<iSiCount<<e
 												{
 													objProcessImage.VarName = (char*)malloc(strlen(pbModuleName) + ALLOC_BUFFER);
 													strcpy(objProcessImage.VarName, pbModuleName);
-cout<<"--ProcessPDONodes--for the first subindex--"<<endl;
+													#ifdef DEBUG_INDEX_LEVEL
+														cout<<"--ProcessPDONodes--for the first subindex--"<<endl;
+													#endif
 												}
 												else
 												{
 													if(pbSIdxName != NULL)
 													{
-cout<<"--ProcessPDONodes--for other subindex--"<<endl;
+														#ifdef DEBUG_INDEX_LEVEL
+															cout<<"--ProcessPDONodes--for other subindex--"<<endl;
+														#endif
 														objProcessImage.VarName = (char*)malloc(strlen(pbSIdxName) + ALLOC_BUFFER);
 														strcpy(objProcessImage.VarName, pbSIdxName);		
 													
@@ -4523,10 +4606,13 @@ cout<<"--ProcessPDONodes--for other subindex--"<<endl;
 													}
 												}
 												
-									
-cout<<"objProcessImage.Name"<<objProcessImage.Name<<endl;												
+												#ifdef DEBUG_INDEX_LEVEL
+												cout<<"objProcessImage.Name: "<<objProcessImage.Name<<endl;												
+												#endif								
 												objProcessImage.DataInfo.DataSize = dt.DataSize *8;
-cout<<"ProcessPDONodes--"<<"objProcessImage.DataInfo.DataSize"<<objProcessImage.DataInfo.DataSize<<"dt.DataSize"<<	dt.DataSize<<"iTotalBytesMapped"<<iTotalBytesMapped<<endl;											
+												#ifdef DEBUG_DEBUG_INDEX_LEVEL
+					cout<<"ProcessPDONodes--"<<"objProcessImage.DataInfo.DataSize"<<objProcessImage.DataInfo.DataSize<<"dt.DataSize"<<	dt.DataSize<<"iTotalBytesMapped"<<iTotalBytesMapped<<endl;											
+												#endif					
 												/* Total bytes Mapped */
 												/* PATCH For BUG #10 - START */
 												iTotalBytesMapped = iTotalBytesMapped +  dt.DataSize;
@@ -4566,7 +4652,9 @@ cout<<"ProcessPDONodes--"<<"objProcessImage.DataInfo.DataSize"<<objProcessImage.
 												&& ( (MN_NODEID == iNodeRPDOMappedNodeID ) || (BROADCAST_NODEID ==  iNodeRPDOMappedNodeID) ) \
 												)
 											{
-cout<<"--Autogen on--from ProcessPDO--16xx"<<endl;
+												#ifdef DEBUG_FUNCTION_ENTRY
+													cout<<"--Autogen on--from ProcessPDO--16xx"<<endl;
+                                                #endif
                                                 char* pbModOffset = new char[strlen(pbActualVal) + 1];
                                                 strcpy(pbModOffset, pbActualVal);
                                                 INT32 iLength = 0;
@@ -4636,7 +4724,9 @@ cout<<"--Autogen on--from ProcessPDO--16xx"<<endl;
 ****************************************************************************************************/
 void CalculatePayload()
 {
-cout<<"-------------CalculatePayload------------"<<endl;
+	#ifdef DEBUG_FUNCTION_ENTRY
+		cout<<"-------------CalculatePayload------------"<<endl;
+    #endif
     CNodeCollection* objNodeCol;
     ocfmException objocfmException;
     objNodeCol = CNodeCollection::getNodeColObjectPointer();
@@ -5165,7 +5255,9 @@ void EndWrtitingXAP( xmlTextWriterPtr& pxtwWriter, char* pbFileName, xmlDocPtr& 
 ****************************************************************************************************/
 ocfmRetCode GenerateXAP(char* pbFileName)
 {
-cout<<"------GenerateXAP------"<<pbFileName<<endl;
+		#ifdef DEBUG_FUNCTION_ENTRY
+			cout<<"------GenerateXAP------"<<pbFileName<<endl;
+		#endif
 		CNodeCollection* pobjNodeCollection;
 		ocfmException objException;
 		pobjNodeCollection = CNodeCollection::getNodeColObjectPointer();		
@@ -5846,7 +5938,9 @@ ocfmRetCode GetNodeCount(
 ****************************************************************************************************/
 char* getPIName(INT32 iNodeID)
 {
-cout<<"-------getPIName from Apioperations-------------"<<endl;
+	#ifdef DEBUG_FUNCTION_ENTRY
+		cout<<"-------getPIName from Apioperations-------------"<<endl;
+	#endif
 	char* pbNodeIdStr;
 	char* pbIdAsci = new char[2];
 
@@ -6024,8 +6118,9 @@ ocfmRetCode GetNodeAttributesbyNodePos(
 	char* pbOutForcedCycle,
 	bool* bForcedCycleFlag)
 {
-/////////////////////////////////////////
-cout<<"------GetNodeAttributesbyNodePos--------"<<endl;
+	#ifdef DEBUG_FUNCTION_ENTRY
+		cout<<"------GetNodeAttributesbyNodePos--------"<<endl;
+	#endif
 	ocfmRetCode stErrorInfo;
 	
 	INT32 iTempNodeCount;
@@ -6569,9 +6664,11 @@ ocfmRetCode SaveProject(char* pbProjectPath, char* pbProjectName)
 ****************************************************************************************************/
 void GetMNPDOSubIndex(MNPdoVariable stMNPdoVar, INT32& iPrevSubIndex, CIndex* pobjIdx, char* pbMNIndex, INT32 iPrevSize)
 {
-cout<<"------GetMNPDOSubIndex------"<<endl;
-cout<<"pbMNIndex: "<<pbMNIndex<<"pobjIdx: "<<pobjIdx<<"iPrevSubIndex: "<<iPrevSubIndex<<endl;
-//cout<<"stMNPdoVar: "<<stMNPdoVar<<endl;
+	#ifdef DEBUG_FUNCTION_ENTRY
+		cout<<"------GetMNPDOSubIndex------"<<endl;
+		cout<<"pbMNIndex: "<<pbMNIndex<<"pobjIdx: "<<pobjIdx<<"iPrevSubIndex: "<<iPrevSubIndex<<endl;
+		//cout<<"stMNPdoVar: "<<stMNPdoVar<<endl;
+	#endif	
 			CSubIndex* pobjSubIndex;
 			char* pbIdx =  new char[2];
 		/* Set the MN's PDO subIndex*/
@@ -6981,8 +7078,9 @@ ocfmRetCode GenerateMNOBD()
 ****************************************************************************************************/
 ocfmRetCode GenerateMNOBD(bool IsBuild)
 	{
-////////////////////////////////////////////////
-cout<<"----------GenerateMNOBD----------"<<IsBuild<<endl;
+		#ifdef DEBUG_FUNCTION_ENTRY
+			cout<<"----------GenerateMNOBD----------"<<IsBuild<<endl;
+		#endif
 		CNode objNode;		
 		CNode *pobjMNNode;
 		CNodeCollection *pobjNodeCollection = NULL;
@@ -7094,7 +7192,9 @@ cout<<"----------GenerateMNOBD----------"<<IsBuild<<endl;
 									
 					if(objNode.MNPDOOUTVarCollection.Count()!=0)
 					{
-cout<<"objNode.MNPDOOUTVarCollection.Count(): "<<objNode.MNPDOOUTVarCollection.Count()<<endl;
+						#ifdef DEBUG_INDEX_LEVEL
+							cout<<"objNode.MNPDOOUTVarCollection.Count(): "<<objNode.MNPDOOUTVarCollection.Count()<<endl;
+                        #endif
                         if(CHAINED != eCurrCNStation)
                         {
                             iOutPrevSubIndex = 0;
@@ -7128,7 +7228,9 @@ cout<<"objNode.MNPDOOUTVarCollection.Count(): "<<objNode.MNPDOOUTVarCollection.C
                             stRetInfo = IfIndexExists(MN_NODEID, MN, pbMNIndex, &iIndexPos);
                             if(stRetInfo.code != OCFM_ERR_SUCCESS)
                             {
-cout<<"--GenMNOBD--The Index--"<<pbMNIndex<<" doesn't exist--"<<endl;
+                            	#ifdef DEBUG_INDEX_LEVEL
+									cout<<"--GenMNOBD--The Index--pbMNIndex"<<pbMNIndex<<" doesn't exist--"<<endl;
+                                #endif
                                 stRetInfo = AddIndex(MN_NODEID, MN, pbMNIndex);
                             }
 
@@ -7619,8 +7721,9 @@ ocfmRetCode FreeProjectMemory()
 
 ocfmRetCode OpenProject(char* pbPjtPath, char* pbProjectXmlFileName)
 {
-//////////////////////////////////////////////////////
-cout<<"----------OpenProject-------------------------------"<<endl;
+	#ifdef DEBUG_FUNCTION_ENTRY
+		cout<<"----------OpenProject-------------------------------"<<endl;
+	#endif
 	CNodeCollection *pobjNodeCollection;
 	pobjNodeCollection = CNodeCollection::getNodeColObjectPointer();
 	xmlTextReaderPtr pxReader;
@@ -7738,8 +7841,9 @@ cout<<"----------OpenProject-------------------------------"<<endl;
 ****************************************************************************************************/
 ocfmRetCode processProjectXML(xmlTextReaderPtr pxReader, char* pbPjtPath)
 {
-///////////////////////////////////////////////////
-cout<<"-------------------processProjectXML--------------"<<endl;
+	#ifdef DEBUG_FUNCTION_ENTRY
+		cout<<"-------------------processProjectXML--------------"<<endl;
+	#endif
 	const xmlChar *pxcName;
 	const xmlChar *value;
 	CPjtSettings* pobjPjtSettings;
@@ -8061,8 +8165,9 @@ bool setProjectSettings_Communication(xmlTextReaderPtr pxReader)
 ****************************************************************************************************/
 bool getandCreateNode(xmlTextReaderPtr pxReader, char* pbPjtPath)
 {
-//////////////////////////////////////////
-cout<<"---------------getandCreateNode-------------"<<endl;
+	#ifdef DEBUG_FUNCTION_ENTRY
+		cout<<"---------------getandCreateNode-------------"<<endl;
+	#endif
 	const xmlChar *pxcName;
 	const xmlChar *pxcValue;
 	ocfmRetCode stErrorInfo;
@@ -8581,7 +8686,9 @@ return true;
 ****************************************************************************************************/
 void CreateMNPDOVar(INT32 iOffset, INT32 iDataSize, IEC_Datatype enumDataType, EPDOType enumPdoType, CNode *pobjNode)
 {
-cout<<"---------CreateMNPDOVar--------"<<endl;
+	#ifdef DEBUG_FUNCTION_ENTRY
+		cout<<"---------CreateMNPDOVar--------"<<endl;
+	#endif
 		MNPdoVariable objPDOvar;
 		CNodeCollection* pobjNodeCol;
 		PIObject objpi;
@@ -8833,7 +8940,9 @@ void	UpdateNumberOfEnteriesSIdx(CIndex *pobjIndex, ENodeType enumNodeType)
 *********************************************************************/ 
 void AuotgenerateOtherIndexs(CNode* pobjNode)
 {
-cout<<"--------AutogenerateOtherIndexes-------"<<endl;
+	#ifdef DEBUG_FUNCTION_ENTRY
+		cout<<"--------AutogenerateOtherIndexes-------"<<endl;
+	#endif	
 			ocfmRetCode retCode;
 			char* pbMNIndex = new char[INDEX_LEN + ALLOC_BUFFER];		
 			char* pbSidx =  new char[SUBINDEX_LEN + ALLOC_BUFFER];
@@ -8846,7 +8955,7 @@ cout<<"--------AutogenerateOtherIndexes-------"<<endl;
 			pobjIdxCol = pobjNode->getIndexCollection();
 			/* 1006*/
 				strcpy(pbMNIndex, "1006");
-						#if defined DEBUG	
+				#if defined DEBUG	
 					cout << "string copied" << endl;
 				
 				#endif
@@ -8876,13 +8985,13 @@ cout<<"--------AutogenerateOtherIndexes-------"<<endl;
 						/* Set subindex value 40 or 0000028 */
 						strcpy(pbSidx, "00");
 						SetSIdxValue(pbMNIndex, pbSidx, (char*)"3", pobjIdxCol, pobjNode->getNodeId(), MN, false);
-								#if defined DEBUG	
+					#if defined DEBUG	
 						cout<< "1c02 subidex added"<<endl;
 					#endif
 						
 						strcpy(pbSidx, "01");
 						SetSIdxValue(pbMNIndex, pbSidx, (char*)"40", pobjIdxCol, pobjNode->getNodeId(), MN,  false);
-								#if defined DEBUG	
+					#if defined DEBUG	
 						cout<< "1c02 subidex 01 added"<<endl;
 					#endif
 						strcpy(pbSidx, "02");
@@ -8923,7 +9032,7 @@ cout<<"--------AutogenerateOtherIndexes-------"<<endl;
 	
 					}
 					
-							#if defined DEBUG	
+					#if defined DEBUG	
 						cout<< "1F26 subidex added"<<endl;
 					#endif
 							/*  1F27*/
@@ -9016,9 +9125,9 @@ void UpdatedCNDateORTime(CIndex* pobjMNIndex, int iNodeId, EDateTime enumDT)
 ****************************************************************************************************/
 void copyPDODefToAct(int iNodeID, ENodeType enumNodeType)
 {
-/////////////////////////////////////////////////
-cout<<"--------copyPDODefToAct----------------------"<<endl;
-
+	#ifdef DEBUG_FUNCTION_ENTRY	
+		cout<<"--------copyPDODefToAct----------------------"<<endl;
+	#endif
 	CSubIndex* pobjSIndex;
 	CIndexCollection* pobjIdxCol;
 			
@@ -9168,8 +9277,9 @@ ocfmRetCode GetFeatureValue(
 ocfmRetCode UpdateNodeParams(INT32 iCurrNodeId, INT32 iNewNodeID, ENodeType eNodeType, 
 							 char* NodeName, EStationType eStationType, char* ForcedCycle, bool ForcedCycleFlag, char* PollResponseTimeout)
 {
-////////////////////////////////////////
-cout<<"--------------UpdateNodeParams------------"<<endl;
+	#ifdef DEBUG_FUNCTION_ENTRY
+		cout<<"--------------UpdateNodeParams------------"<<endl;
+	#endif
 	ocfmRetCode stErrorInfo;
 	INT32 iNodePos;
 	try
@@ -9778,8 +9888,9 @@ void copyMNPropDefToAct(int iNodeID, ENodeType enumNodeType)
 ****************************************************************************************************/
 void copyIndexDefToAct(int iNodeID, ENodeType enumNodeType, char *indexId )
 {
-////////////////////////////////////////////
-cout<<"--------------copyIndexDefToAct---------"<<indexId<<endl;
+	#ifdef DEBUG_FUNCTION_ENTRY
+		cout<<"--------------copyIndexDefToAct---------"<<indexId<<endl;
+    #endif
     CSubIndex* pobjSIndex;
     CIndexCollection* pobjIdxCol;
             
@@ -9814,8 +9925,9 @@ cout<<"--------------copyIndexDefToAct---------"<<indexId<<endl;
 ****************************************************************************************************/
 void copySubIndexDefToAct(int iNodeID, ENodeType enumNodeType, bool bForce, char *indexId, char *subIndexId )
 {
-///////////////////////////////////////////
-cout<<"-------------------copySubIndexDefToAct------------"<<endl;
+	#ifdef DEBUG_FUNCTION_ENTRY
+		cout<<"-------------------copySubIndexDefToAct------------"<<endl;
+    #endif
     CSubIndex* pobjSIndex;
     CIndexCollection* pobjIdxCol;
             
@@ -10210,8 +10322,9 @@ UINT32 getFreeCycleNumber(UINT32 uiCycleNumber)
  ****************************************************************************************************/
 bool IsMultiplexCycleNumberContinuous(UINT32 uiCycleNumber)
 {
-//////////////////////////////////////////////////
-cout<<"--------------------IsMultiplexCycleNumberContinuous--------------"<<endl;
+	#ifdef DEBUG_FUNCTION_ENTRY
+		cout<<"--------------------IsMultiplexCycleNumberContinuous--------------"<<endl;
+    #endif
     ocfmRetCode stErrorInfo;
     CNodeCollection *objNodeCol;
     objNodeCol= CNodeCollection::getNodeColObjectPointer();
@@ -10277,11 +10390,14 @@ cout<<"--------------------IsMultiplexCycleNumberContinuous--------------"<<endl
 // ****************************************************************************************************/
 void calculateCNPollResponse(int iNodeID, ENodeType enumNodeType)
 {
-///////////////////////////////////////////////////////
-cout<<"--------------------calculateCNPollResponse-------------"<<endl;
+	#ifdef DEBUG_FUNCTION_ENTRY
+		cout<<"--------------------calculateCNPollResponse-------------"<<endl;
+	#endif
     if(enumNodeType != CN)
     {
-cout<<"--------------------calculateCNPollResponse0-------------"<<endl;
+    	#ifdef DEBUG
+		cout<<"calculateCNPollResponse: The Node is not a CN"<<endl;
+        #endif
         return;
     }
     int SubIndexPos;
@@ -10290,7 +10406,9 @@ cout<<"--------------------calculateCNPollResponse0-------------"<<endl;
     stErrorInfo = IfSubIndexExists(iNodeID, enumNodeType, (char*)"1F98", (char*)"03", &SubIndexPos, &IndexPos);
     if(stErrorInfo.code != OCFM_ERR_SUCCESS)
     {
-cout<<"--------------------calculateCNPollResponse1-------------"<<endl;
+    	#ifdef DEBUG
+			cout<<"calculateCNPollResponse: The subIndex 1f98-03 doesnot exist"<<endl;
+		#endif
         return;
     }
 
@@ -10310,7 +10428,9 @@ cout<<"--------------------calculateCNPollResponse1-------------"<<endl;
     pobjIndex = pobjIdxCol->getIndexbyIndexValue((char*)"1F98");
     if(pobjIndex == NULL)
     {
-cout<<"--------------------calculateCNPollResponse2-------------"<<endl;
+    	#ifdef DEBUG
+			cout<<"calculateCNPollResponse: The Index 1f98 does not exist"<<endl;
+        #endif
         return;
     }
 
@@ -10318,7 +10438,9 @@ cout<<"--------------------calculateCNPollResponse2-------------"<<endl;
     pobjSIndex = pobjIndex->getSubIndexbyIndexValue((char*)"03");
     if(pobjSIndex == NULL)
     {
-cout<<"--------------------calculateCNPollResponse3-------------"<<endl;
+    	#ifdef DEBUG
+		cout<<"calculateCNPollResponse3: The subindex 1f98-03 does not exist"<<endl;
+        #endif
         return;
     }
     char *pcValue;
@@ -10326,10 +10448,14 @@ cout<<"--------------------calculateCNPollResponse3-------------"<<endl;
     bool add25microsec = false;
     if(pobjSIndex->getActualValue() == NULL || strcmp(pobjSIndex->getActualValue(),"") == 0)
     {
-cout<<"Actual Value 0"<<pobjSIndex->getActualValue()<< endl;
+    	#ifdef DEBUG_INDEX_LEVEL
+			cout<<"Actual Value = "<<pobjSIndex->getActualValue()<< endl;
+        #endif
         if(pobjSIndex->getDefaultValue() == NULL || strcmp(pobjSIndex->getDefaultValue(),"") == 0)
         {
-cout<<"Deafult Value 0"<<pobjSIndex->getDefaultValue()<< endl;
+        	#ifdef DEBUG_INDEX_LEVEL
+				cout<<"Deafult Value = "<<pobjSIndex->getDefaultValue()<< endl;
+			#endif
 			/* PATCH For BUG #7 - START */
             pcValue = new char[strlen("25000") + ALLOC_BUFFER];
 			/* PATCH For BUG #7 - END */
@@ -10338,28 +10464,38 @@ cout<<"Deafult Value 0"<<pobjSIndex->getDefaultValue()<< endl;
         else
         {
             pcValue = new char[strlen(pobjSIndex->getDefaultValue()) + ALLOC_BUFFER];
-cout<<"pcValue: "<<pcValue<<endl;
+			#ifdef DEBUG_INDEX_LEVEL
+				cout<<"pcValue: "<<pcValue<<endl;
+            #endif
             strcpy(pcValue, pobjSIndex->getDefaultValue());
             add25microsec = true;
         }
     }
     else
     {
-cout<<"Actual Value "<<pobjSIndex->getActualValue()<< endl;
+    	#ifdef DEBUG_INDEX_LEVEL
+		cout<<"Actual Value = "<<pobjSIndex->getActualValue()<< endl;
+        #endif
         pcValue = new char[strlen(pobjSIndex->getActualValue()) + ALLOC_BUFFER];
         strcpy(pcValue, pobjSIndex->getActualValue());
     }
 
     if (strncmp(pcValue,"0x",2) == 0 || strncmp(pcValue,"0X",2) == 0)
     {
-cout<<"pcValue: "<<pcValue<<endl;
+    	#ifdef DEBUG_INDEX_LEVEL
+			cout<<"pcValue: "<<pcValue<<endl;
+        #endif
         iValue  = hex2int(subString(pcValue, 2, strlen(pcValue) -2));
     }
     else
     {
-cout<<"pcValue: "<<pcValue<<endl;
+    	#ifdef DEBUG_INDEX_LEVEL
+			cout<<"pcValue: "<<pcValue<<endl;
+        #endif
         iValue  = atoi(pcValue);
-cout<<"iValue "<<iValue<<endl;
+		#ifdef DEBUG_INDEX_LEVEL
+			cout<<"iValue: "<<iValue<<endl;
+    	#endif
     }
 
     if(true == add25microsec)
@@ -10421,8 +10557,9 @@ void RecalculateCNPresTimeout(char* pbSubIndexId)
 {
     ocfmRetCode stErrorInfo;
     int iSubIndexPos, iIndexPos;
-///////////////////////////////////////////
-cout<<"-------------RecalculateCNPresTimeout------------"<<endl;
+	#ifdef DEBUG_FUNCTION_ENTRY
+		cout<<"-------------RecalculateCNPresTimeout------------"<<endl;
+    #endif
     stErrorInfo = IfSubIndexExists(MN_NODEID, MN, (char*)"1F92", pbSubIndexId, &iSubIndexPos, &iIndexPos);
     if(stErrorInfo.code == OCFM_ERR_SUCCESS)
     {
@@ -10481,8 +10618,9 @@ void UpdateMNNodeAssignmentIndex(CNode *pobjNode, INT32 CNsCount, char* pcIndex,
 	CIndex *pobjIndex;
 	char* pbIndexNo = new char[3];
     char* pbHexIndexNo = new char[5];
-//////////////////////////////////////////////
-cout<<"------UpdateMNNodeAssignmentIndex----------"<<endl;				
+		#ifdef DEBUG_FUNCTION_ENTRY
+			cout<<"------UpdateMNNodeAssignmentIndex----------"<<endl;				
+		#endif
 	pobjIdxCol = pobjNode->getIndexCollection();
 	char* pbMNIndex = new char[INDEX_LEN + ALLOC_BUFFER];
 	char* pbSidx =  new char[SUBINDEX_LEN + ALLOC_BUFFER];
@@ -10519,8 +10657,6 @@ cout<<"------UpdateMNNodeAssignmentIndex----------"<<endl;
                 INT32 iNodePos;
                 bool bFlag = false;
                 retCode = IfNodeExists(iNodeidValue, iNodeType, &iNodePos, bFlag);
-/////////////////////////////////////
-//cout<<pobjSubIndex->getActualValue()<<endl;
                 if(OCFM_ERR_SUCCESS == retCode.code && true == bFlag && ((CN == iNodeType) || (true == allowMNSubindex)) )
                 {
                 }
@@ -10553,8 +10689,9 @@ bool ValidateCNPresTimeout(char* pbSubIndexId, char* pcCheckValue)
 {
     ocfmRetCode stErrorInfo, stRet;
     int iSubIndexPos, iIndexPos;
-////////////////////////////////////////////
-cout<<"---------ValidateCNPresTimeout---------"<<endl;
+    #ifdef DEBUG_FUNCTION_ENTRY
+		cout<<"---------ValidateCNPresTimeout---------"<<endl;
+    #endif
     stErrorInfo = IfSubIndexExists(MN_NODEID, MN, (char*)"1F92", pbSubIndexId, &iSubIndexPos, &iIndexPos);
     if(stErrorInfo.code == OCFM_ERR_SUCCESS)
     {
@@ -10628,8 +10765,9 @@ void CopyOldNodeIdAssignmentObject(CNode* pobjNode, INT32 iOldNodeId)
 ****************************************************************************************************/
 void CopyOldNodeIdAssignmentObjectSubindex(CNode* pobjNode, INT32 iOldNodeId, char* pcIndex)
 {
-/////////////////////////////////////////////
-cout<<"--------------CopyOldNodeIdAssignmentObjectSubindex-------------"<<endl;
+	#ifdef DEBUG_FUNCTION_ENTRY
+		cout<<"--------------CopyOldNodeIdAssignmentObjectSubindex-------------"<<endl;
+	#endif
     if(NULL == pcIndex)
     {
         return;
@@ -10796,7 +10934,9 @@ bool IsDefaultActualNotEqual(CBaseIndex* pBaseIndexObject)
 ****************************************************************************************************/
 bool ReactivateMappingPDO(CIndexCollection* pobjIndexCol, CIndex* pobjIndex)
 {
-cout<<"--ReactivateMappingPDO----"<<endl;
+	#ifdef DEBUG_FUNCTION_ENTRY
+		cout<<"--ReactivateMappingPDO----"<<endl;
+    #endif
     if(false == CheckIfMappingPDO((char*)pobjIndex->getIndexValue()))
         return false;
 
