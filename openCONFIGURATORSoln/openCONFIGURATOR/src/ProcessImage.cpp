@@ -476,17 +476,16 @@ void GenerateXAPHeaderFile(char* pbFileName, ProcessImage objPIInCol[], ProcessI
 	}
 
 	fclose(fpXapFile);
-	
 	/* write Output structure */
+	if (( fpXapFile = fopen(pbXapFileName,"a+")) == NULL)
+	{
+		ocfmException ex;
+		ex.ocfm_Excpetion(OCFM_ERR_CANNOT_OPEN_FILE);
+		delete [] pbXapFileName;
+		throw ex;
+	}
 	if(iOutVar !=0)
 	{
-		if (( fpXapFile = fopen(pbXapFileName,"a+")) == NULL)
-		{
-			ocfmException ex;
-			ex.ocfm_Excpetion(OCFM_ERR_CANNOT_OPEN_FILE);
-			delete [] pbXapFileName;
-			throw ex;
-		}
 		WriteXAPHeaderContents(objPIOutCol, iOutVar, OUTPUT, fpXapFile ); 
 	}
 	delete [] pbXapFileName;

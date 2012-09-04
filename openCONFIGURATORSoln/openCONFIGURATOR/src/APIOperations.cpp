@@ -7252,7 +7252,7 @@ ocfmRetCode GenerateMNOBD(bool IsBuild)
 						
 						/*BUG #3 - START*/
 						GetSubIndexAttributes(objNode.getNodeId(), CN, (char*)"1400", (char*)"02", ACTUALVALUE, VersionNumber);
-						if((*VersionNumber == NULL) || (strcmp(VersionNumber, "") == 0))
+						if((VersionNumber == NULL) || (strcmp(VersionNumber, "") == 0))
 						{
 							strcpy(VersionNumber,"0x0");
 						}
@@ -7330,7 +7330,7 @@ ocfmRetCode GenerateMNOBD(bool IsBuild)
 						SetSubIndexAttributes(MN_NODEID, MN, pbMNIndex, pbSidx, pbMappIdx,(char*)"NodeID_U8", TRUE);
 						/*BUG #3 - START*/
 						GetSubIndexAttributes(objNode.getNodeId(), CN, (char*)"1800", (char*)"02", ACTUALVALUE, VersionNumber);
-						if((*VersionNumber == NULL) || (strcmp(VersionNumber, "") == 0))
+						if((VersionNumber == NULL) || (strcmp(VersionNumber, "") == 0))
 						{
 							strcpy(VersionNumber,"0x0");
 						}
@@ -7810,7 +7810,7 @@ ocfmRetCode OpenProject(char* pbPjtPath, char* pbProjectXmlFileName)
 				strConvertedValue = new char[SUBINDEX_LEN];
 				strConvertedValue = _IntToAscii(iNodeID, strConvertedValue, 16);
 				strConvertedValue = padLeft(strConvertedValue, '0', 2);
-				GetSubIndexAttributes(240,MN,"1f92",strConvertedValue,ACTUALVALUE,pbPresTimeoutVal);
+				GetSubIndexAttributes(240,MN,(char*)"1f92",strConvertedValue,ACTUALVALUE,pbPresTimeoutVal);
 				cout<<"Actual Value"<<iNodeID<<pbPresTimeoutVal<<endl;	
 				if(((pbPresTimeoutVal == NULL) || (strcmp(pbPresTimeoutVal, "") == 0)) || (!(ValidateCNPresTimeout(strConvertedValue, pbPresTimeoutVal))))
 				{
