@@ -633,13 +633,15 @@ void CNode::resetForcedCycleValue()
 * Return value: void
 ****************************************************************************************************/
 /////////////////////////////////////////////////
-char* CNode::getPollResponseTimeout()
+// BUG #27 -- START
+/*char* CNode::getPollResponseTimeout()
 {
 	#ifdef DEBUG_FUNCTION_ENTRY
 			cout<<"-----------getPollResponseTimeout-----m_PollResponseTimeout: "<<m_PollResponseTimeout<<endl;	
 	#endif
 	return m_PollResponseTimeout;
-}
+}*/ // For BUG  # 27, this func was used. And this func is no more needed
+// BUG #27 -- END
 /**************************************************************************************************
 * Function Name: CNode::setPollResponseTimeout
 * Description: sets the poll response timeout value in MN
