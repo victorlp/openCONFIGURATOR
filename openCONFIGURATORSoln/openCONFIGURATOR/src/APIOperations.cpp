@@ -1590,8 +1590,9 @@ void EnableDisableMappingPDO(CIndexCollection* pobjIdxCol, CIndex* objIndex, cha
                     
                 if( NULL == objSubIndex )
                     return;                
-
-                if((objSubIndex->getActualValue() != NULL) && (objSubIndex->getFlagIfIncludedCdc() == TRUE)  && ((true == ReactivateMappingPDO(pobjIdxCol, objIndex)) || (true == IsDefaultActualNotEqual(objSubIndex))) )
+			/*BUG #37 - START*/
+                if((objSubIndex->getActualValue() != NULL) && (objSubIndex->getFlagIfIncludedCdc() == TRUE))//  && ((true == ReactivateMappingPDO(pobjIdxCol, objIndex)) || (true == IsDefaultActualNotEqual(objSubIndex))) )
+            /*BUG #37 - END*/
                 {
 
                         strcat(Buffer,objIndex->getIndexValue());
@@ -2453,8 +2454,9 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
                 {
                     
                     objSubIndex = objIndex->getSubIndex(i);
-                
-                    if((objSubIndex->getActualValue() != NULL) && (objSubIndex->getFlagIfIncludedCdc() == TRUE) &&  ( true == CheckAccessTypeForInclude((char*)objSubIndex->getAccessType()) || CheckIfMappingPDO((char*)objIndex->getIndexValue()) ) && (true == IsDefaultActualNotEqual(objSubIndex))  )
+                /*BUG #37 - START*/
+                    if((objSubIndex->getActualValue() != NULL) && (objSubIndex->getFlagIfIncludedCdc() == TRUE) &&  (( true == CheckAccessTypeForInclude((char*)objSubIndex->getAccessType()) && (true == IsDefaultActualNotEqual(objSubIndex)))  || CheckIfMappingPDO((char*)objIndex->getIndexValue()) )  )
+                /*BUG #37 - END*/
                     {
                         noOfValidSubIndexes = noOfValidSubIndexes + 1;
                         
@@ -3295,7 +3297,9 @@ INT32 BRSpecificgetCNsTotalIndexSubIndex(INT32 iNodeID)
                         
                         if((NULL != pobjSubIndex) && (NULL != pobjSubIndex->getActualValue()) && ( 0 != strcmp(pobjSubIndex->getActualValue(),"")) )
                         {
-                            if(true == ReactivateMappingPDO(pobjIdxCol, pobjIndex) || true == IsDefaultActualNotEqual(pobjSubIndex))
+                        /*BUG #37 - START*/
+                            //if(true == ReactivateMappingPDO(pobjIdxCol, pobjIndex) || true == IsDefaultActualNotEqual(pobjSubIndex))
+                        /*BUG #37 - END*/
                             {
                                 iNumberOfEntries =  iNumberOfEntries + 1; /* to initalize 00 entry subindex */
                             }
@@ -3303,13 +3307,17 @@ INT32 BRSpecificgetCNsTotalIndexSubIndex(INT32 iNodeID)
                             {
                                 continue;
                             }
-                            if(true == ReactivateMappingPDO(pobjIdxCol, pobjIndex) || true == IsDefaultActualNotEqual(pobjSubIndex))
+                         /*BUG #37 - START*/
+                            //if(true == ReactivateMappingPDO(pobjIdxCol, pobjIndex) || true == IsDefaultActualNotEqual(pobjSubIndex))
+                         /*BUG #37 - END*/
                             {
                                 iNumberOfEntries =  iNumberOfEntries + 1; /* to reinitalize 00 entry subindex */
                             }
                             for(INT32 iLoopCount = 0; iLoopCount < pobjIndex->getNumberofSubIndexes(); iLoopCount++)
                             {
-                                if(pobjIndex->getSubIndex(iLoopCount)->getActualValue() !=NULL && TRUE == pobjIndex->getSubIndex(iLoopCount)->getFlagIfIncludedCdc() && true == IsDefaultActualNotEqual(pobjIndex->getSubIndex(iLoopCount)) )
+                            /*BUG #37 - START*/
+                                if(pobjIndex->getSubIndex(iLoopCount)->getActualValue() !=NULL && TRUE == pobjIndex->getSubIndex(iLoopCount)->getFlagIfIncludedCdc())// && true == IsDefaultActualNotEqual(pobjIndex->getSubIndex(iLoopCount)) )
+                            /*BUG #37 - END*/
                                 {
                                     if(0 == strcmp((char*)pobjIndex->getSubIndex(iLoopCount)->getIndexValue() ,"00"))
                                     {
