@@ -3483,18 +3483,28 @@ INT32 BRSpecificgetCNsTotalIndexSubIndex(INT32 iNodeID)
                                     continue;
                                 }
  
-                                SetSIdxValue((char*)"1F81",hex, pb1F81Data,objNodeCollection->getMNNode().getIndexCollection(), MN_NODEID, MN, false); 
+                                SetSIdxValue((char*)"1F81",hex, pb1F81Data,objNodeCollection->getMNNode().getIndexCollection(), MN_NODEID, MN, false);
                                 delete [] pb1F81Data;
                         }
                     }
 					#ifdef DEBUG_FUNCTION_ENTRY
 						cout<<"--UpdateMNNodeAssignmentIndex--Called from GenerateCDC--"<<endl;
 					#endif
-					
-                UpdateMNNodeAssignmentIndex(&objNodeCollection->getMNNode(), objNodeCollection->getCNNodesCount(), (char*)"1F81", true );
+/*BUG FIX #R1 -START*/
+		objNode =objNodeCollection->getMNNode();
+		UpdateMNNodeAssignmentIndex(&objNode, objNodeCollection->getCNNodesCount(), (char*)"1F81", true );
+		objNode =objNodeCollection->getMNNode();
+                UpdateMNNodeAssignmentIndex(&objNode, objNodeCollection->getCNNodesCount(), (char*)"1F92", false );
+       		objNode =objNodeCollection->getMNNode();
+                UpdateMNNodeAssignmentIndex(&objNode, objNodeCollection->getCNNodesCount(), (char*)"1F8D", true );	
+/*BUG FIX #R1 -END*/
+
+/*BUG #R1 -START
+		UpdateMNNodeAssignmentIndex(&objNodeCollection->getMNNode(), objNodeCollection->getCNNodesCount(), (char*)"1F81", true );
                 UpdateMNNodeAssignmentIndex(&objNodeCollection->getMNNode(), objNodeCollection->getCNNodesCount(), (char*)"1F92", false );
                 UpdateMNNodeAssignmentIndex(&objNodeCollection->getMNNode(), objNodeCollection->getCNNodesCount(), (char*)"1F8D", true );
-            
+BUG #R1 -END*/
+          
             /*BUG FIX #27 - START*/
                if(stPjtSettings->getGenerateAttr() == YES_AG)
 				{	
