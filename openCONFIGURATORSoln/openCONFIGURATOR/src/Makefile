@@ -63,6 +63,10 @@
 
 GCC	=	g++ 
 FLAGS	=	-fPIC -shared `xml2-config --cflags` `xml2-config --libs`  
+#Added linker flags for Error: libxml2-undefined-reference-to-xmltextreaderconstname
+#BUG FIX #R2
+LINKERFLAGS	=	-lxml -lm
+
 INCLUDE	= 	../Include
 TARGET	= 	openCONFIGURATOR.so
 
@@ -90,7 +94,9 @@ $(TARGET):	$(OBJECTS)
 	
 
 %.o: %.cpp
-		$(GCC) $(FLAGS) -I $(INCLUDE) -c $< 
+		#$(GCC) $(FLAGS) -I $(INCLUDE) -c $< 
+		#BUG FIX #R2
+		$(GCC) $(FLAGS) -I $(INCLUDE) -c $< $(LINKERFLAGS)
 		@echo 'Finished building: $<'
 
 .PHONY:     clean
