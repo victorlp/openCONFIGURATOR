@@ -63,8 +63,8 @@
 
 GCC	=	g++ 
 FLAGS	=	-fPIC -shared `xml2-config --cflags` `xml2-config --libs`  
-#Added linker flags for Error: libxml2-undefined-reference-to-xmltextreaderconstname
-#BUG FIX #R2
+
+#BUG FIX #42
 LINKERFLAGS	=	-lxml -lm
 
 INCLUDE	= 	../Include
@@ -94,8 +94,7 @@ $(TARGET):	$(OBJECTS)
 	
 
 %.o: %.cpp
-		#$(GCC) $(FLAGS) -I $(INCLUDE) -c $< 
-		#BUG FIX #R2
+		#BUG FIX #42
 		$(GCC) $(FLAGS) -I $(INCLUDE) -c $< $(LINKERFLAGS)
 		@echo 'Finished building: $<'
 

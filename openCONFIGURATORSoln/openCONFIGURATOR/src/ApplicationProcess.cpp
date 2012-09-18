@@ -137,12 +137,10 @@ void CApplicationProcess::addComplexDataType(CComplexDataType objComplexData)
 
 /*Bug #4 - START*/
 /****************************************************************************************************
-* Function Name: CApplicationProcess::addComplexDataType
+* Function Name: CApplicationProcess::DeleteComplexDataTypeCollection()
 * Description:
-
 * Return value: void
 ****************************************************************************************************/
-
 void CApplicationProcess::DeleteComplexDataTypeCollection()
 {
 	CDTCollection.Clear();	

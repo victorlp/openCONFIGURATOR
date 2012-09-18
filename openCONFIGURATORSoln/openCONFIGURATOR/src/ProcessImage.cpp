@@ -459,13 +459,16 @@ void GenerateXAPHeaderFile(char* pbFileName, ProcessImage objPIInCol[], ProcessI
 	strcat(pbXapHeaderIncludeGuard, "\n");
 	strcat(pbXapHeaderIncludeGuard, INCLUDE_GUARD_START);
 	strcat(pbXapHeaderIncludeGuard, "\n\n");
-	uiStrLength =  strlen(pbXapHeaderIncludeGuard);
+	uiStrLength = strlen(pbXapHeaderIncludeGuard);
 	
-	if((uiStrLength != fwrite(pbXapHeaderIncludeGuard, sizeof(char), uiStrLength, fpXapFile)))
+	if( ( uiStrLength != fwrite( pbXapHeaderIncludeGuard, sizeof(char), uiStrLength, fpXapFile ) ) )
 	{
 		ocfmException ex;
 		ex.ocfm_Excpetion(OCFM_ERR_FILE_CANNOT_OPEN);
 		throw ex;
+	}
+	else
+	{
 	}
 	delete[] pbXapHeaderIncludeGuard;
 	/*BUG #6 - END*/
@@ -476,17 +479,25 @@ void GenerateXAPHeaderFile(char* pbFileName, ProcessImage objPIInCol[], ProcessI
 	}
 
 	fclose(fpXapFile);
+	
 	/* write Output structure */
-	if (( fpXapFile = fopen(pbXapFileName,"a+")) == NULL)
+	if ( NULL == ( fpXapFile = fopen(pbXapFileName,"a+") ) )
 	{
 		ocfmException ex;
 		ex.ocfm_Excpetion(OCFM_ERR_CANNOT_OPEN_FILE);
 		delete [] pbXapFileName;
 		throw ex;
 	}
-	if(iOutVar !=0)
+	else
+	{
+	}
+	
+	if( iOutVar != 0 )
 	{
 		WriteXAPHeaderContents(objPIOutCol, iOutVar, OUTPUT, fpXapFile ); 
+	}
+	else
+	{
 	}
 	delete [] pbXapFileName;
 	/*BUG #6 - START*/
@@ -495,12 +506,16 @@ void GenerateXAPHeaderFile(char* pbFileName, ProcessImage objPIInCol[], ProcessI
 	 strcpy(pbXapHeaderIncludeGuard, "\n");
 	 strcat(pbXapHeaderIncludeGuard, INCLUDE_GUARD_END);
 	uiStrLength =  strlen(pbXapHeaderIncludeGuard);	
-	if((uiStrLength != fwrite(pbXapHeaderIncludeGuard, sizeof(char), uiStrLength, fpXapFile)))
+	if( ( uiStrLength != fwrite( pbXapHeaderIncludeGuard, sizeof(char), uiStrLength, fpXapFile ) ) )
 	{
 		ocfmException ex;
 		ex.ocfm_Excpetion(OCFM_ERR_FILE_CANNOT_OPEN);
 		throw ex;
 	}
+	else
+	{
+	}
+	
 	fclose(fpXapFile);
 	delete[] pbXapHeaderIncludeGuard;
 	/*BUG #6 - END*/
@@ -1068,9 +1083,6 @@ void SetSIdxDataType(DataType *pobjDataType, char* pbIdx, char* pbSIdx)
 ****************************************************************************************************/
 void AddPDOIndexsToMN(char* pbIndex, char* pbSubIndex, EPDOType enumPdoType)
 {
-	#ifdef DEBUG_FUNCTION_ENTRY
-		cout<<"---------AddPDOIndexesToMN---------"<<endl;
-	#endif
 	ocfmRetCode stRetCode;
 	CNode objMNNode;
 	DataType 			*pobjDataType 	= NULL;
@@ -1185,9 +1197,7 @@ PIObject getPIAddress(PDODataType dt,  EPIDirectionType dirType, int iOffset, in
 	int i;
 	int subIndex;
 	PIObject stPIObject;
-	#ifdef DEBUG_FUNCTION_ENTRY
-		cout<<"--------------GetPIAddress----------------"<<endl;	
-	#endif
+	
 	stPIObject.Index = new char[INDEX_LEN];
 	stPIObject.SubIndex = new char[SUBINDEX_LEN];
 
@@ -1197,9 +1207,6 @@ PIObject getPIAddress(PDODataType dt,  EPIDirectionType dirType, int iOffset, in
 		{
 			INT32 iTempDataSize = iDataSize/8;
 			subIndex = (iOffset)/ iTempDataSize + 1;
-			#ifdef DEBUG_INDEX_LEVEL
-				cout<<"GetPIAddress--subIndex: "<<subIndex<<" iTempDataSize: "<<iTempDataSize<<" iDatasize: "<<iDataSize<<endl;
-			#endif
 			if(subIndex > 254)
 			{
 				int div = subIndex / 254;
@@ -1208,26 +1215,18 @@ PIObject getPIAddress(PDODataType dt,  EPIDirectionType dirType, int iOffset, in
 				/* PATCH For BUG #11 - START */
 				iAddress = hex2int(AddressTable[i].Address);
 				/* PATCH For BUG #11 - END */
-				#ifdef DEBUG_INDEX_LEVEL
-					cout<<"GetPIAddress iAddress: "<<iAddress<<" ,the value: "<<AddressTable[i].Address<<endl;
-				#endif
 				iAddress = iAddress + div;
 				stPIObject.Index  = _IntToAscii(iAddress, stPIObject.Index, 16);								
 				stPIObject.SubIndex =  _IntToAscii(mod, 	stPIObject.SubIndex, 16);
 				stPIObject.SubIndex = padLeft(	stPIObject.SubIndex, '0', 2);
-				#ifdef DEBUG_FUNCTION_ENTRY
-					cout<<"GetPIAddress---stPIObject.Index: "<<stPIObject.Index <<" ,the value: "<<stPIObject.SubIndex<<endl;
-				#endif
+				
 			}
 			else
 			{			
 				strcpy(stPIObject.Index, AddressTable[i].Address);
 				stPIObject.SubIndex =  _IntToAscii(subIndex, 	stPIObject.SubIndex, 16);
 				stPIObject.SubIndex = padLeft(	stPIObject.SubIndex, '0', 2);
-				#ifdef DEBUG_FUNCTION_ENTRY
-					cout<<"GetPIAddress: "<<AddressTable[i].Address<<endl;						
-					cout<<"GetPIAddress: "<<stPIObject.Index <<" ,the value: "<<stPIObject.SubIndex<<endl;
-				#endif
+						
 			}			
 		}		
 	}
@@ -1242,9 +1241,6 @@ PIObject getPIAddress(PDODataType dt,  EPIDirectionType dirType, int iOffset, in
 ****************************************************************************************************/
 char* getPIDataTypeName(char* pbAddress)
 {
-	#ifdef DEBUG_FUNCTION_ENTRY
-		cout<<"--------------getPIDataTypeName----------------"<<endl;	
-	#endif
 	char *pbRetString = NULL;
 	PDODataType dt;
 	for(INT32 iLoopCount = 0; iLoopCount < NO_OF_PI_ENTERIES; iLoopCount++)
@@ -1316,9 +1312,6 @@ char* getPIDataTypeName(char* pbAddress)
 ****************************************************************************************************/
 char* getPIName(char* pbAddress)
 {
-	#ifdef DEBUG_FUNCTION_ENTRY
-		cout<<"--------------getPIName----------------"<<pbAddress<<endl;	
-	#endif
 	char *pbRetString = NULL;
 	PDODataType dt;
 	for(INT32 iLoopCount = 0; iLoopCount < NO_OF_PI_ENTERIES; iLoopCount++)
@@ -1330,7 +1323,7 @@ char* getPIName(char* pbAddress)
 		}		
 		/* PATCH For BUG #18 - END */		
 			/* PATCH For BUG #11 and 12 - START */
-		else if(strcmp(AddressTable[iLoopCount].Address,  pbAddress) > 0)
+		else if( strcmp(AddressTable[iLoopCount].Address,  pbAddress) > 0 )
 		{
 			 dt = (iLoopCount > 0) ? AddressTable[iLoopCount - 1].dt : static_cast<PDODataType>(-1);
 		}
@@ -1390,11 +1383,8 @@ char* getPIName(char* pbAddress)
 ****************************************************************************************************/
 bool CheckIfProcessImageIdx(char* pbIndex)
 {
-	#ifdef DEBUG_FUNCTION_ENTRY
-		cout<<"--------------CheckIfProcessImageIdx----------------"<<endl;	
-	#endif
 	/* PATCH For BUG #12 - START */
-	return ((strcmp(pbIndex, "A000") >= 0) && (strcmp(pbIndex, "AFFF") <= 0));
+	return ( (strcmp(pbIndex, "A000") >= 0 ) && ( strcmp(pbIndex, "AFFF") <= 0 ) );
 	/* PATCH For BUG #12 - END */	
 
 /*

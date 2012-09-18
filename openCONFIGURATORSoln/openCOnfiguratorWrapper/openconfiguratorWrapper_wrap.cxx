@@ -11878,27 +11878,6 @@ fail:
 
 
 SWIGINTERN int
-_wrap_CNode_getPollResponseTimeout(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
-  CNode *arg1 = (CNode *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  char *result = 0 ;
-  
-  if (SWIG_GetArgs(interp, objc, objv,"o:CNode_getPollResponseTimeout self ",(void *)0) == TCL_ERROR) SWIG_fail;
-  res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_CNode, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "CNode_getPollResponseTimeout" "', argument " "1"" of type '" "CNode *""'"); 
-  }
-  arg1 = reinterpret_cast< CNode * >(argp1);
-  result = (char *)(arg1)->getPollResponseTimeout();
-  Tcl_SetObjResult(interp,SWIG_FromCharPtr((const char *)result));
-  return TCL_OK;
-fail:
-  return TCL_ERROR;
-}
-
-
-SWIGINTERN int
 _wrap_CNode_setPollResponseTimeout(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   CNode *arg1 = (CNode *) 0 ;
   char *arg2 = (char *) 0 ;
@@ -12105,7 +12084,6 @@ static swig_method swig_CNode_methods[] = {
     {"setForcedCycle", _wrap_CNode_setForcedCycle}, 
     {"resetForcedCycleValue", _wrap_CNode_resetForcedCycleValue}, 
     {"setForceCycleFlag", _wrap_CNode_setForceCycleFlag}, 
-    {"getPollResponseTimeout", _wrap_CNode_getPollResponseTimeout}, 
     {"setPollResponseTimeout", _wrap_CNode_setPollResponseTimeout}, 
     {"isNull", _wrap_CNode_isNull}, 
     {"DeleteCollectionsForNETPI", _wrap_CNode_DeleteCollectionsForNETPI}, 
@@ -12519,7 +12497,6 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "CNode_setForcedCycle", (swig_wrapper_func) _wrap_CNode_setForcedCycle, NULL},
     { SWIG_prefix "CNode_resetForcedCycleValue", (swig_wrapper_func) _wrap_CNode_resetForcedCycleValue, NULL},
     { SWIG_prefix "CNode_setForceCycleFlag", (swig_wrapper_func) _wrap_CNode_setForceCycleFlag, NULL},
-    { SWIG_prefix "CNode_getPollResponseTimeout", (swig_wrapper_func) _wrap_CNode_getPollResponseTimeout, NULL},
     { SWIG_prefix "CNode_setPollResponseTimeout", (swig_wrapper_func) _wrap_CNode_setPollResponseTimeout, NULL},
     { SWIG_prefix "CNode_isNull", (swig_wrapper_func) _wrap_CNode_isNull, NULL},
     { SWIG_prefix "CNode_DeleteCollectionsForNETPI", (swig_wrapper_func) _wrap_CNode_DeleteCollectionsForNETPI, NULL},

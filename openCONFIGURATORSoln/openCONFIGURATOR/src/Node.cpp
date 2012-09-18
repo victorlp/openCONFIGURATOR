@@ -628,30 +628,12 @@ void CNode::resetForcedCycleValue()
     delete[] cSIdx;
 }
 /**************************************************************************************************
-* Function Name: CNode::getPollResponseTimeout
-* Description: gets the poll response timeout value in MN
-* Return value: void
-****************************************************************************************************/
-/////////////////////////////////////////////////
-// BUG #27 -- START
-/*char* CNode::getPollResponseTimeout()
-{
-	#ifdef DEBUG_FUNCTION_ENTRY
-			cout<<"-----------getPollResponseTimeout-----m_PollResponseTimeout: "<<m_PollResponseTimeout<<endl;	
-	#endif
-	return m_PollResponseTimeout;
-}*/ // For BUG  # 27, this func was used. And this func is no more needed
-// BUG #27 -- END
-/**************************************************************************************************
 * Function Name: CNode::setPollResponseTimeout
 * Description: sets the poll response timeout value in MN
 * Return value: void
 ****************************************************************************************************/
 void CNode::setPollResponseTimeout(char* pbPollResponseTimeout)
-{
-	#ifdef DEBUG_FUNCTION_ENTRY
-		cout<<"-----------setPollResponseTimeout------pbPollResponseTimeout"<<pbPollResponseTimeout<<endl;	
-	#endif
+{	
 	m_PollResponseTimeout = new char[strlen(pbPollResponseTimeout) + ALLOC_BUFFER];
 	strcpy((char*)m_PollResponseTimeout, pbPollResponseTimeout);	
 
@@ -691,9 +673,9 @@ void CNode::setPollResponseTimeout(char* pbPollResponseTimeout)
 }
 
 /**************************************************************************************************
-* Function Name: CNode::setPollResponseTimeout
+* Function Name: CNode::getForceCycleFlag
 * Description: 
-* Return value: void
+* Return value: bool
 ****************************************************************************************************/
 bool CNode::getForceCycleFlag()
 {
@@ -701,7 +683,7 @@ bool CNode::getForceCycleFlag()
 }
 
 /**************************************************************************************************
-* Function Name: CNode::setPollResponseTimeout
+* Function Name: CNode::setForceCycleFlag(bool)
 * Description: 
 * Return value: void
 ****************************************************************************************************/

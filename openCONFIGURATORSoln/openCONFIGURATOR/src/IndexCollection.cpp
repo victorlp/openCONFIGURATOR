@@ -166,36 +166,37 @@ void CIndexCollection::DeletePDOs()
 }
 /*BUG #29 - START*/
 /****************************************************************************************************
-* Function Name: CIndexCollection::GetPDOCount
+* Function Name: CIndexCollection::GetMaxPDOCount
 * Description:
-* Return value: void
+* Return value: INT32
 ****************************************************************************************************/
-int CIndexCollection::GetMaxPDOCount() 
+INT32 CIndexCollection::GetMaxPDOCount() 
 {
 	return m_MaxPDOCount;
 }
 /****************************************************************************************************
-* Function Name: CIndexCollection::SetPDOCount
+* Function Name: CIndexCollection::CalculateMaxPDOCount
 * Description:
 * Return value: void
 ****************************************************************************************************/
 void CIndexCollection::CalculateMaxPDOCount() 
 {
-	int iLoopCount;
+	INT32 iLoopCount;
 	char* substr= new char[3];
 	
 	m_MaxPDOCount = 0;
 	
-	for(iLoopCount =0; iLoopCount < m_IndexCount; iLoopCount++)
+	for( iLoopCount =0; iLoopCount < m_IndexCount; iLoopCount++ )
 	{
 		CIndex objIndex;
 		objIndex = collectionObj[iLoopCount];
 		substr = subString((char*)objIndex.getIndexValue(), 0, 2);
-		if( //strcmp(substr, "1A")==0 || strcmp(substr, "1a")==0 ||
-		 //strcmp(substr, "14")==0 || strcmp(substr, "16")==0   ||
-		strcmp(substr, "18")==0 )
+		if( strcmp(substr, "18") == 0 ) // || strcmp(substr, "1A")==0 || strcmp(substr, "1a")==0 || strcmp(substr, "14")==0 || strcmp(substr, "16")==0 
 		{	
 			m_MaxPDOCount++;
+		}
+		else
+		{
 		}		
 	}
 }
