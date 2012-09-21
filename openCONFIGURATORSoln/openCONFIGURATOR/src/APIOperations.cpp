@@ -5004,7 +5004,8 @@ void WriteXAPElements(ProcessImage aobjPICol[], xmlTextWriterPtr& pxtwWriter,INT
 					ProcessImage objProcessImage;
 					objProcessImage = aobjPICol[iLoopCount];
 
-					if(iHighBitOffset < ((objProcessImage.ByteOffset * 8) + objProcessImage.BitOffset ) )
+/*Bug #38				if(iHighBitOffset < ((objProcessImage.ByteOffset * 8) + objProcessImage.BitOffset ) )
+*/					if(iHighBitOffset <= ((objProcessImage.ByteOffset * 8) + objProcessImage.BitOffset ) )
 					{
 						//save the higher offset of process image and its datasize
 						iHighBitOffset = (objProcessImage.ByteOffset * 8) + objProcessImage.BitOffset ; //multiply by 8 for byte to bit conversion
