@@ -705,7 +705,7 @@ bool CheckToolVersion(char* pcCurrentToolVersion)
   if( (strcmp(pcUpperCurrentToolVersion, TOOL_VERSION) == FALSE) ||
        (strcmp(pcUpperCurrentToolVersion, PREV_TOOL_VERSION_1) == FALSE)  || (strcmp(pcUpperCurrentToolVersion, PREV_TOOL_VERSION_2) == FALSE)  || \
 	   (strcmp(pcUpperCurrentToolVersion, PREV_TOOL_VERSION_3) == FALSE)  || (strcmp(pcUpperCurrentToolVersion, PREV_TOOL_VERSION_4) == FALSE)  || \
-	   (strcmp(pcUpperCurrentToolVersion, PREV_TOOL_VERSION_5) == FALSE)  || \
+	   (strcmp(pcUpperCurrentToolVersion, PREV_TOOL_VERSION_5) == FALSE) || (strcmp(pcUpperCurrentToolVersion, PREV_TOOL_VERSION_6) == FALSE) || \
 	   (strcmp(pcUpperCurrentToolVersion, LAST_TOOL_VERSION) == FALSE)  || (strcmp(pcUpperCurrentToolVersion, TOOL_INTER_REL_VERSION_1) == FALSE)  || \
 	   (strcmp(pcUpperCurrentToolVersion, TOOL_INTER_REL_VERSION_2) == FALSE) || (strcmp(pcUpperCurrentToolVersion, TOOL_INTER_REL_VERSION_3) == FALSE) || \
 	   (strcmp(pcUpperCurrentToolVersion, TOOL_INTER_REL_VERSION_4) == FALSE) || (strcmp(pcUpperCurrentToolVersion, TOOL_INTER_REL_VERSION_5) == FALSE))

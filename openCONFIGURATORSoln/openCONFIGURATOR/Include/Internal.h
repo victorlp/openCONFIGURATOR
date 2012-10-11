@@ -88,13 +88,14 @@
 /*******************************************************************e *****************************
 * Defines
 ************************************************************************************************/
-#define TOOL_VERSION "1.2.1"
-#define LAST_TOOL_VERSION "1.2.0"
+#define TOOL_VERSION "1.2.2"
+#define LAST_TOOL_VERSION "1.2.1"
 #define PREV_TOOL_VERSION_1 "1.1.0"
 #define PREV_TOOL_VERSION_2 "1.0.1"
 #define PREV_TOOL_VERSION_3 "1.0.0"
 #define PREV_TOOL_VERSION_4 "1.1.1"
 #define PREV_TOOL_VERSION_5 "1.1.2"
+#define PREV_TOOL_VERSION_6 "1.2.0"
 #define TOOL_INTER_REL_VERSION_1 "1.1.2.1"
 #define TOOL_INTER_REL_VERSION_2 "1.1.2.2"
 #define TOOL_INTER_REL_VERSION_3 "1.1.2.3"
