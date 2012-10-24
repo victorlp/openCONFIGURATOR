@@ -1572,9 +1572,8 @@ void EnableDisableMappingPDO(CIndexCollection* pobjIdxCol, CIndex* objIndex, cha
                     
                 if( NULL == objSubIndex )
                     return;                
-			/*BUG #37 - START*/
-                if( ( NULL != objSubIndex->getActualValue() ) && ( TRUE == objSubIndex->getFlagIfIncludedCdc() ) )
-            /*BUG #37 - END*/
+/*Reverted Bug #37 */
+                if( (objSubIndex->getActualValue() != NULL) && (objSubIndex->getFlagIfIncludedCdc() == TRUE)   && ((true == ReactivateMappingPDO(pobjIdxCol, objIndex))  || (true == IsDefaultActualNotEqual(objSubIndex))) ) 
                 {
 
                         strcat(Buffer,objIndex->getIndexValue());
@@ -1616,43 +1615,81 @@ void EnableDisableMappingPDO(CIndexCollection* pobjIdxCol, CIndex* objIndex, cha
             
                     if(false == EnableFlag)
                     {
-                        if (objSubIndex->getActualValue()!=NULL)
-                        {
-
-                                char actvalue[20];
-                                strcpy(actvalue,"0");
-                                strcat(Buffer,padLeft(actvalue,'0',padLength));
-                                resetValueAdded = true;
-                        }
+						//if (objSubIndex->getActualValue()!=NULL) Null is checked above
+	              		if(0 != strcmp(objSubIndex->getActualValue(),""))  // Actual value checked for Empty
+                       	 	{
+                        		//check for 00'th subindex non-Zero value.
+					if (!(checkIfValueZero((char*)objSubIndex->getActualValue())))
+                        		{
+						char actvalue[20];
+						strcpy(actvalue,"0");
+						strcat(Buffer,padLeft(actvalue,'0',padLength));
+						resetValueAdded = true;
+                         	       }
+					else
+					{
+					//If set to zero no need to disable / enable the mapping pdo
+					}
+				}
+				/*else //reset the pdo if non-zero default value is present: default Mapping.
+				if( (0 != strcmp(objSubIndex->getDefaultValue(),"")) && !(checkIfValueZero((char*)objSubIndex->getDefaultValue())) && (objSubIndex->getDefaultValue()!=NULL) )
+				{
+					char defaultvalue[20];
+					strcpy(defaultvalue,"0");
+					strcat(Buffer,padLeft(defaultvalue,'0',padLength));
+					resetValueAdded = true;
+				}*/
                     }
                     else
                     {
-                        char actvalue[20];
-                                        actvalue[0]  = '\0';
-                                        if(IfStringDT)
-                                        {
-                                            strcat(Buffer,(char*)objSubIndex->getActualValue());
-                                        }
-                                        else
-                                        {
-                                            if(CheckIfHex((char*)objSubIndex->getActualValue()))                                        
-                                            {
-                                                int len = strlen((char*)objSubIndex->getActualValue());
+			char actvalue[20];
+			actvalue[0]  = '\0';
+
+			if(IfStringDT)
+			{
+				strcat(Buffer,(char*)objSubIndex->getActualValue());
+			}
+			else
+			{
+				//non empty non-zero actual values are only written to cdc
+				if( (0 != strcmp(objSubIndex->getActualValue(),"")) && (!(checkIfValueZero((char*)objSubIndex->getActualValue()))) )
+				{
+					if(CheckIfHex((char*)objSubIndex->getActualValue()))                                        
+					{
+						int len = strlen((char*)objSubIndex->getActualValue());
                                                 strncpy(actvalue,(objSubIndex->getActualValue()+ 2),len-2 );
                                                 actvalue[len -2] ='\0';
-                                            
+
                                                 strcat(Buffer,padLeft(actvalue,'0',padLength));
-                                            
-                                            }
-                                                else
-                                                {               
-                                                    strcpy(actvalue, _IntToAscii(atoi(objSubIndex->getActualValue()),actvalue,16));
-                                        
-                                                    strcat(Buffer,padLeft(actvalue, '0', padLength));
-                                                }
-                                            }
+					}
+					else
+					{               
+						strcpy(actvalue, _IntToAscii(atoi(objSubIndex->getActualValue()),actvalue,16));
+
+						strcat(Buffer,padLeft(actvalue, '0', padLength));
+					}
+				}
+				/* //reset the pdo if non-zero default value is present: default Mapping.
+				else if( (0 != strcmp(objSubIndex->getDefaultValue(),"")) && !(checkIfValueZero((char*)objSubIndex->getDefaultValue())) && (objSubIndex->getDefaultValue()!=NULL) )
+				{
+					if(CheckIfHex((char*)objSubIndex->getDefaultValue()))
+					{
+                                                int len = strlen((char*)objSubIndex->getDefaultValue());
+                                                strncpy(defaultvalue,(objSubIndex->getDefaultValue()+ 2),len-2 );
+                                                defaultvalue[len -2] ='\0';
+
+                                                strcat(Buffer,padLeft(defaultvalue,'0',padLength));
+					}
+					else
+					{               
+						strcpy(defaultvalue, _IntToAscii(atoi(objSubIndex->getDefaultValue()),defaultvalue,16));
+
+						strcat(Buffer,padLeft(defaultvalue, '0', padLength));
+					}
+				}*/
+			}
                     }
-                        strcat(Buffer,"\n");
+                    strcat(Buffer,"\n");
                 }
         }
 }
@@ -2026,6 +2063,15 @@ void UpdatePreqActLoad(CNode*  pobjNode)
                   pobjIndex->setFlagIfIncludedCdc(TRUE);
                   pobjSubIndex->setFlagIfIncludedCdc(TRUE);
                 }
+		/*Bug #43 STARTS*/
+		//00'th sub index is set to FE(a max value) for make to reflect in cdc
+                pobjSubIndex = pobjIndex->getSubIndexbyIndexValue((char *)"00");
+                if(NULL != pobjSubIndex)
+                {
+                	strcpy(actvalue, (char *)"0xFE"); //to make display of 1f8b in cdc if act != def value
+                	pobjSubIndex->setActualValue(actvalue);
+                }
+		/*Bug #43 ENDS*/
              }
           }
       }
@@ -2108,6 +2154,17 @@ void UpdatePresActLoad(CNode*  pobjNode)
               pobjIndex->setFlagIfIncludedCdc(TRUE);
               pobjSubIndex->setFlagIfIncludedCdc(TRUE);
             }
+		/*Bug #43 STARTS*/
+		//00'th sub index is set to FE(a max value) for make to reflect in cdc
+            	pobjSubIndex = pobjIndex->getSubIndexbyIndexValue((char *)"00");
+                if(NULL != pobjSubIndex)
+                {
+                	//_IntToAscii( 0, convalue, 2);
+                	strcpy(actvalue, (char *)"0xFE"); //to make display of 1f8d in cdc if act != def value
+		        	//strcat(actvalue, convalue );
+                	pobjSubIndex->setActualValue(actvalue);
+                }
+		/*Bug #43 ENDS*/
           }
         }
       }
@@ -2386,7 +2443,7 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
             {
                 int noOfSubIndexes = 0; 
                 int noOfTotalSubIndexes = objIndex->getNumberofSubIndexes();
-            
+
                 bool Indexadded  = false;               
                 bool resetValueAdded = false;
                 bool flag_No_of_enteriesAdded = false;
@@ -2409,13 +2466,20 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
                             noOfSubIndexes = noOfSubIndexes + 1;
                     }
                 }
-
+		/*Bug #43 STARTS*/
+				else
+				{
+					noOfSubIndexes = noOfTotalSubIndexes;
+				}
+		/*Bug #43 ENDS*/
                 if(CheckIfMappingPDO((char*)objIndex->getIndexValue()))
                 {
-                    if(objSubIndex->getActualValue() != NULL)
+                    if(objSubIndex->getActualValue() != NULL) //&& enodetype != CN
                     {
-                            noOfSubIndexes = noOfTotalSubIndexes ;
-                    }
+		/*Bug #43 STARTS*/
+                           // noOfSubIndexes = noOfTotalSubIndexes ;
+		/*Bug #43 ENDS*/
+                   }
                     else
                     {
                             noOfSubIndexes = noOfTotalSubIndexes + 1;
@@ -2423,14 +2487,17 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
                 }
 
                 int noOfValidSubIndexes = 0;
-                
-                for(i=0; i<noOfTotalSubIndexes ; i++)
+		/*Bug #43 STARTS*/
+                //for(i=0; i<noOfTotalSubIndexes ; i++)
+                for(i=0; i<noOfSubIndexes ; i++)
+		/*Bug #43 ENDS*/
                 {
                     
                     objSubIndex = objIndex->getSubIndex(i);
-                /*BUG #37 - START*/
-                    if( ( NULL != objSubIndex->getActualValue() ) && ( TRUE == objSubIndex->getFlagIfIncludedCdc() ) &&  ( ( ( true == CheckAccessTypeForInclude( (char*)objSubIndex->getAccessType() ) ) && ( true == IsDefaultActualNotEqual(objSubIndex) ) )  || CheckIfMappingPDO( (char*)objIndex->getIndexValue() ) )  )
-                /*BUG #37 - END*/
+//bug #37 reverted
+		/*Bug #43 STARTS*/
+                    if((objSubIndex->getActualValue() != NULL) && (objSubIndex->getFlagIfIncludedCdc() == TRUE) &&  ( true == CheckAccessTypeForInclude((char*)objSubIndex->getAccessType()) || CheckIfMappingPDO((char*)objIndex->getIndexValue()) ) && (true == IsDefaultActualNotEqual(objSubIndex) )  )
+		/*Bug #43 ENDS*/
                     {
                         noOfValidSubIndexes = noOfValidSubIndexes + 1;
                         
@@ -2451,6 +2518,9 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
                                 {
                                     continue;
                                 }
+			/*Bug #43 STARTS*/
+				continue; //non-Zero actual values should NOT be added
+			/*Bug #43 ENDS*/
                             }
                         }
 
@@ -2952,7 +3022,7 @@ void BRSpecificGetIndexData(CIndex* objIndex, char* Buffer, int iNodeId )
 							//workaround for B&R Bus Controller stack
 							//NoOfenteries = _IntToAscii(getCNsTotalIndexSubIndex(objNode.getNodeId()), NoOfenteries, 16);
 							NoOfenteries = _IntToAscii(BRSpecificgetCNsTotalIndexSubIndex(objNode.getNodeId()), NoOfenteries, 16);
-                            /*1 is added for the size*/
+                            /*1 is not added for the size*/
 							NoOfenteries =  padLeft(NoOfenteries, '0', 8);
 							strcpy(Buffer4, NoOfenteries);
 							strcat(Buffer4, "\n");
@@ -3229,7 +3299,7 @@ INT32 getCNsTotalIndexSubIndex(INT32 iNodeID)
 }
 /****************************************************************************************************
 * Function Name: BRSpecificgetCNsTotalIndexSubIndex
-* Description: 
+* Description: BRSpecificgetCNsTotalIndexSubIndex returns the no.of entries that'll be included in CDC
 * Return value: INT32
 ****************************************************************************************************/
 INT32 BRSpecificgetCNsTotalIndexSubIndex(INT32 iNodeID)
@@ -3251,7 +3321,7 @@ INT32 BRSpecificgetCNsTotalIndexSubIndex(INT32 iNodeID)
 		CIndex *pobjIndex;
 		pobjIndex = pobjIdxCol->getIndex(iLoopCount);
 			
-	
+
 		if( pobjIndex->getFlagIfIncludedCdc() == TRUE && ( true == CheckAccessTypeForInclude((char*)pobjIndex->getAccessType()) || CheckIfMappingPDO((char*)pobjIndex->getIndexValue()) ) )
 		{
 			{
@@ -3268,33 +3338,41 @@ INT32 BRSpecificgetCNsTotalIndexSubIndex(INT32 iNodeID)
                     {
                         CSubIndex* pobjSubIndex;
                         pobjSubIndex = pobjIndex->getSubIndexbyIndexValue((char*)"00");
-                        
-                        if((NULL != pobjSubIndex) && (NULL != pobjSubIndex->getActualValue()) && ( 0 != strcmp(pobjSubIndex->getActualValue(),"")) )
+		/*Bug FIX: #43 STARTS*/
+                        //actual value checked for non-Zero
+                        if((NULL != pobjSubIndex) && (NULL != pobjSubIndex->getActualValue()) && ( 0 != strcmp(pobjSubIndex->getActualValue(),"")) && !(checkIfValueZero((char*)pobjSubIndex->getActualValue())) )
+		/*BUG FIX: #43 ENDS*/
                         {
-                        /*BUG #37 - START*/
-                            //if(true == ReactivateMappingPDO(pobjIdxCol, pobjIndex) || true == IsDefaultActualNotEqual(pobjSubIndex))
-                        /*BUG #37 - END*/
+                        /*BUG #37 Reverted*/
+                            if(true == ReactivateMappingPDO(pobjIdxCol, pobjIndex) || true == IsDefaultActualNotEqual(pobjSubIndex))
                             {
                                 iNumberOfEntries =  iNumberOfEntries + 1; /* to initalize 00 entry subindex */
                             }
-                            if(checkIfValueZero((char*)pobjSubIndex->getActualValue()))
-                            {
-                                continue;
-                            }
-                         /*BUG #37 - START*/
-                            //if(true == ReactivateMappingPDO(pobjIdxCol, pobjIndex) || true == IsDefaultActualNotEqual(pobjSubIndex))
-                         /*BUG #37 - END*/
+			/*BUG FIX: #43 STARTS*/
+				//value checked for zero above
+                            //if(checkIfValueZero((char*)pobjSubIndex->getActualValue()))
+                            //{
+                            //    continue;
+                            //}
+			/*BUG FIX: #43 ENDS*/
+                         /*BUG #37 Reverted*/
+                            if(true == ReactivateMappingPDO(pobjIdxCol, pobjIndex) || true == IsDefaultActualNotEqual(pobjSubIndex))
                             {
                                 iNumberOfEntries =  iNumberOfEntries + 1; /* to reinitalize 00 entry subindex */
                             }
-                            for(INT32 iLoopCount = 0; iLoopCount < pobjIndex->getNumberofSubIndexes(); iLoopCount++)
+
+	                    INT32 isiTotal = pobjIndex->getNumberofSubIndexes();
+
+                            for(INT32 iLoopCount = 0; iLoopCount < isiTotal; iLoopCount++)
                             {
-                            /*BUG #37 - START*/
-                                if( ( NULL != pobjIndex->getSubIndex(iLoopCount)->getActualValue() ) && ( TRUE == pobjIndex->getSubIndex(iLoopCount)->getFlagIfIncludedCdc() ) ) // && true == IsDefaultActualNotEqual(pobjIndex->getSubIndex(iLoopCount)) )
-                            /*BUG #37 - END*/
+			/*BUG #37 Reverted*/
+                                if(pobjIndex->getSubIndex(iLoopCount)->getActualValue() !=NULL && TRUE == pobjIndex->getSubIndex(iLoopCount)->getFlagIfIncludedCdc() && true == IsDefaultActualNotEqual(pobjIndex->getSubIndex(iLoopCount)) )
                                 {
                                     if(0 == strcmp((char*)pobjIndex->getSubIndex(iLoopCount)->getIndexValue() ,"00"))
                                     {
+                              	//the no.of subindex is determied by the 00'th entry actual value. 1 is added for 00'th entry count
+                                    	isiTotal = (GetDecimalValue((char*)pobjSubIndex->getActualValue()) + 1);
+
                                         continue;
                                     }  
                                     if(0 == GetDecimalValue((char*)pobjIndex->getSubIndex(iLoopCount)->getActualValue()))
@@ -3458,20 +3536,26 @@ INT32 BRSpecificgetCNsTotalIndexSubIndex(INT32 iNodeID)
                                 delete [] pb1F81Data;
                         }
                     }
-/*BUG FIX #41 -START*/
+/*BUG FIX #41 - START*/
 		objNode = objNodeCollection->getMNNode();
 		UpdateMNNodeAssignmentIndex( &objNode, objNodeCollection->getCNNodesCount(), (char*)"1F81", true );
-		objNode = objNodeCollection->getMNNode();
 		UpdateMNNodeAssignmentIndex( &objNode, objNodeCollection->getCNNodesCount(), (char*)"1F92", false );
-		objNode = objNodeCollection->getMNNode();
-		UpdateMNNodeAssignmentIndex( &objNode, objNodeCollection->getCNNodesCount(), (char*)"1F8D", true );	
+		UpdateMNNodeAssignmentIndex( &objNode, objNodeCollection->getCNNodesCount(), (char*)"1F8D", true );
+	/*BUG FIX #43 - START*/
+	//1c07,1c08,1f22,1f84,1f8e,1f8f to be added
+		UpdateMNNodeAssignmentIndex( &objNode, objNodeCollection->getCNNodesCount(), (char*)"1F8B", true );
+		UpdateMNNodeAssignmentIndex( &objNode, objNodeCollection->getCNNodesCount(), (char*)"1F26", true );
+		UpdateMNNodeAssignmentIndex( &objNode, objNodeCollection->getCNNodesCount(), (char*)"1F27", true );
+		UpdateMNNodeAssignmentIndex( &objNode, objNodeCollection->getCNNodesCount(), (char*)"1C09", true );
+	/*BUG FIX #43 - END*/
+
 /*BUG FIX #41 -END*/
 
-/*BUG #41 -START
-		UpdateMNNodeAssignmentIndex(&objNodeCollection->getMNNode(), objNodeCollection->getCNNodesCount(), (char*)"1F81", true );
+/*BUG #41 - START
+	UpdateMNNodeAssignmentIndex(&objNodeCollection->getMNNode(), objNodeCollection->getCNNodesCount(), (char*)"1F81", true );
         UpdateMNNodeAssignmentIndex(&objNodeCollection->getMNNode(), objNodeCollection->getCNNodesCount(), (char*)"1F92", false );
         UpdateMNNodeAssignmentIndex(&objNodeCollection->getMNNode(), objNodeCollection->getCNNodesCount(), (char*)"1F8D", true );
-BUG #41 -END*/
+BUG #41 - END*/
           
             /*BUG FIX #27 - START*/
                if( YES_AG == stPjtSettings->getGenerateAttr() )
@@ -3797,14 +3881,22 @@ void BRSpecificFormatCdc(CIndexCollection *objIndexCollection, char* Buffer1, FI
         objIndex = objIndexCollection->getIndex(i);
         if(objIndex->getFlagIfIncludedCdc() == TRUE )
         {
-                if(CheckIfMappingPDO((char*)objIndex->getIndexValue()))
-                {
-                TempBuffer1 = new char[CDC_BUFFER];
-                len = strlen(Buffer1);      
-                EnableDisableMappingPDO(objIndexCollection, objIndex, TempBuffer1, false);
-                strcat(Buffer1, TempBuffer1);
-                 delete[] TempBuffer1;
-                 }
+		if(CheckIfMappingPDO((char*)objIndex->getIndexValue()))
+		{
+	/*BUG FIX: #43 STARTS*/
+			//non-Zero values of 00'th subindex are only being disabled.
+			CSubIndex* pobjSubIndex;
+			pobjSubIndex = objIndex->getSubIndexbyIndexValue((char*)"00");
+			if( !checkIfValueZero((char*)pobjSubIndex->getActualValue()) )
+			{
+                		TempBuffer1 = new char[CDC_BUFFER];
+                		len = strlen(Buffer1);      
+                		EnableDisableMappingPDO(objIndexCollection, objIndex, TempBuffer1, false);
+	                	strcat(Buffer1, TempBuffer1);
+                 		delete[] TempBuffer1;
+                 	}
+	/*BUG FIX: #43 ENDS*/
+		}
         }
     }
             // write all objects except pdo
@@ -3873,24 +3965,31 @@ void BRSpecificFormatCdc(CIndexCollection *objIndexCollection, char* Buffer1, FI
                  }
             }           
             //reenable the pdos
-            for(int i=0;i < NumberOfIndexes; i++)
-            {
-                CIndex* objIndex;
-                objIndex = objIndexCollection->getIndex(i);
-                if(objIndex->getFlagIfIncludedCdc() == TRUE )
-                {
-                        if(CheckIfMappingPDO((char*)objIndex->getIndexValue()))
-                        {
-                        TempBuffer1 = new char[CDC_BUFFER];
-                        EnableDisableMappingPDO(objIndexCollection, objIndex, TempBuffer1, true);
-                        strcat(Buffer1, TempBuffer1);
- 
-                         delete[] TempBuffer1;
-                         }
-                }
-            }
-}
+	for(int i=0;i < NumberOfIndexes; i++)
+        {
+		CIndex* objIndex;
+		objIndex = objIndexCollection->getIndex(i);
+		if(objIndex->getFlagIfIncludedCdc() == TRUE )
+		{
+			if(CheckIfMappingPDO((char*)objIndex->getIndexValue()))
+			{
+			/*BUG FIX: #43 STARTS*/
+				//non-Zero values of 00'th subindex are only being enabled.
+				CSubIndex* pobjSubIndex;
+				pobjSubIndex = objIndex->getSubIndexbyIndexValue((char*)"00");
+				if( !checkIfValueZero((char*)pobjSubIndex->getActualValue()) )
+				{
+					TempBuffer1 = new char[CDC_BUFFER];
+					EnableDisableMappingPDO(objIndexCollection, objIndex, TempBuffer1, true);
+					strcat(Buffer1, TempBuffer1);
 
+					delete[] TempBuffer1;
+				}
+			/*BUG FIX: #43 ENDS*/
+			}
+		}
+	}
+}
 /****************************************************************************************************
 * Function Name: ProcessCDT
 * Description: 
@@ -4293,6 +4392,11 @@ ocfmRetCode ProcessPDONodes(bool IsBuild)
 										else
 										{
 										/*Bug #43 Fix: START*/
+											if(0 == strcmp(pobjNoofEntriesSubIndex->getActualValue(),""))
+											{
+												//pdo channel is deactivated. Empty act value
+												continue;
+											}
 											if(checkIfValueZero((char*)pobjNoofEntriesSubIndex->getActualValue()))
 											{
 												// PDO channel is deactivated
@@ -4311,6 +4415,7 @@ ocfmRetCode ProcessPDONodes(bool IsBuild)
 									else
 									{
 										//no of entries index does not exist
+										//00'th index might be deleted.
 										continue;
 									}
 
@@ -4766,6 +4871,11 @@ void CalculatePayload()
 							}
 							else
 							{
+								if(0 == strcmp(pobjNoofEntriesSubIndex->getActualValue(),""))
+								{
+									//pdo channel is deactivated. Empty act value
+									continue;
+								}
 								if(checkIfValueZero((char*)pobjNoofEntriesSubIndex->getActualValue()))
 								{
 									// PDO channel is deactivated
@@ -4808,7 +4918,10 @@ void CalculatePayload()
 							delete [] pcCommIdx;
 							delete [] pcIdx;
 						}
-						while(iSiCount< iSiTotal)
+						/*Bug #43 Fix: START*/
+						//while(iSiCount < iSiTotal)
+						while(iSiCount <= iSiTotal)
+						/*Bug #43 Fix: END*/
 						{
 
 							CSubIndex* pobjSubIdx;
@@ -5335,8 +5448,7 @@ ocfmRetCode GenerateNET(char* pbFileName)
 }
 
 
-/***************************************************************************
-*************************
+/****************************************************************************************************
 * Function Name: GetIndexAttributes
 * Description:
 * Return value: ocfmRetCode
@@ -7107,6 +7219,9 @@ ocfmRetCode GenerateMNOBD(bool IsBuild)
 				pobjIndexCollection = pobjMNNode->getIndexCollection();
 				/*BUG #29 - START*/
 				iMaxNumberOfChannels = pobjIndexCollection->GetMaxPDOCount();
+				#if defined DEBUG
+				cout<<"Max Number Of Channels"<<iMaxNumberOfChannels<<endl;
+				#endif
 				/*BUG #29 - END*/	
 				pobjIndexCollection->DeletePDOs();
 				// Delete Process Image Objects
@@ -7761,7 +7876,9 @@ ocfmRetCode OpenProject(char* pbPjtPath, char* pbProjectXmlFileName)
 				strConvertedValue = _IntToAscii(iNodeID, strConvertedValue, 16);
 				strConvertedValue = padLeft(strConvertedValue, '0', 2);
 				GetSubIndexAttributes( 240, MN, (char*)"1f92", strConvertedValue, ACTUALVALUE, pbPresTimeoutVal );
+				#if defined DEBUG
 				cout<<"Actual Value"<<iNodeID<<pbPresTimeoutVal<<endl;	
+				#endif
 				if( ( ( NULL == pbPresTimeoutVal ) || (strcmp(pbPresTimeoutVal, "") == 0)) || ( !( ValidateCNPresTimeout(strConvertedValue, pbPresTimeoutVal) ) ) )
 				{
 			          calculateCNPollResponse(iNodeID, iNodeType);				//
@@ -10827,10 +10944,22 @@ bool ReactivateMappingPDO(CIndexCollection* pobjIndexCol, CIndex* pobjIndex)
                 {
                     if(0 == strcmp(pobjIndex->getSubIndex(iLoopCount)->getIndexValue(),"00"))
                     {
-                            continue;
+	/*BUG FIX: #43 STARTS*/
+                    	return true;
+						//continue;
+		    }
+                    else//other than 00'th subindex
+                    {
+                    	if( true == IsDefaultActualNotEqual(pobjIndex->getSubIndex(iLoopCount)) )
+                    	{
+                    		return true;
+                    	}
+                    	else
+                    	{
+                    		continue;
+                    	}
+	/*BUG FIX: #43 ENDS*/
                     }
-        
-                    return true;
                 }
             }
         }

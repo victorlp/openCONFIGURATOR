@@ -964,10 +964,13 @@ ocfmRetCode parseFile(char* pbFileName, INT32 iNodeIndex, ENodeType  enumNodeTyp
 		return ex._ocfmRetCode;
 	}
 	/*BUG #29 - START*/
+	if(enumNodeType == MN)
+	{
 	pobjNodeCollection = CNodeCollection::getNodeColObjectPointer();
     objNode = pobjNodeCollection->getNode(enumNodeType, iNodeIndex);
 	pobjIndexCollection = objNode.getIndexCollection();
 	pobjIndexCollection->CalculateMaxPDOCount();
+	}
 	/*BUG #29 - END*/
 	ocfmRetCode ErrStruct;		 
 	ErrStruct.code = OCFM_ERR_SUCCESS;
