@@ -1600,8 +1600,8 @@ void EnableDisableMappingPDO(CIndexCollection* pobjIdxCol, CIndex* objIndex, cha
                                 IfStringDT = false;
                             }
                             else
-                            {           
-                                int len = strlen(objIndex->getActualValue());                           
+                            {
+                                int len = strlen(objSubIndex->getActualValue());                           
                                 size = _IntToAscii(len, size, 16);
                                 size = padLeft(size, '0', 8);
                                 strcat(Buffer, size);   
@@ -1642,12 +1642,17 @@ void EnableDisableMappingPDO(CIndexCollection* pobjIdxCol, CIndex* objIndex, cha
                     }
                     else
                     {
-			char actvalue[20];
+			char actvalue[64];
 			actvalue[0]  = '\0';
 
 			if(IfStringDT)
 			{
+                                strcpy(actvalue, (char*)objSubIndex->getActualValue());
+                                strcpy(actvalue, ConvertStringToHex((char*)actvalue));
+                                strcat(Buffer, actvalue);
+			/*
 				strcat(Buffer,(char*)objSubIndex->getActualValue());
+			*/
 			}
 			else
 			{
@@ -2408,11 +2413,16 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
                         
                             if (objIndex->getActualValue()!=NULL)
                             {   
-                                        char actvalue[20];
+                                        char actvalue[64];
                                         actvalue[0]  = '\0';
                                         if(IfStringDT)
                                         {
-                                            strcat(Buffer,(char*)objIndex->getActualValue());
+						strcpy(actvalue, (char*)objIndex->getActualValue());
+	                                	strcpy(actvalue, ConvertStringToHex((char*)actvalue));
+        	                                strcat(Buffer, actvalue);
+					/*
+						strcat(Buffer,(char*)objIndex->getActualValue());
+					*/
                                         }
                                         else
                                         {
@@ -2435,7 +2445,7 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
                                 }
                             }
                     
-                                    strcat(Buffer,"\n");
+			strcat(Buffer,"\n");
                 }
             }
             /* If Subobjects present*/
@@ -2556,7 +2566,7 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
                                     }
                                     else
                                     {           
-                                        int len = strlen(objIndex->getActualValue());                           
+                                        int len = strlen(objSubIndex->getActualValue());                           
                                         size = _IntToAscii(len, size, 16);
                                         size = padLeft(size, '0', 8);
                                         strcat(Buffer, size);   
@@ -2584,11 +2594,16 @@ void GetIndexData(CIndex* objIndex, char* Buffer)
                                     else
                                     {
                                         
-                                        char actvalue[20];
+                                        char actvalue[64];
                                         actvalue[0]  = '\0';
                                         if(IfStringDT)
                                         {
-                                            strcat(Buffer,(char*)objSubIndex->getActualValue());
+						strcpy(actvalue, (char*)objSubIndex->getActualValue());
+	                                	strcpy(actvalue, ConvertStringToHex((char*)actvalue));
+                                        	strcat(Buffer, actvalue);
+					/*
+						strcat(Buffer,(char*)objSubIndex->getActualValue());
+					*/
                                         }
                                         else
                                         {
@@ -2669,7 +2684,7 @@ void BRSpecificGetIndexData(CIndex* objIndex, char* Buffer, int iNodeId )
                             IfStringDT = false;
                             }
                             else
-                            {           
+                            {
                                 int len = strlen(objIndex->getActualValue());                           
                                 size = _IntToAscii(len, size, 16);
                                 size = padLeft(size, '0', 8);
@@ -2686,11 +2701,16 @@ void BRSpecificGetIndexData(CIndex* objIndex, char* Buffer, int iNodeId )
                         
                     if (objIndex->getActualValue()!=NULL)
                     {   
-                                char actvalue[20];
+                                char actvalue[64];
                                 actvalue[0]  = '\0';
                                 if(IfStringDT)
                                 {
-                                    strcat(Buffer,(char*)objIndex->getActualValue());
+	                                strcpy(actvalue, (char*)objIndex->getActualValue());
+	                                strcpy(actvalue, ConvertStringToHex((char*)actvalue));
+                                	strcat(Buffer, actvalue);
+				/*
+					strcat(Buffer,(char*)objIndex->getActualValue());
+                                */
                                 }
                                 else
                                 {
@@ -2839,7 +2859,7 @@ void BRSpecificGetIndexData(CIndex* objIndex, char* Buffer, int iNodeId )
                                     }
                                     else
                                     {           
-                                        int len = strlen(objIndex->getActualValue());                           
+                                        int len = strlen(objSubIndex->getActualValue());
                                         size = _IntToAscii(len, size, 16);
                                         size = padLeft(size, '0', 8);
                                         strcat(Buffer, size);   
@@ -2867,11 +2887,16 @@ void BRSpecificGetIndexData(CIndex* objIndex, char* Buffer, int iNodeId )
                                     else
                                     {
                                         
-                                        char actvalue[20];
+                                        char actvalue[64];
                                         actvalue[0]  = '\0';
                                         if(IfStringDT)
                                         {
-                                            strcat(Buffer,(char*)objSubIndex->getActualValue());
+						strcpy(actvalue, (char*)objSubIndex->getActualValue());
+	                                	strcpy(actvalue, ConvertStringToHex((char*)actvalue));
+        	                                strcat(Buffer, actvalue);
+					/*	
+						strcat(Buffer,(char*)objSubIndex->getActualValue());
+					*/
                                         }
                                         else
                                         {
@@ -3430,7 +3455,7 @@ INT32 BRSpecificgetCNsTotalIndexSubIndex(INT32 iNodeID)
 ****************************************************************************************************/
 	ocfmRetCode GenerateCDC(char* CDCLocation)
 	{
-		CNode objNode;	
+		CNode objNode, *pobjNode = NULL;	
 		CIndexCollection* objIndexCollection;
 		//ofstream file;
 		char *Buffer1 = NULL;
@@ -3503,6 +3528,36 @@ INT32 BRSpecificgetCNsTotalIndexSubIndex(INT32 iNodeID)
 				{
 				}
 			}
+			else
+			{
+			/* Bug fix #5 -START*/
+				for(INT32 iLoopCount = 0; iLoopCount < objNodeCollection->getNumberOfNodes(); iLoopCount++)
+				{
+					
+					pobjNode = objNodeCollection->getNodebyColIndex(iLoopCount);
+					/* Process PDO Objects for CN*/
+					
+					if (pobjNode->getNodeType() == MN )
+					{
+						objIndexCollection = pobjNode->getIndexCollection();
+						objIndexCollection->DeletePDOs();
+						// Delete Process Image Objects
+						objIndexCollection->DeletePIObjects();
+					}
+					else
+					{
+						if(!(pobjNode->HasPdoObjects()))	
+						{
+							
+							continue;
+						}
+												
+						/* Empty ProcessImage collection*/
+						pobjNode->DeleteCollectionsForPI();
+					}
+				}
+			/* Bug fix #5 -END*/
+			}
 		
 			FILE* fileptr = new FILE();
 			if (( fileptr = fopen(tempFileName,"w+")) == NULL)
@@ -3536,33 +3591,38 @@ INT32 BRSpecificgetCNsTotalIndexSubIndex(INT32 iNodeID)
                                 delete [] pb1F81Data;
                         }
                     }
-/*BUG FIX #41 - START*/
+	
+		/*BUG FIX #41 - START*/
 		objNode = objNodeCollection->getMNNode();
-		UpdateMNNodeAssignmentIndex( &objNode, objNodeCollection->getCNNodesCount(), (char*)"1F81", true );
-		UpdateMNNodeAssignmentIndex( &objNode, objNodeCollection->getCNNodesCount(), (char*)"1F92", false );
-		UpdateMNNodeAssignmentIndex( &objNode, objNodeCollection->getCNNodesCount(), (char*)"1F8D", true );
-	/*BUG FIX #43 - START*/
-	//1c07,1c08,1f22,1f84,1f8e,1f8f to be added
-		UpdateMNNodeAssignmentIndex( &objNode, objNodeCollection->getCNNodesCount(), (char*)"1F8B", true );
-		UpdateMNNodeAssignmentIndex( &objNode, objNodeCollection->getCNNodesCount(), (char*)"1F26", true );
-		UpdateMNNodeAssignmentIndex( &objNode, objNodeCollection->getCNNodesCount(), (char*)"1F27", true );
-		UpdateMNNodeAssignmentIndex( &objNode, objNodeCollection->getCNNodesCount(), (char*)"1C09", true );
-	/*BUG FIX #43 - END*/
+		INT32 iCNsCount = 0;
+		iCNsCount = objNodeCollection->getCNNodesCount();
+		UpdateMNNodeAssignmentIndex( &objNode, iCNsCount, (char*)"1F81", true );
+		UpdateMNNodeAssignmentIndex( &objNode, iCNsCount, (char*)"1F92", false );
+		UpdateMNNodeAssignmentIndex( &objNode, iCNsCount, (char*)"1F8D", true );
+		/*BUG FIX #43 - START*/
+		//1c07,1c08,1f22,1f84,1f8e,1f8f to be added
+		UpdateMNNodeAssignmentIndex( &objNode, iCNsCount, (char*)"1F8B", true );
+		UpdateMNNodeAssignmentIndex( &objNode, iCNsCount, (char*)"1F26", true );
+		UpdateMNNodeAssignmentIndex( &objNode, iCNsCount, (char*)"1F27", true );
+		UpdateMNNodeAssignmentIndex( &objNode, iCNsCount, (char*)"1C09", true );
+		/*BUG FIX #43 - END*/
 
-/*BUG FIX #41 -END*/
-
-/*BUG #41 - START
+	/*BUG FIX #41 -END*/
+	/*BUG #41 - START
 	UpdateMNNodeAssignmentIndex(&objNodeCollection->getMNNode(), objNodeCollection->getCNNodesCount(), (char*)"1F81", true );
         UpdateMNNodeAssignmentIndex(&objNodeCollection->getMNNode(), objNodeCollection->getCNNodesCount(), (char*)"1F92", false );
         UpdateMNNodeAssignmentIndex(&objNodeCollection->getMNNode(), objNodeCollection->getCNNodesCount(), (char*)"1F8D", true );
-BUG #41 - END*/
-          
-            /*BUG FIX #27 - START*/
-               if( YES_AG == stPjtSettings->getGenerateAttr() )
-				{	
+	BUG #41 - END*/
+		/*BUG FIX #27 - START*/
+         	 if( YES_AG == stPjtSettings->getGenerateAttr() )
+		{
+            	
                 	CalculatePayload();
-				} 
-            /*BUG FIX #27 -END*/
+		}
+		else
+		{
+		}
+		  /*BUG FIX #27 -END*/
 
 				//Buffer1 = (char*)malloc(CDC_BUFFER);
 				Buffer1 = new char[CDC_BUFFER];
@@ -10657,8 +10717,12 @@ void UpdateMNNodeAssignmentIndex(CNode *pobjNode, INT32 CNsCount, char* pcIndex,
                 INT32 iNodePos;
                 bool bFlag = false;
                 retCode = IfNodeExists(iNodeidValue, iNodeType, &iNodePos, bFlag);
-                if(OCFM_ERR_SUCCESS == retCode.code && true == bFlag && ((CN == iNodeType) || (true == allowMNSubindex)) )
+                CPjtSettings* stPjtSettings;
+		stPjtSettings = CPjtSettings::getPjtSettingsPtr();
+	
+                if(OCFM_ERR_SUCCESS == retCode.code && true == bFlag && ((CN == iNodeType) || (true == allowMNSubindex)) && (stPjtSettings->getGenerateAttr() == YES_AG) )
                 {
+                	//continue
                 }
                 else
                 {

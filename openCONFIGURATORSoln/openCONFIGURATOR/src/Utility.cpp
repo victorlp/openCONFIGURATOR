@@ -396,7 +396,29 @@ bool CheckBlockedMNIndexes(char* pbIndexValue)
 		return false;
 	}
 }
-
+/* Bug Fix #1 - START*/
+/**************************************************************************************************
+* Function Name: ConvertStringToHex
+* Description: Converts the string to hexadecimal for strings of string Datatype
+* Return value: char*
+***************************************************************************************************/
+char* ConvertStringToHex(char* actString)
+{
+	INT32 len = strlen(actString);
+	char* actStringBuffer = new char[len];
+	char* tempbufHex = new char[len*2];
+	strcpy(actStringBuffer, "");
+	strcpy(actStringBuffer, (char*)actString);
+	strcpy(actString, "");
+	strcpy(tempbufHex, "");
+	for(INT32 iloopCntr = 0; iloopCntr < len; iloopCntr++)
+	{
+	    sprintf(tempbufHex, "%X", actStringBuffer[iloopCntr]);
+	    strcat(actString, (char*)tempbufHex);
+	}
+	return actString;
+}
+/* Bug Fix #1 - END*/
 /**************************************************************************************************
 * Function Name: ConvertToHexformat
 * Description: 

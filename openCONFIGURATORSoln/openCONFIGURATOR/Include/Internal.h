@@ -289,4 +289,7 @@ void ResetAllSubIndexFlag(CIndex *pobjIndex);
 ocfmRetCode SetSubIndexAttributesByAttribute(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID, char* pbSubIndexID, EAttributeType enumAttributeType, char* pbInAttributeValue);
 void SetBuildTime();
 const char* GetBuildTime();
+/* Bug Fix #1 - START*/
+char* ConvertStringToHex(char* actString);
+/* Bug Fix #1 - END*/
 #endif // internal_h
