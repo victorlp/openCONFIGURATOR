@@ -10720,7 +10720,7 @@ void UpdateMNNodeAssignmentIndex(CNode *pobjNode, INT32 CNsCount, char* pcIndex,
                 CPjtSettings* stPjtSettings;
 		stPjtSettings = CPjtSettings::getPjtSettingsPtr();
 	
-                if(OCFM_ERR_SUCCESS == retCode.code && true == bFlag && ((CN == iNodeType) || (true == allowMNSubindex)) && (stPjtSettings->getGenerateAttr() == YES_AG) )
+                if(OCFM_ERR_SUCCESS == retCode.code && true == bFlag && ((CN == iNodeType) || (true == allowMNSubindex)) && ( (stPjtSettings->getGenerateAttr() == YES_AG) || (false == allowMNSubindex) ) )
                 {
                 	//continue
                 }
