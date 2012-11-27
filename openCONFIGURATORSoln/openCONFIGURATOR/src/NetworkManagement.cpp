@@ -72,6 +72,7 @@
 
 CNetworkManagement::CNetworkManagement(void)
 {	
+	m_MaxPDOCount = 0;
 }
 
 CNetworkManagement::~CNetworkManagement(void)
@@ -165,3 +166,30 @@ void CNetworkManagement::DeleteFeatureCollections()
         FeatureCollection.Clear();
     }
 }
+/*BUG #29 - START*/
+/****************************************************************************************************
+* Function Name: CIndexCollection::GetMaxPDOCount
+* Description:
+* Return value: INT32
+****************************************************************************************************/
+INT32 CNetworkManagement::GetMaxPDOCount() 
+{
+	return m_MaxPDOCount;
+}
+/****************************************************************************************************
+* Function Name: CIndexCollection::CalculateMaxPDOCount
+* Description:
+* Return value: void
+****************************************************************************************************/
+void CNetworkManagement::CalculateMaxPDOCount() 
+{	
+	m_MaxPDOCount = 0;
+	char* pbMaxPDOCount = new char[3];
+	char* featureName = new char[20];
+	strcpy(featureName, "PDOTPDOChannels");
+	strcpy(pbMaxPDOCount, getFeatureValue(MN_FEATURES, featureName));
+	m_MaxPDOCount = atoi((char*)pbMaxPDOCount);
+	delete [] pbMaxPDOCount;
+	delete [] featureName;
+}
+/*BUG #29 - END*/

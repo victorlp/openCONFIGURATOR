@@ -765,7 +765,7 @@ void processNode(xmlTextReaderPtr pxtrReader, ENodeType enumNodeType, INT32 iNod
 		//If the NodeTYPE is ELEMENT
 		if( xmlTextReaderNodeType(pxtrReader) == TRUE)
 		{
-			if(!strcmp(((char*)pxcName),"defType"))
+			if(!strcmp(((char*)pxcName), "defType"))
 			{
 				pobjNodeCollection= CNodeCollection::getNodeColObjectPointer();
 				CDataTypeCollection* pobjDataTypeCollection;			
@@ -782,7 +782,7 @@ void processNode(xmlTextReaderPtr pxtrReader, ENodeType enumNodeType, INT32 iNod
 				pobjDataTypeCollection = pobjNode->getDataTypeCollection();
 				pobjDataTypeCollection->addDataType(objDataType);
 			}
-			else if(!strcmp(((char*)pxcName),"parameter"))
+			else if(!strcmp(((char*)pxcName), "parameter"))
 			{
 				pobjNodeCollection = CNodeCollection::getNodeColObjectPointer();	
 				CApplicationProcess* pobjApplicationProcess;				
@@ -801,7 +801,7 @@ void processNode(xmlTextReaderPtr pxtrReader, ENodeType enumNodeType, INT32 iNod
 				pobjApplicationProcess = pobjNode->getApplicationProcess();
 				pobjApplicationProcess->addParameter(stParameter);
 			}
-			else if(!strcmp(((char*)pxcName),"struct"))
+			else if(!strcmp(((char*)pxcName), "struct"))
 			{
 				pobjNodeCollection= CNodeCollection::getNodeColObjectPointer();	
 				CApplicationProcess* pobjApplicationProcess;		
@@ -822,7 +822,7 @@ void processNode(xmlTextReaderPtr pxtrReader, ENodeType enumNodeType, INT32 iNod
 				pobjApplicationProcess = pobjNode->getApplicationProcess();
 				pobjApplicationProcess->addComplexDataType(objCDT);				
 			}
-			else if(!strcmp(((char*)pxcName),"Object"))
+			else if(!strcmp(((char*)pxcName), "Object"))
 			{
 				pobjNodeCollection = CNodeCollection::getNodeColObjectPointer();
 				CIndexCollection* pobjIndexCollection;
@@ -850,7 +850,7 @@ void processNode(xmlTextReaderPtr pxtrReader, ENodeType enumNodeType, INT32 iNod
 				pobjIndexCollection->addIndex(objIndex);				
 				LastIndexParsed = pobjIndexCollection->getNumberofIndexes()-1;		
 			}
-			else if(!strcmp(((char*)pxcName),"SubObject"))
+			else if(!strcmp(((char*)pxcName), "SubObject"))
 			{
 				pobjNodeCollection = CNodeCollection::getNodeColObjectPointer();
 				CIndexCollection* pobjIndexCollection;
@@ -873,9 +873,9 @@ void processNode(xmlTextReaderPtr pxtrReader, ENodeType enumNodeType, INT32 iNod
 				pobjIndexPtr		= pobjIndexCollection->getIndex(LastIndexParsed);
 				pobjIndexPtr->addSubIndex(objSubIndex);
 			}
-			else if((!strcmp(((char*)pxcName),"GeneralFeatures")) || 
-					(!strcmp(((char*)pxcName),"MNFeatures")) || 
-					(!strcmp(((char*)pxcName),"CNFeatures")))
+			else if((!strcmp(((char*)pxcName), "GeneralFeatures")) || 
+					(!strcmp(((char*)pxcName), "MNFeatures")) || 
+					(!strcmp(((char*)pxcName), "CNFeatures")))
 			{
 				pobjNodeCollection= CNodeCollection::getNodeColObjectPointer();	
 				CNetworkManagement* pobjNwManagement;									
@@ -884,15 +884,15 @@ void processNode(xmlTextReaderPtr pxtrReader, ENodeType enumNodeType, INT32 iNod
 
 				pobjNode = pobjNodeCollection->getNodePtr(enumNodeType, iNodeIndex);	
 				
-				if(!strcmp(((char*)pxcName),"GeneralFeatures"))
+				if(!strcmp(((char*)pxcName), "GeneralFeatures"))
 				{
 					eFeatureType = GENERAL_FEATURES;					
 				}
-				else if(!strcmp(((char*)pxcName),"MNFeatures"))
+				else if(!strcmp(((char*)pxcName), "MNFeatures"))
 				{
 					eFeatureType = MN_FEATURES;
 				}
-				else if(!strcmp(((char*)pxcName),"CNFeatures"))
+				else if(!strcmp(((char*)pxcName), "CNFeatures"))
 				{
 					eFeatureType = CN_FEATURES;
 				}
@@ -927,11 +927,7 @@ ocfmRetCode parseFile(char* pbFileName, INT32 iNodeIndex, ENodeType  enumNodeTyp
 {
     xmlTextReaderPtr pxtrReader;
     INT32 iRetVal;
-    /*BUG #29 - START*/
-    CNode objNode;
-    CNodeCollection *pobjNodeCollection;
-	CIndexCollection *pobjIndexCollection;
-	/*BUG #29 - END*/
+    
     pxtrReader = xmlReaderForFile(pbFileName, NULL, 0);
     try
     {
@@ -940,7 +936,7 @@ ocfmRetCode parseFile(char* pbFileName, INT32 iNodeIndex, ENodeType  enumNodeTyp
 			iRetVal = xmlTextReaderRead(pxtrReader);
 			while (iRetVal == 1)
 			{		
-				processNode(pxtrReader,enumNodeType, iNodeIndex);
+				processNode(pxtrReader, enumNodeType, iNodeIndex);
 				iRetVal = xmlTextReaderRead(pxtrReader);
 			}
             xmlFreeTextReader(pxtrReader);
@@ -966,10 +962,17 @@ ocfmRetCode parseFile(char* pbFileName, INT32 iNodeIndex, ENodeType  enumNodeTyp
 	/*BUG #29 - START*/
 	if(enumNodeType == MN)
 	{
-	pobjNodeCollection = CNodeCollection::getNodeColObjectPointer();
-    objNode = pobjNodeCollection->getNode(enumNodeType, iNodeIndex);
-	pobjIndexCollection = objNode.getIndexCollection();
-	pobjIndexCollection->CalculateMaxPDOCount();
+		CNode objNode;
+		CNodeCollection *pobjNodeCollection;
+		CNetworkManagement *pobjNwManagement;
+		//CIndexCollection *pobjIndexCollection;
+		pobjNodeCollection = CNodeCollection::getNodeColObjectPointer();
+		objNode = pobjNodeCollection->getNode(enumNodeType, iNodeIndex);
+		//pobjIndexCollection = objNode.getIndexCollection();
+		//pobjIndexCollection->CalculateMaxPDOCount();
+
+		pobjNwManagement = objNode.getNetworkManagement();
+		pobjNwManagement->CalculateMaxPDOCount();
 	}
 	/*BUG #29 - END*/
 	ocfmRetCode ErrStruct;		 

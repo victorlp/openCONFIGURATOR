@@ -170,16 +170,16 @@ void CIndexCollection::DeletePDOs()
 * Description:
 * Return value: INT32
 ****************************************************************************************************/
-INT32 CIndexCollection::GetMaxPDOCount() 
-{
-	return m_MaxPDOCount;
-}
+//INT32 CIndexCollection::GetMaxPDOCount() 
+//{
+//	return m_MaxPDOCount;
+//}
 /****************************************************************************************************
 * Function Name: CIndexCollection::CalculateMaxPDOCount
 * Description:
 * Return value: void
 ****************************************************************************************************/
-void CIndexCollection::CalculateMaxPDOCount() 
+/*void CIndexCollection::CalculateMaxPDOCount() 
 {
 	INT32 iLoopCount;
 	char* substr= new char[3];
@@ -199,7 +199,7 @@ void CIndexCollection::CalculateMaxPDOCount()
 		{
 		}		
 	}
-}
+}*/
 		
 /*BUG #29 - END*/
 /****************************************************************************************************
@@ -257,7 +257,6 @@ CIndex* CIndexCollection::getIndexbyIndexValue(char* pbIndex)
 	}		
 	return NULL;
 }
-	
 /****************************************************************************************************
 * Function Name: CIndexCollection::getNumberofIndexes
 * Description:
@@ -267,5 +266,4 @@ int CIndexCollection::getNumberofIndexes()
 {
 	return m_IndexCount;
 }
-
 
