@@ -176,11 +176,11 @@ void GroupInOutPIVariables(ProcessImage aobjPIInCol[], ProcessImage aobjPIOutCol
 	}
 }
 
-// /****************************************************************************************************
-// * Function Name: GroupNETPIVariables
-// * Description:
-// * Return value: void
-// ****************************************************************************************************/
+/****************************************************************************************************
+* Function Name: GroupNETPIVariables
+* Description:
+* Return value: void
+****************************************************************************************************/
 INT32 GroupNETPIVariables( EPIDirectionType DirectionType, NETProcessImage aobjPICol[])
 {
 	CNodeCollection* pobjNodeCol = NULL;
@@ -452,26 +452,32 @@ void GenerateXAPHeaderFile(char* pbFileName, ProcessImage objPIInCol[], ProcessI
 		throw ex;
 	}
 	delete[] pcComment;
-	/*BUG #6 - START*/
 	//write include guard for the headerfile
 	char* pbXapHeaderIncludeGuard  = new char[strlen(INCLUDE_GUARD_CHECK) + strlen(INCLUDE_GUARD_START) + ALLOC_BUFFER];
+	if(NULL == pbXapHeaderIncludeGuard)
+	{
+		#if defined DEBUG
+		cout<<"Memory allocation error"<<endl;
+		#endif
+		
+		ocfmException ex;
+		ex.ocfm_Excpetion(OCFM_ERR_MEMORY_ALLOCATION_ERROR);
+		throw ex;
+	}
 	strcpy(pbXapHeaderIncludeGuard, INCLUDE_GUARD_CHECK);
 	strcat(pbXapHeaderIncludeGuard, "\n");
 	strcat(pbXapHeaderIncludeGuard, INCLUDE_GUARD_START);
 	strcat(pbXapHeaderIncludeGuard, "\n\n");
 	uiStrLength = strlen(pbXapHeaderIncludeGuard);
 	
-	if( ( uiStrLength != fwrite( pbXapHeaderIncludeGuard, sizeof(char), uiStrLength, fpXapFile ) ) )
+	if((uiStrLength != fwrite(pbXapHeaderIncludeGuard, sizeof(char), uiStrLength, fpXapFile)))
 	{
 		ocfmException ex;
 		ex.ocfm_Excpetion(OCFM_ERR_FILE_CANNOT_OPEN);
 		throw ex;
 	}
-	else
-	{
-	}
+
 	delete[] pbXapHeaderIncludeGuard;
-	/*BUG #6 - END*/
 	/* write Input structure */
 	if(iInVar !=0)
 	{			
@@ -481,44 +487,45 @@ void GenerateXAPHeaderFile(char* pbFileName, ProcessImage objPIInCol[], ProcessI
 	fclose(fpXapFile);
 	
 	/* write Output structure */
-	if ( NULL == ( fpXapFile = fopen(pbXapFileName,"a+") ) )
+	if (NULL == (fpXapFile = fopen(pbXapFileName,"a+")))
 	{
 		ocfmException ex;
 		ex.ocfm_Excpetion(OCFM_ERR_CANNOT_OPEN_FILE);
 		delete [] pbXapFileName;
 		throw ex;
 	}
-	else
-	{
-	}
+
 	
-	if( iOutVar != 0 )
+	if(0 != iOutVar)
 	{
 		WriteXAPHeaderContents(objPIOutCol, iOutVar, OUTPUT, fpXapFile ); 
 	}
-	else
-	{
-	}
+
 	delete [] pbXapFileName;
-	/*BUG #6 - START*/
 	//close include guard for the XAP header file
 	 pbXapHeaderIncludeGuard  = new char[strlen(INCLUDE_GUARD_END) + ALLOC_BUFFER];
+	 if(NULL == pbXapHeaderIncludeGuard)
+	 {
+		#if defined DEBUG
+		cout<<"Memory allocation error"<<endl;
+		#endif
+		
+		ocfmException ex;
+		ex.ocfm_Excpetion(OCFM_ERR_MEMORY_ALLOCATION_ERROR);
+		throw ex;
+	 }
 	 strcpy(pbXapHeaderIncludeGuard, "\n");
 	 strcat(pbXapHeaderIncludeGuard, INCLUDE_GUARD_END);
 	uiStrLength =  strlen(pbXapHeaderIncludeGuard);	
-	if( ( uiStrLength != fwrite( pbXapHeaderIncludeGuard, sizeof(char), uiStrLength, fpXapFile ) ) )
+	if((uiStrLength != fwrite(pbXapHeaderIncludeGuard, sizeof(char), uiStrLength, fpXapFile)))
 	{
 		ocfmException ex;
 		ex.ocfm_Excpetion(OCFM_ERR_FILE_CANNOT_OPEN);
 		throw ex;
 	}
-	else
-	{
-	}
 	
 	fclose(fpXapFile);
 	delete[] pbXapHeaderIncludeGuard;
-	/*BUG #6 - END*/
 }
 
 /****************************************************************************************************
@@ -1212,9 +1219,7 @@ PIObject getPIAddress(PDODataType dt,  EPIDirectionType dirType, int iOffset, in
 				int div = subIndex / 254;
 				int mod = subIndex % 254;
 				int iAddress;
-				/* PATCH For BUG #11 - START */
 				iAddress = hex2int(AddressTable[i].Address);
-				/* PATCH For BUG #11 - END */
 				iAddress = iAddress + div;
 				stPIObject.Index  = _IntToAscii(iAddress, stPIObject.Index, 16);								
 				stPIObject.SubIndex =  _IntToAscii(mod, 	stPIObject.SubIndex, 16);
@@ -1245,23 +1250,15 @@ char* getPIDataTypeName(char* pbAddress)
 	PDODataType dt;
 	for(INT32 iLoopCount = 0; iLoopCount < NO_OF_PI_ENTERIES; iLoopCount++)
 	{		
-		/* PATCH For BUG #18 - START */
-		if(strcmp(AddressTable[iLoopCount].Address,  pbAddress) == 0)
+		if(strcmp(AddressTable[iLoopCount].Address, pbAddress) == 0)
 		{
 			dt = AddressTable[iLoopCount].dt;
 		}		
-		/* PATCH For BUG #18 - END */
-			/* PATCH For BUG #11 and 12 - START */
-		else if(strcmp(AddressTable[iLoopCount].Address,  pbAddress) > 0)
+		else if(0 < strcmp(AddressTable[iLoopCount].Address, pbAddress))
 		{
-			 dt = (iLoopCount > 0) ? AddressTable[iLoopCount - 1].dt : static_cast<PDODataType>(-1);
+			 dt = (0 < iLoopCount) ? AddressTable[iLoopCount - 1].dt : static_cast<PDODataType>(-1);
 		}
-		else
-		{
-			// TODO:
-		}	
 			switch(dt)
-			/* PATCH For BUG #11 and 12 - END */
 			{
 				case UNSIGNED8 :
 				{
@@ -1316,23 +1313,16 @@ char* getPIName(char* pbAddress)
 	PDODataType dt;
 	for(INT32 iLoopCount = 0; iLoopCount < NO_OF_PI_ENTERIES; iLoopCount++)
 	{		
-		/* PATCH For BUG #18 - START */
 		if(strcmp(AddressTable[iLoopCount].Address,  pbAddress) == 0)
 		{
 			dt = AddressTable[iLoopCount].dt;
-		}		
-		/* PATCH For BUG #18 - END */		
-			/* PATCH For BUG #11 and 12 - START */
-		else if( strcmp(AddressTable[iLoopCount].Address,  pbAddress) > 0 )
-		{
-			 dt = (iLoopCount > 0) ? AddressTable[iLoopCount - 1].dt : static_cast<PDODataType>(-1);
 		}
-		else
+		else if(0 < strcmp(AddressTable[iLoopCount].Address,  pbAddress))
 		{
-			// TODO:
-		}	
+			 dt = (0 < iLoopCount) ? AddressTable[iLoopCount - 1].dt : static_cast<PDODataType>(-1);
+		}
+
 		switch(dt)
-		/* PATCH For BUG #11 and 12 - END */
 		{
 			case UNSIGNED8 :
 			{
@@ -1383,19 +1373,7 @@ char* getPIName(char* pbAddress)
 ****************************************************************************************************/
 bool CheckIfProcessImageIdx(char* pbIndex)
 {
-	/* PATCH For BUG #12 - START */
-	return ( (strcmp(pbIndex, "A000") >= 0 ) && ( strcmp(pbIndex, "AFFF") <= 0 ) );
-	/* PATCH For BUG #12 - END */	
-
-/*
-	for(INT32 iLoopCount = 0; iLoopCount< NO_OF_PI_ENTERIES; iLoopCount++)
-	{		
-		if(!strcmp(AddressTable[iLoopCount].Address,  pbIndex))
-		{
-			return true;
-		}
-	}
-	return false; */
+	return ( (0 <= strcmp(pbIndex, "A000")) && (0 >= strcmp(pbIndex, "AFFF")));
 }
 
 /**************************************************************************************************
@@ -1424,11 +1402,11 @@ INT32 SearchModuleNameNETProcessImageCollection(int CNNodeID, INT32 iItemLoopCou
 	return -1;
 }
 
-// /**************************************************************************************************
-// * Function Name: CopyPItoNETPICollection
-// * Description: 
-// * Return value: void
-// ****************************************************************************************************/
+/**************************************************************************************************
+* Function Name: CopyPItoNETPICollection
+* Description: 
+* Return value: void
+****************************************************************************************************/
 void CopyPItoNETPICollection(ProcessImage objProcessImage, NETProcessImage objNETProcessImage, char* ModuleName)
 {
 	CNodeCollection* pobjNodeCol = NULL;
@@ -1458,7 +1436,11 @@ void CopyPItoNETPICollection(ProcessImage objProcessImage, NETProcessImage objNE
 
 	objNode->addNETProcessImage(objNETProcessImage);
 }
-
+/**************************************************************************************************
+* Function Name: GetDatatypeNETPI
+* Description: 
+* Return value: char*
+****************************************************************************************************/
 char* GetDatatypeNETPI(IEC_Datatype dt_enum)
 {
     char* pcDTNetString;
@@ -1524,7 +1506,11 @@ char* GetDatatypeNETPI(IEC_Datatype dt_enum)
     }
     return pcDTNetString;
 }
-
+/**************************************************************************************************
+* Function Name: GetDatasizeNETPI
+* Description: 
+* Return value: int
+****************************************************************************************************/
 int GetDatasizeNETPI(IEC_Datatype dt_enum)
 {
     int iDSNetString = 0;

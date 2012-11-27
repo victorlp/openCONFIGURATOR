@@ -92,13 +92,11 @@ class DllExport CNetworkManagement
 	public:		
 		TCollection<Feature> FeatureCollection;	
 	private:
-		int	m_NodeID;
-		/*BUG #29 - START*/
-		int m_MaxPDOCount;
+		INT32 m_NodeID;
+		INT32 m_MaxPDOCount;
 	public:
-		int GetMaxPDOCount();
-		void  CalculateMaxPDOCount();
-		/*BUG #29 - END*/
+		INT32 getMaxPDOCount();
+		void  calculateMaxPDOCount();
 		void addFeature(Feature  stfeature);
 		int getNodeID();
 		void setNodeID(int NodeID);

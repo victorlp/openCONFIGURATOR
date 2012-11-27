@@ -64,7 +64,7 @@ SWG                 =   swig
 CPP                 =   c++
 
 GCC                 =   g++ 
-TCL_INCLUDE_FILE    =   /usr/include/tcl8.4
+TCL_INCLUDE_FILE    =   /usr/include/tcl8.5
 INDEPENDENT         =   fPIC
 SHARE               =   shared
 SYSTEM              =   isystem

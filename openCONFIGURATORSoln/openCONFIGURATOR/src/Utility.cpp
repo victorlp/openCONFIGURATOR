@@ -396,7 +396,6 @@ bool CheckBlockedMNIndexes(char* pbIndexValue)
 		return false;
 	}
 }
-/* Bug Fix #1 - START*/
 /**************************************************************************************************
 * Function Name: ConvertStringToHex
 * Description: Converts the string to hexadecimal for strings of string Datatype
@@ -404,21 +403,43 @@ bool CheckBlockedMNIndexes(char* pbIndexValue)
 ***************************************************************************************************/
 char* ConvertStringToHex(char* actString)
 {
-	INT32 len = strlen(actString);
-	char* actStringBuffer = new char[len];
-	char* tempbufHex = new char[len*2];
+	INT32 ilen = 0;
+	actString = NULL;
+	if(NULL == actString)
+	{
+		#if defined DEBUG
+		cout<<"Memory allocation error"<<endl;
+		#endif
+		
+		ocfmException ex;
+		ex.ocfm_Excpetion(OCFM_ERR_MEMORY_ALLOCATION_ERROR);
+		throw ex;
+	}
+	ilen = strlen(actString);
+	char* actStringBuffer = new char[ilen+1];
+	char* tempbufHex = new char[(ilen*2)+1];
+	if(( NULL == actStringBuffer ) || ( NULL == tempbufHex ))
+	{
+		#if defined DEBUG
+		cout<<"Memory allocation error"<<endl;
+		#endif
+		
+		ocfmException ex;
+		ex.ocfm_Excpetion(OCFM_ERR_MEMORY_ALLOCATION_ERROR);
+		throw ex;
+	}
 	strcpy(actStringBuffer, "");
 	strcpy(actStringBuffer, (char*)actString);
 	strcpy(actString, "");
-	strcpy(tempbufHex, "");
-	for(INT32 iloopCntr = 0; iloopCntr < len; iloopCntr++)
+	for(INT32 iloopCntr = 0; iloopCntr < ilen; iloopCntr++)
 	{
 	    sprintf(tempbufHex, "%X", actStringBuffer[iloopCntr]);
 	    strcat(actString, (char*)tempbufHex);
 	}
+	delete[] actStringBuffer;
+	delete[] tempbufHex;
 	return actString;
 }
-/* Bug Fix #1 - END*/
 /**************************************************************************************************
 * Function Name: ConvertToHexformat
 * Description: 

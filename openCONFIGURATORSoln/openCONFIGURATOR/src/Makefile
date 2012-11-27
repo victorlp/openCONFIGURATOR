@@ -62,9 +62,8 @@
 
 
 GCC	=	g++ 
-FLAGS	=	-fPIC -shared `xml2-config --cflags` `xml2-config --libs`  
+FLAGS	=	-Wall -fPIC -shared `xml2-config --cflags` `xml2-config --libs`  
 
-#BUG FIX #42
 LINKERFLAGS	=	-lxml -lm
 
 INCLUDE	= 	../Include
@@ -94,7 +93,6 @@ $(TARGET):	$(OBJECTS)
 	
 
 %.o: %.cpp
-		#BUG FIX #42
 		$(GCC) $(FLAGS) -I $(INCLUDE) -c $< $(LINKERFLAGS)
 		@echo 'Finished building: $<'
 

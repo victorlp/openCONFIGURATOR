@@ -515,7 +515,7 @@ ocfmRetCode CNode::setForcedCycle(char* pbForcedCycle)
 {	
 
 	//add or update 1f9b
-	ocfmRetCode stErrorInfo, stErrorResult, stErrorInfoMN, stErrorInfoCN;
+	ocfmRetCode stErrorResult, stErrorInfoMN, stErrorInfoCN;
 	int IndexPos;
     int subIndexPos;
 	
@@ -570,7 +570,6 @@ ocfmRetCode CNode::setForcedCycle(char* pbForcedCycle)
 
     char* subIndName = new char[50];
     subIndName[0] = 0;
-    INT32 iCNsubIndFlag = 0;
 
     GetSubIndexAttributes(240, MN, acMultiCycleAssignObj, strConvertedValue, NAME, subIndName);
     SetSubIndexAttributes(240, MN, acMultiCycleAssignObj, strConvertedValue, pbForcedCycle, subIndName, TRUE);
@@ -656,7 +655,6 @@ void CNode::setPollResponseTimeout(char* pbPollResponseTimeout)
     
     char* subIndName = new char[50];
     subIndName[0] = 0;
-    INT32 iCNsubIndFlag = 0;
 	
     GetSubIndexAttributes(240, MN, acMNCNPollresponseTimeoutObj, strConvertedValue, NAME, subIndName);
     SetSubIndexAttributes(MN_NODEID, MN, acMNCNPollresponseTimeoutObj, strConvertedValue, pbPollResponseTimeout, subIndName, TRUE);

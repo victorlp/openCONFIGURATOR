@@ -256,6 +256,9 @@ void ocfmException::ocfm_Excpetion(EConfiuguratorErrors enumErrcode)
     	case OCFM_ERR_INVALID_TXT_FOR_CDC:
 				strcpy(_ocfmRetCode.errorString, "The text file as the input for cdc, is incorrectly formatted");
                 break;
+		case OCFM_ERR_MEMORY_ALLOCATION_ERROR:
+				strcpy(_ocfmRetCode.errorString, "Memory Allocation error, Try restarting the application");
+                break;
 		default:
 				strcpy(_ocfmRetCode.errorString, "Unhandled Error");
 				break;

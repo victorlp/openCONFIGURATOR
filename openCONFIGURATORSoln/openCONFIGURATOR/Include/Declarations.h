@@ -155,8 +155,8 @@ typedef enum
 typedef enum 
 {
 	GENERAL_FEATURES = 0,
-	MN_FEATURES,
-	CN_FEATURES
+	MN_FEATURES = 1,
+	CN_FEATURES = 2
 }EFeatureType;
 
 typedef enum
@@ -212,10 +212,10 @@ struct DataType
 
 typedef struct appProcessCommon
 {
-	char*						m_Name;
-	char*						UniqueId;
-	char*						dataType;
-	char*						dataTypeUniqueIDRef;
+	char*	m_Name;
+	char*	UniqueId;
+	char*	dataType;
+	char*	dataTypeUniqueIDRef;
 
 	char* getUniqueID()
 	{
@@ -367,21 +367,20 @@ typedef enum
 ****************************************************************************************************/
 DllExport ocfmRetCode ImportXML(char* fileName, int NodeID, ENodeType NodeType);
 DllExport ocfmRetCode ReImportXML(char* fileName, int NodeID, ENodeType NodeType);
-
 DllExport ocfmRetCode GenerateXAP(char* fileName);
 DllExport ocfmRetCode GenerateCDC(char* CDCLocation);
 DllExport ocfmRetCode GenerateNET(char* pbFileName);
-
 DllExport ocfmRetCode CreateNode(int NodeID, ENodeType NodeType, char* NodeName);
 DllExport ocfmRetCode parseFile(char* filename, int NodeID, ENodeType  NodeType);
 DllExport ocfmRetCode DeleteNode(int NodeID, ENodeType NodeType);
 DllExport ocfmRetCode DeleteNodeObjDict(int NodeID, ENodeType NodeType);
-
 DllExport ocfmRetCode DeleteIndex(int NodeID, ENodeType NodeType, char* IndexID);
 DllExport ocfmRetCode DeleteSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID);
 DllExport ocfmRetCode AddIndex(int NodeID, ENodeType NodeType, char* IndexID);
 DllExport ocfmRetCode AddSubIndex(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID);
+
 DllExport ocfmRetCode SetIndexAttributes(int NodeID, ENodeType NodeType, char* IndexID, char* IndexValue, char* IndexName, EFlag flagIfInCdc);
+
 DllExport ocfmRetCode SetSubIndexAttributes(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID, char* IndexValue, char* IndexName, EFlag flagIfInCdc);
 
 //$S Test API. Should be deleted in the release code
@@ -390,24 +389,24 @@ DllExport void DisplayNodeTree(void);
 DllExport ocfmRetCode IfNodeExists(int NodeID, ENodeType NodeType, int* NodePos, bool& ExistfFlag);
 DllExport ocfmRetCode IfIndexExists(int NodeID, ENodeType NodeType, char* IndexID, int* IndexPos);
 DllExport ocfmRetCode IfSubIndexExists(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID, int* SubIndexPos, int* IndexPos);
-
 DllExport ocfmRetCode GetIndexAttributes(int NodeID, ENodeType NodeType, char* IndexID, EAttributeType AttributeType, char* Out_AttributeValue);
+
 DllExport ocfmRetCode GetSubIndexAttributes(int NodeID, ENodeType NodeType, char* IndexID, char* SubIndexID, EAttributeType AttributeType, char* Out_AttributeValue);
+
 DllExport ocfmRetCode GetNodeCount(int MNID, int* Out_NodeCount);
 DllExport ocfmRetCode GetIndexCount(int NodeID, ENodeType NodeType, int* Out_IndexCount);
 DllExport ocfmRetCode GetSubIndexCount(int NodeID, ENodeType NodeType, char* IndexID, int* Out_SubIndexCount);
 
 DllExport ocfmRetCode GetNodeAttributesbyNodePos(int NodePos, int* Out_NodeID, char* Out_NodeName, EStationType *Out_eStationType, char* Out_ForcedCycle, bool* bForcedCycleFlag);
+
 DllExport ocfmRetCode GetIndexIDbyIndexPos(int NodeID, ENodeType NodeType, int IndexPos, char* Out_IndexID);
 DllExport ocfmRetCode GetSubIndexIDbySubIndexPos(int NodeID, ENodeType NodeType, char* IndexID, int SubIndexPos, char* Out_SubIndexID);
-
 DllExport ocfmRetCode GetIndexIDbyPositions(int NodePos, int IndexPos, char* Out_IndexID);
 DllExport ocfmRetCode GetSubIndexIDbyPositions(int NodePos, int IndexPos, int SubIndexPos, char* Out_SubIndexID);
-
 DllExport ocfmRetCode GetIndexAttributesbyPositions(int NodePos, int IndexPos, EAttributeType AttributeType, char* Out_AttributeValue);
 DllExport ocfmRetCode GetSubIndexAttributesbyPositions(int NodePos, int IndexPos, int SubIndexPos, EAttributeType AttributeType, char* Out_AttributeValue);
-DllExport void LoadObjectDictionary(char* fileName);
 
+DllExport void LoadObjectDictionary(char* fileName);
 DllExport ocfmRetCode SaveNode(const char* fileName, int NodeID, ENodeType NodeType);
 DllExport ocfmRetCode SaveProject(char* ProjectPath, char* ProjectName);
 DllExport ocfmRetCode OpenProject(char* PjtPath, char* projectXmlFileName);
@@ -427,7 +426,9 @@ DllExport ocfmRetCode SetAllSubIndexAttributes(int NodeID, ENodeType NodeType,
 												char* pdoMappingVal, char* defaultValue, char* highLimit,
 												char* lowLimit, char* objType, EFlag flagIfIncludedInCdc);
 DllExport ocfmRetCode GetFeatureValue(INT32 iNodeId, ENodeType eNodeType, EFeatureType eFeatureType, char* FeatureName, char* Out_FeatureValue);
+
 DllExport ocfmRetCode UpdateNodeParams(INT32 iCurrNodeId, INT32 iNewNodeID, ENodeType eNodeType, char* NodeName, EStationType eStationType, char* ForcedCycle , bool ForcedCycleFlag, char* PollResponseTimeout); 
+
 DllExport ocfmRetCode GetNodeDataTypes(INT32 iNodeId, ENodeType eNodeType, char* Out_DataTypes);
 DllExport ocfmRetCode NewProjectNode(INT32 iNodeID, ENodeType enumNodeType, char* pbNodeName, char * pbImportXmlFile);
 #pragma warning( disable: 4251 )

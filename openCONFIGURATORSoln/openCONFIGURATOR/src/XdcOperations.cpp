@@ -959,22 +959,45 @@ ocfmRetCode parseFile(char* pbFileName, INT32 iNodeIndex, ENodeType  enumNodeTyp
 		DeleteNodeObjDict(iNodeIndex, enumNodeType);
 		return ex._ocfmRetCode;
 	}
-	/*BUG #29 - START*/
-	if(enumNodeType == MN)
+	try
 	{
-		CNode objNode;
-		CNodeCollection *pobjNodeCollection;
-		CNetworkManagement *pobjNwManagement;
-		//CIndexCollection *pobjIndexCollection;
-		pobjNodeCollection = CNodeCollection::getNodeColObjectPointer();
-		objNode = pobjNodeCollection->getNode(enumNodeType, iNodeIndex);
-		//pobjIndexCollection = objNode.getIndexCollection();
-		//pobjIndexCollection->CalculateMaxPDOCount();
-
-		pobjNwManagement = objNode.getNetworkManagement();
-		pobjNwManagement->CalculateMaxPDOCount();
+		if(enumNodeType == MN)
+		{
+			ocfmException objException;
+			CNode objNode;
+			CNodeCollection *pobjNodeCollection = NULL;
+			CNetworkManagement *pobjNwManagement = NULL;
+			pobjNodeCollection = CNodeCollection::getNodeColObjectPointer();
+			if( NULL == pobjNodeCollection)
+			{
+				#if defined DEBUG
+					cout<<"Memory allocation error"<<endl;
+				#endif
+		
+				ocfmException ex;
+				ex.ocfm_Excpetion(OCFM_ERR_MEMORY_ALLOCATION_ERROR);
+				throw ex;
+			}
+			objNode = pobjNodeCollection->getNode(enumNodeType, iNodeIndex);
+			pobjNwManagement = objNode.getNetworkManagement();
+			if( NULL == pobjNwManagement)
+			{
+				#if defined DEBUG
+					cout<<"Memory allocation error"<<endl;
+				#endif
+		
+				ocfmException ex;
+				ex.ocfm_Excpetion(OCFM_ERR_MEMORY_ALLOCATION_ERROR);
+				throw ex;
+			}
+			pobjNwManagement->calculateMaxPDOCount();
+			return objException._ocfmRetCode;
+		}
 	}
-	/*BUG #29 - END*/
+	catch(ocfmException& ex)
+	{
+		return ex._ocfmRetCode;
+	}
 	ocfmRetCode ErrStruct;		 
 	ErrStruct.code = OCFM_ERR_SUCCESS;
 	return ErrStruct;
@@ -996,35 +1019,50 @@ ocfmRetCode ReImportXML(char* pbFileName, INT32 iNodeID, ENodeType enumNodeType)
 		if(ErrStruct.code == 0 && bFlag == true)
 		{
 			CNode objNode;
-			CNodeCollection *pobjNodeCollection;
-			CIndexCollection *pobjIndexCollection;
-			CDataTypeCollection *pobjDataTypeCollection;
+			CNodeCollection *pobjNodeCollection = NULL;
+			CIndexCollection *pobjIndexCollection = NULL;
+			CDataTypeCollection *pobjDataTypeCollection = NULL;
 			CIndex objIndex;
-            CNetworkManagement *pobjNetworkManagement;
-            /*Bug #4 - START*/
-            CApplicationProcess *pobjApplicationProcess;
-			/*Bug #4 - END*/
+            CNetworkManagement *pobjNetworkManagement = NULL;
+            CApplicationProcess *pobjApplicationProcess = NULL;
 			objIndex.setNodeID(objNode.getNodeId());
 			pobjNodeCollection= CNodeCollection::getNodeColObjectPointer();
+			if(NULL == pobjNodeCollection)
+			{
+				#if defined DEBUG
+					cout<<"Memory allocation error"<<endl;
+				#endif
+		
+				ocfmException ex;
+				ex.ocfm_Excpetion(OCFM_ERR_MEMORY_ALLOCATION_ERROR);
+				throw ex;
+			}
 			objNode = pobjNodeCollection->getNode(enumNodeType, iNodeID);
 			
 			pobjDataTypeCollection = objNode.getDataTypeCollection();
 
 			pobjIndexCollection = objNode.getIndexCollection();
             pobjNetworkManagement = objNode.getNetworkManagement();
-            /*Bug #4 - START*/
             pobjApplicationProcess = objNode.getApplicationProcess();
-			/*Bug #4 - END*/
+			if((NULL == pobjApplicationProcess) || (NULL == pobjIndexCollection) || (NULL == pobjNetworkManagement) || (NULL == pobjDataTypeCollection))
+			{
+				#if defined DEBUG
+					cout<<"Memory allocation error"<<endl;
+				#endif
+		
+				ocfmException ex;
+				ex.ocfm_Excpetion(OCFM_ERR_MEMORY_ALLOCATION_ERROR);
+				throw ex;
+			}
 			// Delete IndexCollection
 			pobjIndexCollection->DeleteIndexCollection();
 			// Delete DataTypeCollection
 			pobjDataTypeCollection->DeleteDataTypeCollection();
             //Delete Network management collectionObj
             pobjNetworkManagement->DeleteFeatureCollections();
-			/*Bug #4 - START*/
 			//Delete ComplexDataTypeCollection
-			pobjApplicationProcess->DeleteComplexDataTypeCollection();		
-			/*Bug #4 - END*/
+			pobjApplicationProcess->DeleteComplexDataTypeCollection();
+			
 			ErrStruct = parseFile(pbFileName, iNodeID, enumNodeType);
 			if(ErrStruct.code != OCFM_ERR_SUCCESS)
 			{

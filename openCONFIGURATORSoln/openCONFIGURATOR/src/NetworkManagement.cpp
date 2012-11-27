@@ -166,30 +166,41 @@ void CNetworkManagement::DeleteFeatureCollections()
         FeatureCollection.Clear();
     }
 }
-/*BUG #29 - START*/
 /****************************************************************************************************
-* Function Name: CIndexCollection::GetMaxPDOCount
+* Function Name: CIndexCollection::getMaxPDOCount
 * Description:
 * Return value: INT32
 ****************************************************************************************************/
-INT32 CNetworkManagement::GetMaxPDOCount() 
+INT32 CNetworkManagement::getMaxPDOCount() 
 {
 	return m_MaxPDOCount;
 }
 /****************************************************************************************************
-* Function Name: CIndexCollection::CalculateMaxPDOCount
+* Function Name: CIndexCollection::calculateMaxPDOCount
 * Description:
 * Return value: void
 ****************************************************************************************************/
-void CNetworkManagement::CalculateMaxPDOCount() 
+void CNetworkManagement::calculateMaxPDOCount() 
 {	
-	m_MaxPDOCount = 0;
 	char* pbMaxPDOCount = new char[3];
 	char* featureName = new char[20];
-	strcpy(featureName, "PDOTPDOChannels");
-	strcpy(pbMaxPDOCount, getFeatureValue(MN_FEATURES, featureName));
-	m_MaxPDOCount = atoi((char*)pbMaxPDOCount);
-	delete [] pbMaxPDOCount;
-	delete [] featureName;
+	m_MaxPDOCount = 0;
+	if(( NULL == pbMaxPDOCount ) || ( NULL == featureName ))
+	{
+		#if defined DEBUG
+		cout<<"Memory allocation error"<<endl;
+		#endif
+		
+		ocfmException ex;
+		ex.ocfm_Excpetion(OCFM_ERR_MEMORY_ALLOCATION_ERROR);
+		throw ex;
+	}
+	else
+	{
+		strcpy(featureName, "PDOTPDOChannels");
+		strcpy(pbMaxPDOCount, getFeatureValue(MN_FEATURES, featureName));
+		m_MaxPDOCount = atoi((char*)pbMaxPDOCount);
+		delete [] pbMaxPDOCount;
+		delete [] featureName;
+	}
 }
-/*BUG #29 - END*/
