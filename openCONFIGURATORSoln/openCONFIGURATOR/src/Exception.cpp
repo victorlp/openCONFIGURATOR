@@ -241,26 +241,29 @@ void ocfmException::ocfm_Excpetion(EConfiuguratorErrors enumErrcode)
 		case OCFM_ERR_MAX_PI_SIZE:
 				strcpy(_ocfmRetCode.errorString, "MAX PI Size(4064 bytes) crossed");
 				break;
-        case OCFM_ERR_INVALID_UPPERLOWER_LIMITS:
-                strcpy(_ocfmRetCode.errorString, "Invalid upper and lower limits");
-                break;
-        case OCFM_ERR_LOW_CNPRESTIMEOUT:
-                strcpy(_ocfmRetCode.errorString, "Value is less than minimum value of CN PresTimeout");
-                break;
-        case OCFM_ERR_CN_EXCEEDS_CROSS_TRAFFIC_STN:
-        		strcpy(_ocfmRetCode.errorString, "CN Exceeds Cross Traffic Station");
-                break;
-    	case OCFM_ERR_EXCESS_CHANNEL:
-    			strcpy(_ocfmRetCode.errorString, "The number of Channels has exceeded than the defined value for the MN");
-                break;
-    	case OCFM_ERR_INVALID_TXT_FOR_CDC:
+		case OCFM_ERR_INVALID_UPPERLOWER_LIMITS:
+				strcpy(_ocfmRetCode.errorString, "Invalid upper and lower limits");
+				break;
+		case OCFM_ERR_LOW_CNPRESTIMEOUT:
+				strcpy(_ocfmRetCode.errorString, "Value is less than minimum value of CN PresTimeout");
+				break;
+		case OCFM_ERR_CN_EXCEEDS_CROSS_TRAFFIC_STN:
+				strcpy(_ocfmRetCode.errorString, "CN Exceeds Cross Traffic Station");
+				break;
+		case OCFM_ERR_EXCESS_CHANNEL:
+				strcpy(_ocfmRetCode.errorString, "The number of Channels has exceeded than the defined value for the MN");
+				break;
+		case OCFM_ERR_INVALID_TXT_FOR_CDC:
 				strcpy(_ocfmRetCode.errorString, "The text file as the input for cdc, is incorrectly formatted");
-                break;
+				break;
 		case OCFM_ERR_MEMORY_ALLOCATION_ERROR:
 				strcpy(_ocfmRetCode.errorString, "Memory Allocation error, Try restarting the application");
-                break;
-		default:
-				strcpy(_ocfmRetCode.errorString, "Unhandled Error");
 				break;
+		case OCFM_ERR_EXCEEDS_MAX_TPDO_CHANNELS:
+				strcpy(_ocfmRetCode.errorString, "Number of TPDO channels exceeded, Reduce the value PDOTPDOChannels in MN xdd");
+				break;
+		default:
+			strcpy(_ocfmRetCode.errorString, "Unhandled Error");
+			break;
 	}
 }

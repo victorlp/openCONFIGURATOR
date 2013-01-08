@@ -79,9 +79,9 @@
 ************************************************************************************************/
 typedef enum
 {
-	OCFM_ERR_SUCCESS					= 0,
+	OCFM_ERR_SUCCESS	= 0,
 	OCFM_ERR_FILE_NOT_PRESENT, /*1*/
-	OCFM_ERR_FILE_CANNOT_OPEN,		/*2*/	
+	OCFM_ERR_FILE_CANNOT_OPEN, /*2*/	
 	OCFM_ERR_INVALID_NODEID, /*3*/
 	OCFM_ERR_INVALID_NODEPOS,/*4*/
 	OCFM_ERR_INVALID_NODETYPE,/*5*/
@@ -124,13 +124,15 @@ typedef enum
 	OCFM_ERR_XAP_FILE_NOT_WRITTEN,/*42*/	
 	OCFM_ERR_MAX_PI_SIZE,/*43*/
 	OCFM_ERR_UNKNOWN,	/*44*/
-    OCFM_ERR_MULTIPLEX_ASSIGN_ERROR, /*45*/
+	OCFM_ERR_MULTIPLEX_ASSIGN_ERROR, /*45*/
 	OCFM_ERR_INVALID_UPPERLOWER_LIMITS, /*46*/
-    OCFM_ERR_LOW_CNPRESTIMEOUT, /*47*/
-    OCFM_ERR_CN_EXCEEDS_CROSS_TRAFFIC_STN, /*48*/
-    OCFM_ERR_EXCESS_CHANNEL,	/*49*/
-    OCFM_ERR_INVALID_TXT_FOR_CDC, /*50*/
-	OCFM_ERR_MEMORY_ALLOCATION_ERROR /*51*/
+	OCFM_ERR_LOW_CNPRESTIMEOUT, /*47*/
+	OCFM_ERR_CN_EXCEEDS_CROSS_TRAFFIC_STN, /*48*/
+	OCFM_ERR_EXCESS_CHANNEL,	/*49*/
+	OCFM_ERR_INVALID_TXT_FOR_CDC, /*50*/
+	OCFM_ERR_MEMORY_ALLOCATION_ERROR, /*51*/
+	OCFM_ERR_EXCEEDS_MAX_TPDO_CHANNELS /*52*/
+	
 }EConfiuguratorErrors;
 
 /************************************************************************************************
@@ -138,8 +140,8 @@ typedef enum
 ************************************************************************************************/
 DllExport typedef  struct ocfmRetCode
 {
-	EConfiuguratorErrors				code;/* Error code from EConfiuguratorErrors*/
-	char*		errorString; /* String Describes the error */				
+	EConfiuguratorErrors	code;		/* Error code from EConfiuguratorErrors*/
+	char*			errorString; 	/* String Describes the error */				
 }ocfmRetCode;
 
 typedef struct ocfmRetValError

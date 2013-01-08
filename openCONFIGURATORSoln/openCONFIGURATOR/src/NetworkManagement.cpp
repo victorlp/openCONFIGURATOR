@@ -153,7 +153,7 @@ Feature* CNetworkManagement::getFeature(UINT32 uiCount)
 	return &FeatureCollection[uiCount];
 }
 
-/********************
+/**************************************************************************************************
 * Function Name: CNetworkManagement::DeleteNetworkManagementCollections
 * Description: 
 * Return value: void
@@ -177,12 +177,12 @@ INT32 CNetworkManagement::getMaxPDOCount()
 }
 /****************************************************************************************************
 * Function Name: CIndexCollection::calculateMaxPDOCount
-* Description:
+* Description: calculates the PDO count from the PDOTPDOChannels parameter in MN xdd and m_MaxPDOCount is updated with that specified value
 * Return value: void
 ****************************************************************************************************/
 void CNetworkManagement::calculateMaxPDOCount() 
 {	
-	char* pbMaxPDOCount = new char[3];
+	char* pbMaxPDOCount = new char[5];
 	char* featureName = new char[20];
 	m_MaxPDOCount = 0;
 	if(( NULL == pbMaxPDOCount ) || ( NULL == featureName ))
@@ -200,7 +200,15 @@ void CNetworkManagement::calculateMaxPDOCount()
 		strcpy(featureName, "PDOTPDOChannels");
 		strcpy(pbMaxPDOCount, getFeatureValue(MN_FEATURES, featureName));
 		m_MaxPDOCount = atoi((char*)pbMaxPDOCount);
-		delete [] pbMaxPDOCount;
-		delete [] featureName;
+		//check is made for the validating the value in MN xdd. 
+		//Min value = 0; Maxvalue = 256 (EPSG specification)
+		if(m_MaxPDOCount > 256)
+		{
+			ocfmException ex;
+			ex.ocfm_Excpetion(OCFM_ERR_EXCEEDS_MAX_TPDO_CHANNELS);
+			throw ex;
+		}
 	}
+	delete [] pbMaxPDOCount;
+	delete [] featureName;
 }
