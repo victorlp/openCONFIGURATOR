@@ -63,12 +63,14 @@ TCL                 =   tcl
 SWG                 =   swig
 CPP                 =   c++
 
-GCC                 =   g++ 
+GCC                 =   g++
 TCL_INCLUDE_FILE    =   /usr/include/tcl8.5
 INDEPENDENT         =   fPIC
 SHARE               =   shared
 SYSTEM              =   isystem
 XMLFLAGS 	    =	`xml2-config --cflags` `xml2-config --libs`
+
+LINKERFLAGS	    =	-lxml2 -lm
 
 SWIGFILE	    =	openconfiguratorWrapper
 SO_SOURCE	    =	/usr/lib/openCONFIGURATOR.so
@@ -87,7 +89,7 @@ create:
 
 
 compile:
-	$(GCC) -$(INDEPENDENT) -$(SHARE) -$(SYSTEM) $(TCL_INCLUDE_FILE) $(XMLFLAGS) $(WRAP_SOURCE) $(SO_SOURCE) -o $(WRAP_OUTPUT)
+	$(GCC) -$(INDEPENDENT) -$(SHARE) -$(SYSTEM) $(TCL_INCLUDE_FILE) $(XMLFLAGS) $(WRAP_SOURCE) $(SO_SOURCE) -o $(WRAP_OUTPUT) $(LINKERFLAGS)
 	@echo 'Finished compiling wrapper: $(WRAP_OUTPUT)'
 
 clean:

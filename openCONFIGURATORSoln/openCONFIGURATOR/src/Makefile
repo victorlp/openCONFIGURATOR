@@ -61,10 +61,10 @@
 ####################################################################################################
 
 
-GCC	=	g++ 
+GCC	=	g++
 FLAGS	=	-Wall -fPIC -shared `xml2-config --cflags` `xml2-config --libs`  
 
-LINKERFLAGS	=	-lxml -lm
+LINKERFLAGS	=	-lxml2 -lm
 
 INCLUDE	= 	../Include
 TARGET	= 	openCONFIGURATOR.so
