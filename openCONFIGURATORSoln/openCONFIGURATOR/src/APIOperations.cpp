@@ -2171,7 +2171,7 @@ void UpdateCNVisibleNode(CNode*  pobjNode) throw(ocfmException)
 	CIndex *pobjIndex, *pobjCommIndex;
 	CSubIndex *pobjEntriesSubIndex, *pobjNodeIDSubIndex;
 	char *pcIdx;
-	char *pcCommIdx = new char[INDEX_SIZE+1];
+	char *pcCommIdx = new char[INDEX_LEN];
 	char *pcMappedNodeId;
 
 	int iCrossStnCnt = 0;
@@ -4451,7 +4451,7 @@ ocfmRetCode ProcessPDONodes(bool IsBuild)
 								  CIndex *pobjCommIndex;
 								  CSubIndex *pobjNodeIDSubIndex;
 								  char *pcIdx = subString((char *)objIndex.getIndexValue(), 2, 4);
-								  char *pcCommIdx = new char[INDEX_SIZE];
+								  char *pcCommIdx = new char[INDEX_LEN];
 								  strcpy(pcCommIdx, (char *)"14");
 								  strcat(pcCommIdx, pcIdx);
 								  pobjCommIndex = pobjIndexCollection->getIndexbyIndexValue(pcCommIdx);
@@ -4932,7 +4932,7 @@ void CalculatePayload()
 							CIndex *pobjCommIndex;
 							CSubIndex *pobjNodeIDSubIndex;
 							char *pcIdx = subString((char *)objIndex.getIndexValue(), 2, 4);
-							char *pcCommIdx = new char[INDEX_SIZE];
+							char *pcCommIdx = new char[INDEX_LEN];
 							strcpy(pcCommIdx, (char *)"14");
 							strcat(pcCommIdx, pcIdx);
 							pobjCommIndex = pobjIndexCollection->getIndexbyIndexValue(pcCommIdx);
@@ -9636,7 +9636,7 @@ void setPresMNNodeAssigmentBits()
 				CIndex *pobjCommIndex;
 				CSubIndex *pobjNodeIDSubIndex;
 				char *pcIdx = subString((char *)pobjIndex->getIndexValue(), 2, 4);
-				char *pcCommIdx = new char[INDEX_SIZE];
+				char *pcCommIdx = new char[INDEX_LEN];
 				strcpy(pcCommIdx, (char *)"18");
 				strcat(pcCommIdx, pcIdx);
 				pobjCommIndex = pobjIndexCollection->getIndexbyIndexValue(pcCommIdx);
