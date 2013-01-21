@@ -457,7 +457,7 @@ void GenerateXAPHeaderFile(char* pbFileName, ProcessImage objPIInCol[], ProcessI
 	if(NULL == pbXapHeaderIncludeGuard)
 	{
 		#if defined DEBUG
-		cout<<"Memory allocation error"<<endl;
+		cout<<"Memory allocation error"<<__FUNCTION__<<endl;
 		#endif
 		
 		ocfmException ex;
@@ -507,7 +507,7 @@ void GenerateXAPHeaderFile(char* pbFileName, ProcessImage objPIInCol[], ProcessI
 	 if(NULL == pbXapHeaderIncludeGuard)
 	 {
 		#if defined DEBUG
-		cout<<"Memory allocation error"<<endl;
+		cout<<"Memory allocation error"<<__FUNCTION__<<endl;
 		#endif
 		
 		ocfmException ex;

@@ -156,7 +156,15 @@ void CApplicationProcess::addParameter(Parameter  stParam)
 	stParam.ParaIndex = iItemPosition;
 	ParameterCollection[iItemPosition] = stParam;			
 }
- 
+/****************************************************************************************************
+* Function Name: CApplicationProcess::Deleteparametercollection
+* Description:
+* Return value: void
+****************************************************************************************************/
+void CApplicationProcess::DeleteParameterCollection()
+{
+	ParameterCollection.Clear();
+}
 /****************************************************************************************************
 * Function Name: CApplicationProcess::get_ParameterIndexby_UniqueIDRef
 * Description:

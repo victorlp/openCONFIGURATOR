@@ -86,7 +86,7 @@ class DllExport CNodeCollection
 		CNodeCollection(void);
 		~CNodeCollection(void);
 
-		private:
+	private:
 		TCollection<CNode> collectionObj;
 		int m_NodeCount;
 		static bool instanceFlag;

@@ -196,7 +196,7 @@ struct DataType
 {
 	char*		Name;
 	char*		DataTypeValue;
-	int				DataSize;
+	int		DataSize;
 	IEC_Datatype IEC_dt;
 	char* getName()
 	{

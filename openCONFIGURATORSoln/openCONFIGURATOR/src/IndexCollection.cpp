@@ -114,7 +114,7 @@ void CIndexCollection::addIndex(CIndex objIndex)
 		objIndex.setPDOType(PDO_TPDO);		
 	}
 	collectionObj[iItemPosition] = objIndex;
-	m_IndexCount= collectionObj.Count();
+	m_IndexCount = collectionObj.Count();
 }
 	
 /****************************************************************************************************
@@ -148,10 +148,9 @@ void CIndexCollection::DeletePDOs()
 {
 	int iLoopCount;
 	char* substr= new char[3];
-	
+	CIndex objIndex;
 	for(iLoopCount =0; iLoopCount < m_IndexCount; iLoopCount++)
 	{
-		CIndex objIndex;
 		objIndex = collectionObj[iLoopCount];
 		substr = subString((char*)objIndex.getIndexValue(), 0, 2);
 		if(strcmp(substr, "1A")==0 || strcmp(substr, "1a")==0 ||
@@ -162,7 +161,8 @@ void CIndexCollection::DeletePDOs()
 			m_IndexCount = collectionObj.Count();
 			iLoopCount = 0;
 		}		
-	}		
+	}
+	delete [] substr;
 }
 
 /****************************************************************************************************
@@ -174,19 +174,19 @@ void CIndexCollection::DeletePIObjects()
 {
 	int iLoopCount;
 	char* substr= new char[2];
-	
+	CIndex objIndex;
 	for(iLoopCount =0; iLoopCount < m_IndexCount; iLoopCount++)
 	{
-		CIndex objIndex;
 		objIndex = collectionObj[iLoopCount];
-			substr = subString((char*)objIndex.getIndexValue(), 0, 1);
+		substr = subString((char*)objIndex.getIndexValue(), 0, 1);
 		if(strcmp(substr,"A")==0  ||  strcmp(substr,"a")==0 )
 		{
 			collectionObj.Remove(iLoopCount);
 			m_IndexCount = collectionObj.Count();
 			iLoopCount = 0;
 		}		
-	}		
+	}
+	delete [] substr;
 }
 	
 /****************************************************************************************************
@@ -207,11 +207,9 @@ CIndex* CIndexCollection::getIndex(int iCount)
 CIndex* CIndexCollection::getIndexbyIndexValue(char* pbIndex)
 {
 	INT32 iLoopCount;
-	
+	CIndex objIndex;
 	for(iLoopCount =0; iLoopCount < m_IndexCount; iLoopCount++)
 	{
-		CIndex objIndex;
-		
 		objIndex = collectionObj[iLoopCount];
 		if(strcmp(StringToUpper((char*)objIndex.getIndexValue()),StringToUpper(pbIndex)) == 0)
 		{

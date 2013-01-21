@@ -3240,6 +3240,26 @@ fail:
 
 
 SWIGINTERN int
+_wrap_CApplicationProcess_DeleteParameterCollection(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+  CApplicationProcess *arg1 = (CApplicationProcess *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  
+  if (SWIG_GetArgs(interp, objc, objv,"o:CApplicationProcess_DeleteParameterCollection self ",(void *)0) == TCL_ERROR) SWIG_fail;
+  res1 = SWIG_ConvertPtr(objv[1], &argp1,SWIGTYPE_p_CApplicationProcess, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "CApplicationProcess_DeleteParameterCollection" "', argument " "1"" of type '" "CApplicationProcess *""'"); 
+  }
+  arg1 = reinterpret_cast< CApplicationProcess * >(argp1);
+  (arg1)->DeleteParameterCollection();
+  
+  return TCL_OK;
+fail:
+  return TCL_ERROR;
+}
+
+
+SWIGINTERN int
 _wrap_CApplicationProcess_ParseXDDfile(ClientData clientData SWIGUNUSED, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
   CApplicationProcess *arg1 = (CApplicationProcess *) 0 ;
   char *arg2 = (char *) 0 ;
@@ -3683,6 +3703,7 @@ delete arg1;
 }
 static swig_method swig_CApplicationProcess_methods[] = {
     {"DeleteComplexDataTypeCollection", _wrap_CApplicationProcess_DeleteComplexDataTypeCollection}, 
+    {"DeleteParameterCollection", _wrap_CApplicationProcess_DeleteParameterCollection}, 
     {"ParseXDDfile", _wrap_CApplicationProcess_ParseXDDfile}, 
     {"checkFileStatus", _wrap_CApplicationProcess_checkFileStatus}, 
     {"addComplexDataType", _wrap_CApplicationProcess_addComplexDataType}, 
@@ -12160,6 +12181,7 @@ static swig_command_info swig_commands[] = {
     { SWIG_prefix "CApplicationProcess_ParameterCollection_set", (swig_wrapper_func) _wrap_CApplicationProcess_ParameterCollection_set, NULL},
     { SWIG_prefix "CApplicationProcess_ParameterCollection_get", (swig_wrapper_func) _wrap_CApplicationProcess_ParameterCollection_get, NULL},
     { SWIG_prefix "CApplicationProcess_DeleteComplexDataTypeCollection", (swig_wrapper_func) _wrap_CApplicationProcess_DeleteComplexDataTypeCollection, NULL},
+    { SWIG_prefix "CApplicationProcess_DeleteParameterCollection", (swig_wrapper_func) _wrap_CApplicationProcess_DeleteParameterCollection, NULL},
     { SWIG_prefix "CApplicationProcess_ParseXDDfile", (swig_wrapper_func) _wrap_CApplicationProcess_ParseXDDfile, NULL},
     { SWIG_prefix "CApplicationProcess_checkFileStatus", (swig_wrapper_func) _wrap_CApplicationProcess_checkFileStatus, NULL},
     { SWIG_prefix "CApplicationProcess_addComplexDataType", (swig_wrapper_func) _wrap_CApplicationProcess_addComplexDataType, NULL},
@@ -13090,6 +13112,7 @@ SWIGEXPORT int SWIG_init(Tcl_Interp *interp) {
   SWIG_Tcl_SetConstantObj(interp, "OCFM_ERR_CN_EXCEEDS_CROSS_TRAFFIC_STN", SWIG_From_int(static_cast< int >(OCFM_ERR_CN_EXCEEDS_CROSS_TRAFFIC_STN)));
   SWIG_Tcl_SetConstantObj(interp, "OCFM_ERR_EXCESS_CHANNEL", SWIG_From_int(static_cast< int >(OCFM_ERR_EXCESS_CHANNEL)));
   SWIG_Tcl_SetConstantObj(interp, "OCFM_ERR_INVALID_TXT_FOR_CDC", SWIG_From_int(static_cast< int >(OCFM_ERR_INVALID_TXT_FOR_CDC)));
+  SWIG_Tcl_SetConstantObj(interp, "OCFM_ERR_MEMORY_ALLOCATION_ERROR", SWIG_From_int(static_cast< int >(OCFM_ERR_MEMORY_ALLOCATION_ERROR)));
   SWIG_Tcl_SetConstantObj(interp, "MN_NODEID", SWIG_From_int(static_cast< int >(240)));
   SWIG_Tcl_SetConstantObj(interp, "BROADCAST_NODEID", SWIG_From_int(static_cast< int >(0)));
   SWIG_Tcl_SetConstantObj(interp, "OFFSET_FIRST_INDEX_IN_MN_OBD", SWIG_From_int(static_cast< int >(4)));

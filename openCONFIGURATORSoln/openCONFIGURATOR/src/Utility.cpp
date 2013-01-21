@@ -262,7 +262,7 @@ char *_IntToAscii(long iValue, char *pbDigits, int iBaseValue)
 ***************************************************************************************************/
 unsigned long hex2int(char *pbStrBuffer)
 {
-    UINT32 uiLoopCount;
+    UINT32 uiLoopCount = 0;
     UINT32 uiValue = 0;
     UINT32 uiStrLen = strlen(pbStrBuffer);
 				
@@ -404,7 +404,7 @@ bool CheckBlockedMNIndexes(char* pbIndexValue)
 char* ConvertStringToHex(char* actString)
 {
 	INT32 ilen = 0;
-	actString = NULL;
+
 	if(NULL == actString)
 	{
 		#if defined DEBUG

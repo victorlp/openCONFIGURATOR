@@ -435,13 +435,13 @@ DataType CBaseIndex::getDataType ()
 ****************************************************************************************************/
 void CBaseIndex::setDataType(char* pbDataTypeName)
 {	
-	DataType* pobjDataType;
-	CNodeCollection* pobjNodeCol;
-	CDataTypeCollection* pobjDataCol;
-
+	DataType* pobjDataType = NULL;
+	CNodeCollection* pobjNodeCol = NULL;
+	CDataTypeCollection* pobjDataCol = NULL;
+	CNode objNode;
 	pobjNodeCol		= CNodeCollection::getNodeColObjectPointer();
-	CNode objNode 	= pobjNodeCol->getNode(m_NodeID);
-	pobjDataCol		= objNode.getDataTypeCollection();
+	objNode = pobjNodeCol->getNode(m_NodeID);
+	pobjDataCol	= objNode.getDataTypeCollection();
 	pobjDataType 	= pobjDataCol->getDataType(pbDataTypeName);
 
 	if(pobjDataType != NULL)
@@ -457,9 +457,9 @@ void CBaseIndex::setDataType(char* pbDataTypeName)
 ****************************************************************************************************/
 void CBaseIndex::setDataType(char* pbDataTypeName, int iNodeID)
 {	
-	DataType* pobjDataType;
-	CNodeCollection* pobjNodeCol;
-	CDataTypeCollection* pobjDataCol;
+	DataType* pobjDataType = NULL;
+	CNodeCollection* pobjNodeCol = NULL;
+	CDataTypeCollection* pobjDataCol = NULL;
 
 	pobjNodeCol		= CNodeCollection::getNodeColObjectPointer();
 	CNode objNode 	= pobjNodeCol->getNode(iNodeID);

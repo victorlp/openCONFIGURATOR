@@ -477,7 +477,6 @@ ocfmRetCode DeleteNode(INT32 iNodeID, ENodeType enumNodeType)
 	CNode objNode;		
 	CNodeCollection *pobjNodeCollection;
 	pobjNodeCollection= CNodeCollection::getNodeColObjectPointer();	
-	pobjNodeCollection = CNodeCollection::getNodeColObjectPointer();
         objNode = pobjNodeCollection->getNodebyCollectionIndex(iNodePos);
 
         char* cSIdx = new char[SUBINDEX_LEN];
@@ -510,14 +509,14 @@ ocfmRetCode DeleteNode(INT32 iNodeID, ENodeType enumNodeType)
 		delete[] cSIdx;
 		return stErrorInfo;		
 }
-	
+
 /****************************************************************************************************
 * Function Name: DeleteIndex
 * Description: Deletes the Index after performing check for Index Existanse
 * Return value: ocfmRetCode
 ****************************************************************************************************/
 ocfmRetCode DeleteIndex(INT32 iNodeID, ENodeType enumNodeType, char* pIndexID)
-	{
+{
 		
 		INT32 iIndexPos;
 		try
@@ -719,7 +718,11 @@ ocfmRetCode AddSubIndex(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID, 
 			return ex._ocfmRetCode;
 		}
 	}	
-
+/****************************************************************************************************
+* Function Name: AddSubobject
+* Description:
+* Return value: ocfmRetCode
+****************************************************************************************************/
 ocfmRetCode AddSubobject(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID)
 {
     ocfmRetCode stErrorInfo;
@@ -785,7 +788,11 @@ ocfmRetCode AddSubobject(INT32 iNodeID, ENodeType enumNodeType, char* pbIndexID)
         return ex._ocfmRetCode;
     }
 }
-
+/****************************************************************************************************
+* Function Name: getIndexName
+* Description:
+* Return value: char*
+****************************************************************************************************/
 char* getIndexName(char* ObjectIndex, char* ObjectName)
 {
 	char* Name = NULL;// = new char[100];
@@ -1002,12 +1009,12 @@ ocfmRetCode SetSubIndexAttributes(INT32 iNodeID,
 								  EFlag enumIsIncludedInCdc)
 {
 		CNode objNode;		
-		CNodeCollection *pobjNodeCollection;
-		CIndexCollection *pobjIndexCollection;
+		CNodeCollection *pobjNodeCollection = NULL;
+		CIndexCollection *pobjIndexCollection = NULL;
 		CIndex objIndex;
-		CIndex* pobjSubIndex;
-		INT32 iIndexPos;
-		INT32 iSubIndexPos;
+		CIndex* pobjSubIndex = NULL;
+		INT32 iIndexPos = -1;
+		INT32 iSubIndexPos = -1;
 		ocfmRetCode stErrorInfo;
 		
 		try
@@ -1034,7 +1041,7 @@ ocfmRetCode SetSubIndexAttributes(INT32 iNodeID,
                 }
             }
 
-			CSubIndex* pobjSubIndexPtr;
+			CSubIndex* pobjSubIndexPtr = NULL;
 				
 			objIndex.setNodeID(objNode.getNodeId());
 			pobjNodeCollection= CNodeCollection::getNodeColObjectPointer();
@@ -1379,11 +1386,11 @@ ocfmRetCode SetSubIndexAttributesByAttribute(
 	char* 			pbInAttributeValue)
 {
 		CNode objNode;		
-		CNodeCollection *pobjNodeCollection;
-		CIndexCollection *pobjIndexCollection;
-		CIndex* pobjIndex;
-		INT32 iSubIndexPos;
-		INT32 iIndexPos;
+		CNodeCollection *pobjNodeCollection = NULL;
+		CIndexCollection *pobjIndexCollection = NULL;
+		CIndex* pobjIndex = NULL;
+		INT32 iSubIndexPos =0;
+		INT32 iIndexPos = 0;
 		ocfmRetCode stErrorInfo;
 		
 		try
@@ -1406,9 +1413,15 @@ ocfmRetCode SetSubIndexAttributesByAttribute(
 			pobjIndex =pobjIndexCollection->getIndex(iIndexPos);
 			
 
-			CSubIndex* pobjSubIndexPtr;
+			CSubIndex* pobjSubIndexPtr = NULL;
 			pobjSubIndexPtr = pobjIndex->getSubIndex(iSubIndexPos);	
-			
+			if(pobjSubIndexPtr == NULL)
+			{
+					ocfmException objException;
+					objException.ocfm_Excpetion(OCFM_ERR_SUBINDEXID_NOT_FOUND);
+					throw objException;
+			}
+
 			switch(enumAttributeType)
 			{
 				case NAME:						
@@ -1458,7 +1471,11 @@ ocfmRetCode SetSubIndexAttributesByAttribute(
 			return ex->_ocfmRetCode;
 		}
 }
-
+/****************************************************************************************************
+* Function Name: CheckUpperAndLowerLimits
+* Description:
+* Return value: ocfmRetCode
+****************************************************************************************************/
 ocfmRetCode CheckUpperAndLowerLimits(char* pcLowLimit, char* pcHighLimit)
 {
     ocfmRetCode stError;
@@ -2151,13 +2168,13 @@ void UpdateCNVisibleNode(CNode*  pobjNode) throw(ocfmException)
       return;
     }
 
-    CIndex *pobjIndex, *pobjCommIndex;
-    CSubIndex *pobjEntriesSubIndex, *pobjNodeIDSubIndex;
-    char *pcIdx;
-    char *pcCommIdx = new char[INDEX_SIZE];
-    char *pcMappedNodeId;
-    
-    int iCrossStnCnt = 0;
+	CIndex *pobjIndex, *pobjCommIndex;
+	CSubIndex *pobjEntriesSubIndex, *pobjNodeIDSubIndex;
+	char *pcIdx;
+	char *pcCommIdx = new char[INDEX_SIZE+1];
+	char *pcMappedNodeId;
+
+	int iCrossStnCnt = 0;
 	ResetAllSubIndexFlag ( (pobjNode -> getIndexCollection()) -> getIndexbyIndexValue( (char *)"1F81" ) );
 	ResetAllSubIndexFlag ( (pobjNode -> getIndexCollection()) -> getIndexbyIndexValue( (char *)"1F8D" ) );
 
@@ -2176,7 +2193,7 @@ void UpdateCNVisibleNode(CNode*  pobjNode) throw(ocfmException)
                     pcIdx = subString((char *)pobjIndex->getIndexValue(), 2, 2);
                     strcpy(pcCommIdx, (char *)"14");
                     strcat(pcCommIdx, pcIdx);
-                    delete [] pcIdx;
+                    //delete [] pcIdx;
                     
                     pobjCommIndex = objPDOCollection->getIndexbyIndexValue(pcCommIdx);
                     if(NULL != pobjCommIndex)
@@ -2218,7 +2235,7 @@ void UpdateCNVisibleNode(CNode*  pobjNode) throw(ocfmException)
                                     }
                                 }
                                 
-                                delete [] pcMappedNodeId;
+                                //delete [] pcMappedNodeId;
                             }
                         }
                     }
@@ -2226,7 +2243,7 @@ void UpdateCNVisibleNode(CNode*  pobjNode) throw(ocfmException)
             }
         }
     }
-   delete[] pcCommIdx;
+   //delete[] pcCommIdx;
 }
 
 /****************************************************************************************************
@@ -3457,7 +3474,7 @@ ocfmRetCode GenerateCDC(char* CDCLocation)
 					if(NULL == pobjNode)
 					{
 						#if defined DEBUG
-							cout<<"Memory allocation error"<<endl;
+							cout<<"Memory allocation error"<<__FUNCTION__<<endl;
 						#endif
 
 						ocfmException ex;
@@ -3471,7 +3488,7 @@ ocfmRetCode GenerateCDC(char* CDCLocation)
 						if(NULL == objIndexCollection)
 						{
 							#if defined DEBUG
-								cout<<"Memory allocation error"<<endl;
+								cout<<"Memory allocation error"<<__FUNCTION__<<endl;
 							#endif
 		
 							ocfmException ex;
@@ -3858,7 +3875,7 @@ void BRSpecificFormatCdc(CIndexCollection *objIndexCollection, char* Buffer1, FI
 		if(NULL == objIndex)
 		{
 			#if defined DEBUG
-			cout<<"Memory allocation error"<<endl;
+			cout<<"Memory allocation error 1"<<__FUNCTION__<<__LINE__<<endl;
 			#endif
 		
 			ocfmException ex;
@@ -3875,7 +3892,7 @@ void BRSpecificFormatCdc(CIndexCollection *objIndexCollection, char* Buffer1, FI
 			if(NULL == pobjSubIndex)
 			{
 				#if defined DEBUG
-					cout<<"Memory allocation error"<<endl;
+				cout<<"Memory allocation error2"<<__FUNCTION__<<__LINE__<<"Index"<<objIndex->getIndexValue()<<endl;
 				#endif
 		
 				ocfmException ex;
@@ -3966,7 +3983,7 @@ void BRSpecificFormatCdc(CIndexCollection *objIndexCollection, char* Buffer1, FI
 		if(NULL == objIndex)
 		{
 			#if defined DEBUG
-			cout<<"Memory allocation error"<<endl;
+			cout<<"Memory allocation error3"<<__FUNCTION__<<__LINE__<<endl;
 			#endif
 		
 			ocfmException ex;
@@ -3983,7 +4000,7 @@ void BRSpecificFormatCdc(CIndexCollection *objIndexCollection, char* Buffer1, FI
 				if(NULL == pobjSubIndex)
 				{
 					#if defined DEBUG
-						cout<<"Memory allocation error"<<endl;
+						cout<<"Memory allocation error4"<<__FUNCTION__<<__LINE__<<endl;
 					#endif
 		
 					ocfmException ex;
@@ -4419,7 +4436,21 @@ ocfmRetCode ProcessPDONodes(bool IsBuild)
 										//00'th index might be deleted.
 										continue;
 									}
-
+									//
+									
+									//Check isiTotal value is valid
+									if(iSiTotal >= (pobjBforeSortIndex->getNumberofSubIndexes()))
+									{
+										objocfmException.ocfm_Excpetion(OCFM_ERR_MODULE_INDEX_NOT_FOUND);
+										char acCustomError[200] = {0};
+										sprintf(acCustomError, "Mapping objects not found in index: %s in node: %d", (char*)pobjBforeSortIndex->getIndexValue(), pobjNode->getNodeId());
+										CopyCustomErrorString(&(objocfmException._ocfmRetCode), acCustomError);
+										
+										throw objocfmException;
+									}
+									
+										
+									
 
 								//set the correponding 14xx/01 to f0
 								if((true == IsBuild) && (strncmp(objIndex.getIndexValue(), "16", 2) == 0))
@@ -4452,10 +4483,10 @@ ocfmRetCode ProcessPDONodes(bool IsBuild)
 										}
 									  }
 									}
-								  }
-								  delete [] pcCommIdx;
-								  delete [] pcIdx;
 								}
+								//delete [] pcCommIdx;
+								//delete [] pcIdx;
+							}
 
 
 								while(iSiCount <= iSiTotal)
@@ -4885,7 +4916,17 @@ void CalculatePayload()
 							//no of entries index does not exist
 							continue;
 						}
-
+						//Check isiTotal value is valid
+						if(iSiTotal >= (pobjBforeSortIndex->getNumberofSubIndexes()))
+						{
+							objocfmException.ocfm_Excpetion(OCFM_ERR_MODULE_INDEX_NOT_FOUND);
+							char acCustomError[200] = {0};
+							sprintf(acCustomError, "Mapping objects not found in index: %s in node: %d", (char*)pobjBforeSortIndex->getIndexValue(), pobjNode->getNodeId());
+							CopyCustomErrorString(&(objocfmException._ocfmRetCode), acCustomError);
+							
+							throw objocfmException;
+						}
+						
 						INT32 iNodeRPDOMappedNodeID = -1;
 						if(strncmp(objIndex.getIndexValue(), "16", 2) == 0)
 						{
@@ -4904,8 +4945,8 @@ void CalculatePayload()
 									iNodeRPDOMappedNodeID = GetDecimalValue((char*)pobjNodeIDSubIndex->getActualValue());
 								}
 							}
-							delete [] pcCommIdx;
-							delete [] pcIdx;
+							//delete [] pcCommIdx;
+							//delete [] pcIdx;
 						}
 
 						while(iSiCount <= iSiTotal)
@@ -5683,12 +5724,12 @@ ocfmRetCode GetSubIndexAttributes(
 	char* 			pbOutAttributeValue)
 {
 	CNode objNode;		
-	CNodeCollection *pobjNodeCollection;
-	CIndexCollection *pobjIndexCollection;
+	CNodeCollection *pobjNodeCollection = NULL;
+	CIndexCollection *pobjIndexCollection = NULL;
 	CIndex objIndex;
-	CIndex* pobjSubIndex;
-	INT32 iSubIndexPos;
-	INT32 iIndexPos;
+	CIndex* pobjSubIndex = NULL;
+	INT32 iSubIndexPos = -1;
+	INT32 iIndexPos = -1;
 	ocfmRetCode stErrorInfo;
 	
 	try
@@ -5713,7 +5754,7 @@ ocfmRetCode GetSubIndexAttributes(
 		pobjIndexCollection = objNode.getIndexCollection();
 		pobjSubIndex =pobjIndexCollection->getIndex(iIndexPos);
 		
-		CSubIndex* pobjSubIndexPtr;
+		CSubIndex* pobjSubIndexPtr = NULL;
 		pobjSubIndexPtr = pobjSubIndex->getSubIndex(iSubIndexPos);	
 		
 		switch(enumAttributeType)
@@ -5812,9 +5853,9 @@ ocfmRetCode GetSubIndexAttributesbyPositions(
 	{
 				// Check for the Existance of the Node in the iNodePos
 		CNode objNode;		
-		CNodeCollection *pobjNodeCollection;
-		CIndexCollection *pobjIndexCollection;
-		CIndex* pobjIndexPtr;
+		CNodeCollection *pobjNodeCollection = NULL;
+		CIndexCollection *pobjIndexCollection = NULL;
+		CIndex* pobjIndexPtr = NULL;
 
 		pobjNodeCollection= CNodeCollection::getNodeColObjectPointer();
 		
@@ -5866,7 +5907,7 @@ ocfmRetCode GetSubIndexAttributesbyPositions(
 			throw &objException;
 		}
 		
-		CSubIndex* pobjSubIndexPtr;
+		CSubIndex* pobjSubIndexPtr = NULL;
 		pobjSubIndexPtr = pobjIndexPtr->getSubIndex(iSubIndexPos);			
 		
 		switch(enumAttributeType)
@@ -5956,7 +5997,7 @@ ocfmRetCode GetNodeCount(INT32	iMnId, INT32* piOutNodeCount)
 {
 	ocfmRetCode stErrorInfo;
 	CNode objNode;
-	CNodeCollection *pobjNodeCollection;
+	CNodeCollection *pobjNodeCollection = NULL;
 
 	try
 	{
@@ -6517,8 +6558,7 @@ ocfmRetCode GetSubIndexIDbyPositions(
 * Return value: ocfmRetCode
 ****************************************************************************************************/
 
-ocfmRetCode DeleteNodeObjDict(
-	INT32 iNodeID, ENodeType enumNodeType)
+ocfmRetCode DeleteNodeObjDict(INT32 iNodeID, ENodeType enumNodeType)
 {
 	ocfmRetCode stErrorInfo;
 	INT32 iNodePos;
@@ -6536,25 +6576,77 @@ ocfmRetCode DeleteNodeObjDict(
 			objException.ocfm_Excpetion(OCFM_ERR_INVALID_NODEID);
 			throw &objException;
 		}
-		
-		CNode objNode;
-		CNodeCollection *pobjNodeCollection;
-		CIndexCollection *pobjIndexCollection;
-		CDataTypeCollection *objDataTypeCollection;
+		//CNode objNode;
+		CNode* pobjNode = NULL;
+		CNodeCollection *pobjNodeCollection = NULL;
+		CIndexCollection *pobjIndexCollection = NULL;
+		CDataTypeCollection *pobjDataTypeCollection = NULL;
 		CIndex objIndex;
-
-		objIndex.setNodeID(objNode.getNodeId());
-		pobjNodeCollection= CNodeCollection::getNodeColObjectPointer();
-		objNode = pobjNodeCollection->getNode(enumNodeType, iNodeID);
+		CSubIndex pobjSubIndex;
+		CNetworkManagement *pobjNetworkManagement = NULL;
+		CApplicationProcess *pobjApplicationProcess = NULL;
 		
-		objDataTypeCollection = objNode.getDataTypeCollection();
+		
+		pobjNodeCollection = CNodeCollection::getNodeColObjectPointer();
+		if(NULL == pobjNodeCollection)
+		{
+			#if defined DEBUG
+				cout<<"Memory allocation error"<<__FUNCTION__<<endl;
+			#endif
+			
+			ocfmException ex;
+			ex.ocfm_Excpetion(OCFM_ERR_MEMORY_ALLOCATION_ERROR);
+			throw ex;
+		}
+		pobjNode = pobjNodeCollection->getNodePtr(enumNodeType, iNodeID);
+		//objNode = pobjNodeCollection->getNode(enumNodeType, iNodeID); // (enumNodeType, iNodeID);
+		objIndex.setNodeID(pobjNode->getNodeId());
+		//objSubIndex.setNodeID(objNode->getNodeId());
+		pobjDataTypeCollection = pobjNode->getDataTypeCollection();
+		
+		
 
-		pobjIndexCollection = objNode.getIndexCollection();
-
+		pobjIndexCollection = pobjNode->getIndexCollection();
+		pobjNetworkManagement = pobjNode->getNetworkManagement();
+		pobjApplicationProcess = pobjNode->getApplicationProcess();
+		if((NULL == pobjApplicationProcess) || (NULL == pobjIndexCollection) || (NULL == pobjNetworkManagement) || (NULL == pobjDataTypeCollection))
+		{
+			#if defined DEBUG
+				cout<<"Memory allocation error"<<__FUNCTION__<<endl;
+			#endif
+			
+			ocfmException ex;
+			ex.ocfm_Excpetion(OCFM_ERR_MEMORY_ALLOCATION_ERROR);
+			throw ex;
+		}
 		// Delete IndexCollection
+
+
+
+		CIndex* pobjIndexPtr = NULL;
+		INT32 iNofIndexes = pobjIndexCollection->getNumberofIndexes();
+
+		for(INT32 i=iNofIndexes; i<0; i--)
+		{
+				pobjIndexPtr = pobjIndexCollection->getIndex(i);
+				if(pobjIndexPtr->getNumberofSubIndexes()>0)
+				{
+					pobjIndexPtr->deleteSubIndexCollection();
+				}
+		}
+
+
+
+
+
 		pobjIndexCollection->DeleteIndexCollection();
 		// Delete DataTypeCollection
-		objDataTypeCollection->DeleteDataTypeCollection();
+		pobjDataTypeCollection->DeleteDataTypeCollection();
+		//Delete Network management collectionObj
+		pobjNetworkManagement->DeleteFeatureCollections();
+		//Delete ComplexDataTypeCollection
+		pobjApplicationProcess->DeleteParameterCollection();
+		pobjApplicationProcess->DeleteComplexDataTypeCollection();
 		stErrorInfo.code = OCFM_ERR_SUCCESS;
 		return stErrorInfo;
 	}
@@ -7158,11 +7250,11 @@ ocfmRetCode GenerateMNOBD(bool IsBuild)
 			}
 			
 			CNode objNode;
-			CNodeCollection *pobjNodeCollection;
+			//CNodeCollection *pobjNodeCollection;
 			CIndexCollection *pobjIndexCollection;
 			CIndex objIndex;
 			
-			pobjNodeCollection = CNodeCollection::getNodeColObjectPointer();
+			//pobjNodeCollection = CNodeCollection::getNodeColObjectPointer();
 			objNode = pobjNodeCollection->getNode(MN, MN_NODEID);
 			pobjIndexCollection = objNode.getIndexCollection();
 			//Check for existance of the Index
@@ -7203,18 +7295,22 @@ ocfmRetCode GenerateMNOBD(bool IsBuild)
 		{
 			iTxChannelCount = 1;
 		}
-
+		
 		INT32* pArrangedNodeIDbyStation;
 		pArrangedNodeIDbyStation = ArrangeNodeIDbyStation();
+		
 		for(INT32 iLoopCount =0; iLoopCount<pobjNodeCollection->getNumberOfNodes(); iLoopCount++)
 		{
 			objNode = pobjNodeCollection->getNodebyCollectionIndex(iLoopCount);
+			
 			if(objNode.getNodeType() == CN)
 			{
+
 				char* pbVersionNumber = new char[4];
 				pbVersionNumber[0] = 0;
 				eCurrCNStation = objNode.getStationType();
 
+				pobjMNNode  = pobjNodeCollection->getNodePtr(MN, MN_NODEID);
 				objMNIndexCol =  pobjMNNode->getIndexCollection();
 
 				if(objNode.MNPDOOUTVarCollection.Count()!=0)
@@ -7557,7 +7653,8 @@ INT32 ComputeOUTOffset(INT32 iDataSize, EPDOType enumPdoType)
 						}
 						/* if greater no change*/
 						if(stSize64OUTOffset.currOffset >= stSize8OUTOffset.currOffset)
-						{}
+						{
+						}
 						else
 						{
 								stSize64OUTOffset.prevOffset = stSize64OUTOffset.currOffset ;
@@ -8897,8 +8994,8 @@ ocfmRetCode SetProjectSettings(EAutoGenerate enumAutoGen, EAutoSave enumAutoSave
 
 void UpdateNumberOfEnteriesSIdx(CIndex *pobjIndex, ENodeType enumNodeType)
 {
-	CSubIndex *pobjSIdx;
-	INT32 iTotalSIdxs;
+	CSubIndex *pobjSIdx = NULL;
+	INT32 iTotalSIdxs = 0;
 	char pbAsciBuff[10];
 	
 	pobjSIdx = pobjIndex->getSubIndexbyIndexValue((char*)"00");
@@ -9105,18 +9202,17 @@ void UpdatedCNDateORTime(CIndex* pobjMNIndex, int iNodeId, EDateTime enumDT)
 void copyPDODefToAct(int iNodeID, ENodeType enumNodeType)
 {
 
-
-	CSubIndex* pobjSIndex;
-	CIndexCollection* pobjIdxCol;
+	CSubIndex* pobjSIndex = NULL;
+	CIndexCollection* pobjIdxCol = NULL;
 			
-	CNode *pobjNode;
+	CNode *pobjNode = NULL;
 	CNodeCollection *objNodeCollection = NULL;
 
 	
 	objNodeCollection = CNodeCollection::getNodeColObjectPointer();
 	pobjNode = objNodeCollection->getNodePtr(enumNodeType, iNodeID);
 	pobjIdxCol = pobjNode->getIndexCollection();
-	
+	CIndex* pobjIndex = NULL;
 	for(INT32 iIndexLoopCount=0; iIndexLoopCount < pobjIdxCol->getNumberofIndexes(); iIndexLoopCount++)
 	{
 			CIndex* pobjIndex;
@@ -9150,11 +9246,12 @@ CIndex getPDOIndexByOffset(CIndex* pobjIndex)
 {
 	CIndex objIndex; 
 	objIndex = *pobjIndex;
-	CSubIndex* pObjSIdx1, *pObjSIdx2;
+	CSubIndex* pObjSIdx1 = NULL;
+	CSubIndex* pObjSIdx2 = NULL;
 			
-	for(INT32 iIndexLoopCount=1; iIndexLoopCount <= objIndex.getNumberofSubIndexes() - 1; iIndexLoopCount++)
+	for(INT32 iIndexLoopCount=1; iIndexLoopCount <= (objIndex.getNumberofSubIndexes() - 1); iIndexLoopCount++)
 	{
-		for(INT32 iIdxLoopCount=1; iIdxLoopCount <= objIndex.getNumberofSubIndexes() -1 -iIndexLoopCount ; iIdxLoopCount++)
+		for(INT32 iIdxLoopCount=1; iIdxLoopCount <= (objIndex.getNumberofSubIndexes() -1 -iIndexLoopCount) ; iIdxLoopCount++)
 		{
 					
 			pObjSIdx1 = objIndex.getSubIndex(iIdxLoopCount);
@@ -9560,7 +9657,7 @@ void setPresMNNodeAssigmentBits()
 					  }
 					}
 				  }
-				  delete [] pcCommIdx;
+				  //delete [] pcCommIdx;
 				  delete [] pcIdx;
 			}
 		}
@@ -9606,12 +9703,12 @@ void setPresMNNodeAssigmentBits()
 ocfmRetCode RecalculateMultiplex()
 {
 	ocfmRetCode stErrorInfo;
-	CNodeCollection *objNodeCol;
+	CNodeCollection *objNodeCol = NULL;
 	objNodeCol= CNodeCollection::getNodeColObjectPointer();
 	INT32 iNodesCount = 0;
 	iNodesCount = objNodeCol->getCNNodesCount();
 
-	CNode* objNode;
+	CNode* objNode = NULL;
 
 	try
 	{
@@ -9622,8 +9719,8 @@ ocfmRetCode RecalculateMultiplex()
 		}
 		char* actValue = new char[50];
 		actValue[0] = 0;
-		int IndexPos;
-		int subIndexPos;
+		INT32 IndexPos = 0;
+		INT32 subIndexPos = 0;
 		stErrorInfo = IfSubIndexExists(MN_NODEID, MN, (char*)"1F98", (char*)"07", &subIndexPos, &IndexPos);
 		if(stErrorInfo.code == OCFM_ERR_SUCCESS)        
 		{
@@ -9797,9 +9894,9 @@ ocfmRetCode RecalculateMultiplex()
 ****************************************************************************************************/
 void ResetMultiplexedCNForceCycle()
 {
-    CNodeCollection *objNodeCol;
+    CNodeCollection *objNodeCol = NULL;
     objNodeCol= CNodeCollection::getNodeColObjectPointer();
-    CNode* objNode;
+    CNode* objNode = NULL;
 
     for(INT32 iLoopCount = 0; iLoopCount < objNodeCol->getNumberOfNodes(); iLoopCount++)
     {
@@ -9873,9 +9970,9 @@ void copyMNPropDefToAct(int iNodeID, ENodeType enumNodeType)
 ****************************************************************************************************/
 void copyIndexDefToAct(int iNodeID, ENodeType enumNodeType, char *indexId )
 {
-    CIndexCollection* pobjIdxCol;
+    CIndexCollection* pobjIdxCol = NULL;
             
-    CNode *pobjNode;
+    CNode *pobjNode = NULL;
     CNodeCollection *objNodeCollection = NULL;
 
     
@@ -9883,7 +9980,7 @@ void copyIndexDefToAct(int iNodeID, ENodeType enumNodeType, char *indexId )
     pobjNode = objNodeCollection->getNodePtr(enumNodeType, iNodeID);
     pobjIdxCol = pobjNode->getIndexCollection();
     
-    CIndex* pobjIndex;
+    CIndex* pobjIndex = NULL;
     
     pobjIndex = pobjIdxCol->getIndexbyIndexValue(indexId);
     if(pobjIndex == NULL)
@@ -9906,10 +10003,10 @@ void copyIndexDefToAct(int iNodeID, ENodeType enumNodeType, char *indexId )
 ****************************************************************************************************/
 void copySubIndexDefToAct(int iNodeID, ENodeType enumNodeType, bool bForce, char *indexId, char *subIndexId )
 {
-    CSubIndex* pobjSIndex;
-    CIndexCollection* pobjIdxCol;
+    CSubIndex* pobjSIndex = NULL;
+    CIndexCollection* pobjIdxCol = NULL;
             
-    CNode *pobjNode;
+    CNode *pobjNode = NULL;
     CNodeCollection *objNodeCollection = NULL;
 
     
@@ -9917,7 +10014,7 @@ void copySubIndexDefToAct(int iNodeID, ENodeType enumNodeType, bool bForce, char
     pobjNode = objNodeCollection->getNodePtr(enumNodeType, iNodeID);
     pobjIdxCol = pobjNode->getIndexCollection();
     
-    CIndex* pobjIndex;
+    CIndex* pobjIndex = NULL;
     
     pobjIndex = pobjIdxCol->getIndexbyIndexValue(indexId);
     if(pobjIndex == NULL)
@@ -10378,10 +10475,10 @@ void calculateCNPollResponse(int iNodeID, ENodeType enumNodeType)
         return;
     }
 
-    CSubIndex* pobjSIndex;
-    CIndexCollection* pobjIdxCol;
+    CSubIndex* pobjSIndex = NULL;
+    CIndexCollection* pobjIdxCol = NULL;
             
-    CNode *pobjNode;
+    CNode *pobjNode = NULL;
     CNodeCollection *objNodeCollection = NULL;
 
     
@@ -10389,7 +10486,7 @@ void calculateCNPollResponse(int iNodeID, ENodeType enumNodeType)
     pobjNode = objNodeCollection->getNodePtr(enumNodeType, iNodeID);
     pobjIdxCol = pobjNode->getIndexCollection();
     
-    CIndex* pobjIndex;
+    CIndex* pobjIndex = NULL;
     
     pobjIndex = pobjIdxCol->getIndexbyIndexValue((char*)"1F98");
     if(pobjIndex == NULL)
@@ -10403,7 +10500,7 @@ void calculateCNPollResponse(int iNodeID, ENodeType enumNodeType)
     {
         return;
     }
-    char *pcValue;
+    char *pcValue = NULL;
     INT32 iValue = 0;
     bool add25microsec = false;
     if(pobjSIndex->getActualValue() == NULL || strcmp(pobjSIndex->getActualValue(),"") == 0)
@@ -10591,7 +10688,7 @@ void UpdateMNNodeAssignmentIndex(CNode *pobjNode, INT32 CNsCount, char* pcIndex,
 				if(NULL == stPjtSettings)
 				{
 					#if defined DEBUG
-						cout<<"Memory allocation error"<<endl;
+						cout<<" Memory allocation error"<<__FUNCTION__<<endl;
 					#endif
 		
 					ocfmException ex;
@@ -10646,41 +10743,45 @@ bool ValidateCNPresTimeout(char* pbSubIndexId, char* pcCheckValue)
     INT32 iCNNodeId = hex2int(pbSubIndexId);
     stErrorInfo = IfSubIndexExists(iCNNodeId, CN, (char*)"1F98", (char*)"03",  &iSubIndexPos, &iIndexPos);
 
-    char* pcCNDefaultValue = new char[50];
-    if(stErrorInfo.code == OCFM_ERR_SUCCESS)
-    {
-        GetSubIndexAttributes(iCNNodeId, CN, (char*)"1F98", (char*)"03", DEFAULTVALUE, pcCNDefaultValue);
-    }
-    else
-    {
-        return false; 
-    }
+	char* pcCNDefaultValue = new char[50];
+	if(stErrorInfo.code == OCFM_ERR_SUCCESS)
+	{
+		GetSubIndexAttributes(iCNNodeId, CN, (char*)"1F98", (char*)"03", DEFAULTVALUE, pcCNDefaultValue);
+	}
+	else
+	{
+		delete[] pcCNDefaultValue;
+		return false; 
+	}
 
-    if( !( NULL == pcCheckValue || strcmp(pcCheckValue, "") == 0 ) ) 
-    {
-        if( !( NULL == pcCNDefaultValue || strcmp(pcCNDefaultValue, "") == 0 ) )
-        {
-            INT32 minimumDefaultValue = GetDecimalValue(pcCNDefaultValue);
-            INT32 iCheckValue = GetDecimalValue(pcCheckValue);
-            if(iCheckValue >= minimumDefaultValue)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        else
-        {
-            return false;
-        }
-    }
-    else
-    {
-        return false;
-    }
-    delete[] pcCNDefaultValue;
+	if( !( NULL == pcCheckValue || strcmp(pcCheckValue, "") == 0 ) ) 
+	{
+		if( !( NULL == pcCNDefaultValue || strcmp(pcCNDefaultValue, "") == 0 ) )
+		{
+			INT32 minimumDefaultValue = GetDecimalValue(pcCNDefaultValue);
+			INT32 iCheckValue = GetDecimalValue(pcCheckValue);
+			if(iCheckValue >= minimumDefaultValue)
+			{
+				delete[] pcCNDefaultValue;
+				return true;
+			}
+			else
+			{
+				delete[] pcCNDefaultValue;
+				return false;
+			}
+		}
+		else
+		{
+			delete[] pcCNDefaultValue;
+			return false;
+		}
+	}
+	else
+	{
+		delete[] pcCNDefaultValue;
+		return false;
+	}
 }
 
 /****************************************************************************************************
@@ -11118,11 +11219,11 @@ void SetCNLossObjects(int iNodeID, ENodeType enumNodeType)
         return;
     }
 
-    CNode *pobjNode;
+    CNode *pobjNode = NULL;
     CNodeCollection *objNodeCollection = NULL;
-    CIndexCollection* pobjIdxCol;
-    CIndex* pobjIndex;
-    CSubIndex* pobjSIndex;
+    CIndexCollection* pobjIdxCol = NULL;
+    CIndex* pobjIndex = NULL;
+    CSubIndex* pobjSIndex = NULL;
     
     objNodeCollection = CNodeCollection::getNodeColObjectPointer();
     pobjNode = objNodeCollection->getNodePtr(enumNodeType, iNodeID);
@@ -11136,7 +11237,7 @@ void SetCNLossObjects(int iNodeID, ENodeType enumNodeType)
         pobjSIndex = pobjIndex->getSubIndexbyIndexValue((char*)"03");
         if(NULL != pobjSIndex)
         {
-            if(pobjSIndex->getActualValue() == NULL || strcmp(pobjSIndex->getActualValue(),"") == 0)
+            if((pobjSIndex->getActualValue() == NULL) || (strcmp(pobjSIndex->getActualValue(), "") == 0))
             { 
               pobjSIndex->setActualValue((char*)"0x50");
               pobjSIndex->setFlagIfIncludedCdc(TRUE);
@@ -11152,7 +11253,7 @@ void SetCNLossObjects(int iNodeID, ENodeType enumNodeType)
       pobjSIndex = pobjIndex->getSubIndexbyIndexValue((char*)"03");
       if(NULL != pobjSIndex)
       {
-        if(pobjSIndex->getActualValue() == NULL || strcmp(pobjSIndex->getActualValue(),"") == 0)
+        if((pobjSIndex->getActualValue() == NULL) || (strcmp(pobjSIndex->getActualValue(), "") == 0))
         { 
           pobjSIndex->setActualValue((char*)"0x50");
           pobjSIndex->setFlagIfIncludedCdc(TRUE);
@@ -11168,7 +11269,7 @@ void SetCNLossObjects(int iNodeID, ENodeType enumNodeType)
       pobjSIndex = pobjIndex->getSubIndexbyIndexValue((char*)"03");
       if(NULL != pobjSIndex)
       {
-        if(pobjSIndex->getActualValue() == NULL || strcmp(pobjSIndex->getActualValue(),"") == 0)
+        if((pobjSIndex->getActualValue() == NULL) || (strcmp(pobjSIndex->getActualValue(), "") == 0))
         { 
           pobjSIndex->setActualValue((char*)"0x50");
           pobjSIndex->setFlagIfIncludedCdc(TRUE);

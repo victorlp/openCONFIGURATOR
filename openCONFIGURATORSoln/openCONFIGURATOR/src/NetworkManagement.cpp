@@ -188,7 +188,7 @@ void CNetworkManagement::calculateMaxPDOCount()
 	if(( NULL == pbMaxPDOCount ) || ( NULL == featureName ))
 	{
 		#if defined DEBUG
-		cout<<"Memory allocation error"<<endl;
+		cout<<"Memory allocation error"<<__FUNCTION__<<endl;
 		#endif
 		
 		ocfmException ex;
