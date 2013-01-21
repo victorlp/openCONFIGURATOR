@@ -4,7 +4,7 @@
 	Version="9.00"
 	Name="openConfiguratorWrapper"
 	ProjectGUID="{7B96B734-54AB-46D2-B9D3-FFA0D7A2817E}"
-	RootNamespace="openCOnfiguratorWrapper"
+	RootNamespace="openConfiguratorWrapper"
 	TargetFrameworkVersion="196613"
 	>
 	<Platforms>
@@ -39,13 +39,13 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="0"
+				Optimization="2"
 				AdditionalIncludeDirectories="c:\Tcl\include"
 				MinimalRebuild="true"
-				BasicRuntimeChecks="3"
+				BasicRuntimeChecks="0"
 				RuntimeLibrary="3"
 				WarningLevel="3"
-				DebugInformationFormat="4"
+				DebugInformationFormat="0"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -60,7 +60,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="openconfigurator.lib tcl85.lib"
 				AdditionalLibraryDirectories="c:\Tcl\lib;&quot;$(OutDir)&quot;"
-				GenerateDebugInformation="true"
+				GenerateDebugInformation="false"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -170,6 +170,22 @@
 			<File
 				RelativePath=".\openconfiguratorWrapper_wrap.cxx"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories=""
+					/>
+				</FileConfiguration>
 			</File>
 		</Filter>
 		<Filter

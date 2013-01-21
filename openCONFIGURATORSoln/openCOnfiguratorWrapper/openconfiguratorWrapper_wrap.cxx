@@ -190,7 +190,7 @@ template <typename T> T SwigValueInit() {
 
 /*  Generic buffer size */
 #ifndef SWIG_BUFFER_SIZE
-# define SWIG_BUFFER_SIZE 1024
+# define SWIG_BUFFER_SIZE 2048
 #endif
 
 /* Flags for pointer conversions */

@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual C++ Express 2008
+# Visual Studio 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "openConfigurator", "openCONFIGURATOR\openCONFIGURATOR.vcproj", "{0141C9C5-E267-4AD0-9E6C-1E80ECF5E438}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "openConfiguratorWrapper", "openCOnfiguratorWrapper\openCOnfiguratorWrapper.vcproj", "{7B96B734-54AB-46D2-B9D3-FFA0D7A2817E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "openConfiguratorWrapper", "openConfiguratorWrapper\openConfiguratorWrapper.vcproj", "{7B96B734-54AB-46D2-B9D3-FFA0D7A2817E}"
 	ProjectSection(ProjectDependencies) = postProject
 		{0141C9C5-E267-4AD0-9E6C-1E80ECF5E438} = {0141C9C5-E267-4AD0-9E6C-1E80ECF5E438}
 	EndProjectSection

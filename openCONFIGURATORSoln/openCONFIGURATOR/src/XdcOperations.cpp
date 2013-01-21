@@ -664,7 +664,7 @@ static void getVarDeclaration(xmlTextReaderPtr pxtrReader, CComplexDataType *pob
 				}
 			}
 		}						
-		char abSize[5];
+		char abSize[3];
 		
 		if(CheckifSimpleDT((char*)pxcName, abSize))
 		{
