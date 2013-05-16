@@ -132,8 +132,9 @@ typedef enum
 	OCFM_ERR_INVALID_MAPPING_TYPE_FOR_PDO, /**< 56 */
 	OCFM_ERR_INVALID_ACCESS_TYPE_FOR_PDO, /**< 57 */
 	OCFM_ERR_INVALID_PDO_OFFSET, /**< 58 */
-	COMPATIBILITY_INFO_PRE_130_PDOMAPPING /**< 59 */
+	COMPATIBILITY_INFO_PRE_130_PDOMAPPING, /**< 59 */
 	/* NOTE: New error codes if any only append to this. Do not change the order/values. Undefined behaviour of the TCL/TK GUI*/
+	OCFM_ERR_SCHEMA_VALIDATION_FAILED /*60*/
 } ConfiguratorErrors;
 
 /************************************************************************************************/

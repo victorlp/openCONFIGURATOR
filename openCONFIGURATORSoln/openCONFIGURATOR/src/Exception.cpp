@@ -284,6 +284,10 @@ void ocfmException::OCFMException(ConfiguratorErrors errCode)
 	case COMPATIBILITY_INFO_PRE_130_PDOMAPPING:
 		strcpy(_ocfmRetCode.errorString, "It seems you have opened the project created with pre 1.3.0 version.\nErrors with respect to 'PDOMapping' and 'AccessType' can be expected during build process.");
 		break;
+	case OCFM_ERR_SCHEMA_VALIDATION_FAILED:
+		strcpy(_ocfmRetCode.errorString,
+				"XDD schema validation failed");
+		break;
 	default:
 		strcpy(_ocfmRetCode.errorString, "Unhandled Error");
 		break;

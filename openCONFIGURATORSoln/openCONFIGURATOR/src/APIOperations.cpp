@@ -4509,7 +4509,6 @@ ocfmRetCode GenerateCDC(char* cdcPath)
 
 	Node nodeObjMN;
 	IndexCollection* indexCollObj;
-	Node *nodeObj;
 	char *Buffer1 = NULL;
 	char *tempFileName = NULL;
 	char *tempOutputFileName = NULL;

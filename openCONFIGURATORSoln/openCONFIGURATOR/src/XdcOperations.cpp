@@ -57,6 +57,8 @@
 #include <fstream>
 #include <stdio.h>
 #include <libxml/xmlreader.h>
+#include <libxml/parser.h>
+#include <libxml/xmlschemas.h>
 #include <errno.h>
 //#include <limits.h>
 #include <string.h>
@@ -69,6 +71,8 @@
 /* Defines */
 
 #define MY_ENCODING "UTF-8"
+#define XDD_SCHEMA_FILE "./resources/xddschema/Powerlink_Main.xsd"
+#define XDD_SCHEMA_FILE_LENGTH 40
 
 /*****************************************************************************/
 /* Global Variables */
@@ -760,8 +764,51 @@ static void SetVarDeclaration(xmlTextReaderPtr reader, ComplexDataType *cdtObj)
 ocfmRetCode ImportXML(char *fileName, INT32 nodeId, NodeType nodeType)
 {
 	ocfmRetCode errCodeObj;
-	try
-	{
+
+	//Begin XDD schema validation
+	ocfmException objException;
+	xmlDocPtr xdd_file_ptr;
+	int validateResult;
+
+	try{
+		//File name must not be null
+		if(fileName != NULL){
+			//Parse XML
+			xdd_file_ptr = xmlParseFile(fileName);
+
+#if defined(_WIN32) && defined(_MSC_VER)
+			if(xdd_file_ptr != NULL){
+				//Call Validation Function with the parse file
+				validateResult = CheckXDDschema(xdd_file_ptr,(char*) "./xddschema/Powerlink_Main.xsd");
+			}
+#else
+	
+			char* tmpCmdBuffer = new char[LINUX_INSTALL_DIR_LEN + XDD_SCHEMA_FILE_LENGTH];
+			sprintf(tmpCmdBuffer, "%s/resources/xddschema/Powerlink_Main.xsd", LINUX_INSTALL_DIR);
+			if(xdd_file_ptr != NULL){
+				//Call Validation Function with the parse file
+				validateResult = CheckXDDschema(xdd_file_ptr,tmpCmdBuffer);
+			}
+			
+#endif
+			//Validation Return Code 1 = SUCCESS
+			if(validateResult != 1){
+				//Handle Error
+				objException.OCFMException(OCFM_ERR_SCHEMA_VALIDATION_FAILED);
+
+				//Clean Up Parser in case of Error
+				xmlCleanupParser();
+				xmlMemoryDump();
+
+				throw objException;
+			}
+			//CleanUp XML Parser
+			xmlCleanupParser();
+			xmlMemoryDump();
+		}
+
+		//End XDD Schema Validation
+
 		errCodeObj = ParseFile(fileName, nodeId, nodeType);
 
 		if (0 != errCodeObj.code)
@@ -799,6 +846,56 @@ ocfmRetCode ImportXML(char *fileName, INT32 nodeId, NodeType nodeType)
 		return ex._ocfmRetCode;
 	}
 	return errCodeObj;
+}
+
+int CheckXDDschema(const xmlDocPtr doc, const char *schema_filename)
+{
+	xmlDocPtr schema_doc = xmlReadFile(schema_filename, NULL, XML_PARSE_NONET);
+	if (schema_doc == NULL) {
+		/* the schema cannot be loaded or is not well-formed */
+		return -1;
+	}
+	xmlSchemaParserCtxtPtr parser_ctxt = xmlSchemaNewDocParserCtxt(schema_doc);
+	if (parser_ctxt == NULL) {
+		/* unable to create a parser context for the schema */
+		xmlFreeDoc(schema_doc);
+		return -2;
+	}
+
+	xmlSchemaPtr schema = xmlSchemaParse(parser_ctxt);
+	if (schema == NULL) {
+		/* the schema itself is not valid */
+		xmlSchemaFreeParserCtxt(parser_ctxt);
+		xmlFreeDoc(schema_doc);
+		return -3;
+	}
+
+	xmlSchemaValidCtxtPtr valid_ctxt = xmlSchemaNewValidCtxt(schema);
+	if (valid_ctxt == NULL) {
+		/* unable to create a validation context for the schema */
+		xmlSchemaFree(schema);
+		xmlSchemaFreeParserCtxt(parser_ctxt);
+		xmlFreeDoc(schema_doc);
+		return -4; 
+	}
+
+	//Set error handler for validation errors
+	xmlSchemaSetValidErrors(valid_ctxt,
+		(xmlSchemaValidityErrorFunc) printf_s,
+		(xmlSchemaValidityWarningFunc) printf_s,
+		stderr);
+
+	int is_valid = (xmlSchemaValidateDoc(valid_ctxt, doc) == 0);
+	xmlSchemaFreeValidCtxt(valid_ctxt);
+	xmlSchemaFree(schema);
+	xmlSchemaFreeParserCtxt(parser_ctxt);
+	xmlFreeDoc(schema_doc);
+	/* force the return value to be non-negative on success */
+	return is_valid ? 1 : 0;
+}
+
+const char* HandleSchemaValidationError(void *ctx, const char *msg, ...) {
+	return msg;
 }
 
 void ProcessNode(xmlTextReaderPtr reader, NodeType nodeType, INT32 nodePos)
@@ -1060,6 +1157,11 @@ ocfmRetCode ReImportXML(char* fileName, INT32 nodeId, NodeType nodeType)
 {
 	INT32 nodePos;
 	ocfmRetCode errCodeObj;
+
+	ocfmException objException;
+	xmlDocPtr xdd_file_ptr;
+	int validateResult;
+
 	try
 	{
 		bool bFlag = false;
@@ -1074,6 +1176,47 @@ ocfmRetCode ReImportXML(char* fileName, INT32 nodeId, NodeType nodeType)
 				cout << "\nDeleteNodeObjDict in ReImport failed\n" << endl;
 #endif
 			}
+
+			//File name must not be null
+		if(fileName != NULL){
+			//Parse XML
+			xdd_file_ptr = xmlParseFile(fileName);
+
+#if defined(_WIN32) && defined(_MSC_VER)
+			if(xdd_file_ptr != NULL){
+				//Call Validation Function with the parse file
+				validateResult = CheckXDDschema(xdd_file_ptr,(char*) "./xddschema/Powerlink_Main.xsd");
+			}
+#else
+			{
+				char* tmpCmdBuffer = new char[LINUX_INSTALL_DIR_LEN];
+				sprintf(tmpCmdBuffer, "%s/xddschema/Powerlink_Main.xsd", LINUX_INSTALL_DIR);
+				if(xdd_file_ptr != NULL){
+					//Call Validation Function with the parse file
+					validateResult = CheckXDDschema(xdd_file_ptr,tmpCmdBuffer);
+				}
+			}
+#endif
+			//Validation Return Code 1 = SUCCESS
+			if(validateResult != 1){
+				//Handle Error
+				objException.OCFMException(OCFM_ERR_SCHEMA_VALIDATION_FAILED);
+
+				//Clean Up Parser in case of Error
+				xmlCleanupParser();
+				xmlMemoryDump();
+
+				throw &objException;
+			}
+			//CleanUp XML Parser
+			xmlCleanupParser();
+			xmlMemoryDump();
+		}
+
+		//End XDD Schema Validation
+
+
+
 			errCodeObj = ParseFile(fileName, nodeId, nodeType);
 			if (OCFM_ERR_SUCCESS != errCodeObj.code)
 			{
@@ -1200,18 +1343,16 @@ ocfmRetCode SaveNode(const char* fileName, INT32 nodeId, NodeType nodeType)
 			objException.OCFMException(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
 			throw objException;
 		}
-		xmlTextWriterSetIndent(xtwWriter, 1);
 
 		// Start ProfileBody Tag
 		bytesWritten = xmlTextWriterStartElement(xtwWriter,
 		               BAD_CAST "ProfileBody");
 		if (0 > bytesWritten)
 		{
-			printf("Error at xmlTextWriterStartElement: ProfileBody\n");
+			printf("testXmlwriterMemory: Error at xmlTextWriterStartElement\n");
 			objException.OCFMException(OCFM_ERR_XML_WRITER_START_ELT_FAILED);
 			throw objException;
 		}
-		xmlTextWriterSetIndent(xtwWriter, 1);
 
 		// Start ApplicationProcess Tag
 		bytesWritten = xmlTextWriterStartElement(xtwWriter,
@@ -1334,7 +1475,6 @@ ocfmRetCode SaveNode(const char* fileName, INT32 nodeId, NodeType nodeType)
 						{
 							printf(
 							    "testXmlwriterDoc: Error at xmlTextWriterEndElement\n");
-							ocfmException objException;
 							objException.OCFMException(
 							    OCFM_ERR_XML_WRITER_END_ELT_FAILED);
 							throw objException;
@@ -1940,7 +2080,7 @@ ocfmRetCode SaveNode(const char* fileName, INT32 nodeId, NodeType nodeType)
 				    OCFM_ERR_XML_WRITER_START_ELT_FAILED);
 				throw objException;
 			}
-			NetworkManagement *nmtObj = NULL;
+			nmtObj = NULL;
 			nmtObj = nodeObj.GetNetworkManagement();
 
 			for (UINT32 featureLC = 0;
@@ -1985,7 +2125,7 @@ ocfmRetCode SaveNode(const char* fileName, INT32 nodeId, NodeType nodeType)
 				    OCFM_ERR_XML_WRITER_START_ELT_FAILED);
 				throw objException;
 			}
-			NetworkManagement *nmtObj = NULL;
+			nmtObj = NULL;
 			nmtObj = nodeObj.GetNetworkManagement();
 
 			for (UINT32 featureLC = 0;
@@ -2226,8 +2366,7 @@ ocfmRetCode AddOtherRequiredCNIndexes(INT32 nodeId)
 		             CN, false);
 
 		delete[] valueStr;
-	}
-	catch (ocfmException& ex)
+	} catch (ocfmException& ex)
 	{
 		return ex._ocfmRetCode;
 	}
