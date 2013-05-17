@@ -11,5 +11,4 @@ bin
 *~
 *.orig
 *.bak
-*.a
 *.so

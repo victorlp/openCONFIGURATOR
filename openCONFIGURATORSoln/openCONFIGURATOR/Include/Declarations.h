@@ -1115,6 +1115,8 @@ DLLEXPORT INT32 GetDataSize(char* dataTypeVal);
 
 /** @} */ // end of API
 
+DLLEXPORT ocfmRetCode ValidateXDDSchema(char *fileName);
+
 #ifndef __GNUC__
 #pragma warning( disable: 4251 )
 #endif
