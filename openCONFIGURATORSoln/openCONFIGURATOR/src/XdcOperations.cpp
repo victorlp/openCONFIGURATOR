@@ -76,6 +76,8 @@
 
 /*****************************************************************************/
 /* Global Variables */
+string* xddValidationError = NULL;
+char xddErrorBuf[1024];
 
 INT32 lastIndexParsed = 0;
 static const char *gpa2bSimple[][2] =
@@ -761,63 +763,62 @@ static void SetVarDeclaration(xmlTextReaderPtr reader, ComplexDataType *cdtObj)
 	}
 }
 
-ocfmRetCode ValidateXDDSchema(char *fileName){
+ocfmRetCode ValidateXDDFile(char *fileName)
+{
+
 	ocfmRetCode errCodeObj;
+	errCodeObj.code = OCFM_ERR_SUCCESS;
+
+	ocfmException exceptionObject;
 
 	//Begin XDD schema validation
-	ocfmException objException;
 	xmlDocPtr xdd_file_ptr;
-	int validateResult;
 
-	try{
 		//File name must not be null
-		if(fileName != NULL){
+	if(fileName != NULL)
+	{
 			//Parse XML
 			xdd_file_ptr = xmlParseFile(fileName);
 
+		if(xdd_file_ptr != NULL)
+		{
 #if defined(_WIN32) && defined(_MSC_VER)
-			if(xdd_file_ptr != NULL){
-				//Call Validation Function with the parse file
-				validateResult = CheckXDDschema(xdd_file_ptr,(char*) "./xddschema/Powerlink_Main.xsd");
-			}
+			//Call Validation Function with the parse file
+			errCodeObj = ValidateXMLFile(xdd_file_ptr, XDD_SCHEMA_FILE);
 #else
 	
 			char* tmpCmdBuffer = new char[LINUX_INSTALL_DIR_LEN + XDD_SCHEMA_FILE_LENGTH];
 			sprintf(tmpCmdBuffer, "%s/resources/xddschema/Powerlink_Main.xsd", LINUX_INSTALL_DIR);
-			if(xdd_file_ptr != NULL){
-				//Call Validation Function with the parse file
-				validateResult = CheckXDDschema(xdd_file_ptr,tmpCmdBuffer);
-			}
-			
+			//Call Validation Function with the parse file
+			errCodeObj = ValidateXMLFile(xdd_file_ptr, tmpCmdBuffer);
 #endif
-			//Validation Return Code 1 = SUCCESS
-			if(validateResult != 1){
-				//Handle Error
-				objException.OCFMException(OCFM_ERR_SCHEMA_VALIDATION_FAILED);
+		}
+		else
+		{
+			errCodeObj.code = OCFM_ERR_XML_PARSING_ERROR;
+		}
 
-				//Clean Up Parser in case of Error
-				xmlCleanupParser();
-				xmlMemoryDump();
-
-				throw objException;
-			}
 			//CleanUp XML Parser
 			xmlCleanupParser();
 			xmlMemoryDump();
-
-			//Set return code successful
-			errCodeObj.code = OCFM_ERR_SUCCESS;
 		}
-		else{
+	else
+	{
 			errCodeObj.code = OCFM_ERR_CANNOT_OPEN_FILE;
 		}
 
-		//End XDD Schema Validation
-	} catch (ocfmException& ex)
+	//If schema validation failes don't overwrite the error message
+	//Other error codes need standard messages to be retrieved 
+	if(errCodeObj.code != OCFM_ERR_SCHEMA_VALIDATION_FAILED)
 	{
-		return ex._ocfmRetCode;
+		exceptionObject.OCFMException(errCodeObj.code);
+		return exceptionObject._ocfmRetCode;
 	}
+	else
+	{
+		//End XDD Schema Validation
 	return errCodeObj;
+}
 }
 
 ocfmRetCode ImportXML(char *fileName, INT32 nodeId, NodeType nodeType)
@@ -865,54 +866,99 @@ ocfmRetCode ImportXML(char *fileName, INT32 nodeId, NodeType nodeType)
 	return errCodeObj;
 }
 
-int CheckXDDschema(const xmlDocPtr doc, const char *schema_filename)
+ocfmRetCode ValidateXMLFile(const xmlDocPtr doc, const char *schema_filename)
 {
+
+	ocfmRetCode errCodeObj;
+	errCodeObj.code = OCFM_ERR_SUCCESS;
+
 	xmlDocPtr schema_doc = xmlReadFile(schema_filename, NULL, XML_PARSE_NONET);
-	if (schema_doc == NULL) {
+	if (schema_doc == NULL)
+	{
 		// the schema cannot be loaded or is not well-formed 
-		return -1;
+
+		errCodeObj.code = OCFM_ERR_XDD_SCHEMA_NOT_FOUND;
+		return errCodeObj;
 	}
 	xmlSchemaParserCtxtPtr parser_ctxt = xmlSchemaNewDocParserCtxt(schema_doc);
-	if (parser_ctxt == NULL) {
+	if (parser_ctxt == NULL)
+	{
 		// unable to create a parser context for the schema 
 		xmlFreeDoc(schema_doc);
-		return -2;
+
+		errCodeObj.code = OCFM_ERR_XDD_SCHEMA_PARSER_CONTEXT_ERROR;
+		return errCodeObj;
 	}
 
 	xmlSchemaPtr schema = xmlSchemaParse(parser_ctxt);
-	if (schema == NULL) {
+	if (schema == NULL)
+	{
 		// the schema itself is not valid
 		xmlSchemaFreeParserCtxt(parser_ctxt);
 		xmlFreeDoc(schema_doc);
-		return -3;
+
+		errCodeObj.code = OCFM_ERR_XDD_SCHEMA_NOT_VALID;
+		return errCodeObj;
 	}
 
 	xmlSchemaValidCtxtPtr valid_ctxt = xmlSchemaNewValidCtxt(schema);
-	if (valid_ctxt == NULL) {
+	if (valid_ctxt == NULL)
+	{
 		// unable to create a validation context for the schema
 		xmlSchemaFree(schema);
 		xmlSchemaFreeParserCtxt(parser_ctxt);
 		xmlFreeDoc(schema_doc);
-		return -4; 
+
+		errCodeObj.code = OCFM_ERR_XDD_SCHEMA_VALIDATION_CONTEXT_ERROR;
+		return errCodeObj;
 	}
 
 	//Set error handler for validation errors
 	xmlSchemaSetValidErrors(valid_ctxt,
-		(xmlSchemaValidityErrorFunc) printf_s,
-		(xmlSchemaValidityWarningFunc) printf_s,
+		(xmlSchemaValidityErrorFunc) HandleSchemaValidationError,
+		(xmlSchemaValidityWarningFunc) HandleSchemaValidationError,
 		stderr);
 
-	int is_valid = (xmlSchemaValidateDoc(valid_ctxt, doc) == 0);
+
+	if(xmlSchemaValidateDoc(valid_ctxt, doc) == 0)
+	{
+		errCodeObj.code = OCFM_ERR_SUCCESS;
+	}
+	else
+	{
+		errCodeObj.code = OCFM_ERR_SCHEMA_VALIDATION_FAILED;
+
+		char * errorMessage = new char[xddValidationError->size() + 1];
+		errorMessage[xddValidationError->size()] = 0;
+		memcpy(errorMessage,xddValidationError->c_str(), xddValidationError->size());
+	    delete xddValidationError;
+		
+		errCodeObj.errorString = errorMessage;
+	}
+
 	xmlSchemaFreeValidCtxt(valid_ctxt);
 	xmlSchemaFree(schema);
 	xmlSchemaFreeParserCtxt(parser_ctxt);
 	xmlFreeDoc(schema_doc);
 
-	return is_valid ? 1 : 0;
+	return errCodeObj;
 }
 
-const char* HandleSchemaValidationError(void *ctx, const char *msg, ...) {
-	return msg;
+void HandleSchemaValidationError(void *ctx, const char *msg, ...)
+{
+	va_list args;
+	va_start(args, msg);
+	int len = vsprintf(xddErrorBuf, msg, args);
+	va_end(args);
+
+	if(len == 0)
+	{
+		xddValidationError = new string("Error could not be retrieved");
+}
+	else
+	{
+		xddValidationError = new string(xddErrorBuf);
+	}	
 }
 
 void ProcessNode(xmlTextReaderPtr reader, NodeType nodeType, INT32 nodePos)

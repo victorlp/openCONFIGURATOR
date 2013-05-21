@@ -87,7 +87,7 @@ ocfmException::ocfmException(void)
 
 ocfmException::~ocfmException(void) throw ()
 {
-	//Add destructor code here	
+
 }
 
 void ocfmException::OCFMException(ConfiguratorErrors errCode)
@@ -287,6 +287,26 @@ void ocfmException::OCFMException(ConfiguratorErrors errCode)
 	case OCFM_ERR_SCHEMA_VALIDATION_FAILED:
 		strcpy(_ocfmRetCode.errorString,
 				"XDD schema validation failed");
+		break;
+	case OCFM_ERR_XDD_SCHEMA_NOT_FOUND:
+		strcpy(_ocfmRetCode.errorString,
+			"XDD schema file not found");
+		break;
+	case OCFM_ERR_XDD_SCHEMA_NOT_VALID:
+		strcpy(_ocfmRetCode.errorString,
+			"XDD schema itself is not valid");
+		break;
+	case OCFM_ERR_XDD_SCHEMA_PARSER_CONTEXT_ERROR:
+		strcpy(_ocfmRetCode.errorString,
+			"XDD schema parser context creation failed");
+		break;
+	case OCFM_ERR_XDD_SCHEMA_VALIDATION_CONTEXT_ERROR:
+		strcpy(_ocfmRetCode.errorString,
+			"XDD schema validation context creation failed");
+		break;
+	case OCFM_ERR_XML_PARSING_ERROR:
+		strcpy(_ocfmRetCode.errorString,
+			"XDD parsing failed due to wrong XML syntax");
 		break;
 	default:
 		strcpy(_ocfmRetCode.errorString, "Unhandled Error");

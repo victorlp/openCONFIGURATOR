@@ -147,7 +147,8 @@ using namespace std;
  ocfmRetCode GetNodeDataTypes(INT32 nodeId, NodeType nodeType, char* outDataTypes);
  ocfmRetCode NewProjectNode(INT32 nodeId, NodeType nodeType, char* nodeName, char* importXmlFile);
  INT32 GetDataSize(char* dataTypeVal);
- ocfmRetCode ValidateXDDSchema(char *fileName);
+ ocfmRetCode ValidateXDDFile(char *fileName);
 
 %}
+
 

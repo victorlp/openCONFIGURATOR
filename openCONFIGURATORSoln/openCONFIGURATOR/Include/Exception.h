@@ -83,6 +83,8 @@ class ocfmException: public std::exception
 		 */
 		/*****************************************************************************/
 		void OCFMException(ConfiguratorErrors errCode);
+
+
 };
 
 #endif // exception_h

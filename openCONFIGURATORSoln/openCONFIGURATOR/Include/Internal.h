@@ -1499,25 +1499,25 @@ void SetVarDecAttributes(xmlTextReaderPtr reader, varDeclaration& vdecl);
 void ProcessNode(xmlTextReaderPtr reader, NodeType nodeType, INT32 nodePos);
 
 /**
- \brief		Check the given XDD file with the current XDD schema (v.0.13)
+ \brief		Check the given XML file with the current XDD schema
 
- \param		xmlDocPtr		Pointer to the XDD file to check
- \param		schema_filename	XDD schema file
+ \param		doc				Pointer to the XML file to check
+ \param		schema_filename	XML schema file
 
- \return	int	Error code
+ \return	ocfmRetCode		Error code
  */
 /*****************************************************************************/
-int CheckXDDschema(const xmlDocPtr doc, const char *schema_filename);
+ocfmRetCode ValidateXMLFile(const xmlDocPtr doc, const char *schema_filename);
 
 /**
- \brief		Handle an error which occurs in validation
+ \brief		Handle an error which occurs in XML schema validation
 
- \param		void	Error context
+ \param		ctx		Error context
  \param		msg		Error message
 
  \return	char*	Return error message
  */
 /*****************************************************************************/
-const char* HandleSchemaValidationError(void *ctx, const char *msg, ...);
+void HandleSchemaValidationError(void *ctx, const char *msg, ...);
 
 #endif // internal_h

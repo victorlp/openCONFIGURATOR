@@ -1115,7 +1115,14 @@ DLLEXPORT INT32 GetDataSize(char* dataTypeVal);
 
 /** @} */ // end of API
 
-DLLEXPORT ocfmRetCode ValidateXDDSchema(char *fileName);
+/**
+ \brief		Library function for validating imported XDDs/XDCs against the current schema
+
+ \param		fileName     File to be validated
+
+ \return	ocfmRetCode	 Error code
+*/
+DLLEXPORT ocfmRetCode ValidateXDDFile(char *fileName);
 
 #ifndef __GNUC__
 #pragma warning( disable: 4251 )

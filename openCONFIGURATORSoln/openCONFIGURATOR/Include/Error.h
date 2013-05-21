@@ -134,7 +134,13 @@ typedef enum
 	OCFM_ERR_INVALID_PDO_OFFSET, /**< 58 */
 	COMPATIBILITY_INFO_PRE_130_PDOMAPPING, /**< 59 */
 	/* NOTE: New error codes if any only append to this. Do not change the order/values. Undefined behaviour of the TCL/TK GUI*/
-	OCFM_ERR_SCHEMA_VALIDATION_FAILED /*60*/
+	OCFM_ERR_SCHEMA_VALIDATION_FAILED, /**< 60*/
+	OCFM_ERR_XDD_SCHEMA_NOT_FOUND, /**< 61*/
+	OCFM_ERR_XDD_SCHEMA_NOT_VALID, /**< 62*/
+	OCFM_ERR_XDD_SCHEMA_PARSER_CONTEXT_ERROR, /**< 63*/
+	OCFM_ERR_XDD_SCHEMA_VALIDATION_CONTEXT_ERROR, /**< 64*/
+	OCFM_ERR_XML_PARSING_ERROR /**< 65*/
+
 } ConfiguratorErrors;
 
 /************************************************************************************************/
