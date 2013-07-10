@@ -60,6 +60,11 @@
 
 #include "Exports.h"
 
+ /** @defgroup Error Error handling
+ *	@ingroup API
+ *  These are the error codes and functions
+ *  @{
+ */
 /*************************************************************************************************/
 
 /** An enum ConfiguratorErrors.
@@ -81,7 +86,7 @@ typedef enum
 	OCFM_ERR_INVALID_ATTRIBUTETYPE, /**< 10 */
 	OCFM_ERR_NO_NODES_FOUND, /**< 11 */
 	OCFM_ERR_NO_INDEX_FOUND, /**< 12 */
-	OCFM_ERR_NO_SUBINDEXS_FOUND, /*13 */
+	OCFM_ERR_NO_SUBINDEXS_FOUND, /**< 13 */
 	OCFM_ERR_NODEID_NOT_FOUND, /**< 14 */
 	OCFM_ERR_INDEXID_NOT_FOUND, /**< 15 */
 	OCFM_ERR_SUBINDEXID_NOT_FOUND, /**< 16 */
@@ -139,5 +144,7 @@ DLLEXPORT typedef struct ocfmRetCode
 		ConfiguratorErrors code;	/**< Error code from ConfiguratorErrors */
 		char* errorString;			/**< String Describes the error */
 } ocfmRetCode;
+
+/** @} */ // end of Error
 
 #endif // Error_h

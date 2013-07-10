@@ -221,20 +221,20 @@ typedef enum IEC_Datatype
 {
 	BITSTRING = 0,	/**< Bit string (1 bit) */
 	BOOL,			/**< Bool (1 bit) */
-	BYTE,			/**< Byte (8 bit) */
-	_CHAR,			/**< Char (8 bit) */
-	DWORD,			/**< Dword (32 bit) */
-	LWORD,			/**< Lword (64 bit) */
+	BYTE,			/**< Byte (8 bits) */
+	_CHAR,			/**< Char (8 bits) */
+	DWORD,			/**< Dword (32 bits) */
+	LWORD,			/**< Lword (64 bits) */
 	SINT,			/**< Signed short integer (1 byte) */
-	INT,			/**< Signed integer (2 byte) */
-	DINT,			/**< Double integer (4 byte) */
-	LINT,			/**< Long integer (8 byte) */
+	INT,			/**< Signed integer (2 bytes) */
+	DINT,			/**< Double integer (4 bytes) */
+	LINT,			/**< Long integer (8 bytes) */
 	USINT,			/**< Unsigned short integer (1 byte) */
-	UINT,			/**< Unsigned integer (2 byte) */
-	UDINT,			/**< Unsigned double integer (4 byte) */
-	ULINT,			/**< Unsigned long integer (8 byte) */
-	REAL,			/**< REAL (4 byte) */
-	LREAL,			/**< LREAL (8 byte) */
+	UINT,			/**< Unsigned integer (2 bytes) */
+	UDINT,			/**< Unsigned double integer (4 bytes) */
+	ULINT,			/**< Unsigned long integer (8 bytes) */
+	REAL,			/**< REAL (4 bytes) */
+	LREAL,			/**< LREAL (8 bytes) */
 	STRING,			/**< STRING */
 	WSTRING			/**< WSTRING to hold multi byte strings */
 } IEC_Datatype;
@@ -511,6 +511,12 @@ typedef enum
 	TIME		/**< Time attribute */
 } DateTime;
 
+ /** @defgroup OTHERS Others
+ *	@ingroup API
+ *  These are the other typedefs, enums visible as API
+ *  @{
+ */
+ 
 /** An enum AutoGenerate.
  * This enum lists of generate modes available for the generation of the MN object dictionary.
  */
@@ -544,7 +550,7 @@ typedef enum
  */
 typedef enum
 {
-	AUTOGENERATE = 0,	/**< specifies the autogenerate attriubte */
+	AUTOGENERATE = 0,	/**< Specifies the autogenerate attriubte */
 	AUTOSAVE			/**< Specifies the autosave attribute */
 } ProjectSettings;
 
@@ -558,10 +564,16 @@ typedef enum
 	CHAINED			/**< Chained station */
 } StationType;
 
+/** @} */ // end of Others
 /******************************************************************************
  * Function Declarations
  *****************************************************************************/
 
+ /** @defgroup API API Documentation
+ *  These are the API functions
+ *  @{
+ */
+  
 /**
  \brief		This API shall be usd to parse the XDC/XDD file and load the objects for given Node ID and Type parameters
 
@@ -1098,6 +1110,8 @@ DLLEXPORT ocfmRetCode NewProjectNode(INT32 nodeId, NodeType nodeType, char* node
  \return		INT32			Returns the data size for the given datatype
  */
 DLLEXPORT INT32 GetDataSize(char* dataTypeVal);
+
+/** @} */ // end of API
 
 #ifndef __GNUC__
 #pragma warning( disable: 4251 )
