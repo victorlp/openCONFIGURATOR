@@ -3378,6 +3378,11 @@ void GetIndexData(Index* indexObj, char* cdcBuffer)
 
 				noOfSubIndexes = noOfSubIndexes + 1;
 			}
+			else
+			{
+				//If actual value is not configured. Take Default value. Anyhow default value will be NumberofSubindexes.
+				noOfSubIndexes = noOfTotalSubIndexes;
+			}
 		}
 		else
 		{
@@ -3428,9 +3433,7 @@ void GetIndexData(Index* indexObj, char* cdcBuffer)
 					if (0 == GetDecimalValue((char*) sidxObj->GetActualValue()))
 					{
 						if ((NULL == sidxObj->GetDefaultValue())
-								|| (0
-										== GetDecimalValue(
-												(char*) sidxObj->GetDefaultValue())))
+							|| (0 == GetDecimalValue((char*) sidxObj->GetDefaultValue())))
 						{
 							continue;
 						}
@@ -3691,6 +3694,11 @@ void BRSpecificGetIndexData(Index* indexObj, char* cdcBuffer, INT32 nodeId)
 				}
 
 				noOfSubIndexes = noOfSubIndexes + 1;
+			}
+			else
+			{
+				//If actual value is not configured. Take Default value. Anyhow default value will be NumberofSubindexes.
+				noOfSubIndexes = noOfTotalSubIndexes;
 			}
 		}
 		else
@@ -8547,6 +8555,7 @@ void GetMNPDOSubIndex(MNPdoVariable mnPdoVarObj, INT32& prevSubIndex,
 	strcat(actValue, mnPdoVarObj.indexId);
 
 	subIndexObj->SetActualValue(actValue);
+	subIndexObj->SetFlagIfIncludedCdc(TRUE);
 #if defined DEBUG
 	cout<<"Actual Value"<<actValue<<endl;
 #endif
@@ -9188,7 +9197,7 @@ ocfmRetCode GenerateMNOBD(bool IsBuild)
 					if (NULL != sidxMNobj)
 					{
 						char *tempStr = new char[INDEX_LEN];
-						tempStr = IntToAscii(pdoOutLC, tempStr, 10);
+						tempStr = IntToAscii(prevSubIndex, tempStr, 10);
 #if defined DEBUG
 						cout<<"Setting Actual Value: "<<tempStr<<" in index: "<<indexObj->GetIndexValue()<<endl;
 #endif
@@ -9310,9 +9319,9 @@ ocfmRetCode GenerateMNOBD(bool IsBuild)
 					if (NULL != sidxObjtemp)
 					{
 						char *temp = new char[INDEX_LEN];
-						temp = IntToAscii(pdoInLC, temp, 10);
+						temp = IntToAscii(inPrevSubIndex, temp, 10);
 #if defined DEBUG
-						cout<<"Setting Actual Value: "<<temp<<" in index: "<<indexObjTemp->GetIndexValue()<<endl;
+						cout<<"NumberOfEntries updated to: "<<temp<<" in index: "<<indexObjTemp->GetIndexValue()<<endl;
 #endif
 						//itoa(PdoInCount, temp, 16);
 						sidxObjtemp->SetActualValue(temp);
@@ -11048,7 +11057,7 @@ void UpdateNumberOfEnteriesSIdx(Index *indexObj, NodeType nodeType)
 				cout<<" Previous Actual: "<<pobjSIdx->GetActualValue();
 			if( pobjSIdx->GetDefaultValue() != NULL)
 				cout<<" Default: "<<pobjSIdx->GetDefaultValue()<<endl;
-			cout<<" Updating with 0x"<< std::hex << iTotalSIdxs <<endl;
+			cout<<" Updating with "<< iTotalSIdxs <<endl;
 		#endif
 		char tempStr[10];
 		char* buffer = new char[10];
@@ -12925,8 +12934,7 @@ void UpdateMNNodeAssignmentIndex(Node *nodeObj, INT32 cnCount, char* indexId,
 				bool bFlag = false;
 				errCodeObj = IfNodeExists(nodeIdVal, nodeType, &nodePos, bFlag);
 
-				if (OCFM_ERR_SUCCESS == errCodeObj.code && true == bFlag
-						&& ((CN == nodeType) || (true == allowMNSubindex)))
+				if (((OCFM_ERR_SUCCESS == errCodeObj.code ) && (true == bFlag)) && ((CN == nodeType) || (true == allowMNSubindex)))
 				{
 					//continue
 				}
