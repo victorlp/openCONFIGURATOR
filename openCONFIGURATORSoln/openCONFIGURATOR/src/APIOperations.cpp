@@ -4173,32 +4173,39 @@ INT32 GetNodeTotalIndexSubIndex(INT32 nodeId)
 		indexObj = indexCollObj->GetIndex(indexLC);
 
 		if ((indexObj->GetFlagIfIncludedCdc() == TRUE)
-				&& (true
-						== CheckAccessTypeForInclude(
-								(char*) indexObj->GetAccessType())
-						|| CheckIfMappingPDO((char*) indexObj->GetIndexValue())))
+			&& (true == CheckAccessTypeForInclude((char*) indexObj->GetAccessType())
+			|| CheckIfMappingPDO((char*) indexObj->GetIndexValue())))
 		{
 			if (indexObj->GetNumberofSubIndexes() == 0)
 			{
 				if ((indexObj->GetActualValue() != NULL)
-						&& (true == IsDefaultActualNotEqual(indexObj)))
+					&& (true == IsDefaultActualNotEqual(indexObj)))
 				{
+#if defined DEBUG
+	cout<< "Index: " << indexObj->GetIndexValue() << " Val: " << indexObj->GetActualValue() << endl;
+#endif
 					noOfCDCEntries = noOfCDCEntries + 1;
 				}
 			}
 			else
 			{
+#if defined DEBUG
+	cout<< "Index: " << indexObj->GetIndexValue() << endl;
+#endif
 				if (CheckIfMappingPDO((char*) indexObj->GetIndexValue()))
 				{
 					SubIndex* sidxObj = NULL;
 					sidxObj = indexObj->GetSubIndexbyIndexValue((char*) "00");
 
 					if ((NULL != sidxObj) && (NULL != sidxObj->GetActualValue())
-							&& (0 != strcmp(sidxObj->GetActualValue(), "")))
+						&& (0 != strcmp(sidxObj->GetActualValue(), "")))
 					{
 						if (true == ReactivateMappingPDO(indexCollObj, indexObj)
-								|| (true == IsDefaultActualNotEqual(sidxObj)))
+							|| (true == IsDefaultActualNotEqual(sidxObj)))
 						{
+						#if defined DEBUG
+							cout<< "0SidxId: " << sidxObj->GetIndexValue() << " Val: " << sidxObj->GetActualValue() << endl;
+						#endif
 							noOfCDCEntries = noOfCDCEntries + 1; /* to initalize 00 entry subindex */
 						}
 						if (CheckIfValueZero((char*) sidxObj->GetActualValue()))
@@ -4206,48 +4213,52 @@ INT32 GetNodeTotalIndexSubIndex(INT32 nodeId)
 							continue;
 						}
 						if (true == ReactivateMappingPDO(indexCollObj, indexObj)
-								|| (true == IsDefaultActualNotEqual(sidxObj)))
+							|| (true == IsDefaultActualNotEqual(sidxObj)))
 						{
+						#if defined DEBUG
+							cout<< "SidxId: " << sidxObj->GetIndexValue() << " Val: " << sidxObj->GetActualValue() << endl;
+						#endif
 							noOfCDCEntries = noOfCDCEntries + 1; /* to reinitalize 00 entry subindex */
 						}
-						for (INT32 sidxLC = 0;
-								sidxLC < indexObj->GetNumberofSubIndexes();
-								sidxLC++)
+						INT32 noValidMappings = 0;
+						if (CheckIfHex((char*) sidxObj->GetActualValue()))
 						{
-							if ((indexObj->GetSubIndex(sidxLC)->GetActualValue()
-									!= NULL)
-									&& (TRUE
-											== indexObj->GetSubIndex(sidxLC)->GetFlagIfIncludedCdc())
-									&& (true
-											== IsDefaultActualNotEqual(
-													indexObj->GetSubIndex(
-															sidxLC))))
+							INT32 sidxActLen = strlen(sidxObj->GetActualValue());
+							char* sidxActVal = new char[sidxActLen];
+							SubString(sidxActVal, sidxObj->GetActualValue(), 2, (sidxActLen - 2));
+							noValidMappings = HexToInt(sidxActVal);
+							delete[] sidxActVal;
+						}
+						else
+						{
+							noValidMappings = atoi(sidxObj->GetActualValue());
+						}
+
+						for (INT32 sidxLC = 1; sidxLC <= noValidMappings; sidxLC++)
+						{
+							SubIndex* sidxObjTemp = NULL;
+							char *sidxId = new char[SUBINDEX_LEN];
+							sidxId = IntToAscii(sidxLC, sidxId, 16);
+							sidxId = PadLeft(sidxId, '0', 2);
+							sidxObjTemp = indexObj->GetSubIndexbyIndexValue(sidxId);
+							delete[] sidxId;
+							if ((sidxObjTemp != NULL)
+								&& (sidxObjTemp->GetActualValue() != NULL)
+								&& (TRUE == sidxObjTemp->GetFlagIfIncludedCdc())
+								&& (true == IsDefaultActualNotEqual(sidxObjTemp)))
 							{
-								if (0
-										== strcmp(
-												(char*) indexObj->GetSubIndex(
-														sidxLC)->GetIndexValue(),
-												"00"))
+								if (0 == GetDecimalValue((char*) sidxObjTemp->GetActualValue()))
 								{
-									continue;
-								}
-								if (0
-										== GetDecimalValue(
-												(char*) indexObj->GetSubIndex(
-														sidxLC)->GetActualValue()))
-								{
-									if ((NULL
-											== indexObj->GetSubIndex(sidxLC)->GetDefaultValue())
-											|| (0
-													== GetDecimalValue(
-															(char*) indexObj->GetSubIndex(
-																	sidxLC)->GetDefaultValue())))
+									if ((NULL == sidxObjTemp->GetDefaultValue())
+										|| (0 == GetDecimalValue((char*) sidxObjTemp->GetDefaultValue())))
 									{
 										continue;
 									}
 								}
+								#if defined DEBUG
+									cout<< "SidxId: " << sidxObjTemp->GetIndexValue() << " Val: " << sidxObjTemp->GetActualValue() << endl;
+								#endif
 								noOfCDCEntries = noOfCDCEntries + 1;
-
 							}
 						}
 					}
@@ -4259,29 +4270,25 @@ INT32 GetNodeTotalIndexSubIndex(INT32 nodeId)
 					if (0 == strcmp((char*) indexObj->GetIndexValue(), "1F81"))
 					{
 						SubIndex* sidxObj;
-						sidxObj = indexObj->GetSubIndexbyIndexValue(
-								(char*) "F0");
+						sidxObj = indexObj->GetSubIndexbyIndexValue((char*) "F0");
 						if (NULL != sidxObj && sidxObj->GetActualValue() != NULL
-								&& 0
-										!= strcmp(
-												(char*) sidxObj->GetActualValue(),
-												"")
-								&& true
-										== CheckAccessTypeForInclude(
-												(char*) sidxObj->GetAccessType())
-								&& true == IsDefaultActualNotEqual(sidxObj))
+							&& 0 != strcmp((char*) sidxObj->GetActualValue(), "")
+							&& true == CheckAccessTypeForInclude((char*) sidxObj->GetAccessType())
+							&& true == IsDefaultActualNotEqual(sidxObj))
 						{
+						#if defined DEBUG
+							cout<< "SidxId: " << sidxObj->GetIndexValue() << " Val: " << sidxObj->GetActualValue() << endl;
+						#endif
 							noOfCDCEntries = noOfCDCEntries + 1;
 						}
 						continue;
-
 					}
 				}
 
 				SubIndex* sidxObj = NULL;
 				sidxObj = indexObj->GetSubIndexbyIndexValue((char*) "00");
 				if ((NULL != sidxObj) && (NULL != sidxObj->GetActualValue())
-						&& (0 != strcmp(sidxObj->GetActualValue(), "")))
+					&& (0 != strcmp(sidxObj->GetActualValue(), "")))
 				{
 					if (CheckIfValueZero((char*) sidxObj->GetActualValue()))
 					{
@@ -4290,28 +4297,24 @@ INT32 GetNodeTotalIndexSubIndex(INT32 nodeId)
 				}
 
 				for (INT32 sidxLC = 0;
-						sidxLC < indexObj->GetNumberofSubIndexes(); sidxLC++)
+					sidxLC < indexObj->GetNumberofSubIndexes(); sidxLC++)
 				{
 					if ((indexObj->GetSubIndex(sidxLC)->GetActualValue() != NULL)
-							&& (TRUE
-									== indexObj->GetSubIndex(sidxLC)->GetFlagIfIncludedCdc())
-							&& (true
-									== CheckAccessTypeForInclude(
-											(char*) indexObj->GetSubIndex(
-													sidxLC)->GetAccessType()))
-							&& (true
-									== IsDefaultActualNotEqual(
-											indexObj->GetSubIndex(sidxLC))))
+						&& (TRUE == indexObj->GetSubIndex(sidxLC)->GetFlagIfIncludedCdc())
+						&& (true == CheckAccessTypeForInclude((char*) indexObj->GetSubIndex(
+										sidxLC)->GetAccessType()))
+						&& (true == IsDefaultActualNotEqual(indexObj->GetSubIndex(sidxLC))))
 					{
+						#if defined DEBUG
+						cout<< "SidxId: " << indexObj->GetSubIndex(sidxLC)->GetIndexValue() << " Val: " << indexObj->GetSubIndex(sidxLC)->GetActualValue() << endl;
+						#endif
 						noOfCDCEntries = noOfCDCEntries + 1;
 					}
 				}
 			}
-
 		}
 	}
 	return noOfCDCEntries;
-
 }
 
 INT32 BRSpecificgetCNsTotalIndexSubIndex(INT32 nodeId)
@@ -4333,90 +4336,96 @@ INT32 BRSpecificgetCNsTotalIndexSubIndex(INT32 nodeId)
 
 		Index* indexObj = NULL;
 		indexObj = indexCollObj->GetIndex(indexLC);
-
+		
 		if (indexObj->GetFlagIfIncludedCdc() == TRUE
-				&& (true
-						== CheckAccessTypeForInclude(
-								(char*) indexObj->GetAccessType())
-						|| CheckIfMappingPDO((char*) indexObj->GetIndexValue())))
+			&& (true == CheckAccessTypeForInclude((char*) indexObj->GetAccessType())
+			|| CheckIfMappingPDO((char*) indexObj->GetIndexValue())))
 		{
-
 			if (indexObj->GetNumberofSubIndexes() == 0)
 			{
 				if (indexObj->GetActualValue() != NULL
-						&& true == IsDefaultActualNotEqual(indexObj))
+					&& true == IsDefaultActualNotEqual(indexObj))
 				{
+				#if defined DEBUG
+					cout<< "Index: " << indexObj->GetIndexValue() << " Val: " << indexObj->GetActualValue() << endl;
+				#endif
 					noOfCDCEntries = noOfCDCEntries + 1;
 				}
 			}
 			else
 			{
+			#if defined DEBUG
+				cout<< "Index: " << indexObj->GetIndexValue() << endl;
+			#endif
 				if (CheckIfMappingPDO((char*) indexObj->GetIndexValue()))
 				{
+					
 					SubIndex* sidxObj = NULL;
 					sidxObj = indexObj->GetSubIndexbyIndexValue((char*) "00");
 
 					//actual value checked for non-Zero
 					if ((NULL != sidxObj) && (NULL != sidxObj->GetActualValue())
-							&& (0 != strcmp(sidxObj->GetActualValue(), ""))
-							&& !(CheckIfValueZero(
-									(char*) sidxObj->GetActualValue())))
+						&& (0 != strcmp(sidxObj->GetActualValue(), ""))
+						&& !(CheckIfValueZero((char*) sidxObj->GetActualValue())))
 					{
 						if (true == ReactivateMappingPDO(indexCollObj, indexObj)
-								|| true == IsDefaultActualNotEqual(sidxObj))
+							|| true == IsDefaultActualNotEqual(sidxObj))
 						{
+						#if defined DEBUG
+							cout<< "SidxId: " << sidxObj->GetIndexValue() << " Val: " << sidxObj->GetActualValue() << endl;
+						#endif
 							noOfCDCEntries = noOfCDCEntries + 1; /* to initalize 00 entry subindex */
 						}
 
 						if (true == ReactivateMappingPDO(indexCollObj, indexObj)
-								|| true == IsDefaultActualNotEqual(sidxObj))
+							|| true == IsDefaultActualNotEqual(sidxObj))
 						{
+						#if defined DEBUG
+							cout<< "SidxId: " << sidxObj->GetIndexValue() << " Val: " << sidxObj->GetActualValue() << endl;
+						#endif
 							noOfCDCEntries = noOfCDCEntries + 1; /* to reinitalize 00 entry subindex */
 						}
+						//Rule: In 1A00 and 1600 the mappings should be in order(Starting from 01-FE, No skipping of subindex allowed)
 
-						INT32 isiTotal = indexObj->GetNumberofSubIndexes();
-
-						for (INT32 sidxLC = 0; sidxLC < isiTotal; sidxLC++)
+						INT32 noValidMappings = 0;
+						if (CheckIfHex((char*) sidxObj->GetActualValue()))
 						{
+							INT32 sidxActLen = strlen(sidxObj->GetActualValue());
+							char* sidxActVal = new char[sidxActLen];
+							SubString(sidxActVal, sidxObj->GetActualValue(), 2, (sidxActLen - 2));
+							noValidMappings = HexToInt(sidxActVal);
+							delete[] sidxActVal;
+						}
+						else
+						{
+							noValidMappings = atoi(sidxObj->GetActualValue());
+						}
 
-							if (indexObj->GetSubIndex(sidxLC)->GetActualValue()
-									!= NULL
-									&& TRUE
-											== indexObj->GetSubIndex(sidxLC)->GetFlagIfIncludedCdc()
-									&& true
-											== IsDefaultActualNotEqual(
-													indexObj->GetSubIndex(
-															sidxLC)))
+						for (INT32 sidxLC = 1; sidxLC <= noValidMappings; sidxLC++)
+						{
+							SubIndex* sidxObjTemp = NULL;
+							char *sidxId = new char[SUBINDEX_LEN];
+							sidxId = IntToAscii(sidxLC, sidxId, 16);
+							sidxId = PadLeft(sidxId, '0', 2);
+							sidxObjTemp = indexObj->GetSubIndexbyIndexValue(sidxId);
+							delete[] sidxId;
+							if ((NULL != sidxObjTemp)
+								&& (sidxObjTemp->GetActualValue() != NULL)
+								&& (TRUE == sidxObjTemp->GetFlagIfIncludedCdc())
+								&& (true == IsDefaultActualNotEqual(sidxObjTemp)))
 							{
-								if (0
-										== strcmp(
-												(char*) indexObj->GetSubIndex(
-														sidxLC)->GetIndexValue(),
-												"00"))
+								if (0 == GetDecimalValue((char*) sidxObjTemp->GetActualValue()))
 								{
-									//the no.of subindex is determied by the 00'th entry actual value. 1 is added for 00'th entry count
-									isiTotal = (GetDecimalValue(
-											(char*) sidxObj->GetActualValue())
-											+ 1);
-									continue;
-								}
-								if (0
-										== GetDecimalValue(
-												(char*) indexObj->GetSubIndex(
-														sidxLC)->GetActualValue()))
-								{
-									if (NULL
-											== indexObj->GetSubIndex(sidxLC)->GetDefaultValue()
-											|| 0
-													== GetDecimalValue(
-															(char*) indexObj->GetSubIndex(
-																	sidxLC)->GetDefaultValue()))
+									if ((NULL == sidxObjTemp->GetDefaultValue())
+										|| (0 == GetDecimalValue((char*) sidxObjTemp->GetDefaultValue())))
 									{
 										continue;
 									}
 								}
+								#if defined DEBUG
+								cout<< "SidxId: " << sidxObjTemp->GetIndexValue() << " Val: " << sidxObjTemp->GetActualValue() << endl;
+								#endif
 								noOfCDCEntries = noOfCDCEntries + 1;
-
 							}
 						}
 					}
@@ -4426,7 +4435,7 @@ INT32 BRSpecificgetCNsTotalIndexSubIndex(INT32 nodeId)
 				SubIndex* sidxObj = NULL;
 				sidxObj = indexObj->GetSubIndexbyIndexValue((char*) "00");
 				if ((NULL != sidxObj) && (NULL != sidxObj->GetActualValue())
-						&& (0 != strcmp(sidxObj->GetActualValue(), "")))
+					&& (0 != strcmp(sidxObj->GetActualValue(), "")))
 				{
 					if (CheckIfValueZero((char*) sidxObj->GetActualValue()))
 					{
@@ -4435,33 +4444,17 @@ INT32 BRSpecificgetCNsTotalIndexSubIndex(INT32 nodeId)
 				}
 
 				for (INT32 sidxLC = 0;
-						sidxLC < indexObj->GetNumberofSubIndexes(); sidxLC++)
+					sidxLC < indexObj->GetNumberofSubIndexes(); sidxLC++)
 				{
 					if (indexObj->GetSubIndex(sidxLC)->GetActualValue() != NULL
-							&& TRUE
-									== indexObj->GetSubIndex(sidxLC)->GetFlagIfIncludedCdc()
-							&& true
-									== CheckAccessTypeForInclude(
-											(char*) indexObj->GetSubIndex(
-													sidxLC)->GetAccessType())
-							&& true
-									== IsDefaultActualNotEqual(
-											indexObj->GetSubIndex(sidxLC)))
+						&& TRUE == indexObj->GetSubIndex(sidxLC)->GetFlagIfIncludedCdc()
+						&& true == CheckAccessTypeForInclude((char*) indexObj->GetSubIndex(sidxLC)->GetAccessType())
+						&& true == IsDefaultActualNotEqual(indexObj->GetSubIndex(sidxLC)))
 					{
-						if (0
-								== strcmp(indexObj->GetIndexValue(),
-										(char*) "1F81"))
+						if (0 == strcmp(indexObj->GetIndexValue(), (char*) "1F81"))
 						{
-
-							if (0
-									== strcmp(
-											indexObj->GetSubIndex(sidxLC)->GetIndexValue(),
-											"00")
-									|| 0
-											== strcmp(
-													indexObj->GetSubIndex(
-															sidxLC)->GetIndexValue(),
-													tempNodeId))
+							if (0 == strcmp(indexObj->GetSubIndex(sidxLC)->GetIndexValue(),"00")
+								|| 0 == strcmp(indexObj->GetSubIndex(sidxLC)->GetIndexValue(), tempNodeId))
 							{
 								continue;
 							}
@@ -4469,6 +4462,9 @@ INT32 BRSpecificgetCNsTotalIndexSubIndex(INT32 nodeId)
 							{
 							}
 						}
+						#if defined DEBUG
+							cout<< "SidxId: " << indexObj->GetSubIndex(sidxLC)->GetIndexValue() << " Val: " << indexObj->GetSubIndex(sidxLC)->GetActualValue() << endl;
+						#endif
 						noOfCDCEntries = noOfCDCEntries + 1;
 					}
 				}
