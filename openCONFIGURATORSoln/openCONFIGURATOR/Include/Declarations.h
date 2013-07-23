@@ -186,8 +186,9 @@ typedef enum
  */
 typedef enum
 {
-	PDO_TPDO = 1,	/**< 1: Indicates the Transmit Process Data Objects */
-	PDO_RPDO = 2	/**< 2: Indicates the Receive Process Data Objects */
+	PDO_INVALID = 0,	/**< Indicates the object is not a Process Data Object */
+	PDO_TPDO = 1,		/**< 1: Indicates the Transmit Process Data Objects */
+	PDO_RPDO = 2		/**< 2: Indicates the Receive Process Data Objects */
 } PDOType;
 
 /** An enum FeatureType.
