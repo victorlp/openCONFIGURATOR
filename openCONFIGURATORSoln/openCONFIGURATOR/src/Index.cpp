@@ -73,7 +73,7 @@
 Index::Index(void)
 {
 	sidxCount = subIndexCollection.Count();
-	//pdoType = 0; //TODO: Review Initialisation
+	pdoType = PDO_INVALID;
 }
 
 /*************************************************************************/

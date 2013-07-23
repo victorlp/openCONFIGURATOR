@@ -104,7 +104,7 @@ void IndexCollection::AddIndex(Index objIndex)
 	}
 	else
 	{
-		//Nothing to be added.
+		objIndex.SetPDOType(PDO_INVALID);
 	}
 	delete[] subStr;
 	indexCollection[itemPosition] = objIndex;

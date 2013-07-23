@@ -11766,58 +11766,52 @@ void SetPresMNNodeAssigmentBits()
 	bool isPresMn = false;
 	bool isMNBroadcastingPRes = false;
 
+	//check whether Pres activated in MN
 	isPresMn = IsPresMN();
 
-	//check whether Pres activated in MN
-	NodeCollection* nodeCollObj;
+	NodeCollection* nodeCollObj = NULL;
 	Node nodeObj;
-	IndexCollection* pdoIndexCollobj;
-	IndexCollection* indexCollObj;
+	IndexCollection* indexCollObj = NULL;
 
 	nodeCollObj = NodeCollection::GetNodeColObjectPointer();
 	nodeObj = nodeCollObj->GetMNNode();
 
-	INT32 tpdoCount = 0;
-	INT32 rpdoCount = 0;
-	pdoIndexCollobj = nodeObj.getPDOIndexCollection(&rpdoCount, &tpdoCount);
-	if (pdoIndexCollobj != NULL)
+	indexCollObj = nodeObj.GetIndexCollection();
+	Index* indexObj = NULL;
+	//If pres chaining is enabled MN will use 1A00 is only used for transferring the Pres data.
+	indexObj = indexCollObj->GetIndexbyIndexValue((char*) "1A00");
+	if(NULL != indexObj)
 	{
-		indexCollObj = nodeObj.GetIndexCollection();
-		Index* indexObj;
-		for (INT32 indexLC = 0; indexLC < pdoIndexCollobj->GetNumberofIndexes();
-				indexLC++)
+		SubIndex *mappSidxObj = NULL;
+		mappSidxObj = indexObj->GetSubIndexbyIndexValue((char *) "00");
+		if (NULL != mappSidxObj)
 		{
-			indexObj = pdoIndexCollobj->GetIndex(indexLC);
-			if (0 == strncmp(indexObj->GetIndexValue(), "1A", 2))
+			if ((NULL != mappSidxObj->GetActualValue())
+				&& (0 != strcmp(mappSidxObj->GetActualValue(), "")))
 			{
-				Index *commIndexObj = NULL;
-
-				char *indexId = new char[SUBINDEX_LEN];
-				SubString(indexId, indexObj->GetIndexValue(), 2, 2);
-				char *commIdxId = new char[INDEX_LEN + 1];
-				strcpy(commIdxId, (char *) "18");
-				strcat(commIdxId, indexId);
-				commIndexObj = indexCollObj->GetIndexbyIndexValue(commIdxId);
-				delete[] indexId;
-				delete[] commIdxId;
-
-				if (NULL != commIndexObj)
+				INT32 nrEntries = 0;
+				nrEntries = GetDecimalValue((char *) mappSidxObj->GetActualValue());
+				if (nrEntries > 0)
 				{
-					SubIndex *sidxObj = NULL;
-					sidxObj = commIndexObj->GetSubIndexbyIndexValue(
-							(char *) "01");
-					if (NULL != sidxObj)
+					Index *commIndexObj = NULL;
+					commIndexObj = indexCollObj->GetIndexbyIndexValue((char*) "1800");
+
+					if (NULL != commIndexObj)
 					{
-						if ((NULL != sidxObj->GetActualValue())
-								&& (0 != strcmp(sidxObj->GetActualValue(), "")))
+						SubIndex *commSidxObj = NULL;
+						commSidxObj = commIndexObj->GetSubIndexbyIndexValue((char *) "01");
+						if (NULL != commSidxObj)
 						{
-							INT32 tpdoMappedNodeId = 0;
-							tpdoMappedNodeId = GetDecimalValue(
-									(char *) sidxObj->GetActualValue());
-							if (BROADCAST_NODEID == tpdoMappedNodeId)
+							if ((NULL != commSidxObj->GetActualValue())
+								&& (0 != strcmp(commSidxObj->GetActualValue(), "")))
 							{
-								isMNBroadcastingPRes = true;
-								break;
+								INT32 tpdoMappedNodeId = 0;
+								tpdoMappedNodeId = GetDecimalValue((char *) commSidxObj->GetActualValue());
+								if (BROADCAST_NODEID == tpdoMappedNodeId)
+								{
+									isMNBroadcastingPRes = true;
+									//break;
+								}
 							}
 						}
 					}
@@ -13406,6 +13400,7 @@ void SortNodeID(INT32 *nodeIDColl, INT32 collectionSize)
 	}
 }
 
+//TODO: Change the function name as IsPresEnabledCN. Because it determines the CN has the functionality to receive the Pres or not.
 bool IsPresMN()
 {
 	NodeCollection *nodeCollObj = NULL;
@@ -13423,10 +13418,74 @@ bool IsPresMN()
 		{
 			continue;
 		}
+		//No need to check for preschaining for normal and multiplexed stations
 		if (CHAINED == nodeObj->GetStationType())
 		{
 			//return true;
-			isPres = true;
+			//isPres = true;
+			IndexCollection* cnIdxColl = NULL;
+			cnIdxColl = nodeObj->GetIndexCollection();
+			/*
+			1. CN is chained and mapping is enabled, and Targetnodeid is F0, then MN can send Pres
+			*/
+			for (INT32 indexLC = 0; indexLC < cnIdxColl->GetNumberofIndexes(); indexLC++)
+			{
+				Index* mappIdxObj = NULL;
+				mappIdxObj = cnIdxColl->GetIndex(indexLC);
+				if(mappIdxObj != NULL)
+				{
+					PDOType pdoType = mappIdxObj->GetPDOType();
+					if(pdoType == PDO_RPDO)
+					{
+						if (0 == strncmp(mappIdxObj->GetIndexValue(), "16", 2))
+						{
+							SubIndex *mappSidxObj = NULL;
+							mappSidxObj = mappIdxObj->GetSubIndexbyIndexValue((char *) "00");
+							if (NULL != mappSidxObj)
+							{
+								if ((NULL != mappSidxObj->GetActualValue()))
+								{
+									if((0 != strcmp(mappSidxObj->GetActualValue(), ""))
+										|| (true != CheckIfValueZero((char*) mappSidxObj->GetActualValue()))
+									)
+									{
+										Index *commIndexObj = NULL;
+
+										char *indexId = new char[SUBINDEX_LEN];
+										SubString(indexId, mappIdxObj->GetIndexValue(), 2, 2);
+										char *commIdxId = new char[INDEX_LEN + 1];
+										strcpy(commIdxId, (char *) "14");
+										strcat(commIdxId, indexId);
+										commIndexObj = cnIdxColl->GetIndexbyIndexValue(commIdxId);
+										delete[] indexId;
+										delete[] commIdxId;
+
+										if (NULL != commIndexObj)
+										{
+											SubIndex *sidxObj = NULL;
+											sidxObj = commIndexObj->GetSubIndexbyIndexValue((char *) "01");
+											if (NULL != sidxObj)
+											{
+												if ((NULL != sidxObj->GetActualValue())
+													&& (0 != strcmp(sidxObj->GetActualValue(), "")))
+												{
+													INT32 rpdoMappedNodeId = 0;
+													rpdoMappedNodeId = GetDecimalValue((char *) sidxObj->GetActualValue());
+													if (MN_NODEID == rpdoMappedNodeId)
+													{
+														isPres = true;
+														break;
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 	return isPres;
