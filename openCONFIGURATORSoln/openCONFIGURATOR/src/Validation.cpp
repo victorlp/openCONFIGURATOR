@@ -678,6 +678,7 @@ bool CheckForValidPDOMapping(PDOType pdoTypeVal, Index* indexObj)
 					break;
 			default:
 					retVal = false;
+					break;
 		}
 	}
 #if defined DEBUG
@@ -723,6 +724,7 @@ bool CheckForValidPDOMapping(PDOType pdoTypeVal, Index* indexObj, SubIndex* sidx
 					break;
 			default:
 					retVal = false;
+					break;
 		}
 	}
 #if defined DEBUG
@@ -808,6 +810,7 @@ bool IsValidAccessTypeForPdo(PDOType pdoTypeVal, char* pdoMappingVal, char* acce
 			break;
 	default:
 		retVal = false;
+		break;
 	}
 
 	delete[] pdoMappingUpper;

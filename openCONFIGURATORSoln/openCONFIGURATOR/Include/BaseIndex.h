@@ -390,6 +390,12 @@ class BaseIndex
 		/*****************************************************************************/
 		void SetFlagIfIncludedCdc(Flag flagVal);
 
+		/**
+		 \brief		This function shall be used to delete the memory occupied by the members of the class
+		 
+		 \return	void			
+		 */
+		void DeleteAllMemberMemory();
 	protected:
 		const char* name;				/**< Name of the object */
 		const char* indexId;			/**< IndexId of the object */

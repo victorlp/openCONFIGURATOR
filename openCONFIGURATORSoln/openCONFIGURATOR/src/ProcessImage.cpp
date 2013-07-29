@@ -1287,7 +1287,7 @@ PIObject GetPIAddress(PDODataType dtType, PIDirectionType dirType,
 				INT32 mod = (subIndex % 254) + 1;
 
 				INT32 addressVal;
-				addressVal = HexToInt(piIndexTable[idx].addressStr);
+				addressVal = (INT32) HexToInt(piIndexTable[idx].addressStr);
 				addressVal = addressVal + div;
 				stPIObject.indexId = IntToAscii(addressVal, stPIObject.indexId, 16);
 				stPIObject.sIdxId = IntToAscii(mod, stPIObject.sIdxId, 16);

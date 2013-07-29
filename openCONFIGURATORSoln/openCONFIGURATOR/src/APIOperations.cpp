@@ -977,6 +977,12 @@ ocfmRetCode AddSubIndex(INT32 nodeId, NodeType nodeType, char* indexId,
 				sidxObj = new SubIndex;
 				sidxObj->SetNodeID(nodeId);
 				sidxObj->SetIndexValue(subIndexId);
+				if (0 != strcmp(subIndexId, (const char*) "00"))
+				{
+					sidxObj->SetName((char*) "NumberOfEntries");
+					sidxObj->SetDataType((char*) "UNSIGNED8");
+					sidxObj->SetAccessType((char*) "rw");
+				}
 				if (NULL != pobjIndex)
 				{
 					pobjIndex->AddSubIndex(*sidxObj);
@@ -1992,7 +1998,7 @@ void EnableDisableMappingPDO(IndexCollection* indexCollObj, Index* indexObj,
 					INT32 sidxActLen = strlen(sidxObj->GetActualValue());
 					char *sidxActVal = new char[sidxActLen];
 					SubString(sidxActVal, sidxObj->GetActualValue(), 2, (sidxActLen - 2));
-					noOfSubIndexes = HexToInt(sidxActVal);
+					noOfSubIndexes = (INT32) HexToInt(sidxActVal);
 					delete[] sidxActVal;
 				}
 				else
@@ -2615,12 +2621,12 @@ void UpdateCNPresMNActLoad(Node* nodeObj)
 		{
 			if (CHAINED == nodeObj->GetStationType())
 			{
-				char conValue[20];
-				char actValue[22];
+				char conValue[5];
+				char actValue[7];
 				Node nodeObjMN;
 
-				memset(conValue, 0, 20 * sizeof(char));
-				memset(actValue, 0, 22 * sizeof(char));
+				//memset(conValue, 0, 20 * sizeof(char));
+				//memset(actValue, 0, 22 * sizeof(char));
 				nodeObjMN = nodeCollObj->GetMNNode();
 
 				if (PRES_DEFAULT_PAYLOAD > nodeObjMN.GetPResActPayloadValue())
@@ -3363,7 +3369,7 @@ void GetIndexData(Index* indexObj, char* cdcBuffer)
 					INT32 sidxLen = strlen(sidxObj->GetActualValue());
 					char* sidxActVal = new char[sidxLen];
 					SubString(sidxActVal, sidxObj->GetActualValue(), 2, (sidxLen - 2));
-					noOfSubIndexes = HexToInt(sidxActVal);
+					noOfSubIndexes = (INT32) HexToInt(sidxActVal);
 					delete[] sidxActVal;
 				}
 				else
@@ -3680,7 +3686,7 @@ void BRSpecificGetIndexData(Index* indexObj, char* cdcBuffer, INT32 nodeId)
 					INT32 sidxActLen = strlen(sidxObj->GetActualValue());
 					char* sidxActVal = new char[sidxActLen];
 					SubString(sidxActVal, sidxObj->GetActualValue(), 2, (sidxActLen - 2));
-					noOfSubIndexes = HexToInt(sidxActVal);
+					noOfSubIndexes = (INT32) HexToInt(sidxActVal);
 					delete[] sidxActVal;
 				}
 				else
@@ -4479,8 +4485,8 @@ ocfmRetCode GenerateCDC(char* cdcPath)
 {
 
 	Node nodeObjMN;
-	Node *nodeObj = NULL;
 	IndexCollection* indexCollObj;
+	Node *nodeObj;
 	char *Buffer1 = NULL;
 	char *tempFileName = NULL;
 	char *tempOutputFileName = NULL;
@@ -5175,11 +5181,8 @@ INT32 ProcessCDT(ComplexDataType* cdtObj, ApplicationProcess* appProcessObj,
 			}
 			if (varDeclObj.namIdDtAttr->GetName() != NULL)
 			{
-				piObj.name =
-						(char*) malloc(
-								strlen(
-										varDeclObj.namIdDtAttr->GetName()) + strlen(moduleName) + 6 + ALLOC_BUFFER);strcpy
-				(piObj.name, GetPIName(nodeObj->GetNodeId()));
+				piObj.name = (char*) malloc(strlen(varDeclObj.namIdDtAttr->GetName()) + strlen(moduleName) + 6 + ALLOC_BUFFER);
+				strcpy(piObj.name, GetPIName(nodeObj->GetNodeId()));
 				strcat(piObj.name, moduleName);
 				strcat(piObj.name, ".");
 				strcat(piObj.name, varDeclObj.namIdDtAttr->GetName());
@@ -5375,7 +5378,7 @@ INT32 DecodeUniqueIDRef(char* uniqueidRefId, Node* nodeObj, Index indexObj, SubI
 	INT32 totalBytesMapped = 0;
 	INT32 iStartBitOffset =  0;
 	INT32 iOffset = 0;
-	bool bIsNewBitStringVar = false;
+	//bool bIsNewBitStringVar = false;
 	INT32 iDataSize = 0;
 	//cout<<"DecodeUniqiueIDRef"<<endl;
 	try
@@ -5476,10 +5479,6 @@ INT32 DecodeUniqueIDRef(char* uniqueidRefId, Node* nodeObj, Index indexObj, SubI
 					
 					objProcessImage.moduleIndex = new char[strlen(moduleIndexObj->GetIndexValue()) + ALLOC_BUFFER];
 					strcpy(objProcessImage.moduleIndex, moduleIndexObj->GetIndexValue());
-
-					//objProcessImage.varDeclName = (char*)malloc(strlen(uniqueidRefId) + ALLOC_BUFFER);
-					//strcpy(objProcessImage.varDeclName, uniqueidRefId);
-					//cout<<"Name: "<<objProcessImage.name<<endl;
 
 					objProcessImage.dataInfo = *(GetIECDT(parameterObj->nameIdDtAttr.dataType, parameterObj->size));
 
@@ -5603,8 +5602,8 @@ ocfmRetCode ProcessPDONodes(bool isBuild)
 		size64OUTOffset.currOffset = 0;
 		size64OUTOffset.prevOffset = 0;
 
-		INT32 *nodeIDbyStnArranged = NULL;
-		nodeIDbyStnArranged = ArrangeNodeIDbyStation();
+		//INT32 *nodeIDbyStnArranged = NULL;
+		//nodeIDbyStnArranged = ArrangeNodeIDbyStation();
 		for (INT32 nodeLC = 0; nodeLC < nodeCollObj->GetNumberOfNodes();
 				nodeLC++)
 		{
@@ -5828,7 +5827,7 @@ ocfmRetCode ProcessPDONodes(bool isBuild)
 								INT32 mappedLength = 0;
 								char* mappingLen = new char[INDEX_LEN];
 								SubString(mappingLen, actualVal, 2, 4);
-								mappedLength = HexToInt(mappingLen);
+								mappedLength = (INT32) HexToInt(mappingLen);
 								delete[] mappingLen;
 #if defined DEBUG
 								cout<<" PIMappedLength:"<<mappedLength<<endl;
@@ -5903,6 +5902,7 @@ ocfmRetCode ProcessPDONodes(bool isBuild)
 										strcat((char*) customError, sidxObj->GetIndexValue());
 										exceptionObj.OCFMException(OCFM_ERR_INVALID_MAPPING_TYPE_FOR_PDO);
 										CopyCustomErrorString(&(exceptionObj._ocfmRetCode), customError);
+										delete[] moduleName;
 										throw exceptionObj;
 									}
 
@@ -6039,6 +6039,7 @@ ocfmRetCode ProcessPDONodes(bool isBuild)
 													strcat((char*) customError, sidxObj->GetIndexValue());
 													exceptionObj.OCFMException(OCFM_ERR_INVALID_ACCESS_TYPE_FOR_PDO);
 													CopyCustomErrorString(&(exceptionObj._ocfmRetCode), customError);
+													delete[] sidxName;
 													throw exceptionObj;
 												}
 											}
@@ -6291,7 +6292,7 @@ ocfmRetCode ProcessPDONodes(bool isBuild)
 									char* modOffset = new char[strlen(actualVal) + 1];
 									strcpy(modOffset, actualVal);
 									char* offsetStr = new char[5];
-									memset(offsetStr, 0, 5 * sizeof(char));
+									//memset(offsetStr, 0, 5 * sizeof(char));
 									if (CHAINED == stnType)
 									{
 										offsetStr = IntToAscii(totalChainedBytesMapped, &(offsetStr[0]), 16);
@@ -6317,6 +6318,7 @@ ocfmRetCode ProcessPDONodes(bool isBuild)
 											char customError[200] = { 0 };
 											sprintf(customError, "The total payload for the chained stations exceeds the maximum Pres payload limit(1490 bytes) ");
 											CopyCustomErrorString(&(exceptionObj._ocfmRetCode), customError);
+											delete[] modOffset;
 											throw exceptionObj;
 										}
 									}
@@ -6410,8 +6412,8 @@ void CalculatePayload()
 	Node *nodeObj = NULL;
 	Node *nodeObjMN = NULL;
 	INT32 totalChainedBytesMapped = 0;
-	INT32* nodeIdbyStnArranged = NULL;
-	nodeIdbyStnArranged = ArrangeNodeIDbyStation();
+	//INT32* nodeIdbyStnArranged = NULL;
+	//nodeIdbyStnArranged = ArrangeNodeIDbyStation();
 	for (INT32 nodeLC = 0; nodeLC < nodeCollObj->GetNumberOfNodes(); nodeLC++)
 	{
 		nodeObj = nodeCollObj->GetNodebyColIndex(nodeLC);
@@ -6604,12 +6606,12 @@ Do not sort pdo subindexes by offset. The Sidx should start from 00 to FE. also 
 
 							char* lengthVal = new char[INDEX_LEN];
 							lengthVal = SubString(lengthVal, actualValueStr, 2, 4);
-							iLength = HexToInt(lengthVal);
+							iLength = (INT32) HexToInt(lengthVal);
 							delete[] lengthVal;
 
 							char* offsetVal = new char[INDEX_LEN];
 							offsetVal = SubString(offsetVal, actualValueStr, 6, 4);
-							iOffset = HexToInt(offsetVal);
+							iOffset = (INT32) HexToInt(offsetVal);
 							delete[] offsetVal;
 
 							//	iNodeMappedTotalBytes = iOffset + iLength;
@@ -6633,13 +6635,13 @@ Do not sort pdo subindexes by offset. The Sidx should start from 00 to FE. also 
 							INT32 len = 0;
 							char* lengthStr = new char[INDEX_LEN];
 							lengthStr = SubString(lengthStr, actualValueStr, 2, 4);
-							len = HexToInt(lengthStr);
+							len = (INT32) HexToInt(lengthStr);
 							delete[] lengthStr;
 
 							INT32 offsetVal = 0;
 							char* varOffset = new char[INDEX_LEN];
 							varOffset = SubString(varOffset, actualValueStr, 6, 4);
-							offsetVal = HexToInt(varOffset);
+							offsetVal = (INT32) HexToInt(varOffset);
 							delete[] varOffset;
 
 							nodeObj->SetPResActPayloadValue(
@@ -6657,9 +6659,9 @@ Do not sort pdo subindexes by offset. The Sidx should start from 00 to FE. also 
 		nodeObjMN->SetPResActPayloadValue(totalChainedBytesMapped / 8);
 		UpdatePresActLoad(nodeObjMN);
 	}
-	delete[] nodeIdbyStnArranged;
+	//delete[] nodeIdbyStnArranged;
 }
-
+//TODO: Unused function
 INT32 GetCNDataLen(char* cdcBuffer)
 {
 	if (NULL == cdcBuffer)
@@ -7657,9 +7659,9 @@ ocfmRetCode GetNodeCount(INT32 nodeId, INT32* outNodeCount)
 char* GetPIName(INT32 nodeID)
 {
 	char* nodeIdStr = NULL;
-	char* nodeIdAsci = new char[2];
+	char* nodeIdAsci = new char[3];
 
-	nodeIdStr = new char[5];
+	nodeIdStr = new char[6];
 	strcpy(nodeIdStr, "CN");
 	nodeIdAsci = IntToAscii(nodeID, nodeIdAsci, 10);
 	strcat(nodeIdStr, nodeIdAsci);
@@ -8429,7 +8431,7 @@ void GetMNPDOSubIndex(MNPdoVariable mnPdoVarObj, INT32& prevSubIndex,
 
 #if defined DEBUG
 	cout << " idx" << tempIndexId << endl;
-	cout << " prevsubindex" << prevSubIndex << endl;
+	cout << " subindex" << prevSubIndex << endl;
 #endif
 	if (CheckIfSubIndexExists(MN_NODEID, MN, indexId, tempIndexId))
 	{
@@ -8945,9 +8947,10 @@ ocfmRetCode GenerateMNOBD(bool IsBuild)
 		nodeCollObj = NodeCollection::GetNodeColObjectPointer();
 		nodeObjMN = nodeCollObj->GetNodePtr(MN, MN_NODEID);
 
-		INT32* arrangedNodeIDbyStation = NULL;
+//		INT32* arrangedNodeIDbyStation = NULL;
 		Node nodeObj;
-		arrangedNodeIDbyStation = ArrangeNodeIDbyStation();
+//Commented because the below code is not using the arranged node id..
+//		arrangedNodeIDbyStation = ArrangeNodeIDbyStation();
 #if defined DEBUG
 			cout << "NodeID Aarranged by Station" << endl;
 #endif
@@ -8960,7 +8963,7 @@ ocfmRetCode GenerateMNOBD(bool IsBuild)
 			if (nodeObj.GetNodeType() == CN)
 			{
 
-				char* versionNumber = new char[4];
+				char* versionNumber = new char[INDEX_LEN];
 				versionNumber[0] = 0;
 				currCNStation = nodeObj.GetStationType();
 
@@ -8982,7 +8985,7 @@ ocfmRetCode GenerateMNOBD(bool IsBuild)
 					/* Create PDO_TxCommParam_XXh_REC 1800 Index*/
 					Index* indexObj;
 					indexPos = 0;
-					char* mappNodeID = new char[SUBINDEX_LEN];
+					char* mappNodeID = new char[INDEX_LEN];
 					strcpy(indexIdMN, "18");
 					if (CHAINED != currCNStation)
 					{
@@ -9026,7 +9029,7 @@ ocfmRetCode GenerateMNOBD(bool IsBuild)
 					if (errCodeObj.code != OCFM_ERR_SUCCESS)
 					{
 						exceptionObj.OCFMException(errCodeObj.code);
-						delete[] arrangedNodeIDbyStation;
+						//delete[] arrangedNodeIDbyStation;
 						throw exceptionObj;
 					}
 
@@ -9061,7 +9064,7 @@ ocfmRetCode GenerateMNOBD(bool IsBuild)
 					if (errCodeObj.code != OCFM_ERR_SUCCESS)
 					{
 						exceptionObj.OCFMException(errCodeObj.code);
-						delete[] arrangedNodeIDbyStation;
+						//delete[] arrangedNodeIDbyStation;
 						throw exceptionObj;
 					}
 					INT32 pdoOutLC = 0;
@@ -9150,7 +9153,7 @@ ocfmRetCode GenerateMNOBD(bool IsBuild)
 					if (errCodeObj.code != OCFM_ERR_SUCCESS)
 					{
 						exceptionObj.OCFMException(errCodeObj.code);
-						delete[] arrangedNodeIDbyStation;
+						//delete[] arrangedNodeIDbyStation;
 						throw exceptionObj;
 					}
 
@@ -9179,7 +9182,7 @@ ocfmRetCode GenerateMNOBD(bool IsBuild)
 						if (errCodeObj.code != OCFM_ERR_SUCCESS)
 						{
 							exceptionObj.OCFMException(errCodeObj.code);
-							delete[] arrangedNodeIDbyStation;
+							//delete[] arrangedNodeIDbyStation;
 							throw exceptionObj;
 						}
 					}
@@ -9243,7 +9246,7 @@ ocfmRetCode GenerateMNOBD(bool IsBuild)
 		}
 		SetPresMNNodeAssigmentBits();
 
-		delete[] arrangedNodeIDbyStation;
+		//delete[] arrangedNodeIDbyStation;
 		SetFlagForRequiredMNIndexes(MN_NODEID);
 	}
 
@@ -9652,6 +9655,46 @@ ocfmRetCode FreeProjectMemory()
 {
 	NodeCollection *nodeCollObj = NULL;
 	nodeCollObj = NodeCollection::GetNodeColObjectPointer();
+	for(int i = 0; i<nodeCollObj->GetNumberOfNodes(); i++)
+	{
+		Node *nodeObj = NULL;
+		nodeObj = nodeCollObj->GetNodebyColIndex(i);
+		nodeObj->DeleteCollectionsForPI();
+		nodeObj->DeleteCollectionsForNETPI();
+		nodeObj->MNPDOINVarCollection.Clear();
+		nodeObj->MNPDOOUTVarCollection.Clear();
+		nodeObj->NETPIColl.Clear();
+		nodeObj->PICollection.Clear();
+
+		ApplicationProcess *applObj = NULL;
+		applObj = nodeObj->GetApplicationProcess();
+		applObj->DeleteComplexDataTypeCollection();
+		applObj->DeleteParameterCollection();
+
+		DataTypeCollection *dtCollObj = NULL;
+		dtCollObj = nodeObj->GetDataTypeCollection();
+		dtCollObj->DeleteDataTypeCollection();
+
+		IndexCollection *idxCollObj = NULL;
+		idxCollObj = nodeObj->GetIndexCollection();
+		for(int j = 0; j<idxCollObj->GetNumberofIndexes(); j++)
+		{
+			Index *idxObj = NULL;
+			idxObj = idxCollObj->GetIndex(j);
+			for(int k = 0; k<idxObj->GetNumberofSubIndexes(); k++)
+			{
+				SubIndex *sidxObj = NULL;
+				sidxObj = idxObj->GetSubIndex(k);
+				sidxObj->DeleteAllMemberMemory();
+			}
+			idxObj->DeleteAllMemberMemory();
+			idxObj->DeleteSubIndexCollection();
+			//delete idxObj;
+		}
+		idxCollObj->DeleteIndexCollection();
+		//delete idxCollObj;
+		nodeCollObj->DeleteNode(i);
+	}
 	delete nodeCollObj;
 	ocfmRetCode stErrorInfo;
 	stErrorInfo.code = OCFM_ERR_SUCCESS;
@@ -11265,7 +11308,7 @@ Index GetPDOIndexByOffset(Index* indexObj)
 				char* offset1 = new char[INDEX_LEN];
 
 				offset1 = SubString(offset1, actualVal1, length1 - 12, 4);
-				offsetVal1 = HexToInt(offset1);
+				offsetVal1 = (INT32) HexToInt(offset1);
 				delete[] offset1;
 
 				sidxObj2 = tempIndexObj.GetSubIndex(idxLC2 + 1);
@@ -11280,7 +11323,7 @@ Index GetPDOIndexByOffset(Index* indexObj)
 					INT32 offsetVal2 = 0;
 
 					offset2 = SubString(offset2, actualVal2, length2 - 12, 4);
-					offsetVal2 = HexToInt(offset2);
+					offsetVal2 = (INT32) HexToInt(offset2);
 					delete[] offset2;
 
 					if (offsetVal1 > offsetVal2)
@@ -11497,7 +11540,7 @@ ocfmRetCode UpdateNodeParams(INT32 currentNodeId, INT32 newNodeID,
 							INT32 forcedLen = strlen(nodeObj->GetForcedCycleValue());
 							char* forcedVal = new char[forcedLen];
 							SubString(forcedVal, (const char*) nodeObj->GetForcedCycleValue(), 2, forcedLen - 2);
-							actualValue = HexToInt(forcedVal);
+							actualValue = (INT32) HexToInt(forcedVal);
 							delete[] forcedVal;
 						}
 						else
@@ -12012,7 +12055,7 @@ ocfmRetCode RecalculateMultiplex()
 							{
 								char *tempActVal = new char[strlen(actValue)];
 								SubString(tempActVal, (const char*) actValue, 2, strlen(actValue) - 2);
-								mnMultiActualValue = HexToInt(tempActVal);
+								mnMultiActualValue = (INT32) HexToInt(tempActVal);
 								delete[] tempActVal;
 							}
 							else
@@ -12029,7 +12072,7 @@ ocfmRetCode RecalculateMultiplex()
 							{
 								char *tempForcedVal = new char[strlen(forcedCycleValue)];
 								SubString(tempForcedVal, (const char*) forcedCycleValue, 2, strlen(forcedCycleValue) - 2);
-								cnActualValue = HexToInt(tempForcedVal);
+								cnActualValue = (INT32) HexToInt(tempForcedVal);
 								delete[] tempForcedVal;
 							}
 							else
@@ -12267,7 +12310,7 @@ void CheckAndReAssignMultiplex(INT32 nodeId, char* cycleValue)
 		INT32 cycleValLen = strlen(cycleValue);
 		char* tempCycleStr = new char[cycleValLen];
 		SubString(tempCycleStr, (const char*) cycleValue, 2, cycleValLen - 2);
-		tempCycleValue = HexToInt(tempCycleStr);
+		tempCycleValue = (INT32) HexToInt(tempCycleStr);
 		delete[] tempCycleStr;
 	}
 	else
@@ -12323,7 +12366,7 @@ void CheckAndReAssignMultiplex(INT32 nodeId, char* cycleValue)
 					{
 						char *tempForcedVal = new char[strlen(ForcedCycleValue)];
 						SubString(tempForcedVal, (const char*) ForcedCycleValue, 2, strlen(ForcedCycleValue) - 2);
-						actualValueCN = HexToInt(tempForcedVal);
+						actualValueCN = (INT32) HexToInt(tempForcedVal);
 						delete[] tempForcedVal;
 					}
 					else
@@ -12370,7 +12413,7 @@ void CheckAndReAssignMultiplex(INT32 nodeId, char* cycleValue)
 				{
 					char *tempForcedVal = new char[strlen(forcedCycleValue)];
 					SubString(tempForcedVal, (const char*) forcedCycleValue, 2, strlen(forcedCycleValue) - 2);
-					actualValueCN = HexToInt(tempForcedVal);
+					actualValueCN = (INT32) HexToInt(tempForcedVal);
 					delete[] tempForcedVal;
 				}
 				else
@@ -12468,7 +12511,7 @@ ocfmRetCode CheckMutliplexAssigned()
 			INT32 actLen = strlen(actValue);
 			char *tempActStr = new char[actLen];
 			SubString(tempActStr, (const char*) actValue, 2, actLen - 2);
-			tempActualValue = HexToInt(tempActStr);
+			tempActualValue = (INT32) HexToInt(tempActStr);
 			delete[] tempActStr;
 		}
 		else
@@ -12536,7 +12579,7 @@ ocfmRetCode CheckMutliplexAssigned()
 						{
 							char *tempForcedVal = new char[strlen(forcedCycleValue)];
 							SubString(tempForcedVal, (const char*) forcedCycleValue, 2, strlen(forcedCycleValue) - 2);
-							actualValueCN = HexToInt(tempForcedVal);
+							actualValueCN = (INT32) HexToInt(tempForcedVal);
 							delete[] tempForcedVal;
 						}
 						else
@@ -12620,7 +12663,7 @@ UINT32 GetFreeCycleNumber(UINT32 parmCycleNumber)
 					{
 						char *tempForcedVal = new char[strlen(forcedCycleValue)];
 						SubString(tempForcedVal, (const char*) forcedCycleValue, 2, strlen(forcedCycleValue) - 2);
-						actualValueCN = HexToInt(tempForcedVal);
+						actualValueCN = (INT32) HexToInt(tempForcedVal);
 						delete[] tempForcedVal;
 					}
 					else
@@ -12689,7 +12732,7 @@ bool IsMultiplexCycleNumberContinuous(UINT32 parmCycleNumber)
 					{
 						char *tempForcedVal = new char[strlen(forcedCycleValue)];
 						SubString(tempForcedVal, (const char*) forcedCycleValue, 2, strlen(forcedCycleValue) - 2);
-						actualValueCN = HexToInt(tempForcedVal);
+						actualValueCN = (INT32) HexToInt(tempForcedVal);
 						delete[] tempForcedVal;
 					}
 					else
@@ -12788,7 +12831,7 @@ void CalculateCNPollResponse(INT32 nodeId, NodeType nodeType)
 		INT32 templen = strlen(tempValStr);
 		char * tempSubStr = new char[templen];
 		SubString(tempSubStr, (const char*) tempValStr, 2, templen - 2);
-		tempValue = HexToInt(tempSubStr);
+		tempValue = (INT32) HexToInt(tempSubStr);
 		delete[] tempSubStr;
 	}
 	else
@@ -12876,7 +12919,8 @@ void RecalculateCNPresTimeout(char* sidxId)
 		return;
 	}
 
-	INT32 nodeId = HexToInt(sidxId);
+	INT32 nodeId = 0;
+	nodeId = (INT32) HexToInt(sidxId);
 
 	errCodeObj = IfSubIndexExists(nodeId, CN, (char*) "1F98", (char*) "03",
 			&sidxPos, &indexPos);
@@ -12951,7 +12995,7 @@ void UpdateMNNodeAssignmentIndex(Node *nodeObj, INT32 cnCount, char* indexId,
 
 			try
 			{
-				INT32 nodeIdVal = HexToInt((char*) sidxObj->GetIndexValue());
+				INT32 nodeIdVal = (INT32) HexToInt((char*) sidxObj->GetIndexValue());
 				NodeType nodeType;
 				if (MN_NODEID == nodeIdVal)
 				{
@@ -13008,7 +13052,7 @@ bool ValidateCNPresTimeout(char* subIndexId, char* presTimeOutVal)
 		return retval;
 	}
 
-	INT32 nodeId = HexToInt(subIndexId);
+	INT32 nodeId = (INT32) HexToInt(subIndexId);
 	errCodeObj = IfSubIndexExists(nodeId, CN, (char*) "1F98", (char*) "03",
 			&sidxPos, &indexPos);
 
@@ -13310,6 +13354,7 @@ bool ReactivateMappingPDO(IndexCollection* indexCollObj, Index* indexObj)
 	return false;
 }
 
+//TODO: This function should be made unused unless it is necessary. Because some where the return value is not used.
 INT32* ArrangeNodeIDbyStation(void)
 {
 	NodeCollection* nodeCollObj = NULL;

@@ -167,7 +167,7 @@ char* SubString(char* destStr, const char* srcStr, UINT32 startPos, UINT32 len)
 	{
 		if ((startPos + len) > strlen(srcStr))
 		{
-			cout<<"Error: "<< strlen(destStr) << " " << __FUNCTION__ <<" wrong inputs. startPos:"<<startPos<<" Len:"<<len <<" Total available:"<<strlen(srcStr)<<endl;
+			//cout<<"Error: "<< strlen(destStr) << " " << __FUNCTION__ <<" wrong inputs. startPos:"<<startPos<<" Len:"<<len <<" Total available:"<<strlen(srcStr)<<endl;
 		}
 
 		strncpy(destStr, (const char*) (srcStr + startPos), len);
@@ -250,7 +250,7 @@ char* IntToAscii(LONG srcValue, char *destStr, INT32 baseValue)
 ULONG HexToInt(char *hexStr)
 {
 	UINT32 loopCount = 0;
-	UINT32 retValue = 0;
+	ULONG retValue = 0;
 	UINT32 hexStrLen = strlen(hexStr);
 
 	for (loopCount = 0; loopCount < hexStrLen; loopCount++)
@@ -561,7 +561,7 @@ char* GetLastAvailableCycleNumber()
 		{
 			char *tempCycleVal = new char[strlen(actValue)];
 			SubString(tempCycleVal, (const char*)actValue, 2, strlen(actValue) - 2);
-			cycleValue = HexToInt(tempCycleVal);
+			cycleValue = (UINT32) HexToInt(tempCycleVal);
 			delete[] tempCycleVal;
 		}
 		else
@@ -665,7 +665,7 @@ INT32 GetDecimalValue(char* srcStr)
 	{
 		char* tempVal = new char[strlen(srcStr)];
 		SubString(tempVal, (const char*) srcStr, 2, strlen(srcStr) - 2);
-		srcValue = HexToInt(tempVal);
+		srcValue = (INT32) HexToInt(tempVal);
 		delete[] tempVal;
 	}
 	else

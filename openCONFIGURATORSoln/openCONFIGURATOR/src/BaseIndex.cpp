@@ -560,6 +560,29 @@ Flag BaseIndex::GetFlagIfIncludedCdc()
 {
 	return includeInCDC;
 }
+
+void BaseIndex::DeleteAllMemberMemory()
+{
+	if(indexId != NULL)
+		delete[] indexId;
+	if(name != NULL)
+		delete[] name;
+	if(highLimit != NULL)
+		delete[] highLimit;
+	//dataType.Initialize();
+	if(dataTypeValue != NULL)
+		delete[] dataTypeValue;
+	if(defaultValue != NULL)
+		delete[] defaultValue;
+	if(actualValue != NULL)
+		delete[] actualValue;
+	if(accessType != NULL)
+		delete[] accessType;
+	if(lowLimit != NULL)
+		delete[] lowLimit;
+	if(uniqueIdRef != NULL)
+		delete[] uniqueIdRef;
+}
 #ifndef __GNUC__
 #pragma endregion MemberFunctions
 #endif
