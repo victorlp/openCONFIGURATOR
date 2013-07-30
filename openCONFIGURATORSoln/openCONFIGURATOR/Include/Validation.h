@@ -150,4 +150,20 @@ bool CheckForValidPDOMapping(PDOType pdoTypeVal, Index* indexObj);
  */
 bool IsValidAccessTypeForPdo(PDOType pdoTypeVal, char* pdoMappingVal, char* accessType);
 
+/**
+ \brief		Normalizes the value field and updates the base index Obj with the normalized value
+
+ \param[in/out]		idxObj		Class pointer of BaseIndex to get its properties
+ \param[in]			attrType	Enum to hold the Attribute type of the index
+ */
+void NormalizeAttributeValue(BaseIndex *idxObj, AttributeType attrType);
+
+/**
+ \brief		Checks for the if the given datatype is standard datatype or not
+
+ \param[in]		dataTypeValue		Character pointer to the value of dataType property of the object
+ \return		bool				Returns true if the dataType is valid
+ */
+bool CheckIfStandardDatatypes(char* dataTypeValue);
+
 #endif // Validation_h
