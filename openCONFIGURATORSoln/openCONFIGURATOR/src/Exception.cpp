@@ -238,7 +238,7 @@ void ocfmException::OCFMException(ConfiguratorErrors errCode)
 		break;
 	case OCFM_ERR_LOW_CNPRESTIMEOUT:
 		strcpy(_ocfmRetCode.errorString,
-				"Value is less than minimum value of CN PresTimeout");
+				"Value is less than minimum value of CN PResTimeout");
 		break;
 	case OCFM_ERR_CN_EXCEEDS_CROSS_TRAFFIC_STN:
 		strcpy(_ocfmRetCode.errorString, "CN Exceeds Cross Traffic Station");
@@ -271,7 +271,7 @@ void ocfmException::OCFMException(ConfiguratorErrors errCode)
 		break;
 	case OCFM_ERR_INVALID_MAPPING_TYPE_FOR_PDO:
 		strcpy(_ocfmRetCode.errorString,
-				"Invalid mapping type for the PDO. Check the pdo mapping for the mapped object");
+				"Invalid mapping type for the PDO. Check the PDOmapping property for the mapped object");
 		break;
 	case OCFM_ERR_INVALID_ACCESS_TYPE_FOR_PDO:
 		strcpy(_ocfmRetCode.errorString,
@@ -281,8 +281,12 @@ void ocfmException::OCFMException(ConfiguratorErrors errCode)
 		strcpy(_ocfmRetCode.errorString,
 				"Invalid offset in the PDO object. Check the offset value in the mapping");
 		break;
+	case COMPATIBILITY_INFO_PRE_130_PDOMAPPING:
+		strcpy(_ocfmRetCode.errorString, "It seems you have opened the project created with pre 1.3.0 version.\nErrors with respect to 'PDOMapping' and 'AccessType' can be expected during build process.");
+		break;
 	default:
 		strcpy(_ocfmRetCode.errorString, "Unhandled Error");
 		break;
 	}
 }
+

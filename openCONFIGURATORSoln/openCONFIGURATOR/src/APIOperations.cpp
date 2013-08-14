@@ -216,21 +216,20 @@ static void SetDefaultIndexAttributes(char* indexId, Index* indexObj,
 	{
 		indexObj->SetAccessType((char*) "");
 	}
-	char* tempStr = NULL;
+
 	if (NULL != dictIndexObj->GetPDOMapping())
 	{
+		char* tempStr = NULL;
 		tempStr = new char[strlen(dictIndexObj->GetPDOMapping())
 				+ STR_ALLOC_BUFFER];
 		strcpy(tempStr, dictIndexObj->GetPDOMapping());
 		indexObj->SetPDOMapping(tempStr);
+		delete[] tempStr;
 	}
 	else
 	{
-		tempStr = new char[2 + STR_ALLOC_BUFFER];
-		strcpy(tempStr, (char*) "");
-		indexObj->SetPDOMapping(tempStr);
+		indexObj->SetPDOMapping((char*) "NOT_DEFINED");
 	}
-	delete[] tempStr;
 
 	if (NULL != dictIndexObj->GetDefaultValue())
 	{
@@ -329,6 +328,20 @@ static void SetDefaultSubIndexAttributes(char* subIndexId, SubIndex* sidxObj,
 	else
 	{
 		sidxObj->SetAccessType((char*) "");
+	}
+
+	if (NULL != dictSidxObj->GetPDOMapping())
+	{
+		char* tempStr = NULL;
+		tempStr = new char[strlen(dictSidxObj->GetPDOMapping())
+				+ STR_ALLOC_BUFFER];
+		strcpy(tempStr, dictSidxObj->GetPDOMapping());
+		sidxObj->SetPDOMapping(tempStr);
+		delete[] tempStr;
+	}
+	else
+	{
+		sidxObj->SetPDOMapping((char*) "NOT_DEFINED");
 	}
 
 	if (NULL != dictSidxObj->GetDefaultValue())
@@ -1003,6 +1016,7 @@ ocfmRetCode AddSubIndex(INT32 nodeId, NodeType nodeType, char* indexId,
 						sidxObj->SetDataTypeST(pobjIndex->GetDataType());
 					}
 					//all the subobjects is of type VAR
+					sidxObj->SetPDOMapping((char*) "NOT_DEFINED");
 					sidxObj->SetObjectType((char*) "VAR");
 					sidxObj->SetFlagIfIncludedCdc(TRUE);
 					pobjIndex->AddSubIndex(*sidxObj);
@@ -1548,6 +1562,11 @@ ocfmRetCode SetAllIndexAttributes(INT32 nodeId, NodeType nodeType,
 		{
 			indexObj->SetPDOMapping(pdoMappingVal);
 		}
+		else
+		{
+			indexObj->SetPDOMapping((char*) "NOT_DEFINED");
+		}
+
 		if (NULL != defaultValue)
 		{
 			indexObj->SetDefaultValue(defaultValue);
@@ -1711,6 +1730,10 @@ ocfmRetCode SetAllSubIndexAttributes(INT32 nodeId, NodeType nodeType,
 		if (NULL != pdoMappingVal)
 		{
 			subIndexObj->SetPDOMapping(pdoMappingVal);
+		}
+		else
+		{
+			subIndexObj->SetPDOMapping((char*) "NOT_DEFINED");
 		}
 
 		if (NULL != defaultValue)
@@ -2684,7 +2707,7 @@ void UpdatePreqActLoad(Node* nodeObj)
 	if (OCFM_ERR_SUCCESS != errCodeObj.code)
 	{
 #if defined DEBUG
-		cout << "UpdatePreqActLoad failed. 1F98/04 does not exist" << endl;
+		cout << "UpdatePReqActLoad failed. 1F98/04 does not exist" << endl;
 #endif
 		return;
 	}
@@ -4734,6 +4757,8 @@ ocfmRetCode GenerateCDC(char* cdcPath)
 
 #endif
 		delete[] cmdBuffer;
+		delete[] tempFileName;
+		delete[] tempOutputFileName;
 
 		if (OCFM_ERR_SUCCESS == returnFromTxt2Cdc)
 		{
@@ -4753,12 +4778,9 @@ ocfmRetCode GenerateCDC(char* cdcPath)
 		{
 			//continue
 		}
-		delete[] tempFileName;
-		delete[] tempOutputFileName;
+
 	} catch (ocfmException & ex)
 	{
-		delete[] tempFileName;
-		delete[] tempOutputFileName;
 		return ex._ocfmRetCode;
 	}
 	return errCodeObj;
@@ -5405,6 +5427,9 @@ INT32 DecodeUniqueIDRef(char* uniqueidRefId, Node* nodeObj, Index indexObj, SubI
 					CopyCustomErrorString(&(exceptionObj._ocfmRetCode), customError);
 					throw exceptionObj;
 				}
+
+				//Blocked thowing exception for objects with UniqueIdRef because the TCL/TK GUI has no support for UniqueIdRef.
+/*
 				//Checking for AccessType for a Parameter that is mapped to a PDO via an Object
 				if(moduleSidxObj != NULL)
 				{
@@ -5428,7 +5453,7 @@ INT32 DecodeUniqueIDRef(char* uniqueidRefId, Node* nodeObj, Index indexObj, SubI
 						throw exceptionObj;
 					}
 				}
-
+*/
 				// Check if DataTypeUniqueIDref exists
 				if((parameterObj->nameIdDtAttr.dataTypeUniqueIDRef != NULL) && (strcmp(parameterObj->nameIdDtAttr.dataTypeUniqueIDRef, "") != 0))
 				{
@@ -5888,7 +5913,7 @@ ocfmRetCode ProcessPDONodes(bool isBuild)
 									if(!CheckForValidPDOMapping(pdoType, moduleIndexObj))
 									{
 										char customError[300] = { 0 };
-										sprintf(customError, "In %s(%d), %s(0x%s) with pdoMapping=%s cannot be mapped to a ", nodeObj->GetNodeName(), nodeObj->GetNodeId(), moduleIndexObj->GetName(), moduleIndexObj->GetIndexValue(), moduleIndexObj->GetPDOMapping());
+										sprintf(customError, "In %s(%d), %s(0x%s) with PDOmapping=%s cannot be mapped to a ", nodeObj->GetNodeName(), nodeObj->GetNodeId(), moduleIndexObj->GetName(), moduleIndexObj->GetIndexValue(), moduleIndexObj->GetPDOMapping());
 										if(pdoType == PDO_TPDO)
 										{
 											strcat((char*) customError, (char*) "TPDO ");
@@ -5902,8 +5927,12 @@ ocfmRetCode ProcessPDONodes(bool isBuild)
 										strcat((char*) customError, sidxObj->GetIndexValue());
 										exceptionObj.OCFMException(OCFM_ERR_INVALID_MAPPING_TYPE_FOR_PDO);
 										CopyCustomErrorString(&(exceptionObj._ocfmRetCode), customError);
-										delete[] moduleName;
-										throw exceptionObj;
+										//Blocked thowing exception for objects with UniqueIdRef because the TCL/TK GUI has no support for UniqueIdRef.
+										if (moduleIndexObj->GetUniqueIDRef() == NULL)
+										{
+											delete[] moduleName;
+											throw exceptionObj;
+										}
 									}
 
 									if (moduleIndexObj->GetUniqueIDRef() != NULL)
@@ -5924,7 +5953,7 @@ ocfmRetCode ProcessPDONodes(bool isBuild)
 											if(!IsValidAccessTypeForPdo(pdoType, (char*)moduleIndexObj->GetPDOMapping(), accessStr))
 											{
 												char customError[300] = { 0 };
-												sprintf(customError, "In %s(%d), %s(0x%s) with accessType='%s' cannot be mapped to a ", nodeObj->GetNodeName(), nodeObj->GetNodeId(), moduleIndexObj->GetName(), moduleIndexObj->GetIndexValue(), moduleIndexObj->GetAccessType());
+												sprintf(customError, "In %s(%d), %s(0x%s) with AccessType='%s' cannot be mapped to a ", nodeObj->GetNodeName(), nodeObj->GetNodeId(), moduleIndexObj->GetName(), moduleIndexObj->GetIndexValue(), moduleIndexObj->GetAccessType());
 												if(pdoType == PDO_TPDO)
 												{
 													strcat((char*) customError, (char*) "TPDO ");
@@ -5979,7 +6008,7 @@ ocfmRetCode ProcessPDONodes(bool isBuild)
 										if(!CheckForValidPDOMapping(pdoType, moduleIndexObj, moduleSidxObj))
 										{
 											char customError[300] = { 0 };
-											sprintf(customError, "In %s(%d), %s(0x%s)/%s(0x%s) with pdoMapping=%s cannot be mapped to a ", nodeObj->GetNodeName(), nodeObj->GetNodeId(), moduleIndexObj->GetName(), moduleIndexObj->GetIndexValue(), moduleSidxObj->GetName(), moduleSidxObj->GetIndexValue(), moduleSidxObj->GetPDOMapping());
+											sprintf(customError, "In %s(%d), %s(0x%s)/%s(0x%s) with PDOmapping=%s cannot be mapped to a ", nodeObj->GetNodeName(), nodeObj->GetNodeId(), moduleIndexObj->GetName(), moduleIndexObj->GetIndexValue(), moduleSidxObj->GetName(), moduleSidxObj->GetIndexValue(), moduleSidxObj->GetPDOMapping());
 											if(pdoType == PDO_TPDO)
 											{
 												strcat((char*) customError, (char*) "TPDO ");
@@ -5993,7 +6022,11 @@ ocfmRetCode ProcessPDONodes(bool isBuild)
 											strcat((char*) customError, sidxObj->GetIndexValue());
 											exceptionObj.OCFMException(OCFM_ERR_INVALID_MAPPING_TYPE_FOR_PDO);
 											CopyCustomErrorString(&(exceptionObj._ocfmRetCode), customError);
-											throw exceptionObj;
+											//Blocked thowing exception for objects with UniqueIdRef because the TCL/TK GUI has no support for UniqueIdRef.
+											if (moduleSidxObj->GetUniqueIDRef() == NULL)
+											{
+												throw exceptionObj;
+											}
 										}
 
 										if (moduleSidxObj->GetUniqueIDRef() != NULL)
@@ -6025,7 +6058,7 @@ ocfmRetCode ProcessPDONodes(bool isBuild)
 												if(!IsValidAccessTypeForPdo(pdoType, (char*)moduleSidxObj->GetPDOMapping(), accessStr))
 												{
 													char customError[300] = { 0 };
-													sprintf(customError, "In %s(%d), %s(0x%s) / %s(0x%s) with accessType='%s' cannot be mapped to a ", nodeObj->GetNodeName(), nodeObj->GetNodeId(), moduleIndexObj->GetName(), moduleIndexObj->GetIndexValue(), moduleSidxObj->GetName(), moduleSidxObj->GetIndexValue() ,moduleSidxObj->GetAccessType());
+													sprintf(customError, "In %s(%d), %s(0x%s) / %s(0x%s) with AccessType='%s' cannot be mapped to a ", nodeObj->GetNodeName(), nodeObj->GetNodeId(), moduleIndexObj->GetName(), moduleIndexObj->GetIndexValue(), moduleSidxObj->GetName(), moduleSidxObj->GetIndexValue() ,moduleSidxObj->GetAccessType());
 													if(pdoType == PDO_TPDO)
 													{
 														strcat((char*) customError, (char*) "TPDO ");
@@ -6065,19 +6098,13 @@ ocfmRetCode ProcessPDONodes(bool isBuild)
 #endif
 									if (mappedLength != (actualMappedBytes * 8))
 									{
-										exceptionObj.OCFMException(
-												OCFM_ERR_INVALID_SIZE_MAPPED);
-
-										char acCustomError[200] =
-										{ 0 };
+										exceptionObj.OCFMException(OCFM_ERR_INVALID_SIZE_MAPPED);
+										char acCustomError[200] = { 0 };
 										sprintf(acCustomError,
-												"Invalid Length for the mapping object. Index: %s SubIndex: %s in node: %d",
-												(char*) indexObj.GetIndexValue(),
-												(char*) sidxObj->GetIndexValue(),
-												nodeObj->GetNodeId());
-										CopyCustomErrorString(
-												&(exceptionObj._ocfmRetCode),
-												acCustomError);
+											"In %s(%d), Index:0x%s / 0x%s has invalid length mapped\n Mapped length: %d Expected: %d", 
+											nodeObj->GetNodeName(), nodeObj->GetNodeId(), (char*) indexObj.GetIndexValue(),
+											(char*) sidxObj->GetIndexValue(),  mappedLength, (actualMappedBytes * 8));
+										CopyCustomErrorString(&(exceptionObj._ocfmRetCode), acCustomError);
 
 										throw exceptionObj;
 									}
@@ -6203,18 +6230,13 @@ ocfmRetCode ProcessPDONodes(bool isBuild)
 #endif
 									if ((dtObj.dataSize * 8) != mappedLength)
 									{
-										exceptionObj.OCFMException(
-												OCFM_ERR_INVALID_SIZE_MAPPED);
-										char acCustomError[200] =
-										{ 0 };
+										exceptionObj.OCFMException(OCFM_ERR_INVALID_SIZE_MAPPED);
+										char acCustomError[200] = { 0 };
 										sprintf(acCustomError,
-												"Invalid Length for the mapping object. Index: %s SubIndex: %s in node: %d",
-												(char*) indexObj.GetIndexValue(),
-												(char*) sidxObj->GetIndexValue(),
-												nodeObj->GetNodeId());
-										CopyCustomErrorString(
-												&(exceptionObj._ocfmRetCode),
-												acCustomError);
+											"In %s(%d), Index:0x%s / 0x%s has invalid length mapped\n Mapped length: %d Expected: %d", 
+											nodeObj->GetNodeName(), nodeObj->GetNodeId(), (char*) indexObj.GetIndexValue(),
+											(char*) sidxObj->GetIndexValue(),  mappedLength, (dtObj.dataSize * 8));
+										CopyCustomErrorString(&(exceptionObj._ocfmRetCode), acCustomError);
 										delete[] sidxName;
 										delete[] moduleName;
 										delete[] accessStr;
@@ -6316,7 +6338,7 @@ ocfmRetCode ProcessPDONodes(bool isBuild)
 										{
 											exceptionObj.OCFMException(OCFM_ERR_VALUE_NOT_WITHIN_RANGE);
 											char customError[200] = { 0 };
-											sprintf(customError, "The total payload for the chained stations exceeds the maximum Pres payload limit(1490 bytes) ");
+											sprintf(customError, "The total payload for the chained stations exceeds the maximum PRes payload limit(1490 bytes) ");
 											CopyCustomErrorString(&(exceptionObj._ocfmRetCode), customError);
 											delete[] modOffset;
 											throw exceptionObj;
@@ -7421,7 +7443,7 @@ ocfmRetCode GetSubIndexAttributes(INT32 nodeId, NodeType nodeType,
 				strcpy(outAttributeValue,
 						(char *) subIndexObj->GetPDOMapping());
 			else
-				strcpy(outAttributeValue, "");
+				strcpy(outAttributeValue, (char*) "");
 			break;
 		case LOWLIMIT:
 			if (subIndexObj->GetLowLimit() != NULL)
@@ -9800,11 +9822,30 @@ ocfmRetCode OpenProject(char* projectPath, char* projectFileName)
 		}
 		delete[] presTimeoutVal;
 	}
-
 	catch (ocfmException& objocfmException)
 	{
 		return objocfmException._ocfmRetCode;
 	}
+
+	try
+	{
+		PjtSettings* pjtSettingsObj;
+		pjtSettingsObj = PjtSettings::GetPjtSettingsPtr();
+		//A compatibility workaround for the pdo mapping and accesstype errors.
+		if(1 == strcmp("1.3.0", pjtSettingsObj->GetPjtVersion()))
+		{
+			exceptionObj.OCFMException(COMPATIBILITY_INFO_PRE_130_PDOMAPPING);
+			throw exceptionObj;
+		}
+		else
+		{
+			//No errors for this project version
+		}
+	} catch (ocfmException& objocfmException)
+	{
+		return objocfmException._ocfmRetCode;
+	}
+
 	ocfmRetCode errCodeObj;
 	errCodeObj.code = OCFM_ERR_SUCCESS;
 	return errCodeObj;

@@ -415,32 +415,38 @@ bool IfVersionNumberMatches(xmlTextReaderPtr reader)
 	//Retrieve the name and Value of an attribute
 	value = xmlTextReaderConstValue(reader);
 	name = xmlTextReaderConstName(reader);
-	bool retVal;
+	bool retVal = false;
 	if (NULL == value || NULL == name)
 	{
-		return false;
+		return retVal;
 	}
 #if defined DEBUG
 	cout << "\nName:" << name << endl;
 	cout << "Value:" << value << endl;
 #endif
 	// Check for Version Tool-Project Version
-	if (FALSE == strcmp(ConvertToUpper((char*) name), "VERSION"))
+	if (0 == strcmp(ConvertToUpper((char*) name), "VERSION"))
 	{
-		if (true == CheckToolVersion((char*) value))
+		if((char*) value != NULL)
 		{
-#if defined DEBUG
-			cout << "Version number matched" << endl;
-#endif
-			retVal = true;
-		}
-		else
-		{
-#if defined DEBUG
-			cout << "Version number MisMatch" << endl;
-#endif
-			retVal = false;
+			PjtSettings* pjtSettingsObj;
+			pjtSettingsObj = PjtSettings::GetPjtSettingsPtr();
+			pjtSettingsObj->SetPjtVersion((const char*) value);
 
+			if (true == CheckToolVersion((char*) value))
+			{
+#if defined DEBUG
+				cout << "Version number matched" << endl;
+#endif
+				retVal = true;
+			}
+			else
+			{
+#if defined DEBUG
+				cout << "Version number MisMatch" << endl;
+#endif
+				retVal = false;
+			}
 		}
 	}
 	else

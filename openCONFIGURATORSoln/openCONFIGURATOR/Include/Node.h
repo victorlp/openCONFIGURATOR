@@ -441,7 +441,7 @@ class Node
 		/**
 		 \brief		This function shall be used to set the PReq Actual Payload value for the node
 		 
-		 \param		value		Integer to hold value of Preq Actual payload
+		 \param		value		Integer to hold value of PReq Actual payload
 		 
 		 \return	void
 		 */

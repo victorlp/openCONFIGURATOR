@@ -86,6 +86,7 @@ PjtSettings::PjtSettings(void)
 	saveMode = DISCARD_AS;
 	generateMode = NO_AG;
 	ipAddress = NULL;
+	pjtVersion = NULL;
 	expertView = false;
 	viewMode = SIMPLE; //TODO: Review initialisation
 }
@@ -144,7 +145,6 @@ void PjtSettings::SetGenerateAttr(AutoGenerate autoGenerateMode)
 
 void PjtSettings::SetIP(char* ipAddr)
 {
-//TODO: review
 	if (NULL != ipAddress)
 	{
 		delete[] ipAddress;
@@ -152,7 +152,6 @@ void PjtSettings::SetIP(char* ipAddr)
 
 	ipAddress = new char[strlen(ipAddr) + STR_ALLOC_BUFFER];
 	strcpy((char*) ipAddress, ipAddr);
-
 }
 
 //TODO: Unused Function
@@ -186,5 +185,28 @@ bool PjtSettings::GetExpertViewSelectedFlag()
 void PjtSettings::SetExpertViewSelectedFlag(bool expertViewTemp)
 {
 	expertView = expertViewTemp;
+}
+
+void PjtSettings::SetPjtVersion(const char* version)
+{
+	if (NULL != pjtVersion)
+	{
+		delete[] pjtVersion;
+	}
+
+	pjtVersion = new char[strlen(version) + STR_ALLOC_BUFFER];
+	strcpy((char*) pjtVersion, version);
+}
+
+const char* PjtSettings::GetPjtVersion()
+{
+	if (NULL != pjtVersion)
+	{
+		return pjtVersion;
+	}
+	else
+	{
+		return NULL;
+	}
 }
 

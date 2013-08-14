@@ -1073,7 +1073,7 @@ void UpdateMNNodeAssignmentIndex(Node *nodeObj, INT32 cnCount, char* indexId,
 		bool allowMNSubindex);
 /*****************************************************************************/
 /**
- \brief			This function shall recalculate the the CN Pres Timeout value
+ \brief			This function shall recalculate the the CN PRes Timeout value
 
  \param			sidxId
  \return		void
@@ -1082,10 +1082,10 @@ void UpdateMNNodeAssignmentIndex(Node *nodeObj, INT32 cnCount, char* indexId,
 void RecalculateCNPresTimeout(char* sidxId);
 /*****************************************************************************/
 /**
- \brief		This function shall validate CN's Pres Timeout value with the Pres default timeout value
+ \brief		This function shall validate CN's PRes Timeout value with the PRes default timeout value
 
  \param		subIndexId			Character pointer to the IndexID
- \param		presTimeOutVal		Character pointer to the new PresTimeout value
+ \param		presTimeOutVal		Character pointer to the new PResTimeout value
 
  \return	BOOL
  \retval	TRUE			if successful
@@ -1183,8 +1183,8 @@ bool IsDefaultActualNotEqual(BaseIndex* baseIndexObj);
 
  \return	BOOL
 
- \retval	TRUE			if the mapping pdo can be reactivated
- \retval	FALSE			if the mapping pdo cannot be reactivated
+ \retval	TRUE			if the mapping PDO can be reactivated
+ \retval	FALSE			if the mapping PDO cannot be reactivated
  */
 /*****************************************************************************/
 bool ReactivateMappingPDO(IndexCollection* indexCollObj, Index* indexObj);
@@ -1258,18 +1258,18 @@ INT32* ArrangeNodeIDbyStation();
 void SortNodeID(INT32 *nodeIDColl, INT32 collectionSize);
 /*****************************************************************************/
 /**
- \brief		This function shall check if the MN node is a Pres chained station
+ \brief		This function shall check if the MN node is a PRes chained station
 
  \return	BOOL
 
- \retval		TRUE			if pres MN
- \retval		FALSE			if not a pres MN
+ \retval		TRUE			if PRes MN
+ \retval		FALSE			if not a PRes MN
  */
 /*****************************************************************************/
 bool IsPresMN();
 /*****************************************************************************/
 /**
- \brief		This function shall set the Pres MN Node Assigment Bits for 0x1F81 Index depending upon the condition (if Multiplex set bit 8, if chained set bit 14)
+ \brief		This function shall set the PRes MN Node Assigment Bits for 0x1F81 Index depending upon the condition (if Multiplex set bit 8, if chained set bit 14)
 
  \return	void*
  */
@@ -1289,7 +1289,7 @@ void SetPresMNNodeAssigmentBits();
 bool CheckToolVersion(char* currentToolVersion);
 /*****************************************************************************************/
 /**
- \brief		This function shall set the calculated Preq actual payload value in PReqActPayloadLimit(0x1F98/0x04) for the CN and NMT_MNPReqPayloadList(0x1F8B) for the MN
+ \brief		This function shall set the calculated PReq actual payload value in PReqActPayloadLimit(0x1F98/0x04) for the CN and NMT_MNPReqPayloadList(0x1F8B) for the MN
 
  \param		nodeObj		Class pointer of Node for a CN node
 
@@ -1299,7 +1299,7 @@ bool CheckToolVersion(char* currentToolVersion);
 void UpdatePreqActLoad(Node* nodeObj);
 /*****************************************************************************************/
 /**
- \brief		This function shall set the calculated Pres actual payload value in PResActPayloadLimit(0x1F98/0x05) for the CN and NMT_PResPayloadLimitList(0x1F8D) for the MN
+ \brief		This function shall set the calculated PRes actual payload value in PResActPayloadLimit(0x1F98/0x05) for the CN and NMT_PResPayloadLimitList(0x1F8D) for the MN
 
  \param		nodeObj		Class pointer of Node for a CN node
 

@@ -1676,10 +1676,14 @@ ocfmRetCode SaveNode(const char* fileName, INT32 nodeId, NodeType nodeType)
 					               BAD_CAST idxObj->GetHighLimit());
 				}
 			if ((idxObj->GetPDOMapping() != NULL))
-				if (strlen(idxObj->GetPDOMapping()) != 0)
+			{
+				if ((strlen(idxObj->GetPDOMapping()) != 0) && (0 != strcmp(idxObj->GetPDOMapping(), "NOT_DEFINED")))
+				{
 					bytesWritten = xmlTextWriterWriteAttribute(xtwWriter,
 					               BAD_CAST "PDOmapping",
 					               BAD_CAST idxObj->GetPDOMapping());
+				}
+			}
 			if (idxObj->GetUniqueIDRef() != NULL)
 				if (strlen(idxObj->GetUniqueIDRef()) != 0)
 					bytesWritten = xmlTextWriterWriteAttribute(xtwWriter,
@@ -1740,29 +1744,48 @@ ocfmRetCode SaveNode(const char* fileName, INT32 nodeId, NodeType nodeType)
 					DataType dtObject;
 					dtObject = sidxObj->GetDataType();
 					if (dtObject.dataTypeValue != NULL)
+					{
 						if (strlen(dtObject.dataTypeValue) != 0)
+						{
 							bytesWritten = xmlTextWriterWriteAttribute(
-							                   xtwWriter, BAD_CAST "dataType",
-							                   BAD_CAST dtObject.dataTypeValue);
+								xtwWriter, BAD_CAST "dataType",
+								BAD_CAST dtObject.dataTypeValue);
+						}
+					}
 					if (sidxObj->GetAccessType() != NULL)
+					{
+						if (strlen(sidxObj->GetAccessType()) != 0)
+						{
 						bytesWritten = xmlTextWriterWriteAttribute(xtwWriter,
 						               BAD_CAST "accessType",
 						               BAD_CAST sidxObj->GetAccessType());
+						}
+					}
 					if (sidxObj->GetDefaultValue() != NULL)
+					{
+						if (strlen(sidxObj->GetDefaultValue()) != 0)
+						{
 						bytesWritten = xmlTextWriterWriteAttribute(xtwWriter,
 						               BAD_CAST "defaultValue",
 						               BAD_CAST sidxObj->GetDefaultValue());
+						}
+					}
 					if (sidxObj->GetActualValue() != NULL)
+					{
+						if (strlen(sidxObj->GetActualValue()) != 0)
+						{
 						bytesWritten = xmlTextWriterWriteAttribute(xtwWriter,
 						               BAD_CAST "actualValue",
 						               BAD_CAST sidxObj->GetActualValue());
+						}
+					}
 					if (sidxObj->GetLowLimit() != NULL)
 					{
 						if (strlen(sidxObj->GetLowLimit()) != 0)
 						{
 							bytesWritten = xmlTextWriterWriteAttribute(
-							                   xtwWriter, BAD_CAST "lowLimit",
-							                   BAD_CAST sidxObj->GetLowLimit());
+								xtwWriter, BAD_CAST "lowLimit",
+								BAD_CAST sidxObj->GetLowLimit());
 						}
 					}
 
@@ -1771,23 +1794,30 @@ ocfmRetCode SaveNode(const char* fileName, INT32 nodeId, NodeType nodeType)
 						if (strlen(sidxObj->GetHighLimit()) != 0)
 						{
 							bytesWritten = xmlTextWriterWriteAttribute(
-							                   xtwWriter, BAD_CAST "highLimit",
-							                   BAD_CAST sidxObj->GetHighLimit());
+								xtwWriter, BAD_CAST "highLimit",
+								BAD_CAST sidxObj->GetHighLimit());
 						}
 					}
 
 					if (sidxObj->GetPDOMapping() != NULL)
 					{
+						if ((strlen(sidxObj->GetPDOMapping()) != 0)
+							&& (0 != strcmp(sidxObj->GetPDOMapping(), "NOT_DEFINED")))
+						{
 						bytesWritten = xmlTextWriterWriteAttribute(
 						                   xtwWriter, BAD_CAST "PDOmapping",
 						                   BAD_CAST sidxObj->GetPDOMapping());
 					}
+					}
 
 					if (sidxObj->GetUniqueIDRef() != NULL)
 					{
+						if ((strlen(sidxObj->GetUniqueIDRef()) != 0))
+						{
 						bytesWritten = xmlTextWriterWriteAttribute(xtwWriter,
 						               BAD_CAST "uniqueIDRef",
 						               BAD_CAST sidxObj->GetUniqueIDRef());
+					}
 					}
 
 					if (sidxObj->GetFlagIfIncludedCdc() == 0)

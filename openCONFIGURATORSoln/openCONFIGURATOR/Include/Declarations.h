@@ -109,7 +109,7 @@
 #define NODE_ID						3
 
 /** Defines the maximum length of the error string. */
-#define ERR_STRING_LEN				100
+#define ERR_STRING_LEN				200
 
 /** Defines the length of the index id to be packed as a hexadecimal value. */
 #define OFFSET_FIRST_INDEX_IN_MN_OBD	4
@@ -162,11 +162,12 @@ typedef enum
  */
 DLLEXPORT typedef enum
 {
-		NO,			/**< Indicates the object must not be mapped into a Process Data Objects */
-		DEFAULT,	/**< Indicates the object is part of the default mapping */
-		OPTIONAL,	/**< Indicates the object can be mapped into both Receive and Transmit Process Data Objects */
-		RPDO,		/**< Indicates the object shall be mapped into a Receive Process Data Objects */
-		TPDO		/**< Indicates the object shall be mapped into a Transmit Process Data Objects */
+	NOT_DEFINED = -1,	/**< Indicates the object has a default value set to not defined */
+	NO,					/**< Indicates the object must not be mapped into a Process Data Objects */
+	DEFAULT,			/**< Indicates the object is part of the default mapping */
+	OPTIONAL,			/**< Indicates the object can be mapped into both Receive and Transmit Process Data Objects */
+	RPDO,				/**< Indicates the object shall be mapped into a Receive Process Data Objects */
+	TPDO				/**< Indicates the object shall be mapped into a Transmit Process Data Objects */
 } PDOMapping;
 
 /** This enum holds the list of PDO mapping type for the Object and SubObject */

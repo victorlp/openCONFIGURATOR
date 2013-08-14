@@ -172,11 +172,25 @@ class PjtSettings
 		/*****************************************************************************/
 		bool GetExpertViewSelectedFlag();
 
+		/**
+		\brief		This function shall be used to assign project version
+		\param[in]	version		Character pointer to the version
+		\return		void
+		*/
+		void SetPjtVersion(const char* version);
+
+		/**
+		\brief		This function shall be used to return the project version
+		\return		const char* or NULL
+		*/
+		const char* GetPjtVersion();
+
 	private:
 		static bool instanceFlag;
 		static PjtSettings *pjtSettingsObj;
 		bool expertView;
 		char* ipAddress;
+		char* pjtVersion;
 		AutoSave saveMode;
 		ViewMode viewMode;
 		AutoGenerate generateMode;

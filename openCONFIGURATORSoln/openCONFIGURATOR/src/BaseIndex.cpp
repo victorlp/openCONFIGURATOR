@@ -88,7 +88,7 @@ BaseIndex::BaseIndex(void)
 	dataTypeValue = NULL;
 	nodeId = 0;
 	//objectType = 0; //TODO: Review initialisation
-	pdoMapping = NO;
+	pdoMapping = NOT_DEFINED;
 	parameterIndex = -1;
 	includeInCDC = FALSE;
 }
@@ -308,6 +308,8 @@ const char* BaseIndex::GetPDOMapping()
 {
 	switch (pdoMapping)
 	{
+	case NOT_DEFINED:
+		return "NOT_DEFINED";
 	case NO:
 		return "NO";
 	case DEFAULT:
@@ -351,6 +353,7 @@ void BaseIndex::SetPDOMapping(char* pdoMappingStr)
 	}
 	else
 	{
+		pdoMapping = NOT_DEFINED;
 #ifdef DEBUG
 		cout << "Error! setPDOMapping failed: "<<pdoMappingStr<<" index: "<< indexId<<endl;
 #endif
