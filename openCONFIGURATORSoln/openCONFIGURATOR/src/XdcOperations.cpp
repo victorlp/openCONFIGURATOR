@@ -6,7 +6,7 @@
  ******************************************************************************
  */
 /*
- © Kalycito Infotech Private Limited
+ ï¿½ Kalycito Infotech Private Limited
 
  License:
 
@@ -431,6 +431,11 @@ void SetDataTypeAttributes(xmlTextReaderPtr reader, DataType *dtObj)
 		         || (0 == strcmp(dtObj->dataTypeName, "REAL64")))
 		{
 			dtObj->iecDataType = LREAL;
+		}
+		else if ((0 == strcmp(dtObj->dataTypeName, "Domain"))
+		         || (0 == strcmp(dtObj->dataTypeName, "DOMAIN")))
+		{
+			dtObj->iecDataType = DMN;
 		}
 		else
 		{
@@ -2445,6 +2450,10 @@ INT32 GetDataSize(char* dataTypeVal)
 		         || strcmp(dataTypeUpper, "REAL64") == 0)
 		{
 			retSize = 8;
+		}
+		else if (strcmp(dataTypeUpper, "DOMAIN") == 0)
+		{
+			retSize = 1490;
 		}
 		else if (strcmp(dataTypeUpper, "MAC_ADDRESS") == 0)
 		{

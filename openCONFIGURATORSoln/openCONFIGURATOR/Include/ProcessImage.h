@@ -8,7 +8,7 @@
 
 /*
 
- © Kalycito Infotech Private Limited
+ ï¿½ Kalycito Infotech Private Limited
 
  License:
 
@@ -87,7 +87,8 @@ typedef enum PDODataType
 	INTEGER32,		/**< Integer32 */
 	REAL32,			/**< Real32 */
 	INTEGER64,		/**< Integer64 */
-	UNSIGNED64		/**< Unsigned64 */
+	UNSIGNED64,		/**< Unsigned64 */
+	DOMAIN			/**< Domain */
 } PDODataType;
 
 /**
@@ -236,7 +237,7 @@ extern int inVarsGlobal;
 extern int outVarsGlobal;
 
 /** To denote the number of PI entries available in the PIIndexTable struct */
-static const int NO_OF_PI_ENTERIES = 18;
+static const int NO_OF_PI_ENTERIES = 20;
 
 /*****************************************************************************/
 /* Function Declarations */

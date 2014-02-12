@@ -7,7 +7,7 @@
  */
 
 /*
- © Kalycito Infotech Private Limited
+ ï¿½ Kalycito Infotech Private Limited
 
  License:
 
@@ -87,6 +87,7 @@ static PIIndexTable piIndexTable[NO_OF_PI_ENTERIES] =
 { "A240", REAL32, OUTPUT },
 { "A400", INTEGER64, OUTPUT },
 { "A440", UNSIGNED64, OUTPUT },
+{ "A450", DOMAIN, OUTPUT },
 { "A480", INTEGER8, INPUT },
 { "A4C0", UNSIGNED8, INPUT },
 { "A540", INTEGER16, INPUT },
@@ -96,6 +97,7 @@ static PIIndexTable piIndexTable[NO_OF_PI_ENTERIES] =
 { "A6C0", REAL32, INPUT },
 { "A880", INTEGER64, INPUT },
 { "A8C0", UNSIGNED64, INPUT },
+{ "A8D0", DOMAIN, INPUT },
 
 };
 
@@ -405,6 +407,11 @@ PIDataInfo* GetIECDT(char* iecDataType, INT32 dataSize)
 			//TODO: verify spec
 			stDataInfo->dataSize = dataSize;
 			stDataInfo->iecDtVar = WSTRING;
+		}
+		else if (!strcmp(iecDataType, "DMN"))
+		{
+			stDataInfo->dataSize = dataSize;
+			stDataInfo->iecDtVar = DMN;
 		}
 		else
 		{
@@ -1377,6 +1384,11 @@ char* GetPIDataTypeName(char* indexId)
 		retDataType = (char*) "Unsigned64";
 		break;
 	}
+	case DOMAIN:
+	{
+		retDataType = (char*) "Domain";
+		break;
+	}
 	default:
 	{
 		//Handled error case and returned dummy value to avoid warning
@@ -1454,7 +1466,11 @@ char* GetPIName(char* indexId)
 		retPiName = (char*) "I64";
 		break;
 	}
-
+	case DOMAIN:
+	{
+		retPiName = (char*) "DMN";
+		break;
+	}
 	default:
 	{
 		//Handled error case and returned dummy value to avoid warning

@@ -7,7 +7,7 @@
  */
 
 /*
- © Kalycito Infotech Private Limited
+ ï¿½ Kalycito Infotech Private Limited
 
  License:
 
@@ -518,7 +518,8 @@ bool CheckAllowedDTForMapping(char* dataTypeName)
 			|| 0 == strcmp(dtNameUpper, "UNSIGNED8")
 			|| 0 == strcmp(dtNameUpper, "UNSIGNED16")
 			|| 0 == strcmp(dtNameUpper, "UNSIGNED32")
-			|| 0 == strcmp(dtNameUpper, "UNSIGNED64"))
+			|| 0 == strcmp(dtNameUpper, "UNSIGNED64")
+			|| 0 == strcmp(dtNameUpper, "DOMAIN"))
 		{
 			retVal = true;
 		}

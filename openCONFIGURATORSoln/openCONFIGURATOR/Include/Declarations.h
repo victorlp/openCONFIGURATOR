@@ -7,7 +7,7 @@
  */
 /*
 
- © Kalycito Infotech Private Limited
+ ï¿½ Kalycito Infotech Private Limited
 
  License:
 
@@ -238,6 +238,7 @@ typedef enum IEC_Datatype
 	REAL,			/**< REAL (4 bytes) */
 	LREAL,			/**< LREAL (8 bytes) */
 	STRING,			/**< STRING */
+	DMN,			/**< DOMAIN */
 	WSTRING			/**< WSTRING to hold multi byte strings */
 } IEC_Datatype;
 

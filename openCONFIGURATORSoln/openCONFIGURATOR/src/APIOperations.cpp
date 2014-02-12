@@ -7,7 +7,7 @@
  */
 
 /*
- © Kalycito Infotech Private Limited
+ ï¿½ Kalycito Infotech Private Limited
 
 
  License:
@@ -99,10 +99,12 @@ static Offsets size8INOffset;
 static Offsets size16INOffset;
 static Offsets size32INOffset;
 static Offsets size64INOffset;
+static Offsets size11920INOffset;
 static Offsets size8OUTOffset;
 static Offsets size16OUTOffset;
 static Offsets size32OUTOffset;
 static Offsets size64OUTOffset;
+static Offsets size11920OUTOffset;
 
 /** Represents the maximum payload for each channel. */ 
 char abC_DLL_ISOCHR_MAX_PAYL[5] = "1490";
@@ -5616,6 +5618,8 @@ ocfmRetCode ProcessPDONodes(bool isBuild)
 		size32INOffset.prevOffset = 0;
 		size64INOffset.currOffset = 0;
 		size64INOffset.prevOffset = 0;
+		size11920INOffset.currOffset = 0;
+		size11920INOffset.prevOffset = 0;
 
 		size8OUTOffset.currOffset = 0;
 		size8OUTOffset.prevOffset = 0;
@@ -5625,6 +5629,9 @@ ocfmRetCode ProcessPDONodes(bool isBuild)
 		size32OUTOffset.prevOffset = 0;
 		size64OUTOffset.currOffset = 0;
 		size64OUTOffset.prevOffset = 0;
+		size11920OUTOffset.currOffset = 0;
+		size11920OUTOffset.prevOffset = 0;
+
 
 		//INT32 *nodeIDbyStnArranged = NULL;
 		//nodeIDbyStnArranged = ArrangeNodeIDbyStation();
@@ -9499,6 +9506,11 @@ INT32 ComputeOUTOffset(INT32 dataSize, PDOType pdoType)
 			size32OUTOffset.currOffset = size64OUTOffset.currOffset;
 		}
 		break;
+	case 11920:
+		size11920OUTOffset.prevOffset = size11920OUTOffset.currOffset;
+		retOffset = size11920OUTOffset.currOffset;
+		size11920OUTOffset.currOffset = size11920OUTOffset.currOffset + 1490;
+		break;
 	default:
 		cout << "Undefined DataSize Encountered:" << dataSize <<" in "<< __FUNCTION__ << endl;
 		break;
@@ -9664,6 +9676,11 @@ INT32 ComputeINOffset(INT32 dataSize, PDOType pdoType)
 			size32INOffset.prevOffset = size32INOffset.currOffset;
 			size32INOffset.currOffset = size64INOffset.currOffset;
 		}
+		break;
+	case 11920:
+		size11920INOffset.prevOffset = size11920INOffset.currOffset;
+		retOffset = size11920INOffset.currOffset;
+		size11920INOffset.currOffset = size11920INOffset.currOffset + 1490;
 		break;
 	default:
 		cout << "Undefined DataSize Encountered:" << __FUNCTION__ << endl;
@@ -10895,6 +10912,16 @@ void CreateMNPDOVar(INT32 offsetVal, INT32 dataSize, IEC_Datatype iecDataType,
 		else if (pdoType == PDO_RPDO)
 		{
 			piObjectObj = GetPIAddress(UNSIGNED64, OUTPUT, offsetVal, dataSize);
+		}
+		break;
+	case DMN:
+		if (pdoType == PDO_TPDO)
+		{
+			piObjectObj = GetPIAddress(DOMAIN, INPUT, offsetVal, dataSize);
+		}
+		else if (pdoType == PDO_RPDO)
+		{
+			piObjectObj = GetPIAddress(DOMAIN, OUTPUT, offsetVal, dataSize);
 		}
 		break;
 
